@@ -6,6 +6,16 @@
  *  tree. An additional intellectual property rights grant can be found
  *  in the file PATENTS.  All contributing project authors may
  *  be found in the AUTHORS file in the root of the source tree.
+
+
+ FrameBuffer每获得一个可解码帧，都要更新其渲染时间，渲染时间通过TimestampExtrapolator类获得。
+ TimestampExtrapolator是一个卡尔曼滤波器，其输入为输入帧的RTP时间戳，
+ TimestampExtrapolator会根据输入帧的RTP时间戳计算出该帧的期望接收时间，该时间是经过平滑的。
+
+ 视频帧的期望渲染时间 = 帧平滑时间(就是帧的期望接收时间) + 实际延迟(actual delay,
+ 由current_delay_ms_、min_playout_delay_ms_和max_playout_delay_ms_计算出来)。
+
+
  */
 
 #ifndef RTC_BASE_TIME_TIMESTAMP_EXTRAPOLATOR_H_

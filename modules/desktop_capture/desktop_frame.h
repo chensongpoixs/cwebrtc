@@ -20,6 +20,7 @@
 #include "rtc_base/constructor_magic.h"
 #include "rtc_base/system/rtc_export.h"
 
+
 namespace webrtc {
 
 const float kStandardDPI = 96.0f;

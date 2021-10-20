@@ -109,6 +109,7 @@ int MultiplexEncoderAdapter::InitEncode(const VideoCodec* inst,
     }
     adapter_callbacks_.emplace_back(new AdapterEncodedImageCallback(
         this, static_cast<AlphaCodecStream>(i)));
+	// 注册处理一帧图片的数据
     encoder->RegisterEncodeCompleteCallback(adapter_callbacks_.back().get());
 
     const EncoderInfo& encoder_impl_info = encoder->GetEncoderInfo();

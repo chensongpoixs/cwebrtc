@@ -92,7 +92,7 @@ bool DataSocket::OnDataAvailable(bool* close_socket) {
     *close_socket = true;
     return false;
   }
-
+  printf("[%s][%d][msg = %s]\n", __FUNCTION__, __LINE__, buffer);
   *close_socket = false;
 
   bool ret = true;

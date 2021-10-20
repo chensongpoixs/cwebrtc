@@ -537,8 +537,7 @@ VCMFrameBufferEnum VCMJitterBuffer::InsertPacket(const VCMPacket& packet,
   FrameData frame_data;
   frame_data.rtt_ms = rtt_ms_;
   frame_data.rolling_average_packets_per_frame = average_packets_per_frame_;
-  VCMFrameBufferEnum buffer_state =
-      frame->InsertPacket(packet, now_ms, frame_data);
+  VCMFrameBufferEnum buffer_state = frame->InsertPacket(packet, now_ms, frame_data);
 
   if (buffer_state > 0) {
     if (first_packet_since_reset_) {

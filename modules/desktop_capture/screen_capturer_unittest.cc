@@ -138,7 +138,16 @@ TEST_F(ScreenCapturerTest, MAYBE_Capture) {
   EXPECT_GE(frame->stride(),
             frame->size().width() * DesktopFrame::kBytesPerPixel);
   EXPECT_TRUE(frame->shared_memory() == NULL);
+  RTC_LOG(LS_INFO) << "[width = " << frame->size().width() << "][height = " << frame->size().height() << "]";
+  
+  uint8_t * rgba_ptr = frame->data();
 
+  if (rgba_ptr)
+  {
+	 /// uint64_t frame_size = frame->size().width() * frame->size().height() ;
+  }
+
+  //printf("[%s][%d][width = %d][height = %d]\n", __FUNCTION__, __LINE__, frame->size().width(), frame->size().height());
   // Verify that the region contains whole screen.
   EXPECT_FALSE(frame->updated_region().is_empty());
   DesktopRegion::Iterator it(frame->updated_region());

@@ -277,8 +277,7 @@ TEST_P(PeerConnectionRtpTest, RemoveTrackWithSharedStreamFiresOnRemoveTrack) {
 
 // Tests the edge case that if a stream ID changes for a given track that both
 // OnRemoveTrack and OnAddTrack is fired.
-TEST_F(PeerConnectionRtpTestPlanB,
-       RemoteStreamIdChangesFiresOnRemoveAndOnAddTrack) {
+TEST_F(PeerConnectionRtpTestPlanB, RemoteStreamIdChangesFiresOnRemoveAndOnAddTrack) {
   auto caller = CreatePeerConnection();
   auto callee = CreatePeerConnection();
 

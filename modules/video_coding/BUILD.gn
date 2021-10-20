@@ -763,7 +763,7 @@ if (rtc_include_tests) {
 
   rtc_source_set("video_coding_unittests") {
     testonly = true
-
+    
     sources = [
       "codecs/test/videocodec_test_fixture_config_unittest.cc",
       "codecs/test/videocodec_test_stats_impl_unittest.cc",

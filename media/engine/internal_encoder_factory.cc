@@ -41,7 +41,7 @@ VideoEncoderFactory::CodecInfo InternalEncoderFactory::QueryVideoEncoder(
   info.has_internal_source = false;
   return info;
 }
-
+// ¥¥Ω®h264±‡“Î∆˜
 std::unique_ptr<VideoEncoder> InternalEncoderFactory::CreateVideoEncoder(
     const SdpVideoFormat& format) {
   if (absl::EqualsIgnoreCase(format.name, cricket::kVp8CodecName))

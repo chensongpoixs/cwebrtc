@@ -78,7 +78,13 @@ void StunServer::SendResponse(const StunMessage& msg,
                               const rtc::SocketAddress& addr) {
   rtc::ByteBufferWriter buf;
   msg.Write(&buf);
+  char buff[1024 * 300] = {0};
+  memset(buff, 0, sizeof(char) * (1024 * 300));
+  printf(  "[%s][%d][msg = %s][addr = %s]\n", __FUNCTION__, __LINE__, buf.Data(), addr.ToString().c_str());
+  //RTC_LOG_ERR(LS_ERROR) << "[rtc][" <<buff << "]";
+  
   rtc::PacketOptions options;
+
   if (socket_->SendTo(buf.Data(), buf.Length(), addr, options) < 0)
     RTC_LOG_ERR(LS_ERROR) << "sendto";
 }

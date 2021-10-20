@@ -221,9 +221,9 @@ class DecoderBitstreamFileWriter : public test::FakeDecoder {
   ~DecoderBitstreamFileWriter() override { fclose(file_); }
 
   int32_t Decode(const EncodedImage& encoded_frame,
-                 bool /* missing_frames */,
-                 const CodecSpecificInfo* /* codec_specific_info */,
-                 int64_t /* render_time_ms */) override {
+                 bool  missing_frames ,
+                 /*const CodecSpecificInfo*  codec_specific_info */
+                 int64_t  render_time_ms ) override {
     if (fwrite(encoded_frame.data(), 1, encoded_frame.size(), file_) <
         encoded_frame.size()) {
       RTC_LOG_ERR(LS_ERROR) << "fwrite of encoded frame failed.";
