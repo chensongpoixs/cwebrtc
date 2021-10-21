@@ -30,7 +30,7 @@ namespace cricket {
 class VideoRenderer;
 }  // namespace cricket
 
-class Conductor : public webrtc::PeerConnectionObserver,
+class Conductor : public webrtc::PeerConnectionObserver /*好玩东西给webrtc封装这个里面   */,
                   public webrtc::CreateSessionDescriptionObserver,
                   public PeerConnectionClientObserver,
                   public MainWndCallback {
@@ -64,6 +64,9 @@ class Conductor : public webrtc::PeerConnectionObserver,
 
   void OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) override {}
+
+
+  // 好家伙  webrtc封装太好 ^_^  接口定义 PeerConnectionObserver
   void OnAddTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
       const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&

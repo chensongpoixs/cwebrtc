@@ -342,7 +342,9 @@ void MainWnd::OnDefaultAction() {
     LRESULT sel = ::SendMessage(listbox_, LB_GETCURSEL, 0, 0);
     if (sel != LB_ERR) {
       LRESULT peer_id = ::SendMessage(listbox_, LB_GETITEMDATA, sel, 0);
-      if (peer_id != -1 && callback_) {
+      if (peer_id != -1 && callback_) 
+	  {
+		// 连接对方->peer
         callback_->ConnectToPeer(peer_id);
       }
     }
@@ -623,7 +625,26 @@ void MainWnd::VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
     SetSize(buffer->width(), buffer->height());
 
 
-	//RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
+	RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
+
+
+
+	static const std::string outfilefix = "./desktop/desktop_";
+	static uint64_t frames = 0;
+	std::string outfilename = outfilefix + std::to_string(buffer->width()) + "_" + std::to_string(buffer->height()) + "_" + std::to_string(++frames) + ".yuv";
+
+
+	/*FILE *outfile = fopen(outfilename.c_str(), "wb+");
+	if (outfile)
+	{
+		fwrite(buffer->DataY(), 1, buffer->width()* buffer->height(), outfile);
+		fflush(outfile);
+		fclose(outfile);
+	}*/
+
+
+
+
 
 
     RTC_DCHECK(image_.get() != NULL);

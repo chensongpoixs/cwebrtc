@@ -175,7 +175,7 @@ bool Conductor::InitializePeerConnection() {
     DeletePeerConnection();
     return false;
   }
-
+  // 设置SDP  ->马流是否加密哈DTLS
   if (!CreatePeerConnection(/*dtls=*/true)) {
     main_wnd_->MessageBox("Error", "CreatePeerConnection failed", true);
     DeletePeerConnection();
@@ -206,8 +206,8 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   RTC_DCHECK(!peer_connection_);
 
   webrtc::PeerConnectionInterface::RTCConfiguration config;
-  config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan;
-  config.enable_dtls_srtp = dtls;
+  config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan; //这个 
+  config.enable_dtls_srtp = dtls; //是否加密
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = GetPeerConnectionString();
   config.servers.push_back(server);
@@ -238,13 +238,11 @@ void Conductor::EnsureStreamingUI() {
 // PeerConnectionObserver implementation.
 //
 
-void Conductor::OnAddTrack(
-    rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
+void Conductor::OnAddTrack( rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
     const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&
         streams) {
   RTC_LOG(INFO) << __FUNCTION__ << " " << receiver->id();
-  main_wnd_->QueueUIThreadCallback(NEW_TRACK_ADDED,
-                                   receiver->track().release());
+  main_wnd_->QueueUIThreadCallback(NEW_TRACK_ADDED, receiver->track().release());
 }
 
 void Conductor::OnRemoveTrack(
@@ -314,10 +312,12 @@ void Conductor::OnPeerDisconnected(int id) {
   }
 }
 
-void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
+void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) 
+{
+
   RTC_DCHECK(peer_id_ == peer_id || peer_id_ == -1);
   RTC_DCHECK(!message.empty());
-
+  //被动接到对方offer 的SDP的信息哈  ^_^ ^_^	^_^ 
   if (!peer_connection_.get()) {
     RTC_DCHECK(peer_id_ == -1);
     peer_id_ = peer_id;
@@ -553,6 +553,7 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
       auto* track = reinterpret_cast<webrtc::MediaStreamTrackInterface*>(data);
       if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
         auto* video_track = static_cast<webrtc::VideoTrackInterface*>(track);
+		// 好家伙  终于找到你 哈哈 ^_^
         main_wnd_->StartRemoteRenderer(video_track);
       }
       track->Release();
@@ -572,9 +573,10 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
   }
 }
 
-void Conductor::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
-  peer_connection_->SetLocalDescription(
-      DummySetSessionDescriptionObserver::Create(), desc);
+void Conductor::OnSuccess(webrtc::SessionDescriptionInterface* desc) 
+{
+  // 得到本地视频基本信息 先设置本地 SDP 鸭
+  peer_connection_->SetLocalDescription(DummySetSessionDescriptionObserver::Create(), desc);
 
   std::string sdp;
   desc->ToString(&sdp);
@@ -592,8 +594,8 @@ void Conductor::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
 
   Json::StyledWriter writer;
   Json::Value jmessage;
-  jmessage[kSessionDescriptionTypeName] =
-      webrtc::SdpTypeToString(desc->GetType());
+  jmessage[kSessionDescriptionTypeName] = webrtc::SdpTypeToString(desc->GetType());
+  //jmessage["offer-loopback"] = webrtc::SdpTypeToString(desc->GetType());
   jmessage[kSessionDescriptionSdpName] = sdp;
   SendMessage(writer.write(jmessage));
 }
