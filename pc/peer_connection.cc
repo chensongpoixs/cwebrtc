@@ -1953,7 +1953,7 @@ void PeerConnection::CreateOffer(CreateSessionDescriptionObserver* observer,
                                  const RTCOfferAnswerOptions& options) {
   RTC_DCHECK_RUN_ON(signaling_thread());
   TRACE_EVENT0("webrtc", "PeerConnection::CreateOffer");
-
+  // 找到你鸭   ^_^   ^_^   真正实现媒体流数据回调的注册 哈哈 看到了 
   if (!observer) {
     RTC_LOG(LS_ERROR) << "CreateOffer - observer is NULL.";
     return;

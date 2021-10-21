@@ -180,7 +180,7 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = GetPeerConnectionString();
   config.servers.push_back(server);
-
+  ///////////////////// peer conection -->>>>>>>[这里可能也是注册回调数据的接口的 好家伙 藏的太深哈 PROXY_METHOD4]/////////////////////////////////////
   peer_connection_ = peer_connection_factory_->CreatePeerConnection(
       config, nullptr, nullptr, this);
   return peer_connection_ != nullptr;
@@ -351,9 +351,10 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
     peer_connection_->SetRemoteDescription(
         DummySetSessionDescriptionObserver::Create(),
         session_description.release());
-    if (type == webrtc::SdpType::kOffer) {
-      peer_connection_->CreateAnswer(
-          this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
+    if (type == webrtc::SdpType::kOffer) 
+	{
+		// 这边webrtc把对方的媒体流的接口回调类注册^_^ -->> 好好看看
+      peer_connection_->CreateAnswer(this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
     }
   } else {
     std::string sdp_mid;
@@ -521,7 +522,7 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
       auto* track = reinterpret_cast<webrtc::MediaStreamTrackInterface*>(data);
       if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
         auto* video_track = static_cast<webrtc::VideoTrackInterface*>(track);
-        main_wnd_->StartRemoteRenderer(video_track);
+        main_wnd_->StartRemoteRenderer(video_track); // 设置对方的视频流显示的屏幕上鸭
       }
       track->Release();
       break;
@@ -540,7 +541,9 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
   }
 }
 
-void Conductor::OnSuccess(webrtc::SessionDescriptionInterface* desc) {
+void Conductor::OnSuccess(webrtc::SessionDescriptionInterface* desc) 
+{
+  
   peer_connection_->SetLocalDescription(
       DummySetSessionDescriptionObserver::Create(), desc);
 

@@ -310,7 +310,7 @@ class MethodCall4 : public rtc::Message, public rtc::MessageHandler {
   R Marshal(const rtc::Location& posted_from, rtc::Thread* t) {
     internal::SynchronousMethodCall(this).Invoke(posted_from, t);
 	//printf("[%s][%d][Call4]++++++++++++\n", __FUNCTION__, __LINE__);
-	RTC_LOG(INFO) << "[" << __FUNCTION__ << "][" << __LINE__ << "][Call4]++++++++++++++";
+	//RTC_LOG(INFO) << "[" << __FUNCTION__ << "][" << __LINE__ << "][Call4]++++++++++++++";
     return r_.moved_result();
   }
 
