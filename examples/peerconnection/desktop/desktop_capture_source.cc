@@ -1,4 +1,4 @@
-﻿#include "examples/desktop_capture/desktop_capture_source.h"
+﻿#include "examples/peerconnection/desktop/desktop_capture_source.h"
 
 #include "api/video/i420_buffer.h"
 #include "api/video/video_rotation.h"
@@ -49,10 +49,26 @@ void DesktopCaptureSource::OnFrame(const webrtc::VideoFrame& frame) {
     webrtc::VideoFrame::Builder new_frame_builder =
         webrtc::VideoFrame::Builder()
             .set_video_frame_buffer(scaled_buffer)
+			.set_timestamp_rtp(0)
+			.set_timestamp_ms(rtc::TimeMillis())
             .set_rotation(webrtc::kVideoRotation_0)
             .set_timestamp_us(frame.timestamp_us())
             .set_id(frame.id());
     ;
+
+
+	/*
+	VideoFrame captureFrame =
+      VideoFrame::Builder()
+          .set_video_frame_buffer(buffer)
+          .set_timestamp_rtp(0)
+          .set_timestamp_ms(rtc::TimeMillis())
+          .set_rotation(!apply_rotation ? _rotateFrame : kVideoRotation_0)
+          .build();
+  captureFrame.set_ntp_time_ms(captureTime);
+  RTC_LOG(INFO) << "[chensong]ntp time ms = " << captureTime;
+	
+	*/
     /*if (frame.has_update_rect()) {
       webrtc::VideoFrame::UpdateRect new_rect =
           frame.update_rect().ScaleWithFrame(frame.width(), frame.height(), 0,
@@ -63,6 +79,7 @@ void DesktopCaptureSource::OnFrame(const webrtc::VideoFrame& frame) {
     broadcaster_.OnFrame(new_frame_builder.build());
   } else {
     // No adaptations needed, just return the frame as is.
+
     broadcaster_.OnFrame(frame);
   }
 }

@@ -113,9 +113,9 @@ int PASCAL wWinMain(HINSTANCE instance,
 	int cmd_show)
 {
 	//HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
-	open_windows(instance, prev_instance, cmd_line, cmd_show);
-	return 0;
-	/*RTC_LOG(INFO) << "desktop capture !!!";
+//	open_windows(instance, prev_instance, cmd_line, cmd_show);
+	//return 0;
+	RTC_LOG(INFO) << "desktop capture !!!";
   std::unique_ptr<webrtc_demo::DesktopCapture> capturer(webrtc_demo::DesktopCapture::Create(15,0));
 
   capturer->StartCapture();
@@ -129,7 +129,7 @@ int PASCAL wWinMain(HINSTANCE instance,
   }
   capturer->RemoveSink(renderer.get());
   
-  RTC_LOG(WARNING) << "Demo exit";*/
+  RTC_LOG(WARNING) << "Demo exit";
   return 0;
 }
 

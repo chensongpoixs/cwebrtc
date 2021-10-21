@@ -8,12 +8,12 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "examples/peerconnection/client/main_wnd.h"
+#include "examples/peerconnection/desktop/main_wnd.h"
 
 #include <math.h>
 
 #include "api/video/i420_buffer.h"
-#include "examples/peerconnection/client/defaults.h"
+#include "examples/peerconnection/desktop/defaults.h"
 #include "rtc_base/arraysize.h"
 #include "rtc_base/checks.h"
 #include "rtc_base/logging.h"
@@ -99,7 +99,7 @@ bool MainWnd::Create() {
 
   ui_thread_id_ = ::GetCurrentThreadId();
   wnd_ =
-      ::CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, kClassName, L"WebRTC",
+      ::CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, kClassName, L"WebRTC_DESKTOP",
                         WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
                         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                         CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL), this);
@@ -621,7 +621,10 @@ void MainWnd::VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
     }
 
     SetSize(buffer->width(), buffer->height());
-	RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
+
+
+	//RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
+
 
     RTC_DCHECK(image_.get() != NULL);
     libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),

@@ -722,7 +722,7 @@ STDMETHODIMP CaptureInputPin::GetAllocatorRequirements(
 STDMETHODIMP CaptureInputPin::Receive(IMediaSample* media_sample) {
   // TODO@chensong 2021-09-17 崩溃问题  录屏 --> 【经过测试
   // yuv库的问题？？？？？？】
-  //RTC_DCHECK_RUN_ON(&capture_checker_);
+ // RTC_DCHECK_RUN_ON(&capture_checker_);
 
   CaptureSinkFilter* const filter = static_cast<CaptureSinkFilter*>(Filter());
 

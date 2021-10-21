@@ -113,6 +113,9 @@ int32_t VideoCaptureImpl::DeliverCapturedFrame(VideoFrame& captureFrame) {
   return 0;
 }
 
+/***
+ 接受数据
+*/
 int32_t VideoCaptureImpl::IncomingFrame(uint8_t* videoFrame,
                                         size_t videoFrameLength,
                                         const VideoCaptureCapability& frameInfo,
@@ -187,7 +190,7 @@ int32_t VideoCaptureImpl::IncomingFrame(uint8_t* videoFrame,
                       << static_cast<int>(frameInfo.videoType) << "to I420.";
     return -1;
   }
-
+  // 哈哈 rtp 发送包吗？？ 好好看看把 ------>  并不是发送包的只是设置马流的一些基本信息 
   VideoFrame captureFrame =
       VideoFrame::Builder()
           .set_video_frame_buffer(buffer)
@@ -196,7 +199,7 @@ int32_t VideoCaptureImpl::IncomingFrame(uint8_t* videoFrame,
           .set_rotation(!apply_rotation ? _rotateFrame : kVideoRotation_0)
           .build();
   captureFrame.set_ntp_time_ms(captureTime);
-
+  RTC_LOG(INFO) << "[chensong]ntp time ms = " << captureTime;
   DeliverCapturedFrame(captureFrame);
 
   return 0;
