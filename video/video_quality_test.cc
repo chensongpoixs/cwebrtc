@@ -1400,12 +1400,10 @@ void VideoQualityTest::RunWithRenderers(const Params& params) {
   std::vector<std::unique_ptr<test::VideoRenderer>> loopback_renderers;
 
   if (!params.logging.rtc_event_log_name.empty()) {
-    send_event_log_ = rtc_event_log_factory_.CreateRtcEventLog(
-        RtcEventLog::EncodingType::Legacy);
-    recv_event_log_ = rtc_event_log_factory_.CreateRtcEventLog(
-        RtcEventLog::EncodingType::Legacy);
+    send_event_log_ = rtc_event_log_factory_.CreateRtcEventLog(RtcEventLog::EncodingType::Legacy);
+    recv_event_log_ = rtc_event_log_factory_.CreateRtcEventLog(RtcEventLog::EncodingType::Legacy);
     std::unique_ptr<RtcEventLogOutputFile> send_output(
-        absl::make_unique<RtcEventLogOutputFile>(
+		absl::make_unique<RtcEventLogOutputFile>(
             params.logging.rtc_event_log_name + "_send",
             RtcEventLog::kUnlimitedOutput));
     std::unique_ptr<RtcEventLogOutputFile> recv_output(

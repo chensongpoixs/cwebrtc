@@ -94,7 +94,7 @@ void StunServer::GetStunBindReqponse(StunMessage* request,
                                      StunMessage* response) const {
   response->SetType(STUN_BINDING_RESPONSE);
   response->SetTransactionID(request->transaction_id());
-
+  RTC_LOG(INFO) << "[request transaction_id =" <<request->transaction_id() <<" ][stun server = " <<remote_addr.ToString() << "]";
   // Tell the user the address that we received their request from.
   std::unique_ptr<StunAddressAttribute> mapped_addr;
   if (!request->IsLegacy()) {
@@ -104,6 +104,7 @@ void StunServer::GetStunBindReqponse(StunMessage* request,
   }
   mapped_addr->SetAddress(remote_addr);
   response->AddAttribute(std::move(mapped_addr));
+  RTC_LOG(INFO) << "[response transaction_id = " << response->transaction_id() << "][]";
 }
 
 }  // namespace cricket

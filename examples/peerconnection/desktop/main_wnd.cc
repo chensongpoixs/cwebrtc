@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2012 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -344,7 +344,7 @@ void MainWnd::OnDefaultAction() {
       LRESULT peer_id = ::SendMessage(listbox_, LB_GETITEMDATA, sel, 0);
       if (peer_id != -1 && callback_) 
 	  {
-		// ���ӶԷ�->peer
+		// Á¬½Ó¶Ô·½->peer
         callback_->ConnectToPeer(peer_id);
       }
     }
@@ -625,7 +625,7 @@ void MainWnd::VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
     SetSize(buffer->width(), buffer->height());
 
 
-	RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
+	//RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
 
 
 

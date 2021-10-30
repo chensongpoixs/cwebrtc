@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -95,8 +95,9 @@ CreateModularPeerConnectionFactory(
           std::move(dependencies)));
   // Call Initialize synchronously but make sure it is executed on
   // |signaling_thread|.
+  // WebRtc 中SDK中封装 用户接口线程同步技术 -> MethodCallXXX 如果不在同一个线程中这边会卡着这边一直等到 （线程之间的通知的  notify -> wait的玩法 ） 
   MethodCall0<PeerConnectionFactory, bool> call(
-      pc_factory.get(), &PeerConnectionFactory::Initialize);
+      pc_factory.get(), &PeerConnectionFactory::Initialize/*看到吧 使用线程同步初始化 音频和视频的通道 */);
   bool result = call.Marshal(RTC_FROM_HERE, pc_factory->signaling_thread());
 
   if (!result) {
@@ -117,12 +118,9 @@ PeerConnectionFactory::PeerConnectionFactory(
       call_factory_(std::move(dependencies.call_factory)),
       event_log_factory_(std::move(dependencies.event_log_factory)),
       fec_controller_factory_(std::move(dependencies.fec_controller_factory)),
-      network_state_predictor_factory_(
-          std::move(dependencies.network_state_predictor_factory)),
-      injected_network_controller_factory_(
-          std::move(dependencies.network_controller_factory)),
-      media_transport_factory_(
-          std::move(dependencies.media_transport_factory)) {
+      network_state_predictor_factory_(std::move(dependencies.network_state_predictor_factory)),
+      injected_network_controller_factory_(std::move(dependencies.network_controller_factory)),
+      media_transport_factory_(std::move(dependencies.media_transport_factory)) {
   if (!network_thread_) {
     owned_network_thread_ = rtc::Thread::CreateWithSocketServer();
     owned_network_thread_->SetName("pc_network_thread", nullptr);
@@ -265,6 +263,7 @@ void PeerConnectionFactory::StopAecDump() {
   channel_manager_->StopAecDump();
 }
 
+// webrtc create peer调用的函数
 rtc::scoped_refptr<PeerConnectionInterface>
 PeerConnectionFactory::CreatePeerConnection(
     const PeerConnectionInterface::RTCConfiguration& configuration,
@@ -388,16 +387,14 @@ std::unique_ptr<Call> PeerConnectionFactory::CreateCall_w(
   if (!channel_manager_->media_engine() || !call_factory_) {
     return nullptr;
   }
-  call_config.audio_state =
-      channel_manager_->media_engine()->voice().GetAudioState();
+  call_config.audio_state = channel_manager_->media_engine()->voice().GetAudioState();
   call_config.bitrate_config.min_bitrate_bps = kMinBandwidthBps;
   call_config.bitrate_config.start_bitrate_bps = kStartBandwidthBps;
   call_config.bitrate_config.max_bitrate_bps = kMaxBandwidthBps;
 
   call_config.fec_controller_factory = fec_controller_factory_.get();
   call_config.task_queue_factory = task_queue_factory_.get();
-  call_config.network_state_predictor_factory =
-      network_state_predictor_factory_.get();
+  call_config.network_state_predictor_factory = network_state_predictor_factory_.get();
 
   if (field_trial::IsEnabled("WebRTC-Bwe-InjectedCongestionController")) {
     RTC_LOG(LS_INFO) << "Using injected network controller factory";

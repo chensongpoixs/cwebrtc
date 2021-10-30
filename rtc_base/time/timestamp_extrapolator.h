@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2011 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -8,12 +8,12 @@
  *  be found in the AUTHORS file in the root of the source tree.
 
 
- FrameBufferÃ¿»ñµÃÒ»¸ö¿É½âÂëÖ¡£¬¶¼Òª¸üĞÂÆääÖÈ¾Ê±¼ä£¬äÖÈ¾Ê±¼äÍ¨¹ıTimestampExtrapolatorÀà»ñµÃ¡£
- TimestampExtrapolatorÊÇÒ»¸ö¿¨¶ûÂüÂË²¨Æ÷£¬ÆäÊäÈëÎªÊäÈëÖ¡µÄRTPÊ±¼ä´Á£¬
- TimestampExtrapolator»á¸ù¾İÊäÈëÖ¡µÄRTPÊ±¼ä´Á¼ÆËã³ö¸ÃÖ¡µÄÆÚÍû½ÓÊÕÊ±¼ä£¬¸ÃÊ±¼äÊÇ¾­¹ıÆ½»¬µÄ¡£
+ FrameBufferæ¯è·å¾—ä¸€ä¸ªå¯è§£ç å¸§ï¼Œéƒ½è¦æ›´æ–°å…¶æ¸²æŸ“æ—¶é—´ï¼Œæ¸²æŸ“æ—¶é—´é€šè¿‡TimestampExtrapolatorç±»è·å¾—ã€‚
+ TimestampExtrapolatoræ˜¯ä¸€ä¸ªå¡å°”æ›¼æ»¤æ³¢å™¨ï¼Œå…¶è¾“å…¥ä¸ºè¾“å…¥å¸§çš„RTPæ—¶é—´æˆ³ï¼Œ
+ TimestampExtrapolatorä¼šæ ¹æ®è¾“å…¥å¸§çš„RTPæ—¶é—´æˆ³è®¡ç®—å‡ºè¯¥å¸§çš„æœŸæœ›æ¥æ”¶æ—¶é—´ï¼Œè¯¥æ—¶é—´æ˜¯ç»è¿‡å¹³æ»‘çš„ã€‚
 
- ÊÓÆµÖ¡µÄÆÚÍûäÖÈ¾Ê±¼ä = Ö¡Æ½»¬Ê±¼ä(¾ÍÊÇÖ¡µÄÆÚÍû½ÓÊÕÊ±¼ä) + Êµ¼ÊÑÓ³Ù(actual delay,
- ÓÉcurrent_delay_ms_¡¢min_playout_delay_ms_ºÍmax_playout_delay_ms_¼ÆËã³öÀ´)¡£
+ è§†é¢‘å¸§çš„æœŸæœ›æ¸²æŸ“æ—¶é—´ = å¸§å¹³æ»‘æ—¶é—´(å°±æ˜¯å¸§çš„æœŸæœ›æ¥æ”¶æ—¶é—´) + å®é™…å»¶è¿Ÿ(actual delay,
+ ç”±current_delay_ms_ã€min_playout_delay_ms_å’Œmax_playout_delay_ms_è®¡ç®—å‡ºæ¥)ã€‚
 
 
  */

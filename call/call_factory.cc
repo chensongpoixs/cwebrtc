@@ -42,8 +42,7 @@ absl::optional<webrtc::BuiltInNetworkBehaviorConfig> ParseDegradationConfig(
 
   webrtc::BuiltInNetworkBehaviorConfig config;
   bool configured = false;
-  configured |=
-      ParseConfigParam(exp_prefix + "DelayMs", &config.queue_delay_ms);
+  configured |= ParseConfigParam(exp_prefix + "DelayMs", &config.queue_delay_ms);
   configured |= ParseConfigParam(exp_prefix + "DelayStdDevMs",
                                  &config.delay_standard_deviation_ms);
   int queue_length = 0;

@@ -16,7 +16,7 @@
 #include "rtc_base/thread.h"
 
 using cricket::StunServer;
-
+// .\stunserver.exe 0.0.0.0:23233
 int main(int argc, char* argv[]) {
   if (argc != 2) {
     std::cerr << "usage: stunserver address" << std::endl;

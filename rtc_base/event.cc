@@ -41,6 +41,7 @@ Event::Event(bool manual_reset, bool initially_signaled) {
 
 Event::~Event() {
   CloseHandle(event_handle_);
+  
 }
 
 void Event::Set() {

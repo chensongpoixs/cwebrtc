@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -868,7 +868,7 @@ void ExtractSharedMediaSessionOptions(
   session_options->vad_enabled = rtc_options.voice_activity_detection;
   session_options->bundle_enabled = rtc_options.use_rtp_mux;
 }
-
+// 建立通道
 PeerConnection::PeerConnection(PeerConnectionFactory* factory,
                                std::unique_ptr<RtcEventLog> event_log,
                                std::unique_ptr<Call> call)
@@ -972,6 +972,7 @@ bool PeerConnection::Initialize(
   port_allocator_ = std::move(dependencies.allocator);
   tls_cert_verifier_ = std::move(dependencies.tls_cert_verifier);
 
+  // 找到你 stun and turn server -> 怎么玩呢  我很好奇  webrtc怎么搞这些服务的鸭
   cricket::ServerAddresses stun_servers;
   std::vector<cricket::RelayServerConfig> turn_servers;
 
@@ -991,7 +992,8 @@ bool PeerConnection::Initialize(
 
   // If initialization was successful, note if STUN or TURN servers
   // were supplied.
-  if (!stun_servers.empty()) {
+  if (!stun_servers.empty()) 
+  {
     NoteUsageEvent(UsageEvent::STUN_SERVER_ADDED);
   }
   if (!turn_servers.empty()) {
@@ -1016,12 +1018,11 @@ bool PeerConnection::Initialize(
   // LLONG_MAX.
   session_id_ = rtc::ToString(rtc::CreateRandomId64() & LLONG_MAX);
   JsepTransportController::Config config;
-  config.redetermine_role_on_ice_restart =
-      configuration.redetermine_role_on_ice_restart;
+  config.redetermine_role_on_ice_restart = configuration.redetermine_role_on_ice_restart;
   config.ssl_max_version = factory_->options().ssl_max_version;
   config.disable_encryption = options.disable_encryption;
   config.bundle_policy = configuration.bundle_policy;
-  config.rtcp_mux_policy = configuration.rtcp_mux_policy;
+  config.rtcp_mux_policy = configuration.rtcp_mux_policy; // rtcp-mux 将 RTP 和 RTCP 复用到单一的端口进行传输，这简化了 NAT traversal，而 BUNDLE 又将多路媒体流复用到同一端口进行传输，这不仅使 candidate harvesting 等 ICE 相关的 SDP 属性变得简单，而且又进一步简化了 NAT traversal。
   // TODO(bugs.webrtc.org/9891) - Remove options.crypto_options then remove this
   // stub.
   config.crypto_options = configuration.crypto_options.has_value()
@@ -1062,8 +1063,7 @@ bool PeerConnection::Initialize(
     }
 
     config.use_media_transport_for_media = configuration.use_media_transport;
-    config.use_media_transport_for_data_channels =
-        configuration.use_media_transport_for_data_channels;
+    config.use_media_transport_for_data_channels = configuration.use_media_transport_for_data_channels;
     config.media_transport_factory = factory_->media_transport_factory();
   }
 
@@ -1135,22 +1135,16 @@ bool PeerConnection::Initialize(
     }
   }
 
-  video_options_.screencast_min_bitrate_kbps =
-      configuration.screencast_min_bitrate;
-  audio_options_.combined_audio_video_bwe =
-      configuration.combined_audio_video_bwe;
+  video_options_.screencast_min_bitrate_kbps = configuration.screencast_min_bitrate;
+  audio_options_.combined_audio_video_bwe = configuration.combined_audio_video_bwe;
 
-  audio_options_.audio_jitter_buffer_max_packets =
-      configuration.audio_jitter_buffer_max_packets;
+  audio_options_.audio_jitter_buffer_max_packets = configuration.audio_jitter_buffer_max_packets;
 
-  audio_options_.audio_jitter_buffer_fast_accelerate =
-      configuration.audio_jitter_buffer_fast_accelerate;
+  audio_options_.audio_jitter_buffer_fast_accelerate = configuration.audio_jitter_buffer_fast_accelerate;
 
-  audio_options_.audio_jitter_buffer_min_delay_ms =
-      configuration.audio_jitter_buffer_min_delay_ms;
+  audio_options_.audio_jitter_buffer_min_delay_ms = configuration.audio_jitter_buffer_min_delay_ms;
 
-  audio_options_.audio_jitter_buffer_enable_rtx_handling =
-      configuration.audio_jitter_buffer_enable_rtx_handling;
+  audio_options_.audio_jitter_buffer_enable_rtx_handling = configuration.audio_jitter_buffer_enable_rtx_handling;
 
   // Whether the certificate generator/certificate is null or not determines
   // what PeerConnectionDescriptionFactory will do, so make sure that we give it
@@ -1166,8 +1160,7 @@ bool PeerConnection::Initialize(
   webrtc_session_desc_factory_.reset(new WebRtcSessionDescriptionFactory(
       signaling_thread(), channel_manager(), this, session_id(),
       std::move(dependencies.cert_generator), certificate, &ssrc_generator_));
-  webrtc_session_desc_factory_->SignalCertificateReady.connect(
-      this, &PeerConnection::OnCertificateReady);
+  webrtc_session_desc_factory_->SignalCertificateReady.connect( this, &PeerConnection::OnCertificateReady);
 
   if (options.disable_encryption) {
     webrtc_session_desc_factory_->SetSdesPolicy(cricket::SEC_DISABLED);
@@ -1180,14 +1173,11 @@ bool PeerConnection::Initialize(
   // Add default audio/video transceivers for Plan B SDP.
   if (!IsUnifiedPlan()) {
     transceivers_.push_back(
-        RtpTransceiverProxyWithInternal<RtpTransceiver>::Create(
-            signaling_thread(), new RtpTransceiver(cricket::MEDIA_TYPE_AUDIO)));
+        RtpTransceiverProxyWithInternal<RtpTransceiver>::Create(signaling_thread(), new RtpTransceiver(cricket::MEDIA_TYPE_AUDIO)));
     transceivers_.push_back(
-        RtpTransceiverProxyWithInternal<RtpTransceiver>::Create(
-            signaling_thread(), new RtpTransceiver(cricket::MEDIA_TYPE_VIDEO)));
+        RtpTransceiverProxyWithInternal<RtpTransceiver>::Create(signaling_thread(), new RtpTransceiver(cricket::MEDIA_TYPE_VIDEO)));
   }
-  int delay_ms =
-      return_histogram_very_quickly_ ? 0 : REPORT_USAGE_PATTERN_DELAY_MS;
+  int delay_ms = return_histogram_very_quickly_ ? 0 : REPORT_USAGE_PATTERN_DELAY_MS;
   signaling_thread()->PostDelayed(RTC_FROM_HERE, delay_ms, this,
                                   MSG_REPORT_USAGE_PATTERN, nullptr);
   return true;
@@ -1393,6 +1383,7 @@ PeerConnection::AddTrackUnifiedPlan(
     if (FindSenderById(sender_id)) {
       sender_id = rtc::CreateRandomUuid();
     }
+	// 看到吧  这边  发送和接受数据的通道都设置好了
     auto sender = CreateSender(media_type, sender_id, track, stream_ids, {});
     auto receiver = CreateReceiver(media_type, rtc::CreateRandomUuid());
     transceiver = CreateAndAddTransceiver(sender, receiver);
@@ -1953,7 +1944,7 @@ void PeerConnection::CreateOffer(CreateSessionDescriptionObserver* observer,
                                  const RTCOfferAnswerOptions& options) {
   RTC_DCHECK_RUN_ON(signaling_thread());
   TRACE_EVENT0("webrtc", "PeerConnection::CreateOffer");
-  // �ҵ���Ѽ   ^_^   ^_^   ����ʵ��ý�������ݻص���ע�� ���� ������ 
+  // 找到你鸭   ^_^   ^_^   真正实现媒体流数据回调的注册 哈哈 看到了 
   if (!observer) {
     RTC_LOG(LS_ERROR) << "CreateOffer - observer is NULL.";
     return;
@@ -5991,12 +5982,9 @@ void PeerConnection::OnTransportControllerConnectionState(
       // kIceConnectionConnecting is currently used as the default,
       // un-connected state by the TransportController, so its only use is
       // detecting disconnections.
-      if (ice_connection_state_ ==
-              PeerConnectionInterface::kIceConnectionConnected ||
-          ice_connection_state_ ==
-              PeerConnectionInterface::kIceConnectionCompleted) {
-        SetIceConnectionState(
-            PeerConnectionInterface::kIceConnectionDisconnected);
+      if (ice_connection_state_ == PeerConnectionInterface::kIceConnectionConnected ||
+          ice_connection_state_ == PeerConnectionInterface::kIceConnectionCompleted) {
+        SetIceConnectionState(PeerConnectionInterface::kIceConnectionDisconnected);
       }
       break;
     case cricket::kIceConnectionFailed:
@@ -6011,8 +5999,7 @@ void PeerConnection::OnTransportControllerConnectionState(
     case cricket::kIceConnectionCompleted:
       RTC_LOG(LS_INFO) << "Changing to ICE completed state because "
                           "all transports are complete.";
-      if (ice_connection_state_ !=
-          PeerConnectionInterface::kIceConnectionConnected) {
+      if (ice_connection_state_ != PeerConnectionInterface::kIceConnectionConnected) {
         // If jumping directly from "checking" to "connected",
         // signal "connected" first.
         SetIceConnectionState(PeerConnectionInterface::kIceConnectionConnected);
@@ -6840,14 +6827,12 @@ void PeerConnection::OnTransportControllerGatheringState(
 }
 
 void PeerConnection::ReportTransportStats() {
-  std::map<std::string, std::set<cricket::MediaType>>
-      media_types_by_transport_name;
+  std::map<std::string, std::set<cricket::MediaType>> media_types_by_transport_name;
   for (const auto& transceiver : transceivers_) {
-    if (transceiver->internal()->channel()) {
-      const std::string& transport_name =
-          transceiver->internal()->channel()->transport_name();
-      media_types_by_transport_name[transport_name].insert(
-          transceiver->media_type());
+    if (transceiver->internal()->channel()) 
+	{
+      const std::string& transport_name = transceiver->internal()->channel()->transport_name();
+      media_types_by_transport_name[transport_name].insert(transceiver->media_type());
     }
   }
   if (rtp_data_channel()) {

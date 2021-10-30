@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -169,6 +169,7 @@ class MethodCall0 : public rtc::Message, public rtc::MessageHandler {
   }
 
  private:
+	 // ¿´µ½°É
   void OnMessage(rtc::Message*) { r_.Invoke(c_, m_); }
 
   C* c_;
@@ -576,7 +577,7 @@ class MethodCall5 : public rtc::Message, public rtc::MessageHandler {
 
 #define PROXY_WORKER_CONSTMETHOD2(r, method, t1, t2)                   \
   r method(t1 a1, t2 a2) const override {                              \
-    ConstMethodCall2<C, r, t1, t2> call(c_, &C::method, std::move(a1), \
+    MethodCall2<C, r, t1, t2> call(c_, &C::method, std::move(a1), \
                                         std::move(a2));                \
     return call.Marshal(RTC_FROM_HERE, worker_thread_);                \
   }

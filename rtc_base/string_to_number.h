@@ -60,7 +60,7 @@ typename std::enable_if<std::is_integral<T>::value && std::is_signed<T>::value,
 StringToNumber(const char* str, int base = 10) {
   using string_to_number_internal::signed_type;
   static_assert(
-      std::numeric_limits<T>::max() <=
+      (std::numeric_limits<T>::max)() <=
               std::numeric_limits<signed_type>::max() &&
           std::numeric_limits<T>::lowest() >=
               std::numeric_limits<signed_type>::lowest(),

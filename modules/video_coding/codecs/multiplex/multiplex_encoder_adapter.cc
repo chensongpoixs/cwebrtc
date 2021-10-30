@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -109,7 +109,7 @@ int MultiplexEncoderAdapter::InitEncode(const VideoCodec* inst,
     }
     adapter_callbacks_.emplace_back(new AdapterEncodedImageCallback(
         this, static_cast<AlphaCodecStream>(i)));
-	// ע�ᴦ��һ֡ͼƬ������
+	// 注册处理一帧图片的数据
     encoder->RegisterEncodeCompleteCallback(adapter_callbacks_.back().get());
 
     const EncoderInfo& encoder_impl_info = encoder->GetEncoderInfo();

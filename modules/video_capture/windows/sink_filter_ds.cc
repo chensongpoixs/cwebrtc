@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -720,8 +720,8 @@ STDMETHODIMP CaptureInputPin::GetAllocatorRequirements(
 }
 
 STDMETHODIMP CaptureInputPin::Receive(IMediaSample* media_sample) {
-  // TODO@chensong 2021-09-17 ±ÀÀ£ÎÊÌâ  Â¼ÆÁ --> ¡¾¾­¹ı²âÊÔ
-  // yuv¿âµÄÎÊÌâ£¿£¿£¿£¿£¿£¿¡¿
+  // TODO@chensong 2021-09-17 å´©æºƒé—®é¢˜  å½•å± --> ã€ç»è¿‡æµ‹è¯•
+  // yuvåº“çš„é—®é¢˜ï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿï¼Ÿã€‘
  // RTC_DCHECK_RUN_ON(&capture_checker_);
 
   CaptureSinkFilter* const filter = static_cast<CaptureSinkFilter*>(Filter());

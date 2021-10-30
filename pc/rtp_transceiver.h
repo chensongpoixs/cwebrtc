@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -182,11 +182,9 @@ class RtpTransceiver final
 
   const bool unified_plan_;
   const cricket::MediaType media_type_;
-  std::vector<rtc::scoped_refptr<RtpSenderProxyWithInternal<RtpSenderInternal>>>
-      senders_;
-  std::vector<
-      rtc::scoped_refptr<RtpReceiverProxyWithInternal<RtpReceiverInternal>>>
-      receivers_;
+  // 媒体数据的接受与发送  地方  
+  std::vector<rtc::scoped_refptr<RtpSenderProxyWithInternal<RtpSenderInternal>>> senders_;
+  std::vector< rtc::scoped_refptr<RtpReceiverProxyWithInternal<RtpReceiverInternal>>> receivers_;
 
   bool stopped_ = false;
   RtpTransceiverDirection direction_ = RtpTransceiverDirection::kInactive;

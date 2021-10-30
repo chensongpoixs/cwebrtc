@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -163,7 +163,7 @@ void DtmfSender::DoInsertDtmf() {
   int code = 0;
   if (first_tone_pos == std::string::npos) {
     tones_.clear();
-    // Fire a “OnToneChange” event with an empty string and stop.
+    // Fire a â€œOnToneChangeâ€?event with an empty string and stop.
     if (observer_) {
       observer_->OnToneChange(std::string(), tones_);
       observer_->OnToneChange(std::string());
@@ -198,7 +198,7 @@ void DtmfSender::DoInsertDtmf() {
     tone_gap += duration_;
   }
 
-  // Fire a “OnToneChange” event with the tone that's just processed.
+  // Fire a â€œOnToneChangeâ€?event with the tone that's just processed.
   if (observer_) {
     observer_->OnToneChange(tones_.substr(first_tone_pos, 1),
                             tones_.substr(first_tone_pos + 1));

@@ -113,7 +113,7 @@ class AudioRtpReceiver : public ObserverInterface,
   const rtc::scoped_refptr<AudioTrackInterface> track_;
   cricket::VoiceMediaChannel* media_channel_ = nullptr;
   absl::optional<uint32_t> ssrc_;
-  std::vector<rtc::scoped_refptr<MediaStreamInterface>> streams_;
+  std::vector<rtc::scoped_refptr<MediaStreamInterface>> streams_;// 
   bool cached_track_enabled_;
   double cached_volume_ = 1;
   bool stopped_ = false;

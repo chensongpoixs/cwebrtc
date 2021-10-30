@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -41,7 +41,7 @@ VideoEncoderFactory::CodecInfo InternalEncoderFactory::QueryVideoEncoder(
   info.has_internal_source = false;
   return info;
 }
-// ´´½¨h264±àÒëÆ÷
+// Â´Â´Â½Â¨h264Â±Ã Ã’Ã«Ã†Ã·
 std::unique_ptr<VideoEncoder> InternalEncoderFactory::CreateVideoEncoder(
     const SdpVideoFormat& format) {
   if (absl::EqualsIgnoreCase(format.name, cricket::kVp8CodecName))

@@ -254,7 +254,7 @@ class ArrayView final : public impl::ArrayViewBase<T, Size> {
   ArrayView<T> subview(size_t offset, size_t size) const {
     return offset < this->size()
                ? ArrayView<T>(this->data() + offset,
-                              std::min(size, this->size() - offset))
+                              (std::min)(size, this->size() - offset))
                : ArrayView<T>();
   }
   ArrayView<T> subview(size_t offset) const {

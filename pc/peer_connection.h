@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -1164,12 +1164,9 @@ class PeerConnection : public PeerConnectionInternal,
 
   SctpSidAllocator sid_allocator_ RTC_GUARDED_BY(signaling_thread());
   // label -> DataChannel
-  std::map<std::string, rtc::scoped_refptr<DataChannel>> rtp_data_channels_
-      RTC_GUARDED_BY(signaling_thread());
-  std::vector<rtc::scoped_refptr<DataChannel>> sctp_data_channels_
-      RTC_GUARDED_BY(signaling_thread());
-  std::vector<rtc::scoped_refptr<DataChannel>> sctp_data_channels_to_free_
-      RTC_GUARDED_BY(signaling_thread());
+  std::map<std::string, rtc::scoped_refptr<DataChannel>> rtp_data_channels_ RTC_GUARDED_BY(signaling_thread());
+  std::vector<rtc::scoped_refptr<DataChannel>> sctp_data_channels_ RTC_GUARDED_BY(signaling_thread());
+  std::vector<rtc::scoped_refptr<DataChannel>> sctp_data_channels_to_free_ RTC_GUARDED_BY(signaling_thread());
 
   bool remote_peer_supports_msid_ RTC_GUARDED_BY(signaling_thread()) = false;
 
@@ -1185,18 +1182,15 @@ class PeerConnection : public PeerConnectionInternal,
       RTC_GUARDED_BY(signaling_thread());  // A pointer is passed to senders_
   rtc::scoped_refptr<RTCStatsCollector> stats_collector_
       RTC_GUARDED_BY(signaling_thread());
-
-  std::vector<
-      rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>>
-      transceivers_;  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
+  // 通道个数 接受和发送通道
+  std::vector< rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>> transceivers_;  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
                       // and network thread.
 
   // In Unified Plan, if we encounter remote SDP that does not contain an a=msid
   // line we create and use a stream with a random ID for our receivers. This is
   // to support legacy endpoints that do not support the a=msid attribute (as
   // opposed to streamless tracks with "a=msid:-").
-  rtc::scoped_refptr<MediaStreamInterface> missing_msid_default_stream_
-      RTC_GUARDED_BY(signaling_thread());
+  rtc::scoped_refptr<MediaStreamInterface> missing_msid_default_stream_ RTC_GUARDED_BY(signaling_thread());
   // MIDs will be generated using this generator which will keep track of
   // all the MIDs that have been seen over the life of the PeerConnection.
   rtc::UniqueStringGenerator mid_generator_ RTC_GUARDED_BY(signaling_thread());
@@ -1318,7 +1312,7 @@ class PeerConnection : public PeerConnectionInternal,
   // Member variables for caching global options.
   cricket::AudioOptions audio_options_ RTC_GUARDED_BY(signaling_thread());
   cricket::VideoOptions video_options_ RTC_GUARDED_BY(signaling_thread());
-
+  // stun and turn server 标志是否存在的字段
   int usage_event_accumulator_ RTC_GUARDED_BY(signaling_thread()) = 0;
   bool return_histogram_very_quickly_ RTC_GUARDED_BY(signaling_thread()) =
       false;

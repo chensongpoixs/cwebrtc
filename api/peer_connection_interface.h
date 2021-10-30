@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -150,7 +150,13 @@ class StatsObserver : public rtc::RefCountInterface {
  protected:
   ~StatsObserver() override = default;
 };
+/*
+如果 SSRC 的编码不相同，那么将这些 SSRC 放在同一个 M 描述就会有问题，这就是 PlanB 和 UnifiedPlan 的关键所在。对于 PlanB 只有一个 M(audio) 和 M(video)，他们的编码要相同，当有多路媒体流时，则根据 SSRC 去区分。UnifiedPlan 则可以有多个 M(audio) 和 M(video)，每路流都有自己的 M 描述，这样就可以支持不同的编码。
 
+PlanB 和 UnifiedPlan 其实就是 WebRTC 在多路媒体源（multi media source）场景下的两种不同的 SDP 协商方式。如果引入 Stream 和 Track 的概念，那么一个 Stream 可能包含 AudioTrack 和 VideoTrack，当有多路 Stream 时，就会有更多的 Track，如果每一个 Track 唯一对应一个自己的 M 描述，那么这就是 UnifiedPlan，如果每一个 M line 描述了多个 Track(track id)，那么这就是 Plan B。
+
+Note: 当只有一路音频流和一路视频流时，Plan B 和 UnifiedPlan 的格式是相互兼容的。
+*/
 enum class SdpSemantics { kPlanB, kUnifiedPlan };
 
 class RTC_EXPORT PeerConnectionInterface : public rtc::RefCountInterface {

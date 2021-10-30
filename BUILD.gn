@@ -59,7 +59,7 @@ if (!build_with_chromium) {
         "pc:rtc_pc_unittests",
         "stats:rtc_stats_unittests",
         "system_wrappers:system_wrappers_unittests",
-        "test",
+        "rtc_base:rtc_json",
         "video:screenshare_loopback",
         "video:sv_loopback",
         "video:video_loopback",
@@ -408,6 +408,7 @@ if (!build_with_chromium) {
       "pc:rtc_pc",
       "pc:rtc_pc_base",
       "rtc_base",
+      "rtc_base:rtc_json",
       "sdk",
       "video",
     ]

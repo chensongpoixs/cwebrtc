@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2012 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -180,7 +180,7 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = GetPeerConnectionString();
   config.servers.push_back(server);
-  ///////////////////// peer conection -->>>>>>>[ÕâÀï¿ÉÄÜÒ²ÊÇ×¢²á»Øµ÷Êý¾ÝµÄ½Ó¿ÚµÄ ºÃ¼Ò»ï ²ØµÄÌ«Éî¹þ PROXY_METHOD4]/////////////////////////////////////
+  ///////////////////// peer conection -->>>>>>>[è¿™é‡Œå¯èƒ½ä¹Ÿæ˜¯æ³¨å†Œå›žè°ƒæ•°æ®çš„æŽ¥å£çš„ å¥½å®¶ä¼™ è—çš„å¤ªæ·±å“ˆ PROXY_METHOD4]/////////////////////////////////////
   peer_connection_ = peer_connection_factory_->CreatePeerConnection(
       config, nullptr, nullptr, this);
   return peer_connection_ != nullptr;
@@ -353,7 +353,7 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
         session_description.release());
     if (type == webrtc::SdpType::kOffer) 
 	{
-		// Õâ±ßwebrtc°Ñ¶Ô·½µÄÃ½ÌåÁ÷µÄ½Ó¿Ú»Øµ÷Àà×¢²á^_^ -->> ºÃºÃ¿´¿´
+		// è¿™è¾¹webrtcæŠŠå¯¹æ–¹çš„åª’ä½“æµçš„æŽ¥å£å›žè°ƒç±»æ³¨å†Œ^_^ -->> å¥½å¥½çœ‹çœ‹
       peer_connection_->CreateAnswer(this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
     }
   } else {
@@ -522,7 +522,7 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
       auto* track = reinterpret_cast<webrtc::MediaStreamTrackInterface*>(data);
       if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
         auto* video_track = static_cast<webrtc::VideoTrackInterface*>(track);
-        main_wnd_->StartRemoteRenderer(video_track); // ÉèÖÃ¶Ô·½µÄÊÓÆµÁ÷ÏÔÊ¾µÄÆÁÄ»ÉÏÑ¼
+        main_wnd_->StartRemoteRenderer(video_track); // è®¾ç½®å¯¹æ–¹çš„è§†é¢‘æµæ˜¾ç¤ºçš„å±å¹•ä¸Šé¸­
       }
       track->Release();
       break;

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2012 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -30,7 +30,7 @@ namespace cricket {
 class VideoRenderer;
 }  // namespace cricket
 
-class Conductor : public webrtc::PeerConnectionObserver /*ºÃÍæ¶«Î÷¸øwebrtc·â×°Õâ¸öÀïÃæ   */,
+class Conductor : public webrtc::PeerConnectionObserver /*å¥½ç©ä¸œè¥¿ç»™webrtcå°è£…è¿™ä¸ªé‡Œé¢   */,
                   public webrtc::CreateSessionDescriptionObserver,
                   public PeerConnectionClientObserver,
                   public MainWndCallback {
@@ -66,7 +66,7 @@ class Conductor : public webrtc::PeerConnectionObserver /*ºÃÍæ¶«Î÷¸øwebrtc·â×°Õâ
       webrtc::PeerConnectionInterface::SignalingState new_state) override {}
 
 
-  // ºÃ¼Ò»ï  webrtc·â×°Ì«ºÃ ^_^  ½Ó¿Ú¶¨Òå PeerConnectionObserver
+  // å¥½å®¶ä¼™  webrtcå°è£…å¤ªå¥½ ^_^  æ¥å£å®šä¹‰ PeerConnectionObserver
   void OnAddTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver,
       const std::vector<rtc::scoped_refptr<webrtc::MediaStreamInterface>>&

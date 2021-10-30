@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -114,7 +114,7 @@ int32_t VideoCaptureImpl::DeliverCapturedFrame(VideoFrame& captureFrame) {
 }
 
 /***
- ½ÓÊÜÊı¾İ
+ æ¥å—æ•°æ®
 */
 int32_t VideoCaptureImpl::IncomingFrame(uint8_t* videoFrame,
                                         size_t videoFrameLength,
@@ -190,7 +190,7 @@ int32_t VideoCaptureImpl::IncomingFrame(uint8_t* videoFrame,
                       << static_cast<int>(frameInfo.videoType) << "to I420.";
     return -1;
   }
-  // ¹ş¹ş rtp ·¢ËÍ°üÂğ£¿£¿ ºÃºÃ¿´¿´°Ñ ------>  ²¢²»ÊÇ·¢ËÍ°üµÄÖ»ÊÇÉèÖÃÂíÁ÷µÄÒ»Ğ©»ù±¾ĞÅÏ¢ 
+  // å“ˆå“ˆ rtp å‘é€åŒ…å—ï¼Ÿï¼Ÿ å¥½å¥½çœ‹çœ‹æŠŠ ------>  å¹¶ä¸æ˜¯å‘é€åŒ…çš„åªæ˜¯è®¾ç½®é©¬æµçš„ä¸€äº›åŸºæœ¬ä¿¡æ¯ 
   VideoFrame captureFrame =
       VideoFrame::Builder()
           .set_video_frame_buffer(buffer)
@@ -199,7 +199,7 @@ int32_t VideoCaptureImpl::IncomingFrame(uint8_t* videoFrame,
           .set_rotation(!apply_rotation ? _rotateFrame : kVideoRotation_0)
           .build();
   captureFrame.set_ntp_time_ms(captureTime);
-  RTC_LOG(INFO) << "[chensong]ntp time ms = " << captureTime;
+ // RTC_LOG(INFO) << "[chensong]ntp time ms = " << captureTime;
   DeliverCapturedFrame(captureFrame);
 
   return 0;

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2012 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -175,7 +175,7 @@ bool Conductor::InitializePeerConnection() {
     DeletePeerConnection();
     return false;
   }
-  // ÉèÖÃSDP  ->ÂíÁ÷ÊÇ·ñ¼ÓÃÜ¹şDTLS
+  // è®¾ç½®SDP  ->é©¬æµæ˜¯å¦åŠ å¯†å“ˆDTLS
   if (!CreatePeerConnection(/*dtls=*/true)) {
     main_wnd_->MessageBox("Error", "CreatePeerConnection failed", true);
     DeletePeerConnection();
@@ -206,8 +206,8 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   RTC_DCHECK(!peer_connection_);
 
   webrtc::PeerConnectionInterface::RTCConfiguration config;
-  config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan; //Õâ¸ö 
-  config.enable_dtls_srtp = dtls; //ÊÇ·ñ¼ÓÃÜ
+  config.sdp_semantics = webrtc::SdpSemantics::kUnifiedPlan; //è¿™ä¸ª 
+  config.enable_dtls_srtp = dtls; //æ˜¯å¦åŠ å¯†
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = GetPeerConnectionString();
   config.servers.push_back(server);
@@ -317,7 +317,7 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message)
 
   RTC_DCHECK(peer_id_ == peer_id || peer_id_ == -1);
   RTC_DCHECK(!message.empty());
-  //±»¶¯½Óµ½¶Ô·½offer µÄSDPµÄĞÅÏ¢¹ş  ^_^ ^_^	^_^ 
+  //è¢«åŠ¨æ¥åˆ°å¯¹æ–¹offer çš„SDPçš„ä¿¡æ¯å“ˆ  ^_^ ^_^	^_^ 
   if (!peer_connection_.get()) {
     RTC_DCHECK(peer_id_ == -1);
     peer_id_ = peer_id;
@@ -553,7 +553,7 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
       auto* track = reinterpret_cast<webrtc::MediaStreamTrackInterface*>(data);
       if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
         auto* video_track = static_cast<webrtc::VideoTrackInterface*>(track);
-		// ºÃ¼Ò»ï  ÖÕÓÚÕÒµ½Äã ¹ş¹ş ^_^
+		// å¥½å®¶ä¼™  ç»ˆäºæ‰¾åˆ°ä½  å“ˆå“ˆ ^_^
         main_wnd_->StartRemoteRenderer(video_track);
       }
       track->Release();
@@ -575,7 +575,7 @@ void Conductor::UIThreadCallback(int msg_id, void* data) {
 
 void Conductor::OnSuccess(webrtc::SessionDescriptionInterface* desc) 
 {
-  // µÃµ½±¾µØÊÓÆµ»ù±¾ĞÅÏ¢ ÏÈÉèÖÃ±¾µØ SDP Ñ¼
+  // å¾—åˆ°æœ¬åœ°è§†é¢‘åŸºæœ¬ä¿¡æ¯ å…ˆè®¾ç½®æœ¬åœ° SDP é¸­
   peer_connection_->SetLocalDescription(DummySetSessionDescriptionObserver::Create(), desc);
 
   std::string sdp;

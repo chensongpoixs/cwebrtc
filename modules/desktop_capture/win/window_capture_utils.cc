@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -150,7 +150,7 @@ WindowCaptureHelperWin::WindowCaptureHelperWin()
 
 	if (rtc::IsWindows10OrLater())
 	{
-		//��ʼ��
+		//³õÊ¼»¯
 		//::CoInitialize(NULL);
 	  //::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 		/*if (FAILED(::CoCreateInstanceEx(__uuidof(VirtualDesktopManager), nullptr,

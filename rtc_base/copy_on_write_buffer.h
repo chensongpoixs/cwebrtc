@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2016 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -191,8 +191,7 @@ class CopyOnWriteBuffer {
       return;
     }
 
-    CloneDataIfReferenced(
-        std::max(buffer_->capacity(), buffer_->size() + size));
+    CloneDataIfReferenced((std::max)(buffer_->capacity(), buffer_->size() + size));
     buffer_->AppendData(data, size);
     RTC_DCHECK(IsConsistent());
   }

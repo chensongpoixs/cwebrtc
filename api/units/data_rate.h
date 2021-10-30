@@ -28,7 +28,7 @@ namespace webrtc {
 namespace data_rate_impl {
 inline int64_t Microbits(const DataSize& size) {
   constexpr int64_t kMaxBeforeConversion =
-      std::numeric_limits<int64_t>::max() / 8000000;
+      (std::numeric_limits<int64_t>::max)() / 8000000;
   RTC_DCHECK_LE(size.bytes(), kMaxBeforeConversion)
       << "size is too large to be expressed in microbytes";
   return size.bytes() * 8000000;

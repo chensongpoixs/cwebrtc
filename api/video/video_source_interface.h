@@ -33,7 +33,7 @@ struct RTC_EXPORT VideoSinkWants {
   bool black_frames = false;
 
   // Tells the source the maximum number of pixels the sink wants.
-  int max_pixel_count = std::numeric_limits<int>::max();
+  int max_pixel_count = (std::numeric_limits<int>::max)();
   // Tells the source the desired number of pixels the sinks wants. This will
   // typically be used when stepping the resolution up again when conditions
   // have improved after an earlier downgrade. The source should select the
