@@ -26,11 +26,20 @@ namespace webrtc {
 std::vector<SdpVideoFormat> InternalEncoderFactory::GetSupportedFormats()
     const {
   std::vector<SdpVideoFormat> supported_codecs;
+  for (const webrtc::SdpVideoFormat& format : webrtc::SupportedH264Codecs())
+  {
+	  //cricket::VideoCodec codec(kH264CodecName);
+	  //// TODO(magjed): Move setting these parameters into webrtc::H264Encoder
+	  //// instead.
+	  //codec.SetParam(kH264FmtpProfileLevelId, kH264ProfileLevelConstrainedBaseline);
+	  //codec.SetParam(kH264FmtpLevelAsymmetryAllowed, "1");
+
+	  supported_codecs.push_back(format);
+  }
   supported_codecs.push_back(SdpVideoFormat(cricket::kVp8CodecName));
   for (const webrtc::SdpVideoFormat& format : webrtc::SupportedVP9Codecs())
     supported_codecs.push_back(format);
-  for (const webrtc::SdpVideoFormat& format : webrtc::SupportedH264Codecs())
-    supported_codecs.push_back(format);
+ 
   return supported_codecs;
 }
 
