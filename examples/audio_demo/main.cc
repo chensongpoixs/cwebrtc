@@ -325,10 +325,7 @@ public:
 	}
 };
 
-int PASCAL wWinMain(HINSTANCE instance,
-		HINSTANCE prev_instance,
-		wchar_t* cmd_line,
-		int cmd_show)
+int main(int argc, char *argv[])
 {
 	/*if (argc < 2) {
 		fprintf(stderr, "Need input the param recording(1) or playout(2).\n");

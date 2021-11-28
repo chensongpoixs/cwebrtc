@@ -51,13 +51,14 @@ group("examples") {
       ":relayserver",
       ":stunserver",
       ":turnserver",
+      ":audio_demo",
     ]
     if (current_os != "winuwp") {
       deps += [ 
         ":peerconnection_client",
         ":desktop_capture_demo",
         ":peerconnection_desktop",
-        ":audio_demo",
+        
     ]
     }
   }
@@ -914,7 +915,6 @@ if (is_linux || is_win) {
       "//third_party/abseil-cpp/absl/types:optional",
     ]
     if (is_win) {
-      configs += [ "//build/config/win:windowed" ]
       deps += [ "../media:rtc_media_base" ]
     }
 
