@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -32,6 +32,7 @@ bool DxgiTextureMapping::CopyFromTexture(
   RTC_DCHECK_GT(frame_info.AccumulatedFrames, 0);
   RTC_DCHECK(texture);
   *rect() = {0};
+  // 获取截图bmp
   _com_error error = duplication_->MapDesktopSurface(rect());
   if (error.Error() != S_OK) {
     *rect() = {0};
