@@ -1160,6 +1160,7 @@ bool PeerConnection::Initialize(
   webrtc_session_desc_factory_.reset(new WebRtcSessionDescriptionFactory(
       signaling_thread(), channel_manager(), this, session_id(),
       std::move(dependencies.cert_generator), certificate, &ssrc_generator_));
+  // 真正等待ready回调函数触发
   webrtc_session_desc_factory_->SignalCertificateReady.connect( this, &PeerConnection::OnCertificateReady);
 
   if (options.disable_encryption) {
