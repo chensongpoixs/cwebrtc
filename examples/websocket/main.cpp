@@ -126,23 +126,12 @@ struct CNet_Message
 
 
 
-class EventSocketDispatcher : public rtc::SocketDispatcher
-{
-public:
-	void EnableEvents(uint8_t events)
-	{
-		rtc::SocketDispatcher::EnableEvents(events);
-	}
-	void DisableEvents(uint8_t events)
-	{
-		rtc::SocketDispatcher::DisableEvents(events);
-	}
-};
+ 
 
 class cTestClient : public sigslot::has_slots<>  
 {
 private:
-	typedef EventSocketDispatcher			csocket;
+	typedef rtc::SocketDispatcher			csocket;
 	typedef rtc::SocketAddress			caddress;
 	typedef rtc::PhysicalSocketServer	cwork;
 	typedef std::thread					cthread;
@@ -484,29 +473,9 @@ private:
 		uint64_t count = 0;
 		while (true)
 		{
-			
-			//
-
-			//m_socket->SetOption(rtc::Socket::OPT_SNDBUF, 1);
-			//m_socket->OnEvent(rtc::DE_WRITE, 0);
-			//m_socket->OnEvent(rtc::DE_READ, 0);
-			//m_io_work.Add(m_socket);
-			//m_socket->EnableEvents(rtc::DE_WRITE);
-			//if (m_socket->GetRequestedEvents() & (rtc::DE_READ))
-			//{
-			//	//m_io_work.Remove(m_socket);
-			//	m_socket->EnableEvents(rtc::DE_WRITE  );
-			//	//m_io_work.Add(m_socket);
-			//}
-			
-			/*if (m_socket->GetRequestedEvents() & (~rtc::DE_READ))
-			{
-				m_socket->EnableEvents(rtc::DE_READ);
-				m_io_work.Add(m_socket);
-			}*/
-			//RTC_LOG(INFO) << "wait event = " << m_socket->GetRequestedEvents();
+			 
 			++count;
-			if (count % 10 == 0)
+			if (count % 5 == 0)
 			{
 				m_socket->OnEvent(rtc::DE_WRITE, 0);
 			}
