@@ -60,6 +60,7 @@ group("examples") {
         ":peerconnection_desktop",
         ":mediasoup_client",
         ":websocket",
+        ":mediasoup",
         
     ]
     }
@@ -1188,6 +1189,72 @@ if (is_linux || is_win) {
     ]
   }
 
+  rtc_executable("mediasoup") {
+    testonly = true
+    sources = [
+      "mediasoup/cmediasoup_sdp.h",
+      "mediasoup/cmediasoup_sdp.cpp",
+      "mediasoup/cpeer_connection.h",
+      "mediasoup/cpeer_connection.cpp",
+      "mediasoup/main.cpp",
+    ]
+
+    deps = [
+      "../api:audio_options_api",
+      "../api:create_peerconnection_factory",
+      "../api:libjingle_peerconnection_api",
+      "../api:scoped_refptr",
+      "../api/audio:audio_mixer_api",
+      "../api/audio_codecs:audio_codecs_api",
+      "../api/video:video_frame_i420",
+      "../api/video_codecs:video_codecs_api",
+      "../media:rtc_media_base",
+      "../p2p:rtc_p2p",
+      "../rtc_base:checks",
+      "../rtc_base/third_party/sigslot",
+      "../system_wrappers:field_trial",
+      "../test:field_trial",
+      "../test:platform_video_capturer",
+      "../test:rtp_test_utils",
+      "//third_party/abseil-cpp/absl/memory",
+      "//third_party/abseil-cpp/absl/types:optional",
+    ]
+    if (is_win) {
+      deps += [ "../media:rtc_media_base" ]
+    }
+
+    if(is_linux) {
+      cflags = [ "-Wno-deprecated-declarations" ]
+      libs = [
+        "X11",
+        "Xcomposite",
+        "Xext",
+        "Xrender",
+      ]
+    }
+
+    deps += [
+      "../api:libjingle_peerconnection_api",
+      "../api/audio_codecs:builtin_audio_decoder_factory",
+      "../api/audio_codecs:builtin_audio_encoder_factory",
+      "../api/video:video_frame",
+      "../api/video_codecs:builtin_video_decoder_factory",
+      "../api/video_codecs:builtin_video_encoder_factory",
+      "../media:rtc_audio_video",
+      "../modules/audio_device",
+      "../modules/audio_processing",
+      "../modules/audio_processing:api",
+      "../modules/desktop_capture:desktop_capture",
+      "../pc:libjingle_peerconnection",
+      "../pc:peerconnection",
+      "../rtc_base",
+      "../rtc_base:rtc_base_approved",
+      "../rtc_base:rtc_json",
+      "../test:video_test_common",
+      "../test:test_renderer",
+      "//third_party/libyuv",
+    ]
+  }
 
 }
 
