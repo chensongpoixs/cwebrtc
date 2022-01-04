@@ -86,8 +86,8 @@ namespace chen {
 	void cpeer_connection::OnSuccess(webrtc::SessionDescriptionInterface* desc)
 	{
 		// 分创建offer sdp
-		/*std::string dec;
-		desc->ToString(&dec);*/
+		std::string dec;
+		desc->ToString(&dec);
 
 		Json::StyledWriter writer;
 		Json::Value mediasopu_sdp =  parse(desc);

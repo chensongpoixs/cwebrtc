@@ -355,6 +355,7 @@ namespace chen {
 			}
 
 			// Add the a=rtcp line.
+		 
 			if (media_desc->protocol().empty() ||
 				(media_desc->protocol().find(cricket::kMediaProtocolRtpPrefix) != std::string::npos)  )
 			{
@@ -366,7 +367,7 @@ namespace chen {
 				media_rtcp["address"] = rtcp_ip;
 				media_rtcp["ipVer"] = std::atoi(addr_type.c_str());
 				media_rtcp["netType"] = "IN";
-				media_rtcp["port"] = std::atoi(rtcp_ip.c_str());
+				media_rtcp["port"] = std::atoi(rtcp_port.c_str());
 				media_info["rtcp"] = media_rtcp;
 			}
 
@@ -402,11 +403,16 @@ namespace chen {
 				if (!desc->GetTransportInfoByName(content.name)->description.transport_options.empty())
 				{
 					std::ostringstream ice_options;
+
 					for (size_t i = 0; i < desc->GetTransportInfoByName(content.name)->description.transport_options.size(); ++i) 
 					{
-						ice_options << " " << desc->GetTransportInfoByName(content.name)->description.transport_options[i];
+						if (i > 0)
+						{
+							ice_options << " ";
+						}
+						ice_options << desc->GetTransportInfoByName(content.name)->description.transport_options[i];
 					}
-					media_info ["iceOptions"] = ice_options.str().data();
+					media_info ["iceOptions"] = ice_options.str() ;
 
 				}
 				// RFC 4572
@@ -433,7 +439,7 @@ namespace chen {
 						std::string dtls_role_str;
 						const bool success = cricket::ConnectionRoleToString(role, &dtls_role_str);
 						RTC_DCHECK(success);
-						media_info["setup"] = dtls_role_str;
+						media_info["setup"]= dtls_role_str;
 						/*InitAttrLine(kAttributeSetup, &os);
 						os << kSdpDelimiterColon << dtls_role_str;
 						AddLine(os.str(), message);*/
@@ -450,6 +456,7 @@ namespace chen {
 			// identification-tag = token
 			// Use the content name as the mid identification-tag. 
 			media_info["mid"] = content.name;
+			// TODO@chensong 2022-01-04 协议加密和不加密的操作 目前只有不加密的程序哈
 			if (media_desc->protocol().find(cricket::kMediaProtocolDtlsSctp) != std::string::npos)
 			{
 				//const cricket::DataContentDescription* data_desc = media_desc->as_data();
@@ -475,14 +482,14 @@ namespace chen {
 				// a=extmap:<value>["/"<direction>] <URI> <extensionattributes>
 				// The definitions MUST be either all session level or all media level. This
 				// implementation uses all media level.
-				media_info["ext"] = Json::arrayValue;
+				Json::Value ext_value = Json::arrayValue;
 				for (size_t i = 0; i < media_desc->rtp_header_extensions().size(); ++i) 
 				{
 					Json::Value ext_object;
 					const webrtc::RtpExtension& extension = media_desc->rtp_header_extensions()[i];
 					/*InitAttrLine(kAttributeExtmap, &os);
 					os << kSdpDelimiterColon << extension.id;*/
-					ext_object["value"] = extension.id;
+					ext_object ["value"] = extension.id;
 					ext_object["uri"] = extension.uri;
 					if (extension.encrypt) 
 					{
@@ -490,9 +497,10 @@ namespace chen {
 					}
 					//os << kSdpDelimiterSpace << extension.uri;
 					//AddLine(os.str(), message);
-					media_info["ext"] = ext_object;
+					//ext_value = ext_object;
+					ext_value.append(ext_object);
 				}
-
+				media_info["ext"] = ext_value;
 
 				// RFC 3264
 				// a=sendrecv || a=sendonly || a=sendrecv || a=inactive
@@ -614,12 +622,17 @@ namespace chen {
 							codec_value["rate"] = cricket::kVideoCodecClockrate;
 							 
 						}
-						media_info["rtp"] = codec_value;
+						media_info["rtp"].append( codec_value);
 						 
 						for (const cricket::FeedbackParam& param : codec.feedback_params.params()) 
 						{
 							Json::Value rtcpfb;
-							rtcpfb["type"] = param.param();
+							rtcpfb["type"] = param.id();
+							if (!param.param().empty())
+							{
+								rtcpfb["subtype"] = param.param();
+							}
+
 							if (codec.id == -1)
 							{
 								rtcpfb["payload"] = "*";
@@ -629,7 +642,7 @@ namespace chen {
 								rtcpfb["payload"] = codec.id;
 							}
 
-							media_info["rtcpFb"] = rtcpfb;
+							media_info["rtcpFb"].append(rtcpfb);
 							/*rtc::StringBuilder os;
 							WriteRtcpFbHeader(codec.id, &os);
 							os << " " << param.id();
@@ -665,8 +678,7 @@ namespace chen {
 								// Parameters are a semicolon-separated list, no spaces.
 								// The list is separated from the header by a space.
 								if (first)
-								{
-									os << " ";
+								{ 
 									first = false;
 								}
 								else 
@@ -679,7 +691,7 @@ namespace chen {
 							}
 
 							fmtp_parameter["config"] = os.str().data();
-							media_info["fmtp"] = fmtp_parameter;
+							media_info["fmtp"].append(fmtp_parameter);
 							/*rtc::StringBuilder os;
 							WriteFmtpHeader(codec.id, &os);
 							WriteFmtpParameters(fmtp_parameters, &os);
@@ -709,7 +721,7 @@ namespace chen {
 							codec_value["rate"] = codec.clockrate;
 
 						}
-						media_info["rtp"] = codec_value;
+						media_info["rtp"].append(codec_value);
 						/*InitAttrLine(kAttributeRtpmap, &os);
 						os << kSdpDelimiterColon << codec.id << " ";
 						os << codec.name << "/" << codec.clockrate;
@@ -723,7 +735,12 @@ namespace chen {
 						for (const cricket::FeedbackParam& param : codec.feedback_params.params()) 
 						{
 							Json::Value rtcpfb;
-							rtcpfb["type"] = param.param();
+							rtcpfb["type"] = param.id();
+							if (!param.param().empty())
+							{
+								rtcpfb["subtype"] = param.param();
+							}
+							
 							if (codec.id == -1)
 							{
 								rtcpfb["payload"] = "*";
@@ -733,7 +750,7 @@ namespace chen {
 								rtcpfb["payload"] = codec.id;
 							}
 
-							media_info["rtcpFb"] = rtcpfb;
+							media_info["rtcpFb"].append( rtcpfb);
 							/*rtc::StringBuilder os;
 							WriteRtcpFbHeader(codec.id, &os);
 							os << " " << param.id();
@@ -769,8 +786,7 @@ namespace chen {
 								// Parameters are a semicolon-separated list, no spaces.
 								// The list is separated from the header by a space.
 								if (first)
-								{
-									os << " ";
+								{ 
 									first = false;
 								}
 								else 
@@ -783,7 +799,7 @@ namespace chen {
 							}
 
 							fmtp_parameter["config"] = os.str().data();
-							media_info["fmtp"] = fmtp_parameter;
+							media_info["fmtp"].append(fmtp_parameter);
 							/*rtc::StringBuilder os;
 							WriteFmtpHeader(codec.id, &os);
 							WriteFmtpParameters(fmtp_parameters, &os);
@@ -835,7 +851,7 @@ namespace chen {
 							codec_value["rate"] = codec.clockrate;
 
 						}
-						media_info["rtp"] = codec_value;
+						media_info["rtp"].append(codec_value);
 						/*InitAttrLine(kAttributeRtpmap, &os);
 						os << kSdpDelimiterColon << codec.id << " " << codec.name << "/"
 							<< codec.clockrate;
@@ -843,10 +859,113 @@ namespace chen {
 					}
 				}
 
+				media_info["ssrcGroups"] = Json::arrayValue;
+				media_info["ssrcs"] = Json::arrayValue;
+				for (const cricket::StreamParams& track : media_desc->streams()) 
+				{
+					
+					// Build the ssrc-group lines.
+					for (const cricket::SsrcGroup& ssrc_group : track.ssrc_groups) 
+					{
+						
+						// RFC 5576
+						// a=ssrc-group:<semantics> <ssrc-id> ...
+						Json::Value cssrc_group;
+						if (ssrc_group.ssrcs.empty()) 
+						{
+							continue;
+						}
+						cssrc_group["semantics"] = ssrc_group.semantics;
+						std::ostringstream os;
+						for (uint32_t cssrc_i = 0; cssrc_i < ssrc_group.ssrcs.size(); ++cssrc_i)
+						{
+							if (cssrc_i > 0)
+							{
+								os << " ";
+							}
+							os << rtc::ToString(ssrc_group.ssrcs[cssrc_i]);
+						}
+						cssrc_group["ssrcs"] = os.str();
+						media_info["ssrcGroups"].append(cssrc_group);
+					}
+					// Build the ssrc lines for each ssrc.
+					for (uint32_t ssrc : track.ssrcs) 
+					{
+						// RFC 5576
+						// a=ssrc:<ssrc-id> cname:<value> 
+						{
+							Json::Value cssrc_name;
+							cssrc_name["attribute"] = "cname";
+							cssrc_name["id"] = ssrc;
+							cssrc_name["value"] = track.cname;
+							media_info["ssrcs"].append(cssrc_name);
+						}
+
+						if (desc->msid_signaling() & cricket::kMsidSignalingSsrcAttribute) {
+							// draft-alvestrand-mmusic-msid-00
+							// a=ssrc:<ssrc-id> msid:identifier [appdata]
+							// The appdata consists of the "id" attribute of a MediaStreamTrack,
+							// which corresponds to the "id" attribute of StreamParams.
+							// Since a=ssrc msid signaling is used in Plan B SDP semantics, and
+							// multiple stream ids are not supported for Plan B, we are only adding
+							// a line for the first media stream id here.
+							const std::string& track_stream_id = track.first_stream_id();
+							// We use a special msid-id value of "-" to represent no streams,
+							// for Unified Plan compatibility. Plan B will always have a
+							// track_stream_id.
+							const std::string& stream_id =
+								track_stream_id.empty() ? "-" : track_stream_id;
+							/*InitAttrLine(kAttributeSsrc, &os);
+							os << kSdpDelimiterColon << ssrc << kSdpDelimiterSpace
+								<< kSsrcAttributeMsid << kSdpDelimiterColon << stream_id
+								<< kSdpDelimiterSpace << track.id;
+							AddLine(os.str(), message);*/
+							{
+								Json::Value cssrc_name;
+								cssrc_name["attribute"] = "msid";
+								cssrc_name["id"] = ssrc;
+								cssrc_name["value"] = stream_id + " " + track.id;
+								media_info["ssrcs"].append(cssrc_name);
+							}
+
+							// TODO(ronghuawu): Remove below code which is for backward
+							// compatibility.
+							// draft-alvestrand-rtcweb-mid-01
+							// a=ssrc:<ssrc-id> mslabel:<value>
+							// The label isn't yet defined.
+							// a=ssrc:<ssrc-id> label:<value>
+							{
+								Json::Value cssrc_name;
+								cssrc_name["attribute"] = "mslabel";
+								cssrc_name["id"] = ssrc;
+								cssrc_name["value"] = stream_id  ;
+								media_info["ssrcs"].append(cssrc_name);
+							}
+							{
+								Json::Value cssrc_name;
+								cssrc_name["attribute"] = "label";
+								cssrc_name["id"] = ssrc;
+								cssrc_name["value"] = track.id;
+								media_info["ssrcs"].append(cssrc_name);
+							}
+							//AddSsrcLine(ssrc, kSsrcAttributeMslabel, stream_id, message);
+							//AddSsrcLine(ssrc, kSSrcAttributeLabel, track.id, message);
+						}
+					}
+
+					// Build the rid lines for each layer of the track
+					//for (const cricket::RidDescription& rid_description : track.rids()) {
+					//	/*InitAttrLine(kAttributeRid, &os);
+					//	os << kSdpDelimiterColon
+					//		<< serializer.SerializeRidDescription(rid_description);
+					//	AddLine(os.str(), message);*/
+					//}
+				}
+
 			}
 
 
-			meessage["media"] = media_info;
+			meessage["media"].append( media_info);
 		}
 
 
