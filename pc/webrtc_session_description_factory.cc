@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -171,6 +171,7 @@ WebRtcSessionDescriptionFactory::WebRtcSessionDescriptionFactory(
         new rtc::RefCountedObject<WebRtcCertificateGeneratorCallback>());
     callback->SignalRequestFailed.connect(
         this, &WebRtcSessionDescriptionFactory::OnCertificateRequestFailed);
+	// 这边注册回调函数哈
     callback->SignalCertificateReady.connect(
         this, &WebRtcSessionDescriptionFactory::SetCertificate);
 
@@ -368,6 +369,7 @@ void WebRtcSessionDescriptionFactory::InternalCreateOffer(
       }
     }
   }
+  // 这边回调 中间层后在回调应用层SDP回调哈 ^_^
   PostCreateSessionDescriptionSucceeded(request.observer, std::move(offer));
 }
 

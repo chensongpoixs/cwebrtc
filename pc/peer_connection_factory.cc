@@ -162,23 +162,24 @@ PeerConnectionFactory::~PeerConnectionFactory() {
 bool PeerConnectionFactory::Initialize() {
   RTC_DCHECK(signaling_thread_->IsCurrent());
   rtc::InitRandom(rtc::Time32());
-
+  // 1. 网络管理类初始化
   default_network_manager_.reset(new rtc::BasicNetworkManager());
   if (!default_network_manager_) {
     return false;
   }
-
+  // 2. 设置网络线程
   default_socket_factory_.reset(
       new rtc::BasicPacketSocketFactory(network_thread_));
   if (!default_socket_factory_) {
     return false;
   }
-
+  // 3. 网络通道 和设置网络线程和工作线程
   channel_manager_ = absl::make_unique<cricket::ChannelManager>(
       std::move(media_engine_), absl::make_unique<cricket::RtpDataEngine>(),
       worker_thread_, network_thread_);
 
   channel_manager_->SetVideoRtxEnabled(true);
+  // 4. 通道信息初始化
   if (!channel_manager_->Init()) {
     return false;
   }
@@ -321,6 +322,7 @@ PeerConnectionFactory::CreatePeerConnection(
       new rtc::RefCountedObject<PeerConnection>(this, std::move(event_log),
                                                 std::move(call)));
   ActionsBeforeInitializeForTesting(pc);
+  // 这边peerconnection的初始化哈  这边我们需要关注一下
   if (!pc->Initialize(configuration, std::move(dependencies))) {
     return nullptr;
   }

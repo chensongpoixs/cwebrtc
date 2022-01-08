@@ -1156,11 +1156,11 @@ bool PeerConnection::Initialize(
     // Favor generated certificate over the certificate generator.
     dependencies.cert_generator.reset();
   }
-
+  // 这边 需要关注一下 SDP 的信息哈 ^_^ webrtc_sesssion_desc_factory -> createoffer -> create
   webrtc_session_desc_factory_.reset(new WebRtcSessionDescriptionFactory(
       signaling_thread(), channel_manager(), this, session_id(),
       std::move(dependencies.cert_generator), certificate, &ssrc_generator_));
-  // 真正等待ready回调函数触发
+  //createoffer 会用这个回调函数哈 ^_^ 真正等待ready回调函数触发 ->> 回复应用层SDP信息哈 的回调函数
   webrtc_session_desc_factory_->SignalCertificateReady.connect( this, &PeerConnection::OnCertificateReady);
 
   if (options.disable_encryption) {

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -220,8 +220,8 @@ class MediaContentDescription {
   }
 
  protected:
-  bool rtcp_mux_ = false;
-  bool rtcp_reduced_size_ = false;
+  bool rtcp_mux_ = false; // rtp与rtcp是否共有一个通道
+  bool rtcp_reduced_size_ = false; // 接受信息的大小数据收集
   int bandwidth_ = kAutoBandwidth;
   std::string protocol_;
   std::vector<CryptoParams> cryptos_;

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -116,7 +116,9 @@ void ChannelManager::GetSupportedDataCodecs(
     std::vector<DataCodec>* codecs) const {
   *codecs = data_engine_->data_codecs();
 }
-
+/************************************************************************/
+/* 信号线程执行的                                                                */
+/************************************************************************/
 bool ChannelManager::Init() {
   RTC_DCHECK(!initialized_);
   if (initialized_) {
@@ -124,12 +126,14 @@ bool ChannelManager::Init() {
   }
   RTC_DCHECK(network_thread_);
   RTC_DCHECK(worker_thread_);
+  // 正常情况信号线程与网络线程 所以是会设置线程
   if (!network_thread_->IsCurrent()) {
     // Do not allow invoking calls to other threads on the network thread.
+	 // 不允许调用网络线程上的其他线程。
     network_thread_->Invoke<void>(
         RTC_FROM_HERE, [&] { network_thread_->DisallowBlockingCalls(); });
   }
-
+  // 媒体信息初始化 非常重要的哈 ^_^
   if (media_engine_) {
     initialized_ = worker_thread_->Invoke<bool>(
         RTC_FROM_HERE, [&] { return media_engine_->Init(); });
