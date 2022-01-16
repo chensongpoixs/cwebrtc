@@ -214,3 +214,18 @@ third_party/abseil-cpp ;third_party/libyuv/include ;third_party/jsoncpp/override
 openH264
 
 H264 (125, level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f;x-google-max-bitrate=100000;x-google-min-bitrate=4000;x-google-start-bitrate=8000)
+
+
+
+
+
+# 递归删除  特定文件
+find /tmp/98/upload -name *.avi -type f -print -exec rm -rf {} \;
+
+find . -name abc -type d -print -exec rm -rf {} \;
+
+(1) "."    表示从当前目录开始递归查找
+(2) “ -name '*.exe' "根据名称来查找，要查找所有以.exe结尾的文件夹或者文件
+(3) " -type f "查找的类型为文件
+(4) "-print" 输出查找的文件目录名
+(5) 最主要的是是-exec了，-exec选项后边跟着一个所要执行的命令，表示将find出来的文件或目录执行该命令。exec选项后面跟随着所要执行的命令或脚本，然后是一对儿{}，一个空格和一个\，最后是一个分号
