@@ -215,6 +215,9 @@ class DxgiDuplicatorController {
   // DxgiAdapterDuplicator and DxgiOutputDuplicator instances are initialized.
   void TranslateRect();
 
+ 
+
+
   // The count of references which are now "living".
   std::atomic_int refcount_;
 

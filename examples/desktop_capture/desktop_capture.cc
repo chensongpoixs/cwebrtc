@@ -35,11 +35,12 @@ DesktopCapture* DesktopCapture::Create(size_t target_fps,
 bool DesktopCapture::Init(size_t target_fps, size_t capture_screen_index) 
 {
 	// 窗口
-	dc_ = webrtc::DesktopCapturer::CreateWindowCapturer(
-		webrtc::DesktopCaptureOptions::CreateDefault());
+	//dc_ = webrtc::DesktopCapturer::CreateWindowCapturer(
+		//webrtc::DesktopCaptureOptions::CreateDefault());
 	//桌面
-	//dc_ = webrtc::DesktopCapturer::CreateScreenCapturer(
-    //  webrtc::DesktopCaptureOptions::CreateDefault());
+	webrtc::DesktopCaptureOptions result;
+	result.set_allow_directx_capturer(true);
+	dc_ = webrtc::DesktopCapturer::CreateScreenCapturer(result);
 
   if (!dc_)
     return false;
@@ -61,7 +62,7 @@ bool DesktopCapture::Init(size_t target_fps, size_t capture_screen_index)
   // Start new thread to capture
   return true;
 }
-
+FILE *out_file_ptr = fopen("desktop.yuv", "wb+");
 void DesktopCapture::OnCaptureResult(
     webrtc::DesktopCapturer::Result result,
     std::unique_ptr<webrtc::DesktopFrame> frame) {
@@ -95,7 +96,12 @@ void DesktopCapture::OnCaptureResult(
       i420_buffer_->width() * i420_buffer_->height() < width * height) {
     i420_buffer_ = webrtc::I420Buffer::Create(width, height);
   }
-
+  if (width == 1080 && height == 1920)
+  {
+	  fwrite(frame->data(), 1, width * height * 4, out_file_ptr);
+	  fflush(out_file_ptr);
+  }
+  
   libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
                         i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
                         i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),

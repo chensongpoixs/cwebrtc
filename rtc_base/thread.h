@@ -357,6 +357,7 @@ class RTC_LOCKABLE Thread : public MessageQueue {
 
   void InvokeInternal(const Location& posted_from, MessageHandler* handler);
 
+
   std::list<_SendMessage> sendlist_;
   std::string name_;
 

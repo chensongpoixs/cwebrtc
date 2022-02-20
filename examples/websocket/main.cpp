@@ -182,6 +182,7 @@ public:
 		, control_data_()
 		, onconnect_data_()
 		, m_websocket_protoo_id(10000)
+		, m_stoped(true)
 
 	{	 
 		 
@@ -262,6 +263,7 @@ public:
 
 	bool startup()
 	{
+		m_stoped = false;
 		m_thread = std::thread(&cTestClient::_work_thread, this);
 		return true;
 	}
@@ -467,19 +469,77 @@ public:
 		// callback // 上层业务的处理哈
 
 	}
+
+	bool stop()
+	{
+		if (m_stoped)
+		{
+			// warring
+			return false;
+		}
+		m_stoped = true;
+		if (m_thread.joinable())
+		{
+			m_thread.join();
+		}
+		if (m_socket)
+		{
+			m_io_work.Remove(m_socket);
+			delete m_socket;
+			m_socket = nullptr;
+		}
+
+		m_msgs.clear();
+		return true;
+	}
 private:
 	void	_work_thread()
 	{
 		uint64_t count = 0;
-		while (true)
+		while (!m_stoped)
 		{
 			 
 			++count;
-			if (count % 5 == 0)
+			if (count == 50)
 			{
-				m_socket->OnEvent(rtc::DE_WRITE, 0);
+				Json::StyledWriter writer;
+				Json::Value jmessage;
+
+				jmessage["request"] = true;
+				jmessage["id"] = ++m_websocket_protoo_id;
+				jmessage["method"] = "createWebRtcTransport";
+				jmessage["data"] = Json::objectValue;
+
+				jmessage["data"]["forceTcp"] = false;
+
+				jmessage["data"]["producing"] = true;
+				jmessage["data"]["consuming"] = false;
+				jmessage["data"]["sctpCapabilities"] = Json::objectValue;
+
+				jmessage["data"]["sctpCapabilities"]["numStreams"] = Json::objectValue;
+				Json::Value numStreamValue;
+				numStreamValue["OS"] = 1024;
+				numStreamValue["MIS"] = 1024;
+				jmessage["data"]["sctpCapabilities"]["numStreams"] = numStreamValue;
+				/*	forceTcp: this._forceTcp,
+						producing : true,
+						consuming : false,
+						sctpCapabilities : this._useDataChannel
+						? this._mediasoupDevice.sctpCapabilities
+						: undefined*/
+				//Json::objectValue objectValue;
+				//SendMessage(writer.write(jmessage));
+				//
+				std::string message = writer.write(jmessage);
+				RTC_LOG(INFO) << "[INFO]" << "send message = " << message << "   !!!";
+
+				_send_frame(wsheader_type::TEXT_FRAME, (const uint8_t*)message.c_str(), message.length());
 			}
 			
+
+
+
+
 			m_io_work.Wait(100, true); 
 		}
 		// exit info  try 
@@ -595,6 +655,7 @@ private:
 		net_msg.m_message = msg;
 		m_msgs.push_back(net_msg);
 	}
+	
 public:
 	 
 	caddress					m_address;
@@ -609,6 +670,7 @@ public:
 	std::mutex					m_msgs_lock;
 	std::list<CNet_Message>	    m_msgs;
 	uint64_t					m_websocket_protoo_id;
+	bool						m_stoped;
 	
 };
  
@@ -617,17 +679,21 @@ public:
 
 int main(int argc, char *argv[])
 {
-	
-	cTestClient client;
-	client.init("127.0.0.1", 8888);
+
+	 cTestClient client;
+	client.init("192.168.0.78", 8888);
 	client.connect_to();
 	client.startup();
+	
+	
+
 
 	while (true)
 	{
 		std::this_thread::sleep_for(std::chrono::microseconds(1000));
 	}
 	 
+	//client.stop();
 
 	return 0;
 }

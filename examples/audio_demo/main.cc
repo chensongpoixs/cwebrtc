@@ -29,7 +29,21 @@
 
 #include <common_audio/resampler/include/push_resampler.h>
 #include <api/audio/audio_frame.h>
+#include "p2p/base/stun_server.h"
+#include "rtc_base/async_tcp_socket.h"
+#include "rtc_base/socket_address.h"
+#include "rtc_base/socket_server.h"
+#include "rtc_base/thread.h"
+#include "rtc_base/checks.h"
+#include "rtc_base/logging.h"
+#include "rtc_base/net_helpers.h"
+#include <iostream>
+#include <thread>
+#ifdef WIN32
+#include "rtc_base/win32_socket_server.h"
+#endif
 
+#include "rtc_base/physical_socket_server.h"
 
 constexpr int RECORD_MODE = 1;
 constexpr int PLAYOUT_MODE = 2;
@@ -325,8 +339,260 @@ public:
 	}
 };
 
+
+
+
+
+
+
+
+
+
+
+#define CHEN_LOG_SHOW std::cout << "[info]" << __FUNCTION__ << "[" << __LINE__ << "] thread_id = " << std::this_thread::get_id() << std::endl;
+
+
+
+#define CHEN_LOG_SHOW_END std::cout << "[info]" << __FUNCTION__ << "[" << __LINE__ << "] end thread_id = " << std::this_thread::get_id() << std::endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rtc::AsyncSocket* CreateClientSocket(int family) {
+#ifdef WIN32
+	rtc::Win32Socket* sock = new rtc::Win32Socket();
+	sock->CreateT(family, SOCK_STREAM);
+	return sock;
+#elif defined(WEBRTC_POSIX)
+	rtc::Thread* thread = rtc::Thread::Current();
+	RTC_DCHECK(thread != NULL);
+	return thread->socketserver()->CreateAsyncSocket(family, SOCK_STREAM);
+#else
+#error Platform not supported.
+#endif
+}
+class cTestClient : public sigslot::has_slots<> ,
+	public rtc::MessageHandler
+{
+public:
+	cTestClient(rtc::AsyncSocket * control_socket):control_socket_(control_socket) {}
+	~cTestClient() {}
+public:
+	void OnMessage(rtc::Message* msg)
+	{
+		init();
+	}
+	bool init()
+	{
+		CHEN_LOG_SHOW
+
+
+			control_socket_->SignalCloseEvent.connect(this, &cTestClient:: OnClose);
+			// hanging_get_->SignalCloseEvent.connect(this, &PeerConnectionClient::OnClose);
+			control_socket_->SignalConnectEvent.connect(this, &cTestClient::OnConnect);
+			control_socket_->SignalWriteEvent.connect(this, &cTestClient::OnWrite);
+			// hanging_get_->SignalConnectEvent.connect(
+			//     this, &PeerConnectionClient::OnHangingGetConnect);
+			control_socket_->SignalReadEvent.connect(this, &cTestClient::OnRead);
+
+	/*		control_socket_->SignalConnect.connect(this, &cTestClient::OnConnect);
+		control_socket_->SignalClose.connect(this, &cTestClient::OnClose);
+		control_socket_->SignalReadPacket.connect(this, &cTestClient::OnRead);
+		control_socket_->SignalSentPacket.connect(this, &cTestClient::OnWrite);*/
+		onconnect_data_.clear();
+		char line[1024] = {0};
+
+		snprintf(line, 1024, "GET /%s HTTP/1.1\r\n", "/?roomId=chensong&peerId=xiqhlyrn"); 
+		onconnect_data_ = line;
+		snprintf(line, 1024, "Host: %s:%d\r\n", server_address_.hostname().c_str(), server_address_.ip()); 
+		onconnect_data_ += line;
+
+
+		static const char * user_agent = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36\r\n";
+
+		onconnect_data_ += user_agent;
+
+
+		snprintf(line, 1024, "Upgrade: websocket\r\n"); 
+		onconnect_data_ += line;
+
+		snprintf(line, 1024, "Connection: Upgrade\r\n");
+		onconnect_data_ += line;
+
+		snprintf(line, 1024, "Origin: http://%s:%u\r\n", server_address_.hostname().c_str(), server_address_.ip()); 
+		onconnect_data_ += line;
+		snprintf(line, 1024, "Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==\r\n");
+		onconnect_data_ += line;
+		snprintf(line, 1024, "Sec-WebSocket-Version: 13\r\n"); 
+		onconnect_data_ += line;
+
+		static const char * websocketproto = "Sec-WebSocket-Protocol: protoo\r\n";
+		onconnect_data_ += websocketproto;
+		onconnect_data_ += "\r\n";
+		 
+
+		//rtc::PacketOptions options;
+		//// socket->Send(onconnect_data_.c_str(), onconnect_data_.length(), options); 
+		//control_socket_->Send(onconnect_data_.c_str(), onconnect_data_.length() );
+		//onconnect_data_.clear();
+		
+		return true;
+	}
+	void OnClose(rtc::AsyncSocket* socket, int error)
+	{
+		CHEN_LOG_SHOW
+	}
+	void OnConnect(rtc::AsyncSocket* socket)
+	{
+		CHEN_LOG_SHOW
+			rtc::PacketOptions options;
+		socket->Send(onconnect_data_.c_str(), onconnect_data_.length()); 
+		//control_socket_->Send(onconnect_data_.c_str(), onconnect_data_.length(), options);
+		onconnect_data_.clear();
+	}
+	void OnWrite(rtc::AsyncSocket* socket )
+	{
+		CHEN_LOG_SHOW
+	}
+	void OnRead(rtc::AsyncSocket* socket )
+	{
+		CHEN_LOG_SHOW
+
+	}
+public:
+	rtc::AsyncSocket* control_socket_;
+	std::string control_data_;
+	std::string onconnect_data_;
+	rtc::SocketAddress server_address_;
+};
+
+//rtc::AsyncSocket* CreateClientSocket(int family) {
+//#ifdef WIN32
+//	rtc::Win32Socket* sock = new rtc::Win32Socket();
+//	sock->CreateT(family, SOCK_STREAM);
+//	return sock;
+//#elif defined(WEBRTC_POSIX)
+//	rtc::Thread* thread = rtc::Thread::Current();
+//	RTC_DCHECK(thread != NULL);
+//	return thread->socketserver()->CreateAsyncSocket(family, SOCK_STREAM);
+//#else
+//#error Platform not supported.
+//#endif
+//}
+
+
+class Async :  public sigslot::has_slots<> ,
+	public rtc::MessageHandler
+{
+public:
+	void OnMessage(rtc::Message* msg)
+	{
+		//init();
+	}
+	Async(rtc::AsyncTCPSocket* async_socket)
+		:m_async_socket(async_socket)
+	{
+		m_async_socket->SignalConnect.connect(this, &Async::OnConnect);
+	}
+	void OnConnect(rtc::AsyncPacketSocket* socket)
+	{
+		CHEN_LOG_SHOW
+	}
+
+
+	rtc::AsyncTCPSocket* m_async_socket;
+};
+
+
 int main(int argc, char *argv[])
 {
+	WSADATA wsaData;
+	WORD wVersionRequested = MAKEWORD(1, 0);
+	WSAStartup(wVersionRequested, &wsaData);
+	rtc::SocketAddress server_addr;
+	server_addr.SetIP("127.0.0.1");
+	server_addr.SetPort(8888);
+	rtc::PhysicalSocketServer server;
+
+	rtc::AsyncSocket *async_socket = server.CreateAsyncSocket(server_addr.ipaddr().family(), SOCK_STREAM);
+	cTestClient client(async_socket);
+	client.init();
+	
+	async_socket->Connect(server_addr);
+	 
+	while (true)
+	{
+		RTC_LOG(INFO) << "[INFO]" << "wiat 100 ...";;
+		server.Wait(100, true);
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+
+
+	
+	 
+
+	//delete server;
+
+
+
+
+
+	return 0;
+	/*cTestClient client;
+	client.init();*/
+
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	return 0;
+
 	/*if (argc < 2) {
 		fprintf(stderr, "Need input the param recording(1) or playout(2).\n");
 		return -1;
@@ -427,3 +693,5 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
+

@@ -53,7 +53,8 @@ namespace test {
 using VideoStatistics = VideoCodecTestStats::VideoStatistics;
 
 namespace {
-const int kBaseKeyFrameInterval = 3000;
+//const int kBaseKeyFrameInterval = 3000;
+const int kBaseKeyFrameInterval = 1000;
 const int kMaxBitrateBps = 5000 * 1000;  // From kSimulcastFormats.
 const double kBitratePriority = 1.0;
 const int kMaxFramerateFps = 30;

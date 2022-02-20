@@ -165,7 +165,10 @@ void ScreenCapturerWinGdi::PrepareCaptureResources() {
     RTC_DCHECK(!memory_dc_);
 
     // Create GDI device contexts to capture from the desktop into memory.
-    desktop_dc_ = GetDC(nullptr);
+	HWND deskHW = GetDesktopWindow();
+	//GetWindowRect(deskHW, &deskRC);
+	//deskDC = GetWindowDC(deskHW);
+    desktop_dc_ = GetDC(deskHW);
     RTC_CHECK(desktop_dc_);
     memory_dc_ = CreateCompatibleDC(desktop_dc_);
     RTC_CHECK(memory_dc_);

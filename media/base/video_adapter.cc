@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2010 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -125,6 +125,8 @@ bool VideoAdapter::KeepFrame(int64_t in_timestamp_ns) {
 
   // If |max_framerate_request_| is not set, it will default to maxint, which
   // will lead to a frame_interval_ns rounded to 0.
+  // 这边是计算1秒显示多少帧 
+  
   int64_t frame_interval_ns = rtc::kNumNanosecsPerSec / max_fps;
   if (frame_interval_ns <= 0) {
     // Frame rate throttling not enabled.
@@ -137,6 +139,7 @@ bool VideoAdapter::KeepFrame(int64_t in_timestamp_ns) {
         (*next_frame_timestamp_ns_ - in_timestamp_ns);
 
     // Continue if timestamp is within expected range.
+	//这边检查是时间间隔是否在帧数内部
     if (std::abs(time_until_next_frame_ns) < 2 * frame_interval_ns) {
       // Drop if a frame shouldn't be outputted yet.
       if (time_until_next_frame_ns > 0)

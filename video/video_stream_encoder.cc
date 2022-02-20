@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -893,7 +893,7 @@ void VideoStreamEncoder::ConfigureQualityScaler(
       VideoStreamEncoderObserver::AdaptationReason::kNone,
       GetActiveCounts(kCpu), GetActiveCounts(kQuality));
 }
-
+// ---> encoder -> coding
 void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
   RTC_DCHECK_RUNS_SERIALIZED(&incoming_frame_race_checker_);
   VideoFrame incoming_frame = video_frame;
@@ -947,7 +947,7 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
 
   int64_t post_time_us = rtc::TimeMicros();
   ++posted_frames_waiting_for_encode_;
-
+  // webrtc 开始编码的哈
   encoder_queue_.PostTask(
       [this, incoming_frame, post_time_us, log_stats]() {
         RTC_DCHECK_RUN_ON(&encoder_queue_);

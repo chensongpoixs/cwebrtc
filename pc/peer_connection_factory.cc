@@ -275,6 +275,8 @@ PeerConnectionFactory::CreatePeerConnection(
   PeerConnectionDependencies dependencies(observer);
   dependencies.allocator = std::move(allocator);
   dependencies.cert_generator = std::move(cert_generator);
+  /* printf( "[%s] =====================sdp = %d\n" , __FUNCTION__, configuration.sdp_semantics);
+  // fflush(stdout);*/
   // Pass that into the new API.
   return CreatePeerConnection(configuration, std::move(dependencies));
 }
@@ -322,6 +324,8 @@ PeerConnectionFactory::CreatePeerConnection(
       new rtc::RefCountedObject<PeerConnection>(this, std::move(event_log),
                                                 std::move(call)));
   ActionsBeforeInitializeForTesting(pc);
+ // printf("[%s] =====================sdp = %d\n", __FUNCTION__, configuration.sdp_semantics);
+  //fflush(stdout);
   // 这边peerconnection的初始化哈  这边我们需要关注一下
   if (!pc->Initialize(configuration, std::move(dependencies))) {
     return nullptr;

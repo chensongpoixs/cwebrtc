@@ -1044,7 +1044,7 @@ bool PeerConnection::Initialize(
           << "but media transport factory is not set in PeerConnectionFactory";
       return false;
     }
-
+	 
     if (configuration.use_media_transport ||
         configuration.use_media_transport_for_data_channels) {
       // TODO(bugs.webrtc.org/9719): This check will eventually go away, when
@@ -1089,7 +1089,8 @@ bool PeerConnection::Initialize(
 
   stats_.reset(new StatsCollector(this));
   stats_collector_ = RTCStatsCollector::Create(this);
-
+ // printf("[%s] =====================sdp = %d\n", __FUNCTION__, configuration.sdp_semantics);
+  //fflush(stdout);
   configuration_ = configuration;
   use_media_transport_ = configuration.use_media_transport;
 

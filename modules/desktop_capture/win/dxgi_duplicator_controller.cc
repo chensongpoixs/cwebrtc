@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -226,6 +226,91 @@ bool DxgiDuplicatorController::Initialize() {
   return false;
 }
 
+struct ALLMONITORINFO 
+
+{ 
+
+	HMONITOR hMonitor; 
+
+	RECT     rect; 
+
+	bool     isPrimary; 
+	HDC		 Hdc;
+
+}; 
+
+BOOL CALLBACK MonitorEnumProc(__in  HMONITOR hMonitor, __in  HDC hdcMonitor, __in  LPRECT lprcMonitor, __in  LPARAM dwData) 
+{ 
+
+	std::vector<ALLMONITORINFO>& infoArray = *reinterpret_cast<std::vector<ALLMONITORINFO>* >(dwData); 
+
+	ALLMONITORINFO monitorInfo; 
+
+	monitorInfo.hMonitor = hMonitor; 
+
+	//下面这句代码已经获取到了屏幕的分辨率，不管你有多少个屏幕都可以获取到，但是该分辨率是受缩放影响的。 
+
+	monitorInfo.rect = *lprcMonitor; 
+	monitorInfo.Hdc = hdcMonitor;
+
+	infoArray.push_back(monitorInfo); 
+
+
+
+	//这里是另一种获取屏幕分辨率的办法。 
+
+	MONITORINFO monInfo; 
+
+	monInfo.cbSize = sizeof(MONITORINFO); 
+
+	//这个方法也是会受缩放影响，shit. 
+
+	BOOL isGet = GetMonitorInfo(hMonitor, &monInfo); 
+
+	if (isGet == TRUE) { 
+
+		RTC_LOG(LS_INFO) << "rect wdith = " << monInfo.rcMonitor.right - monInfo.rcMonitor.left<< ",rect height = " << monInfo.rcMonitor.bottom - monInfo.rcMonitor.top;; 
+
+	} 
+
+
+
+	return TRUE; 
+
+} 
+
+
+
+/*int maintest() { 
+
+	
+
+	return 1; 
+
+}*/ 
+
+static HDC  GetHdcMonitor()
+{
+	std::vector<ALLMONITORINFO> mInfo; 
+
+	mInfo.clear(); 
+
+	//get number of monitors 
+
+	mInfo.reserve(GetSystemMetrics(SM_CMONITORS)); 
+
+	EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, reinterpret_cast<LPARAM>(&mInfo)); 
+
+
+
+	//通过枚举之后，显示器的信息就存储到了mInfo里了。 
+	if (mInfo.size())
+	{
+		return mInfo[mInfo.size() - 1].Hdc;
+	}
+	return GetDC(nullptr);
+}
+
 bool DxgiDuplicatorController::DoInitialize() {
   RTC_DCHECK(desktop_rect_.is_empty());
   RTC_DCHECK(duplicators_.empty());
@@ -268,11 +353,13 @@ bool DxgiDuplicatorController::DoInitialize() {
     desktop_rect_.UnionWith(duplicators_.back().desktop_rect());
   }
   TranslateRect();
-
-  HDC hdc = GetDC(nullptr);
+  //EnumDisplayMonitors和CreateDc函数。
+  //EnumDisplayMonitors
+ // CreateDc();
+  HDC hdc = GetHdcMonitor(); //  GetDC(nullptr);
   // Use old DPI value if failed.
   if (hdc) {
-    dpi_.set(GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY));
+    dpi_.set( GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY));
     ReleaseDC(nullptr, hdc);
   }
 

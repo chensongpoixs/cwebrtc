@@ -139,7 +139,8 @@ void LossNotificationController::OnAssembledFrame(
 }
 
 void LossNotificationController::DiscardOldInformation() {
-  constexpr size_t kExpectedKeyFrameIntervalFrames = 3000;
+  //constexpr size_t kExpectedKeyFrameIntervalFrames = 3000;
+  constexpr size_t kExpectedKeyFrameIntervalFrames = 1000;
   constexpr size_t kMaxSize = 2 * kExpectedKeyFrameIntervalFrames;
   constexpr size_t kTargetSize = kExpectedKeyFrameIntervalFrames;
   PareDown(&decodable_unwrapped_frame_ids_, kMaxSize, kTargetSize);

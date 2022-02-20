@@ -247,6 +247,7 @@ void SimulcastTestFixtureImpl::DefaultSettings(
   } else {
     settings->H264()->frameDroppingOn = true;
     settings->H264()->keyFrameInterval = 3000;
+	settings->H264()->keyFrameInterval = 1000;
   }
 }
 

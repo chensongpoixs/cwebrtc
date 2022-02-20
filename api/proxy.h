@@ -245,8 +245,8 @@ class MethodCall2 : public rtc::Message, public rtc::MessageHandler {
 
   R Marshal(const rtc::Location& posted_from, rtc::Thread* t) {
     internal::SynchronousMethodCall(this).Invoke(posted_from, t);
-	printf("[%s][%d][Call2]========\n", __FUNCTION__, __LINE__);
-	RTC_LOG(INFO) << "[" << __FUNCTION__ << "][" << __LINE__ << "][Call2]===========";
+	//printf("[%s][%d][Call2]========\n", __FUNCTION__, __LINE__);
+	//RTC_LOG(INFO) << "[" << __FUNCTION__ << "][" << __LINE__ << "][Call2]===========";
     return r_.moved_result();
   }
 

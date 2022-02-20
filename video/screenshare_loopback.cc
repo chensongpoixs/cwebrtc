@@ -80,7 +80,7 @@ std::string Codec() {
 }
 
 WEBRTC_DEFINE_string(rtc_event_log_name,
-                     "",
+                     "./log/chensong_rtc_event_log",
                      "Filename for rtc event log. Two files "
                      "with \"_send\" and \"_recv\" suffixes will be created.");
 std::string RtcEventLogName() {
@@ -88,7 +88,7 @@ std::string RtcEventLogName() {
 }
 
 WEBRTC_DEFINE_string(rtp_dump_name,
-                     "",
+                     "./log/chensong_rtp_dump",
                      "Filename for dumped received RTP stream.");
 std::string RtpDumpName() {
   return static_cast<std::string>(FLAG_rtp_dump_name);
@@ -230,7 +230,7 @@ std::string SL1() {
 
 WEBRTC_DEFINE_string(
     encoded_frame_path,
-    "",
+    "./log/chensong_encoded_frame",
     "The base path for encoded frame logs. Created files will have "
     "the form <encoded_frame_path>.<n>.(recv|send.<m>).ivf");
 std::string EncodedFramePath() {

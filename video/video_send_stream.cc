@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -86,7 +86,7 @@ VideoSendStream::VideoSendStream(
       content_type_(encoder_config.content_type) {
   RTC_DCHECK(config_.encoder_settings.encoder_factory);
   RTC_DCHECK(config_.encoder_settings.bitrate_allocator_factory);
-
+  // 编码器的流的初始化
   video_stream_encoder_ =
       CreateVideoStreamEncoder(clock, task_queue_factory, num_cpu_cores,
                                &stats_proxy_, config_.encoder_settings);

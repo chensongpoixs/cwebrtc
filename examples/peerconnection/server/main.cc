@@ -67,7 +67,7 @@ int main(int argc, char* argv[]) {
   webrtc::test::CommandLineParser parser;
   parser.Init(argc, argv);
   parser.SetUsageMessage(usage);
-  parser.SetFlag("port", "8888");
+  parser.SetFlag("port", "9999");
   parser.SetFlag("help", "false");
   parser.ProcessFlags();
 

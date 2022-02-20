@@ -1891,7 +1891,7 @@ bool GetParameter(const std::string& name,
   }
   return true;
 }
-
+// b
 void BuildRtpMap(const MediaContentDescription* media_desc,
                  const cricket::MediaType media_type,
                  std::string* message) {
@@ -1903,6 +1903,11 @@ void BuildRtpMap(const MediaContentDescription* media_desc,
       // RFC 4566
       // a=rtpmap:<payload type> <encoding name>/<clock rate>
       // [/<encodingparameters>]
+		cricket::VideoCodec temp_codec = codec;
+		//x-google-max-bitrate=100000;x-google-min-bitrate=4000;x-google-start-bitrate=8000
+		temp_codec.SetParam("x-google-max-bitrate", 100000);
+		temp_codec.SetParam("x-google-min-bitrate", 4000);
+		temp_codec.SetParam("x-google-start-bitrate", 8000);
       if (codec.id != kWildcardPayloadType) {
         InitAttrLine(kAttributeRtpmap, &os);
         os << kSdpDelimiterColon << codec.id << " " << codec.name << "/"
@@ -1910,7 +1915,7 @@ void BuildRtpMap(const MediaContentDescription* media_desc,
         AddLine(os.str(), message);
       }
       AddRtcpFbLines(codec, message);
-      AddFmtpLine(codec, message);
+      AddFmtpLine(temp_codec, message);
     }
   } else if (media_type == cricket::MEDIA_TYPE_AUDIO) {
     std::vector<int> ptimes;

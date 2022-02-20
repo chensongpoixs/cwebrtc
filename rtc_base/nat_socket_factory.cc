@@ -258,6 +258,7 @@ class NATSocket : public AsyncSocket, public sigslot::has_slots<> {
   void OnWriteEvent(AsyncSocket* socket) {
     RTC_DCHECK(socket == socket_);
     SignalWriteEvent(this);
+	
   }
   void OnCloseEvent(AsyncSocket* socket, int error) {
     RTC_DCHECK(socket == socket_);

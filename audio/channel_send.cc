@@ -736,6 +736,7 @@ ChannelSend::~ChannelSend() {
 
   if (_moduleProcessThreadPtr)
     _moduleProcessThreadPtr->DeRegisterModule(_rtpRtcpModule.get());
+ 
 }
 
 void ChannelSend::StartSend() {

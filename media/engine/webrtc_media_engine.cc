@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -188,9 +188,18 @@ std::vector<webrtc::RtpExtension> FilterRtpExtensions(
   }
   return result;
 }
-
+// 设置最大码流的数组问题哈
 webrtc::BitrateConstraints GetBitrateConfigForCodec(const Codec& codec) {
   webrtc::BitrateConstraints config;
+  /*
+  28000;
+		Bitrate.min_bitrate_bps = 5500;
+		Bitrate.start_bitrate_bps = 1000;
+  
+  config.max_bitrate_bps = 28000 *1000;
+  config.min_bitrate_bps = 5500 *1000;
+  config.start_bitrate_bps = 1000  *1000;
+  return config;*/
   int bitrate_kbps = 0;
   if (codec.GetParam(kCodecParamMinBitrate, &bitrate_kbps) &&
       bitrate_kbps > 0) {

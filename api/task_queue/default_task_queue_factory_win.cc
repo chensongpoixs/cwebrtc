@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2019 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -13,7 +13,9 @@
 #include "rtc_base/task_queue_win.h"
 
 namespace webrtc {
-
+	/************************************************************************/
+	/* webrtc 中默认任务队列--->>>                                                                     */
+	/************************************************************************/
 std::unique_ptr<TaskQueueFactory> CreateDefaultTaskQueueFactory() {
   return CreateTaskQueueWinFactory();
 }

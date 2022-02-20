@@ -81,8 +81,8 @@ std::vector<SdpVideoFormat> SupportedH264Codecs() {
       CreateH264Format(H264::kProfileBaseline, H264::kLevel3_1, "1"),
       CreateH264Format(H264::kProfileBaseline, H264::kLevel3_1, "0"),
       CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1, "1"),
-      CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1,
-                       "0")};
+      CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1, "0")
+  };
 }
 
 std::unique_ptr<H264Encoder> H264Encoder::Create(

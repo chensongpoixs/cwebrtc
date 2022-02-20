@@ -103,7 +103,14 @@ bool MainWnd::Create() {
                         WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
                         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                         CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL), this);
-
+  /*
+  wnd_ =
+      ::CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, kClassName, L"WebRTC_DESKTOP",
+                        WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
+		  -1920,200, 
+		   CW_USEDEFAULT, CW_USEDEFAULT,  800,
+	  800, NULL, NULL, GetModuleHandle(NULL), this);
+  */
   ::SendMessage(wnd_, WM_SETFONT, reinterpret_cast<WPARAM>(GetDefaultFont()),
                 TRUE);
 

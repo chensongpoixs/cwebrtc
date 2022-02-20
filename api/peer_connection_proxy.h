@@ -17,7 +17,7 @@
 
 #include "api/peer_connection_interface.h"
 #include "api/proxy.h"
-
+#include "pc/peer_connection.h"
 namespace webrtc {
 
 // TODO(deadbeef): Move this to .cc file and out of api/. What threads methods

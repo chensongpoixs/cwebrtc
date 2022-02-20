@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -44,9 +44,11 @@ rtc::scoped_refptr<PeerConnectionFactoryInterface> CreatePeerConnectionFactory(
     std::unique_ptr<VideoDecoderFactory> video_decoder_factory,
     rtc::scoped_refptr<AudioMixer> audio_mixer,
     rtc::scoped_refptr<AudioProcessing> audio_processing) {
-  if (!audio_processing)
-    audio_processing = AudioProcessingBuilder().Create();
-
+	if (!audio_processing)
+	{
+		audio_processing = AudioProcessingBuilder().Create();
+	}
+	// 媒体引擎创建
   std::unique_ptr<cricket::MediaEngineInterface> media_engine =
       cricket::WebRtcMediaEngineFactory::Create(
           default_adm, audio_encoder_factory, audio_decoder_factory,

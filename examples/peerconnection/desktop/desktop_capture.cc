@@ -37,9 +37,10 @@ bool DesktopCapture::Init(size_t target_fps, size_t capture_screen_index)
 	// 窗口
 	/*dc_ = webrtc::DesktopCapturer::CreateWindowCapturer(
 		webrtc::DesktopCaptureOptions::CreateDefault());*/
-	//桌面
-	dc_ = webrtc::DesktopCapturer::CreateScreenCapturer(
-      webrtc::DesktopCaptureOptions::CreateDefault());
+	//桌面allow_directx_capturer_
+	webrtc::DesktopCaptureOptions options;
+	options.set_allow_directx_capturer(true);
+	dc_ = webrtc::DesktopCapturer::CreateScreenCapturer(options);
 
   if (!dc_)
     return false;
@@ -61,6 +62,7 @@ bool DesktopCapture::Init(size_t target_fps, size_t capture_screen_index)
   // Start new thread to capture
   return true;
 }
+
 
 void DesktopCapture::OnCaptureResult(
     webrtc::DesktopCapturer::Result result,
@@ -95,7 +97,7 @@ void DesktopCapture::OnCaptureResult(
       i420_buffer_->width() * i420_buffer_->height() < width * height) {
     i420_buffer_ = webrtc::I420Buffer::Create(width, height);
   }
-
+  
   libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
                         i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
                         i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),
