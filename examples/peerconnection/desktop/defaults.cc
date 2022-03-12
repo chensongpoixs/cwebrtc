@@ -23,7 +23,7 @@
 const char kAudioLabel[] = "audio_label";
 const char kVideoLabel[] = "video_label";
 const char kStreamId[] = "stream_id";
-const uint16_t kDefaultServerPort = 8888;
+const uint16_t kDefaultServerPort = 9999;
 
 std::string GetEnvVarOrDefault(const char* env_var_name,
                                const char* default_value) {
@@ -39,8 +39,8 @@ std::string GetEnvVarOrDefault(const char* env_var_name,
 }
 
 std::string GetPeerConnectionString() {
-  //return GetEnvVarOrDefault("WEBRTC_CONNECT", "stun:stun.l.google.com:19302");
-	return GetEnvVarOrDefault("WEBRTC_CONNECT", "stun:169.254.119.31:23233");
+  return GetEnvVarOrDefault("WEBRTC_CONNECT", "stun:stun.l.google.com:19302");
+	//return GetEnvVarOrDefault("WEBRTC_CONNECT", "stun:169.254.119.31:23233");
 }
 
 std::string GetDefaultServerName() {

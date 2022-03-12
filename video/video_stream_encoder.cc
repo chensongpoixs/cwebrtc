@@ -745,6 +745,7 @@ void VideoStreamEncoder::ReconfigureEncoder() {
     ReleaseEncoder();
     if (pending_encoder_creation_) {
 	// 找到你哈 ^_^      encoder    TODO@chensong 20220312  -> 
+		// encoder_factory 其实就是BuiltinVideoEncoderFactory类 哈 ^_^  简单
       encoder_ = settings_.encoder_factory->CreateVideoEncoder(
           encoder_config_.video_format);
       // TODO(nisse): What to do if creating the encoder fails? Crash,

@@ -54,7 +54,9 @@ class BuiltinVideoEncoderFactory : public VideoEncoderFactory {
     info.is_hardware_accelerated = false;
     return info;
   }
-
+  /////////////////////////////////////////////////////
+  ///////////TODO@chensong 20220312 --> ±àÂëÆ÷¹¤³§ ----> videoEncoder ->>>
+  /////////////////////////////////////////////////////
   std::unique_ptr<VideoEncoder> CreateVideoEncoder(
       const SdpVideoFormat& format) override {
     // Try creating internal encoder.
