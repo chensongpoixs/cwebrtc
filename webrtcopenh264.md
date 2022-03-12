@@ -64,6 +64,21 @@ apt-cahr npm
 
 
 
+# 二、切换版本
+
+
+## 1、 切换版本
+
+```
+git checkout remotes/branch-heads/xxxxxxx
+```
+
+## 2、 同步代码
+
+```
+gclient sync -D 
+```
+
 
 
 
