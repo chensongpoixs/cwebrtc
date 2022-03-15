@@ -116,6 +116,7 @@ class RTC_EXPORT I420Buffer : public I420BufferInterface {
   const int stride_u_;
   const int stride_v_;
   const std::unique_ptr<uint8_t, AlignedFreeDeleter> data_;
+ 
 };
 
 }  // namespace webrtc
