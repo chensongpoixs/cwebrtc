@@ -24,14 +24,15 @@ var answer  = document.querySelector('textarea#answer');
 var pcConfig = {
 	'iceServer' : [{
 		//TURN服务器地址
-		'urls': 'turn.xxx.avadancedu.com:3478',
+		'urls': 'stun:stun.l.google.com:19302'
 		// TURN服务器用户名
-		'username': 'xxx',
+		//'username': 'xxx',
 		//TURN服务器密码
-		'credential': "xxx"
+		//'credential': "xxx"
 	}],
-	// 默认使用relay方式传输数据
-	"iceTransportPolicy": "replay",
+	// 默认使用relay方式传输数据 turn 参数 哈哈 ^_^
+	//"iceTransportPolicy": "replay",
+	"iceTransportPolicy": "all",
 	"iceCandiatePoolSize": "0"
 };
 
@@ -162,11 +163,11 @@ function sendMessage(roomid, data)
 function conn()
 {
 	//连接信令服务器
-	socket = io.connect('http://localhost:8083'  );
+	socket = io.connect( );
 	//io.set('origins', 'http://localhost:8082'); 
 	// 'joined' 信息处理函数
 	socket.on('joined', (roomid, id) => {
-		console.log('receive joined message!', roomid, id);
+		console.log('receive joined message!  --》', roomid, id);
 		//状态机变更'joined'
 		state = 'joined';
 		/**
@@ -268,7 +269,7 @@ function conn()
 		if (!(state === 'leaved'))
 		{
 			//挂断 "呼叫"
-			handup();
+			hangup();
 			
 			///关闭本地媒体
 			closeLocalMedia();
@@ -280,7 +281,7 @@ function conn()
 	
 	//收到对端信息处理函数
 	socket.on('message', (roomid, data) => {
-		console.log('receive message !', roomid, data);
+		console.log('  receive message ===> !', roomid, data);
 		
 		if (data === null || data === undefined)
 		{
@@ -486,6 +487,7 @@ function getAnswer(desc)
 */
 function getOffer(desc)
 {
+	console.log('offer desc ==> ', desc );
 	//设置Offer
 	pc.setLocalDescription(desc);
 	
@@ -495,7 +497,7 @@ function getOffer(desc)
 	
 	//将Offer SDP 发送给对端
 	
-	sendMessaage(roomid, offerdesc);
+	sendMessage(roomid, offerdesc);
 }
 
 
@@ -526,7 +528,7 @@ function createPeerConnection()
 				console.log("candidate" + JSON.stringify(e.candidate.toJSON()));
 				
 				//将Candidate发送个对端
-				sendMessaage(roomid, {
+				sendMessage(roomid, {
 					type : 'candidate',
 					label :event.candidate.sdpMLineIndex,
 					id : event.candidate.sdpMid,
