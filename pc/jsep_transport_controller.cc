@@ -479,6 +479,8 @@ JsepTransportController::CreateDtlsTransport(
       this, &JsepTransportController::OnDtlsHandshakeError);
   dtls->ice_transport()->SignalGatheringState.connect(
       this, &JsepTransportController::OnTransportGatheringState_n);
+
+  // TODO@chensong 2022-03-24 stun server info -> bind 
   dtls->ice_transport()->SignalCandidateGathered.connect(
       this, &JsepTransportController::OnTransportCandidateGathered_n);
   dtls->ice_transport()->SignalCandidatesRemoved.connect(
@@ -1240,6 +1242,7 @@ void JsepTransportController::OnTransportCandidateGathered_n(
     return;
   }
   std::string transport_name = transport->transport_name();
+  //TODO@chensong 2022-03-24  这边和stun server 交换  得到 ip 和port  [host, srflx, prflx, relay]
   invoker_.AsyncInvoke<void>(
       RTC_FROM_HERE, signaling_thread_, [this, transport_name, candidate] {
         SignalIceCandidatesGathered(transport_name, {candidate});

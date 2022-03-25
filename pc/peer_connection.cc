@@ -1066,6 +1066,7 @@ bool PeerConnection::Initialize(
     config.use_media_transport_for_data_channels = configuration.use_media_transport_for_data_channels;
     config.media_transport_factory = factory_->media_transport_factory();
   }
+  ///////////////////////////////////传输模块的控制 通知 ^_^ /////////////////////////////////////////////////////////
 
   transport_controller_.reset(new JsepTransportController(
       signaling_thread(), network_thread(), port_allocator_.get(),
@@ -1078,12 +1079,17 @@ bool PeerConnection::Initialize(
       this, &PeerConnection::SetConnectionState);
   transport_controller_->SignalIceGatheringState.connect(
       this, &PeerConnection::OnTransportControllerGatheringState);
+  
+
+  //TODO@chensong 2022-03-24  这边获取strun server candidate info 哈  ^_^ 
   transport_controller_->SignalIceCandidatesGathered.connect(
       this, &PeerConnection::OnTransportControllerCandidatesGathered);
   transport_controller_->SignalIceCandidatesRemoved.connect(
       this, &PeerConnection::OnTransportControllerCandidatesRemoved);
   transport_controller_->SignalDtlsHandshakeError.connect(
       this, &PeerConnection::OnTransportControllerDtlsHandshakeError);
+  /////////////////////////////////////////////////////////////////////////////////////////////
+
 
   sctp_factory_ = factory_->CreateSctpTransportInternalFactory();
 
@@ -2171,6 +2177,7 @@ void PeerConnection::SetLocalDescription(
   // MaybeStartGathering needs to be called after posting
   // MSG_SET_SESSIONDESCRIPTION_SUCCESS, so that we don't signal any candidates
   // before signaling that SetLocalDescription completed.
+  // TODO@chensong 2022-03-24 start -> candidate -> s 
   transport_controller_->MaybeStartGathering();
 
   if (local_description()->GetType() == SdpType::kAnswer) {

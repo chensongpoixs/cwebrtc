@@ -75,6 +75,7 @@ class RTCCertificateGenerationTask : public RefCountInterface,
       case MSG_GENERATE_DONE:
         RTC_DCHECK(signaling_thread_->IsCurrent());
         // Perform callback with result here on the signaling thread.
+		// TODO@chensong 这边开始创建好本地WebRTC的SDP的信息 进行回调webrtc_session_destion_factory中信息哈 ^_^
         if (certificate_) {
           callback_->OnSuccess(certificate_);
         } else {
@@ -146,7 +147,7 @@ void RTCCertificateGenerator::GenerateCertificateAsync(
     const scoped_refptr<RTCCertificateGeneratorCallback>& callback) {
   RTC_DCHECK(signaling_thread_->IsCurrent());
   RTC_DCHECK(callback);
-
+  // TODO@chensong  2022-03-25  创建certificate 的info 
   // Create a new |RTCCertificateGenerationTask| for this generation request. It
   // is reference counted and referenced by the message data, ensuring it lives
   // until the task has completed (independent of |RTCCertificateGenerator|).

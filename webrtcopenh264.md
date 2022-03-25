@@ -54,6 +54,11 @@ PS D:\Work\cmedia_server\webrtc_google\src> gn gen --ide=vs2017 --args='target_o
 ue is_clang=false use_lld=false is_component_build=false'  out/test_vs2017_debug
 
 
+
+
+gn gen --ide=vs2017 --args='target_os=\"win\" target_cpu=\"x64\" is_debug=false is_clang=true use_lld=false is_component_build=false rtc_use_h264=true ffmpeg_branding=\"Chrome\" rtc_build_ssl=true'  out/test_vs2017_release
+
+
 apt-cahr npm 
 
 

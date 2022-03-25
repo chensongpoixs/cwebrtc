@@ -179,7 +179,7 @@ bool PeerConnectionFactory::Initialize() {
       worker_thread_, network_thread_);
 
   channel_manager_->SetVideoRtxEnabled(true);
-  // 4. 通道信息初始化
+  // 4. 通道信息初始化  其实只是对音频数据支持情况 检查与音频的初始化， 视频通道没有操作哈
   if (!channel_manager_->Init()) {
     return false;
   }

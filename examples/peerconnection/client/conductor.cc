@@ -179,6 +179,8 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   config.enable_dtls_srtp = dtls;
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = GetPeerConnectionString();
+ // 设置走 turn server 进行转发媒体数据 哈
+  //config.type = webrtc::PeerConnectionInterface::kRelay;
   config.servers.push_back(server);
   ///////////////////// peer conection -->>>>>>>[这里可能也是注册回调数据的接口的 好家伙 藏的太深哈 PROXY_METHOD4]/////////////////////////////////////
   peer_connection_ = peer_connection_factory_->CreatePeerConnection(

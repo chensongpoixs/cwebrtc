@@ -31,8 +31,8 @@ var pcConfig = {
 		//'credential': "xxx"
 	}],
 	// 默认使用relay方式传输数据 turn 参数 哈哈 ^_^
-	//"iceTransportPolicy": "replay",
 	"iceTransportPolicy": "all",
+	//"iceTransportPolicy": "relay",
 	// 音视频同一个通道哈
 	"bundlePolicy": "max-bundle",
 	// 同一个rtcp和rtp走 公用一个Candidate 就是同一个通道哈 ^_^

@@ -883,7 +883,7 @@ void BasicPortAllocatorSession::AddAllocatedPort(Port* port,
 
   PortData data(port, seq);
   ports_.push_back(data);
-
+  // TODO@chensong 2022-03-24 WebRTC  ICE  stun server -> candidate info callback 
   port->SignalCandidateReady.connect(
       this, &BasicPortAllocatorSession::OnCandidateReady);
   port->SignalPortComplete.connect(this,
@@ -946,6 +946,7 @@ void BasicPortAllocatorSession::OnCandidateReady(Port* port,
   if (data->ready() && CheckCandidateFilter(c)) {
     std::vector<Candidate> candidates;
     candidates.push_back(SanitizeCandidate(c));
+    // TODO@chensong 2022-03-24  WebRTC ICE -> Candidate -> callback -> data
     SignalCandidatesReady(this, candidates);
   } else {
     RTC_LOG(LS_INFO) << "Discarding candidate because it doesn't match filter.";

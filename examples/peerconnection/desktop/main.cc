@@ -148,69 +148,36 @@ int PASCAL wWinMain(HINSTANCE instance,
   // Main loop.
   MSG msg;
 
-  /*
-	HWND        hwnd;
-	UINT        message;
-	WPARAM      wParam;
-	LPARAM      lParam;
-	DWORD       time;
-	POINT       pt;
-  */
-  std::string file_name = std::to_string(time(NULL)) + "_chensong.log";
-  FILE *out_file_ptr = ::fopen(file_name.c_str(), "wb+");
-  std::string file_win_name = std::to_string(time(NULL)) + "_win.log";
-  FILE *out_file_win_ptr = ::fopen(file_win_name.c_str(), "wb+");
+ 
+   
   BOOL gm;
-  std::thread([&]() {
-	  int width = 0;
-	  int height = 0;
-	  while (true)
-	  {
-		  POINT p;
-		  //p.x = 722;//656, 459
-		  //p.y = 389;
-		 // POINT pt;
-		  GetCursorPos(&p);
-		  // 
-		  BOOL bOK = ::ScreenToClient(FindMainWindow(), &p);
-		  if (!bOK)
-		  {
-			  return;
-		  }
-
-		   HWND cur_win = ChildWindowFromPoint(FindMainWindow(), p);
-		   ::PostMessage(cur_win, WM_KEYDOWN, 0x68, /*0xF0001*/ 1);
-		   fprintf(out_file_win_ptr, "win = %p \n", cur_win);
-		   fflush(out_file_win_ptr);;
-		  //HWND new_wnd = GetFocus();
-		  //::PostMessage(new_wnd, WM_KEYDOWN, 0x68, /*0xF0001*/ 1);
-		  //::PostMessage(new_wnd, WM_KEYUP,	0x68, /*0xF0001*/ 1);
-		  HWND wnd = FindMainWindow();
-		   ::PostMessage(wnd, WM_MOUSEMOVE, MAKEWPARAM(0, 0), MAKEWPARAM(++width, ++height));
-		   if (height > 900 || width > 900)
-		   {
-			   height = 0;
-			   width = 0;
-		   }
-		  printf("new_wnd = %p \n", wnd);
-		  std::this_thread::sleep_for(std::chrono::seconds(10));
-	  }
-	  
-  }).detach();
+  FILE* out_file_ptr = ::fopen("chensong_mouse.log", "wb+");
   while ((gm = ::GetMessage(&msg, NULL, 0, 0)) != 0 && gm != -1) 
   {
 	 
 	  // std::cout << "msg.hand = " << msg.hwnd << ", msg.message" << msg.message << ", msg.wParam = " << msg.wParam << ", msg.LParam = " << msg.lParam << ", time = " << msg.time << ", pt  x = " << msg.pt.x << ", y = " << msg.pt.y;;
     if (!wnd.PreTranslateMessage(&msg)) 
 	{
-		HWND new_wnd = GetFocus();
-		::fprintf(out_file_ptr, "+[GetFocus = %p ,hwd = %p, message = %d, wparam = %llu, lparam = %llu, time = %lu , x = %lu, y = %lu \n", \
-			new_wnd, msg.hwnd, msg.message, msg.wParam, msg.lParam, msg.time, msg.pt.x, msg.pt.y);
-		::fflush(out_file_ptr);
+     
+		/*
+		 HWND        hwnd;
+    UINT        message;
+    WPARAM      wParam;
+    LPARAM      lParam;
+    DWORD       time;
+    POINT       pt;
+		
+		*/
+
+		 std::string string_pt =
+                    std::to_string(msg.pt.x) + " " + std::to_string(msg.pt.y);
+          ::fprintf( out_file_ptr, "[^_^]hwnd  = %p, message = %u,  time = %lu , pt = %s\n",
+                    msg.hwnd, msg.message,  msg.time,
+                    string_pt.c_str());
+
+		  ::fflush(out_file_ptr);
       ::TranslateMessage(&msg);
-	  ::fprintf(out_file_ptr, "hwd = %p, message = %d, wparam = %llu, lparam = %llu, time = %lu , x = %lu, y = %lu ]+\n", \
-		  msg.hwnd, msg.message, msg.wParam, msg.lParam, msg.time, msg.pt.x, msg.pt.y);
-	  ::fflush(out_file_ptr);
+               
       ::DispatchMessage(&msg);
     }
   }

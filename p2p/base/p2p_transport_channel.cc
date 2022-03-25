@@ -170,6 +170,8 @@ void P2PTransportChannel::AddAllocatorSession(
   session->set_generation(static_cast<uint32_t>(allocator_sessions_.size()));
   session->SignalPortReady.connect(this, &P2PTransportChannel::OnPortReady);
   session->SignalPortsPruned.connect(this, &P2PTransportChannel::OnPortsPruned);
+
+  // TODO@chensong webrtc ICE -> stun server -> Candidate ready -> 
   session->SignalCandidatesReady.connect(
       this, &P2PTransportChannel::OnCandidatesReady);
   session->SignalCandidatesRemoved.connect(

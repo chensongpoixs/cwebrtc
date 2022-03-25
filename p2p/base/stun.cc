@@ -376,7 +376,10 @@ bool StunMessage::Read(ByteBufferReader* buf) {
   RTC_DCHECK(IsValidTransactionId(transaction_id));
   transaction_id_ = transaction_id;
   reduced_transaction_id_ = ReduceTransactionId(transaction_id_);
-
+  printf(
+      "type_ = %u, magic_cookie = %s, transaction_id = %s, magic_cookie_int = "
+      "%u\n ",
+      type_, magic_cookie.c_str(), transaction_id.c_str(), magic_cookie_int);
   if (length_ != buf->Length())
     return false;
 

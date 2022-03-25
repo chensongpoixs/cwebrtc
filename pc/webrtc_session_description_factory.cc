@@ -66,7 +66,7 @@ static bool ValidMediaSessionOptions(
 enum {
   MSG_CREATE_SESSIONDESCRIPTION_SUCCESS,
   MSG_CREATE_SESSIONDESCRIPTION_FAILED,
-  MSG_USE_CONSTRUCTOR_CERTIFICATE
+  MSG_USE_CONSTRUCTOR_CERTIFICATE //本地已经有WebRTC的SDP的信息 的直接返回数据哈 ^_^
 };
 
 struct CreateSessionDescriptionMsg : public rtc::MessageData {
@@ -151,7 +151,9 @@ WebRtcSessionDescriptionFactory::WebRtcSessionDescriptionFactory(
     RTC_LOG(LS_VERBOSE) << "DTLS-SRTP disabled.";
     return;
   }
-
+  // TODO@chensong 2022-03-25 
+  // 1. 如果本地有了 certificate 的就 直接回到创建offer后的回调函数 发送 [MSG_USE_CONSTRUCTOR_CERTIFICATE]信号 
+  // 2. 本地没有WebRTC的SDP的信息 正常走创建的过程 后走回调函数 哈  ^_^ 
   if (certificate) {
     // Use |certificate|.
     certificate_request_state_ = CERTIFICATE_WAITING;
@@ -167,11 +169,12 @@ WebRtcSessionDescriptionFactory::WebRtcSessionDescriptionFactory(
     // Generate certificate.
     certificate_request_state_ = CERTIFICATE_WAITING;
 
+	// TODO@chensong 2022-03-25  WebRTC certificate -> generator -> callback 非常神奇的玩法 ->  信号槽 
     rtc::scoped_refptr<WebRtcCertificateGeneratorCallback> callback(
         new rtc::RefCountedObject<WebRtcCertificateGeneratorCallback>());
     callback->SignalRequestFailed.connect(
         this, &WebRtcSessionDescriptionFactory::OnCertificateRequestFailed);
-	// 这边注册回调函数哈
+	// TODO@chensong 这边注册创建offer的SDP的信息的 回调函数哈 ^_^
     callback->SignalCertificateReady.connect(
         this, &WebRtcSessionDescriptionFactory::SetCertificate);
 
@@ -295,6 +298,7 @@ cricket::SecurePolicy WebRtcSessionDescriptionFactory::SdesPolicy() const {
 void WebRtcSessionDescriptionFactory::OnMessage(rtc::Message* msg) {
   switch (msg->message_id) {
     case MSG_CREATE_SESSIONDESCRIPTION_SUCCESS: {
+	//TODO@chensong  给用户态的的SDP的信息哈  
       CreateSessionDescriptionMsg* param =
           static_cast<CreateSessionDescriptionMsg*>(msg->pdata);
       param->observer->OnSuccess(param->description.release());
@@ -335,7 +339,7 @@ void WebRtcSessionDescriptionFactory::InternalCreateOffer(
       }
     }
   }
-
+  // TODO@chensong 2022-03-25 这里面就是 获取本地SDP的信息的结构 哈 ^_^
   std::unique_ptr<cricket::SessionDescription> desc =
       session_desc_factory_.CreateOffer(
           request.options, pc_->local_description()
@@ -480,8 +484,10 @@ void WebRtcSessionDescriptionFactory::SetCertificate(
     const rtc::scoped_refptr<rtc::RTCCertificate>& certificate) {
   RTC_DCHECK(certificate);
   RTC_LOG(LS_VERBOSE) << "Setting new certificate.";
-
+  // TODO@chensong 2022-03-25  创建本地的WebRTC的证书 的信息
+  // 改变 certificate的状态 的变化
   certificate_request_state_ = CERTIFICATE_SUCCEEDED;
+  // TODO@chensong 2022-03-25 这个代码是啥意思呢  ->>>>>>>   为啥 设置jsep_trsport_controller 的本地 证书呢 
   SignalCertificateReady(certificate);
 
   transport_desc_factory_.set_certificate(certificate);

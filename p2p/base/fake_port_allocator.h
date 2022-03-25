@@ -195,6 +195,7 @@ class FakePortAllocatorSession : public PortAllocatorSession {
   void OnPortComplete(cricket::Port* port) {
     const std::vector<Candidate>& candidates = port->Candidates();
     candidates_.insert(candidates_.end(), candidates.begin(), candidates.end());
+	// TODO@chensong 2022-03-24  WebRTC ICE -> Candidate -> callback -> data
     SignalCandidatesReady(this, candidates);
 
     allocation_done_ = true;
