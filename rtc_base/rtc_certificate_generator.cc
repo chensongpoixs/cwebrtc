@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -75,7 +75,7 @@ class RTCCertificateGenerationTask : public RefCountInterface,
       case MSG_GENERATE_DONE:
         RTC_DCHECK(signaling_thread_->IsCurrent());
         // Perform callback with result here on the signaling thread.
-		// TODO@chensong Õâ±ß¿ªÊ¼´´½¨ºÃ±¾µØWebRTCµÄSDPµÄÐÅÏ¢ ½øÐÐ»Øµ÷webrtc_session_destion_factoryÖÐÐÅÏ¢¹þ ^_^
+		// TODO@chensong è¿™è¾¹å¼€å§‹åˆ›å»ºå¥½æœ¬åœ°WebRTCçš„SDPçš„ä¿¡æ¯ è¿›è¡Œå›žè°ƒwebrtc_session_destion_factoryä¸­ä¿¡æ¯å“ˆ ^_^
         if (certificate_) {
           callback_->OnSuccess(certificate_);
         } else {
@@ -147,7 +147,7 @@ void RTCCertificateGenerator::GenerateCertificateAsync(
     const scoped_refptr<RTCCertificateGeneratorCallback>& callback) {
   RTC_DCHECK(signaling_thread_->IsCurrent());
   RTC_DCHECK(callback);
-  // TODO@chensong  2022-03-25  ´´½¨certificate µÄinfo 
+  // TODO@chensong  2022-03-25  åˆ›å»ºcertificate çš„info 
   // Create a new |RTCCertificateGenerationTask| for this generation request. It
   // is reference counted and referenced by the message data, ensuring it lives
   // until the task has completed (independent of |RTCCertificateGenerator|).
