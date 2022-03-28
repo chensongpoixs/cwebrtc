@@ -361,7 +361,7 @@ struct ContentInfo {
 
   // TODO(bugs.webrtc.org/8620): Rename this to mid.
   std::string name;
-  MediaProtocolType type;
+  MediaProtocolType type; // 媒体协议rtp or rtcp 
   bool rejected = false;
   bool bundle_only = false;
   // TODO(bugs.webrtc.org/8620): Switch to the getter and setter, and make this

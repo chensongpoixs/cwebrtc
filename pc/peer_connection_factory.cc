@@ -289,6 +289,7 @@ PeerConnectionFactory::CreatePeerConnection(
 
   // Set internal defaults if optional dependencies are not set.
   if (!dependencies.cert_generator) {
+	  // 证书的生成
     dependencies.cert_generator =
         absl::make_unique<rtc::RTCCertificateGenerator>(signaling_thread_,
                                                         network_thread_);

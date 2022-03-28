@@ -329,6 +329,7 @@ void WebRtcSessionDescriptionFactory::OnMessage(rtc::Message* msg) {
 
 void WebRtcSessionDescriptionFactory::InternalCreateOffer(
     CreateSessionDescriptionRequest request) {
+	// 这边local_description 是没有值的 只有本地设置过了就会有哈
   if (pc_->local_description()) {
     // If the needs-ice-restart flag is set as described by JSEP, we should
     // generate an offer with a new ufrag/password to trigger an ICE restart.

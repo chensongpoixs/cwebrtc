@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2012 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -129,7 +129,7 @@ struct TransportDescription {
   std::vector<std::string> transport_options;
   std::string ice_ufrag;
   std::string ice_pwd;
-  IceMode ice_mode;
+  IceMode ice_mode;  // 连接服务器时服务器是否进行校验 ， 是否双方都要进行校验
   ConnectionRole connection_role;
 
   std::unique_ptr<rtc::SSLFingerprint> identity_fingerprint;
