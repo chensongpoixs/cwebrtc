@@ -46,6 +46,11 @@ enum IceMode {
 // 'passive': The endpoint will accept an incoming connection.
 // 'actpass': The endpoint is willing to accept an incoming
 //            connection or to initiate an outgoing connection.
+/*a = setup 主要是表示dtls的协商过程中角色的问题，谁是客户端，谁是服务器
+a = setup:actpass 既可以是客户端，也可以是服务器
+a = setup : active 客户端
+a = setup : passive 服务器
+由客户端先发起client hello*/
 enum ConnectionRole {
   CONNECTIONROLE_NONE = 0,
   CONNECTIONROLE_ACTIVE,
