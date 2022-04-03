@@ -180,21 +180,24 @@ void FecControllerDefault::UpdateWithEncodedData(
     const VideoFrameType encoded_image_frametype) {
   const size_t encoded_length = encoded_image_length;
   CritScope lock(&crit_sect_);
-  if (encoded_length > 0) {
-    const bool delta_frame =
-        encoded_image_frametype != VideoFrameType::kVideoFrameKey;
-    if (max_payload_size_ > 0 && encoded_length > 0) {
-      const float min_packets_per_frame =
-          encoded_length / static_cast<float>(max_payload_size_);
-      if (delta_frame) {
+  if (encoded_length > 0) 
+  {
+    const bool delta_frame = encoded_image_frametype != VideoFrameType::kVideoFrameKey;
+    if (max_payload_size_ > 0 && encoded_length > 0) 
+	{
+      const float min_packets_per_frame = encoded_length / static_cast<float>(max_payload_size_);
+      if (delta_frame) 
+	  {
         loss_prot_logic_->UpdatePacketsPerFrame(min_packets_per_frame,
                                                 clock_->TimeInMilliseconds());
-      } else {
-        loss_prot_logic_->UpdatePacketsPerFrameKey(
-            min_packets_per_frame, clock_->TimeInMilliseconds());
+      } 
+	  else 
+	  {
+        loss_prot_logic_->UpdatePacketsPerFrameKey(min_packets_per_frame, clock_->TimeInMilliseconds());
       }
     }
-    if (!delta_frame && encoded_length > 0) {
+    if (!delta_frame && encoded_length > 0) 
+	{
       loss_prot_logic_->UpdateKeyFrameSize(static_cast<float>(encoded_length));
     }
   }

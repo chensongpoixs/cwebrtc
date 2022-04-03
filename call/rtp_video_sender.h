@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -171,8 +171,8 @@ class RtpVideoSender : public RtpVideoSenderInterface,
   rtc::ThreadChecker module_process_thread_checker_;
   std::map<uint32_t, RtpState> suspended_ssrcs_;
 
-  std::unique_ptr<FlexfecSender> flexfec_sender_;
-  std::unique_ptr<FecController> fec_controller_;
+  std::unique_ptr<FlexfecSender> flexfec_sender_; //WebRTC中的 FEC 实现分为 UlpFEC 和 FlexFEC两个部分:
+  std::unique_ptr<FecController> fec_controller_; // 前向纠错
   // Rtp modules are assumed to be sorted in simulcast index order.
   const std::vector<webrtc_internal_rtp_video_sender::RtpStreamSender>
       rtp_streams_;

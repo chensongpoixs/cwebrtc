@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -24,7 +24,7 @@ static const uint16_t kNetworkCostMin = 0;
 enum AdapterType {
   // This enum resembles the one in Chromium net::ConnectionType.
   ADAPTER_TYPE_UNKNOWN = 0,
-  ADAPTER_TYPE_ETHERNET = 1 << 0,
+  ADAPTER_TYPE_ETHERNET = 1 << 0, // 以太网
   ADAPTER_TYPE_WIFI = 1 << 1,
   ADAPTER_TYPE_CELLULAR = 1 << 2,
   ADAPTER_TYPE_VPN = 1 << 3,

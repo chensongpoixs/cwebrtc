@@ -135,7 +135,7 @@ struct TransportDescription {
   std::string ice_ufrag;
   std::string ice_pwd;
   IceMode ice_mode;  // 连接服务器时服务器是否进行校验 ， 是否双方都要进行校验
-  ConnectionRole connection_role;
+  ConnectionRole connection_role; // 是服务器、客户端， 还是即可以是服务器又可以客户端
 
   std::unique_ptr<rtc::SSLFingerprint> identity_fingerprint;
 };
