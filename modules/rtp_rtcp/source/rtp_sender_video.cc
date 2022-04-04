@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -226,7 +226,7 @@ RTPSenderVideo::~RTPSenderVideo() {}
 void RTPSenderVideo::RegisterPayloadType(int8_t payload_type,
                                          absl::string_view payload_name) {
   VideoCodecType video_type;
-
+  //TODO@chensong 2022-04-04   在rtp_video_sender 中构造函数中进行注册编码器哈
   if (absl::EqualsIgnoreCase(payload_name, "VP8")) {
     video_type = kVideoCodecVP8;
   } else if (absl::EqualsIgnoreCase(payload_name, "VP9")) {
@@ -245,6 +245,7 @@ void RTPSenderVideo::RegisterPayloadType(int8_t payload_type,
   payload_type_map_[payload_type] = video_type;
 
   // Backward compatibility for older receivers without temporal layer logic
+  // 无时间层逻辑的老式接收机的向后兼容性
   if (video_type == kVideoCodecH264) {
     rtc::CritScope cs(&crit_);
     retransmission_settings_ = kRetransmitBaseLayer | kRetransmitHigherLayers;
@@ -442,10 +443,14 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
                           FrameTypeToString(frame_type));
 
   if (frame_type == VideoFrameType::kEmptyFrame)
-    return true;
-
+  {
+	  return true;
+  }
+  
   if (payload_size == 0)
-    return false;
+  {
+	  return false;
+  }
   RTC_CHECK(video_header);
 
   size_t fec_packet_overhead;
@@ -453,6 +458,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   int32_t retransmission_settings;
   bool set_video_rotation;
   bool set_color_space = false;
+  // TODO@chensong 为什么会对H264单独处理呢  ？？？ 
   bool set_frame_marking = video_header->codec == kVideoCodecH264 &&
         video_header->frame_marking.temporal_id != kNoTemporalIdx;
 
@@ -596,7 +602,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
     if (generic_descriptor_auth_experiment_) {
       additional_data = generic_descriptor_raw;
     }
-
+	// 媒体数据进行加密哈  -->>> 
     if (frame_encryptor_->Encrypt(
             cricket::MEDIA_TYPE_VIDEO, first_packet->Ssrc(), additional_data,
             rtc::MakeArrayView(payload_data, payload_size),
@@ -616,6 +622,8 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   VideoCodecType video_type;
   {
     rtc::CritScope cs(&payload_type_crit_);
+	// payload_type_map_中payload_type编码器id什么时候注册呢 ？？？
+	//TODO@chensong 2022-04-04   在rtp_video_sender 中构造函数中进行注册编码器哈
     const auto it = payload_type_map_.find(payload_type);
     if (it == payload_type_map_.end()) {
       RTC_LOG(LS_ERROR) << "Payload type " << static_cast<int>(payload_type)
@@ -624,6 +632,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
     }
     video_type = it->second;
   }
+  // TODO@chensong 2022-04-04 h264 and NALU 组包
   std::unique_ptr<RtpPacketizer> packetizer = RtpPacketizer::Create(
       video_type, rtc::MakeArrayView(payload_data, payload_size), limits,
       *packetize_video_header, frame_type, fragmentation);
@@ -645,7 +654,9 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   size_t packetized_payload_size = 0;
 
   if (num_packets == 0)
-    return false;
+  {
+	  return false;
+  }
 
   uint16_t first_sequence_number;
   bool first_frame = first_frame_sent_();

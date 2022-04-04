@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -205,30 +205,45 @@ int32_t RTCPReceiver::RTT(uint32_t remote_ssrc,
                           int64_t* max_rtt_ms) const {
   rtc::CritScope lock(&rtcp_receiver_lock_);
 
+  //TODO@chensong 2022-04-04  RTCP 的反馈信息查询
   auto it = received_report_blocks_.find(main_ssrc_);
   if (it == received_report_blocks_.end())
-    return -1;
+  {
+	  return -1;
+  }
 
   auto it_info = it->second.find(remote_ssrc);
   if (it_info == it->second.end())
-    return -1;
+  {
+	  return -1;
+  }
 
   const ReportBlockWithRtt* report_block = &it_info->second;
 
   if (report_block->num_rtts == 0)
-    return -1;
+  {
+	  return -1;
+  }
 
   if (last_rtt_ms)
-    *last_rtt_ms = report_block->last_rtt_ms;
+  {
+	  *last_rtt_ms = report_block->last_rtt_ms;
+  }
 
   if (avg_rtt_ms)
-    *avg_rtt_ms = report_block->sum_rtt_ms / report_block->num_rtts;
+  {
+	  *avg_rtt_ms = report_block->sum_rtt_ms / report_block->num_rtts;
+  }
 
   if (min_rtt_ms)
-    *min_rtt_ms = report_block->min_rtt_ms;
+  {
+	  *min_rtt_ms = report_block->min_rtt_ms;
+  }
 
   if (max_rtt_ms)
-    *max_rtt_ms = report_block->max_rtt_ms;
+  {
+	  *max_rtt_ms = report_block->max_rtt_ms;
+  }
 
   return 0;
 }

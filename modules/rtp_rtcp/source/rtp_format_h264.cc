@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -92,15 +92,16 @@ RtpPacketizerH264::RtpPacketizerH264(
   // Guard against uninitialized memory in packetization_mode.
   RTC_CHECK(packetization_mode == H264PacketizationMode::NonInterleaved ||
             packetization_mode == H264PacketizationMode::SingleNalUnit);
-
-  for (int i = 0; i < fragmentation.fragmentationVectorSize; ++i) {
-    const uint8_t* buffer =
-        payload.data() + fragmentation.fragmentationOffset[i];
+  // TODO@chensong H264 编码 sps 、pps
+  for (int i = 0; i < fragmentation.fragmentationVectorSize; ++i) 
+  {
+    const uint8_t* buffer = payload.data() + fragmentation.fragmentationOffset[i];
     size_t length = fragmentation.fragmentationLength[i];
 
     bool updated_sps = false;
     H264::NaluType nalu_type = H264::ParseNaluType(buffer[0]);
-    if (nalu_type == H264::NaluType::kSps) {
+    if (nalu_type == H264::NaluType::kSps) 
+	{
       // Check if stream uses picture order count type 0, and if so rewrite it
       // to enable faster decoding. Streams in that format incur additional
       // delay because it allows decode order to differ from render order.
@@ -149,6 +150,7 @@ RtpPacketizerH264::RtpPacketizerH264(
     if (!updated_sps)
       input_fragments_.push_back(Fragment(buffer, length));
   }
+  // TODO@chensong 2022-04-04    RTP发送NALU 两种模式  
   if (!GeneratePackets(packetization_mode)) {
     // If failed to generate all the packets, discard already generated
     // packets in case the caller would ignore return value and still try to
@@ -310,13 +312,20 @@ bool RtpPacketizerH264::PacketizeSingleNalu(size_t fragment_index) {
   // Add a single NALU to the queue, no aggregation.
   size_t payload_size_left = limits_.max_payload_len;
   if (input_fragments_.size() == 1)
-    payload_size_left -= limits_.single_packet_reduction_len;
+  {
+	  payload_size_left -= limits_.single_packet_reduction_len;
+  }
   else if (fragment_index == 0)
-    payload_size_left -= limits_.first_packet_reduction_len;
+  {
+	  payload_size_left -= limits_.first_packet_reduction_len;
+  }
   else if (fragment_index + 1 == input_fragments_.size())
-    payload_size_left -= limits_.last_packet_reduction_len;
+  {
+	  payload_size_left -= limits_.last_packet_reduction_len;
+  }
   const Fragment* fragment = &input_fragments_[fragment_index];
-  if (payload_size_left < fragment->length) {
+  if (payload_size_left < fragment->length) 
+  {
     RTC_LOG(LS_ERROR) << "Failed to fit a fragment to packet in SingleNalu "
                          "packetization mode. Payload size left "
                       << payload_size_left << ", fragment length "

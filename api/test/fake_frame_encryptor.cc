@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -27,10 +27,12 @@ int FakeFrameEncryptor::Encrypt(cricket::MediaType media_type,
   }
 
   RTC_CHECK_EQ(frame.size() + 1, encrypted_frame.size());
-  for (size_t i = 0; i < frame.size(); i++) {
+  // TODO@chensong 懂了没   RC4 算法类似的简单位运算 ^_^  
+  for (size_t i = 0; i < frame.size(); i++) 
+  {
     encrypted_frame[i] = frame[i] ^ fake_key_;
   }
-
+  //这里有没有看到计算机网络 中FEC的玩法
   encrypted_frame[frame.size()] = postfix_byte_;
   *bytes_written = encrypted_frame.size();
   return static_cast<int>(FakeEncryptionStatus::OK);

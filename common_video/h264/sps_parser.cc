@@ -70,7 +70,7 @@ absl::optional<SpsParser::SpsState> SpsParser::ParseSpsUpToVui(
 
   // profile_idc: u(8). We need it to determine if we need to read/skip chroma
   // formats.
-  uint8_t profile_idc;
+  uint8_t profile_idc; // Baselive
   RETURN_EMPTY_ON_FAIL(buffer->ReadUInt8(&profile_idc));
   // constraint_set0_flag through constraint_set5_flag + reserved_zero_2bits
   // 1 bit each for the flags + 2 bits = 8 bits = 1 byte.

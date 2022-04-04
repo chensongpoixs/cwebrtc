@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -97,8 +97,10 @@ struct RtpConfig {
   // RtpTransportControllerSend, with a reference from PayloadRouter, where
   // the latter would be responsible for mapping the codec type of encoded
   // images to the right payload type.
-  std::string payload_name;
-  int payload_type = -1;
+  // 例子: [a=rtpmap:payload_type payload_name/90000] 
+  // a=rtpmap:96 VP8/90000
+  std::string payload_name;  // 编码类型 VP8、H264或者VP9
+  int payload_type = -1;   // 类型 98、121 
 
   // See NackConfig for description.
   NackConfig nack;

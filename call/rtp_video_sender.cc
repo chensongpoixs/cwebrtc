@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -314,6 +314,7 @@ RtpVideoSender::RtpVideoSender(
     stream.rtp_rtcp->SetMaxRtpPacketSize(rtp_config.max_packet_size);
     stream.rtp_rtcp->RegisterSendPayloadFrequency(rtp_config.payload_type,
                                                   kVideoPayloadTypeFrequency);
+	// TODO@chensong 注册编码器的网络发送类型 [96, H264]
     stream.sender_video->RegisterPayloadType(rtp_config.payload_type,
                                              rtp_config.payload_name);
   }
@@ -415,6 +416,7 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
   // RTCPSender::BuildSR, hence we must not add the in the offset for this call.
   // TODO(nisse): Delete RTCPSender:timestamp_offset_, and see if we can confine
   // knowledge of the offset to a single place.
+  // 发送 1. 编码时间戳、2. capture 一张图片的时间戳 3. 编码器id 4. 是否是关键帧
   if (!rtp_streams_[stream_index].rtp_rtcp->OnSendingRtpFrame(
           encoded_image.Timestamp(), encoded_image.capture_time_ms_,
           rtp_config_.payload_type,
@@ -422,6 +424,7 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
     // The payload router could be active but this module isn't sending.
     return Result(Result::ERROR_SEND_FAILED);
   }
+  // RTCP 反馈信息 中RTT ms 
   int64_t expected_retransmission_time_ms =
       rtp_streams_[stream_index].rtp_rtcp->ExpectedRetransmissionTimeMs();
 
@@ -430,13 +433,19 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
       encoded_image.capture_time_ms_, encoded_image.data(),
       encoded_image.size(), fragmentation, &rtp_video_header,
       expected_retransmission_time_ms);
-  if (frame_count_observer_) {
+  if (frame_count_observer_) 
+  {
     FrameCounts& counts = frame_counts_[stream_index];
-    if (encoded_image._frameType == VideoFrameType::kVideoFrameKey) {
+    if (encoded_image._frameType == VideoFrameType::kVideoFrameKey) 
+	{
       ++counts.key_frames;
-    } else if (encoded_image._frameType == VideoFrameType::kVideoFrameDelta) {
+    }
+	else if (encoded_image._frameType == VideoFrameType::kVideoFrameDelta) 
+	{
       ++counts.delta_frames;
-    } else {
+    }
+	else 
+	{
       RTC_DCHECK(encoded_image._frameType == VideoFrameType::kEmptyFrame);
     }
     frame_count_observer_->FrameCountUpdated(counts,

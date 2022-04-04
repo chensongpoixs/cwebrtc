@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -396,9 +396,11 @@ bool ModuleRtpRtcpImpl::OnSendingRtpFrame(uint32_t timestamp,
                                           int64_t capture_time_ms,
                                           int payload_type,
                                           bool force_sender_report) {
-  if (!Sending())
-    return false;
-
+	if (!Sending())
+	{
+		return false;
+	}
+  // 设置编码时间、capture的时间戳、 类型 payload_type 是编码器的编号？
   rtcp_sender_.SetLastRtpTime(timestamp, capture_time_ms, payload_type);
   // Make sure an RTCP report isn't queued behind a key frame.
   if (rtcp_sender_.TimeToSendRTCPReport(force_sender_report))
@@ -489,16 +491,19 @@ int32_t ModuleRtpRtcpImpl::RTT(const uint32_t remote_ssrc,
   return ret;
 }
 
-int64_t ModuleRtpRtcpImpl::ExpectedRetransmissionTimeMs() const {
+int64_t ModuleRtpRtcpImpl::ExpectedRetransmissionTimeMs() const 
+{
   int64_t expected_retransmission_time_ms = rtt_ms();
-  if (expected_retransmission_time_ms > 0) {
+  if (expected_retransmission_time_ms > 0) 
+  {
     return expected_retransmission_time_ms;
   }
   // No rtt available (|kRtpRtcpRttProcessTimeMs| not yet passed?), so try to
   // poll avg_rtt_ms directly from rtcp receiver.
   if (rtcp_receiver_.RTT(rtcp_receiver_.RemoteSSRC(), nullptr,
                          &expected_retransmission_time_ms, nullptr,
-                         nullptr) == 0) {
+                         nullptr) == 0) 
+  {
     return expected_retransmission_time_ms;
   }
   return kDefaultExpectedRetransmissionTimeMs;

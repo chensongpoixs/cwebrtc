@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -61,7 +61,14 @@ std::vector<NaluIndex> FindNaluIndices(const uint8_t* buffer,
 NaluType ParseNaluType(uint8_t data) {
   return static_cast<NaluType>(data & kNaluTypeMask);
 }
+/************************************************************************/
+/*    逻辑关系：
+					SODB  + RBSP trailing bits    =  RBSP
 
+					NAL header(1 byte)      +      RBSP   = NALU
+
+	 Start Code Prefix(3 bytes)  +   NALU  +  Start Code Prefix(3 bytes)  +   NALU   + ...+  = H.264BitsStream                                                                     */
+/************************************************************************/
 std::vector<uint8_t> ParseRbsp(const uint8_t* data, size_t length) {
   std::vector<uint8_t> out;
   out.reserve(length);
@@ -76,6 +83,7 @@ std::vector<uint8_t> ParseRbsp(const uint8_t* data, size_t length) {
       out.push_back(data[i++]);
       out.push_back(data[i++]);
       // Skip the emulation byte.
+	  // 这边是跳过两个bit  ？？？ [sps , pps , IDR]
       i++;
     } else {
       // Single rbsp byte.
