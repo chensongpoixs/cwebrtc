@@ -51,6 +51,86 @@ ScreenCapturerWinGdi::ScreenCapturerWinGdi(
   }
 }
 
+namespace chen {
+
+int Pnum = 0, Cnum;  //父窗口数量，每一级父窗口的子窗口数量
+
+//---------------------------------------------------------
+// EnumChildWindows回调函数，hwnd为指定的父窗口
+//---------------------------------------------------------
+BOOL CALLBACK EnumChildWindowsProc(HWND hWnd, LPARAM lParam) {
+  wchar_t WindowTitle[100] = {0};
+  Cnum++;
+  ::GetWindowText(hWnd, WindowTitle, 100);
+
+  return true;
+}
+//---------------------------------------------------------
+// EnumWindows回调函数，hwnd为发现的顶层窗口
+//---------------------------------------------------------
+BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
+  if (GetParent(hWnd) == NULL &&
+      IsWindowVisible(hWnd))  //判断是否顶层窗口并且可见
+  {
+    Pnum++;
+    Cnum = 0;
+    wchar_t WindowTitle[100] = {0};
+    ::GetWindowText(hWnd, WindowTitle, 100);
+
+    EnumChildWindows(hWnd, EnumChildWindowsProc,
+                     NULL);  //获取父窗口的所有子窗口
+  }
+  return true;
+}
+//---------------------------------------------------------
+// main函数
+//---------------------------------------------------------
+
+//获取屏幕上所有的顶层窗口,每发现一个窗口就调用回调函数一次
+
+struct handle_data {
+  unsigned long process_id;
+  HWND best_handle;
+};
+
+BOOL IsMainWindow(HWND handle) {
+  return GetWindow(handle, GW_OWNER) == (HWND)0 && IsWindowVisible(handle);
+}
+BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam) {
+  handle_data& data = *(handle_data*)lParam;
+  unsigned long process_id = 0;
+  GetWindowThreadProcessId(handle, &process_id);
+  // printf("process_id = %lu\n", process_id);
+  if (data.process_id != process_id || !IsMainWindow(handle)) {
+    return TRUE;
+  }
+  data.best_handle = handle;
+  return FALSE;
+}
+
+HWND FindMainWindow() {
+  handle_data data;
+  data.process_id = ::GetCurrentProcessId();
+  data.best_handle = 0;
+  EnumWindows(EnumWindowsCallback, (LPARAM)&data);
+  return data.best_handle;
+}
+
+}  // namespace chen
+
+static HDC GetAppCgiCapture() {
+  HWND wnd = chen::FindMainWindow();
+  static FILE* out_file_app_capture_ptr = NULL;
+  if (!out_file_app_capture_ptr) {
+    out_file_app_capture_ptr = ::fopen("app_gui_capture.log", "wb+");
+  }
+  if (out_file_app_capture_ptr) {
+    ::fprintf(out_file_app_capture_ptr, "app_gui_capture ptr = %p\n", wnd);
+    ::fflush(out_file_app_capture_ptr);
+  }
+  return GetDC(wnd);
+}
+
 ScreenCapturerWinGdi::~ScreenCapturerWinGdi() {
   if (desktop_dc_)
     ReleaseDC(NULL, desktop_dc_);
@@ -165,10 +245,10 @@ void ScreenCapturerWinGdi::PrepareCaptureResources() {
     RTC_DCHECK(!memory_dc_);
 
     // Create GDI device contexts to capture from the desktop into memory.
-	HWND deskHW = GetDesktopWindow();
-	//GetWindowRect(deskHW, &deskRC);
-	//deskDC = GetWindowDC(deskHW);
-    desktop_dc_ = GetDC(deskHW);
+    // HWND deskHW = GetDesktopWindow();
+    // GetWindowRect(deskHW, &deskRC);
+    // deskDC = GetWindowDC(deskHW);
+    desktop_dc_ = GetAppCgiCapture();  // GetDC(deskHW);
     RTC_CHECK(desktop_dc_);
     memory_dc_ = CreateCompatibleDC(desktop_dc_);
     RTC_CHECK(memory_dc_);
@@ -178,9 +258,34 @@ void ScreenCapturerWinGdi::PrepareCaptureResources() {
   }
 }
 
+
+static DesktopRect GetGUIRect()
+{ 
+	HWND wnd = chen::FindMainWindow(); 
+	if (!wnd)
+	{
+          return DesktopRect();
+	}
+        RECT rect;
+    
+		/*
+		
+		 LONG    left;
+    LONG    top;
+    LONG    right;
+    LONG    bottom;
+		*/
+	if (!GetWindowRect(wnd, &rect))
+	{
+          return DesktopRect(); 
+	}
+
+	return DesktopRect::MakeXYWH(rect.left, rect.top, rect.right, rect.bottom);
+}
+
 bool ScreenCapturerWinGdi::CaptureImage() {
-  DesktopRect screen_rect =
-      GetScreenRect(current_screen_id_, current_device_key_);
+  DesktopRect screen_rect = GetGUIRect();
+  //GetScreenRect(current_screen_id_, current_device_key_);
   if (screen_rect.is_empty()) {
     RTC_LOG(LS_WARNING) << "Failed to get screen rect.";
     return false;

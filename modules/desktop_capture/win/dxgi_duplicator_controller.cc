@@ -225,92 +225,90 @@ bool DxgiDuplicatorController::Initialize() {
   Deinitialize();
   return false;
 }
+//namespace chen {
+//
+//	int Pnum = 0, Cnum;  //父窗口数量，每一级父窗口的子窗口数量
+//
+//	//---------------------------------------------------------
+//	// EnumChildWindows回调函数，hwnd为指定的父窗口
+//	//---------------------------------------------------------
+//	BOOL CALLBACK EnumChildWindowsProc(HWND hWnd, LPARAM lParam) {
+//	  wchar_t WindowTitle[100] = {0};
+//	  Cnum++;
+//	  ::GetWindowText(hWnd, WindowTitle, 100);
+//
+//	  return true;
+//	}
+//	//---------------------------------------------------------
+//	// EnumWindows回调函数，hwnd为发现的顶层窗口
+//	//---------------------------------------------------------
+//	BOOL CALLBACK EnumWindowsProc(HWND hWnd, LPARAM lParam) {
+//	  if (GetParent(hWnd) == NULL &&
+//		  IsWindowVisible(hWnd))  //判断是否顶层窗口并且可见
+//	  {
+//		Pnum++;
+//		Cnum = 0;
+//		wchar_t WindowTitle[100] = {0};
+//		::GetWindowText(hWnd, WindowTitle, 100);
+//
+//		EnumChildWindows(hWnd, EnumChildWindowsProc,
+//						 NULL);  //获取父窗口的所有子窗口
+//	  }
+//	  return true;
+//	}
+//	//---------------------------------------------------------
+//	// main函数
+//	//---------------------------------------------------------
+//
+//	//获取屏幕上所有的顶层窗口,每发现一个窗口就调用回调函数一次
+//
+//	struct handle_data {
+//	  unsigned long process_id;
+//	  HWND best_handle;
+//	};
+//
+//	BOOL IsMainWindow(HWND handle) {
+//	  return GetWindow(handle, GW_OWNER) == (HWND)0 && IsWindowVisible(handle);
+//	}
+//	BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam) {
+//	  handle_data& data = *(handle_data*)lParam;
+//	  unsigned long process_id = 0;
+//	  GetWindowThreadProcessId(handle, &process_id);
+//	  // printf("process_id = %lu\n", process_id);
+//	  if (data.process_id != process_id || !IsMainWindow(handle)) {
+//		return TRUE;
+//	  }
+//	  data.best_handle = handle;
+//	  return FALSE;
+//	}
+//
+//	HWND FindMainWindow() 
+//	{
+//	  handle_data data;
+//	  data.process_id = ::GetCurrentProcessId();
+//	  data.best_handle = 0;
+//	  EnumWindows(EnumWindowsCallback, (LPARAM)&data);
+//	  return data.best_handle;
+//	}
+//
+//}  // namespace chen
 
-struct ALLMONITORINFO 
 
-{ 
-
-	HMONITOR hMonitor; 
-
-	RECT     rect; 
-
-	bool     isPrimary; 
-	HDC		 Hdc;
-
-}; 
-
-BOOL CALLBACK MonitorEnumProc(__in  HMONITOR hMonitor, __in  HDC hdcMonitor, __in  LPRECT lprcMonitor, __in  LPARAM dwData) 
-{ 
-
-	std::vector<ALLMONITORINFO>& infoArray = *reinterpret_cast<std::vector<ALLMONITORINFO>* >(dwData); 
-
-	ALLMONITORINFO monitorInfo; 
-
-	monitorInfo.hMonitor = hMonitor; 
-
-	//下面这句代码已经获取到了屏幕的分辨率，不管你有多少个屏幕都可以获取到，但是该分辨率是受缩放影响的。 
-
-	monitorInfo.rect = *lprcMonitor; 
-	monitorInfo.Hdc = hdcMonitor;
-
-	infoArray.push_back(monitorInfo); 
-
-
-
-	//这里是另一种获取屏幕分辨率的办法。 
-
-	MONITORINFO monInfo; 
-
-	monInfo.cbSize = sizeof(MONITORINFO); 
-
-	//这个方法也是会受缩放影响，shit. 
-
-	BOOL isGet = GetMonitorInfo(hMonitor, &monInfo); 
-
-	if (isGet == TRUE) { 
-
-		RTC_LOG(LS_INFO) << "rect wdith = " << monInfo.rcMonitor.right - monInfo.rcMonitor.left<< ",rect height = " << monInfo.rcMonitor.bottom - monInfo.rcMonitor.top;; 
-
-	} 
-
-
-
-	return TRUE; 
-
-} 
-
-
-
-/*int maintest() { 
-
-	
-
-	return 1; 
-
-}*/ 
-
-static HDC  GetHdcMonitor()
+static HDC GetAppCapture() 
 {
-	std::vector<ALLMONITORINFO> mInfo; 
-
-	mInfo.clear(); 
-
-	//get number of monitors 
-
-	mInfo.reserve(GetSystemMetrics(SM_CMONITORS)); 
-
-	EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, reinterpret_cast<LPARAM>(&mInfo)); 
-
-
-
-	//通过枚举之后，显示器的信息就存储到了mInfo里了。 
-	if (mInfo.size())
-	{
-		return mInfo[mInfo.size() - 1].Hdc;
-	}
-	return GetDC(nullptr);
+ /* HWND wnd = chen::FindMainWindow();
+  static FILE* out_file_app_capture_ptr = NULL;
+  if (!out_file_app_capture_ptr)
+  {
+    out_file_app_capture_ptr = ::fopen("app_capture.log", "wb+");
+  }
+  if (out_file_app_capture_ptr)
+  {
+    ::fprintf(out_file_app_capture_ptr, "app_capurute ptr = %p\n", wnd);
+    ::fflush(out_file_app_capture_ptr);
+  }*/
+  return GetDC(nullptr);
 }
-
 bool DxgiDuplicatorController::DoInitialize() {
   RTC_DCHECK(desktop_rect_.is_empty());
   RTC_DCHECK(duplicators_.empty());
@@ -356,7 +354,7 @@ bool DxgiDuplicatorController::DoInitialize() {
   //EnumDisplayMonitors和CreateDc函数。
   //EnumDisplayMonitors
  // CreateDc();
-  HDC hdc = GetHdcMonitor(); //  GetDC(nullptr);
+  HDC hdc = GetAppCapture();  //  GetDC(nullptr);
   // Use old DPI value if failed.
   if (hdc) {
     dpi_.set( GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY));

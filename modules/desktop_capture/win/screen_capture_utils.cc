@@ -78,7 +78,8 @@ DesktopRect GetScreenRect(DesktopCapturer::SourceId screen,
   if (screen == kFullDesktopScreenId) {
     return GetFullscreenRect();
   }
-
+  // TODO@chensong 2022-04-07---> caputre rect  
+    //GetWindowRect();
   DISPLAY_DEVICEW device;
   device.cb = sizeof(device);
   BOOL result = EnumDisplayDevicesW(NULL, screen, &device, 0);
