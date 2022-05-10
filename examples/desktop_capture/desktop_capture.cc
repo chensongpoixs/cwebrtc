@@ -87,6 +87,7 @@ void DesktopCapture::OnCaptureResult(
   // Convert DesktopFrame to VideoFrame
   if (result != webrtc::DesktopCapturer::Result::SUCCESS) {
     RTC_LOG(LS_ERROR) << "Capture frame faiiled, result: " << result;
+    return;    ;
   }
   int width = frame->size().width();
   int height = frame->size().height();

@@ -102,7 +102,7 @@ class RTC_EXPORT I420Buffer : public I420BufferInterface {
   void PasteFrom(const I420BufferInterface& picture,
                  int offset_col,
                  int offset_row);
-
+  
  protected:
   I420Buffer(int width, int height);
   I420Buffer(int width, int height, int stride_y, int stride_u, int stride_v);
@@ -117,6 +117,7 @@ class RTC_EXPORT I420Buffer : public I420BufferInterface {
   const int stride_v_;
   const std::unique_ptr<uint8_t, AlignedFreeDeleter> data_;
  
+  
 };
 
 }  // namespace webrtc

@@ -21,7 +21,7 @@
 
 #include <iostream>
 #include <thread>
-
+#include <chrono>
 //webrtc::VoiceEngine* ptrVoEngine_;  //核心引擎类，下面的四个类的都是基于引擎创建的
 //webrtc::VoEBase* ptrVoEBase_;
 //webrtc::VoEVolumeControl* ptrVoEVolumeControl_;//声音控制类，设置麦克风与声卡的声音等
@@ -168,16 +168,32 @@ int PASCAL wWinMain(HINSTANCE instance,
     POINT       pt;
 		
 		*/
-
+     static  std::chrono::steady_clock::time_point pre_time =
+          std::chrono::steady_clock::now();
+                std::chrono::steady_clock::time_point cur_time_ms =
+                    std::chrono::steady_clock::now();
+   
 		 std::string string_pt =
                     std::to_string(msg.pt.x) + " " + std::to_string(msg.pt.y);
-          ::fprintf( out_file_ptr, "[^_^]hwnd  = %p, message = %u,  time = %lu , pt = %s\n",
-                    msg.hwnd, msg.message,  msg.time,
-                    string_pt.c_str());
+          ::fprintf( out_file_ptr, "[^_^]hwnd  = %p, message = %u, cur_time = %s,   time = %lu , pt = %s, ms = %s , pre_time = %s, rparam = %s, lparam = %s\n",
+                     msg.hwnd, msg.message, std::to_string(::time(NULL)).c_str(),
+                     msg.time, string_pt.c_str(),
+                           std::to_string(cur_time_ms.time_since_epoch().count()).c_str(),
+                     std::to_string(pre_time.time_since_epoch().count())
+                         .c_str(),
+                     std::to_string(msg.wParam).c_str(), std::to_string(msg.lParam).c_str());
 
 		  ::fflush(out_file_ptr);
       ::TranslateMessage(&msg);
-               
+             
+	 /* string_pt = std::to_string(msg.pt.x) + " " + std::to_string(msg.pt.y);
+      ::fprintf(out_file_ptr,
+                "[^_^]hwnd  = %p, message = %u,  time = %lu , pt = %s, ms = %s "
+                ", pre_time = %s\n",
+                msg.hwnd, msg.message, msg.time, string_pt.c_str(),
+                std::to_string(cur_time_ms.time_since_epoch().count()).c_str(),
+                std::to_string(pre_time.time_since_epoch().count()).c_str());
+          ::fflush(out_file_ptr);*/
       ::DispatchMessage(&msg);
     }
   }
