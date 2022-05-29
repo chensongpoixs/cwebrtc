@@ -96,7 +96,7 @@ bool DxgiTextureStaging::CopyFromTexture(
     ID3D11Texture2D* texture) {
   RTC_DCHECK_GT(frame_info.AccumulatedFrames, 0);
   RTC_DCHECK(texture);
-
+  //////////// TODO@chensong 20220423  GPU 拷贝数据到CPU的流程 哈
   // AcquireNextFrame returns a CPU inaccessible IDXGIResource, so we need to
   // copy it to a CPU accessible staging ID3D11Texture2D.
   if (!InitializeStage(texture)) {
@@ -107,6 +107,7 @@ bool DxgiTextureStaging::CopyFromTexture(
                                   static_cast<ID3D11Resource*>(texture));
 
   *rect() = {0};
+  //   TODO@chensong 20220423   数据直接拷贝到rect_结构中去哈 ^_^ 
   _com_error error = surface_->Map(rect(), DXGI_MAP_READ);
   if (error.Error() != S_OK) {
     *rect() = {0};
