@@ -180,28 +180,35 @@ bool RtpPacketizerH264::GeneratePackets(
   for (size_t i = 0; i < input_fragments_.size();) {
     switch (packetization_mode) {
       case H264PacketizationMode::SingleNalUnit:
-        if (!PacketizeSingleNalu(i))
-          return false;
-        ++i;
-        break;
+	  {
+		  if (!PacketizeSingleNalu(i))
+		  {
+			  return false;
+		  }
+		  ++i;
+		  break;
+	  }
       case H264PacketizationMode::NonInterleaved:
-        int fragment_len = input_fragments_[i].length;
-        int single_packet_capacity = limits_.max_payload_len;
-        if (input_fragments_.size() == 1)
-          single_packet_capacity -= limits_.single_packet_reduction_len;
-        else if (i == 0)
-          single_packet_capacity -= limits_.first_packet_reduction_len;
-        else if (i + 1 == input_fragments_.size())
-          single_packet_capacity -= limits_.last_packet_reduction_len;
+	  {
+		  int fragment_len = input_fragments_[i].length;
+		  int single_packet_capacity = limits_.max_payload_len;
+		  if (input_fragments_.size() == 1)
+			  single_packet_capacity -= limits_.single_packet_reduction_len;
+		  else if (i == 0)
+			  single_packet_capacity -= limits_.first_packet_reduction_len;
+		  else if (i + 1 == input_fragments_.size())
+			  single_packet_capacity -= limits_.last_packet_reduction_len;
 
-        if (fragment_len > single_packet_capacity) {
-          if (!PacketizeFuA(i))
-            return false;
-          ++i;
-        } else {
-          i = PacketizeStapA(i);
-        }
-        break;
+		  if (fragment_len > single_packet_capacity) {
+			  if (!PacketizeFuA(i))
+				  return false;
+			  ++i;
+		  }
+		  else {
+			  i = PacketizeStapA(i);
+		  }
+		  break;
+	  }
     }
   }
   return true;

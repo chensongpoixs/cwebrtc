@@ -356,11 +356,11 @@ bool StunMessage::Read(ByteBufferReader* buf) {
   if (!buf->ReadUInt16(&length_))
     return false;
 
-  std::string magic_cookie;
+  std::string magic_cookie;//0x2112A442
   if (!buf->ReadString(&magic_cookie, kStunMagicCookieLength))
     return false;
 
-  std::string transaction_id;
+  std::string transaction_id; // 12bit
   if (!buf->ReadString(&transaction_id, kStunTransactionIdLength))
     return false;
 

@@ -80,9 +80,9 @@ void AcknowledgedBitrateEstimator::SetAlrEndedTimeMs(
   alr_ended_time_ms_.emplace(alr_ended_time_ms);
 }
 
-void AcknowledgedBitrateEstimator::MaybeExpectFastRateChange(
-    int64_t packet_send_time_ms) {
-  if (alr_ended_time_ms_ && packet_send_time_ms > *alr_ended_time_ms_) {
+void AcknowledgedBitrateEstimator::MaybeExpectFastRateChange(int64_t packet_send_time_ms) {
+  if (alr_ended_time_ms_ && packet_send_time_ms > *alr_ended_time_ms_) 
+  {
     bitrate_estimator_->ExpectFastRateChange();
     alr_ended_time_ms_.reset();
   }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -62,11 +62,17 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes) {
   // We use a larger window at the beginning to get a more stable sample that
   // we can use to initialize the estimate.
   if (bitrate_estimate_kbps_ < 0.f)
-    rate_window_ms = initial_window_ms_.Get();
+  {
+	  rate_window_ms = initial_window_ms_.Get();
+  }
+  // 计算当前时刻码率
   float bitrate_sample_kbps = UpdateWindow(now_ms, bytes, rate_window_ms);
   if (bitrate_sample_kbps < 0.0f)
-    return;
-  if (bitrate_estimate_kbps_ < 0.0f) {
+  {
+	  return;
+  }
+  if (bitrate_estimate_kbps_ < 0.0f) 
+  {
     // This is the very first sample we get. Use it to initialize the estimate.
     bitrate_estimate_kbps_ = bitrate_sample_kbps;
     return;
@@ -108,7 +114,8 @@ float BitrateEstimator::UpdateWindow(int64_t now_ms,
     sum_ = 0;
     current_window_ms_ = 0;
   }
-  if (prev_time_ms_ >= 0) {
+  if (prev_time_ms_ >= 0) 
+  {
     current_window_ms_ += now_ms - prev_time_ms_;
     // Reset if nothing has been received for more than a full window.
     if (now_ms - prev_time_ms_ > rate_window_ms) {
