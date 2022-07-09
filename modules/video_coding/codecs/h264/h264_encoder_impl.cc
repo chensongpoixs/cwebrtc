@@ -98,7 +98,9 @@ static void RtpFragmentize(EncodedImage* encoded_image,
                            SFrameBSInfo* info,
                            RTPFragmentationHeader* frag_header) {
   // Calculate minimum buffer size required to hold encoded data.
+	// TODO@chensong 2022-03-29  检查一张图片的缓冲区大小 是否符合要求
   size_t required_capacity = 0;
+  // nal的个数吗？
   size_t fragments_count = 0;
   for (int layer = 0; layer < info->iLayerNum; ++layer) {
     const SLayerBSInfo& layerInfo = info->sLayerInfo[layer];
@@ -141,14 +143,17 @@ static void RtpFragmentize(EncodedImage* encoded_image,
     for (int nal = 0; nal < layerInfo.iNalCount; ++nal, ++frag) {
       // Because the sum of all layer lengths, |required_capacity|, fits in a
       // |size_t|, we know that any indices in-between will not overflow.
-      RTC_DCHECK_GE(layerInfo.pNalLengthInByte[nal], 4);
+      //  检查h264 的NAL的格式  [00 00 00 01] 开头哈
+	  RTC_DCHECK_GE(layerInfo.pNalLengthInByte[nal], 4);
       RTC_DCHECK_EQ(layerInfo.pBsBuf[layer_len + 0], start_code[0]);
       RTC_DCHECK_EQ(layerInfo.pBsBuf[layer_len + 1], start_code[1]);
       RTC_DCHECK_EQ(layerInfo.pBsBuf[layer_len + 2], start_code[2]);
       RTC_DCHECK_EQ(layerInfo.pBsBuf[layer_len + 3], start_code[3]);
+	  // 设置当前数据偏移量
       frag_header->fragmentationOffset[frag] =
           encoded_image->size() + layer_len + sizeof(start_code);
-      frag_header->fragmentationLength[frag] =
+	  // 当前数据的大小
+	  frag_header->fragmentationLength[frag] =
           layerInfo.pNalLengthInByte[nal] - sizeof(start_code);
       layer_len += layerInfo.pNalLengthInByte[nal];
     }
@@ -237,7 +242,7 @@ int32_t H264EncoderImpl::InitEncode(const VideoCodec* inst,
   for (int i = 0, idx = number_of_streams - 1; i < number_of_streams;
        ++i, --idx) {
     ISVCEncoder* openh264_encoder;
-    // Create encoder.
+    // Create encoder. 创建编码器
     if (WelsCreateSVCEncoder(&openh264_encoder) != 0) {
       // Failed to create encoder.
       RTC_LOG(LS_ERROR) << "Failed to create OpenH264 encoder";
@@ -277,10 +282,10 @@ int32_t H264EncoderImpl::InitEncode(const VideoCodec* inst,
     configurations_[i].max_bps = codec_.maxBitrate * 1000;
     configurations_[i].target_bps = codec_.startBitrate * 1000;
 
-    // Create encoder parameters based on the layer configuration.
+    // Create encoder parameters based on the layer configuration. 编码器配置
     SEncParamExt encoder_params = CreateEncoderParams(i);
 
-    // Initialize.
+    // Initialize. 编码器初始化
     if (openh264_encoder->InitializeExt(&encoder_params) != 0) {
       RTC_LOG(LS_ERROR) << "Failed to initialize OpenH264 encoder";
       Release();
