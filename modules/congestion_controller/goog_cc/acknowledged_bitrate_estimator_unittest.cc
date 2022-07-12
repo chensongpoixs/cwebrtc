@@ -49,12 +49,10 @@ struct AcknowledgedBitrateEstimatorTestStates {
 
 AcknowledgedBitrateEstimatorTestStates CreateTestStates() {
   AcknowledgedBitrateEstimatorTestStates states;
-  auto mock_bitrate_estimator =
-      absl::make_unique<MockBitrateEstimator>(&states.field_trial_config);
+  auto mock_bitrate_estimator = absl::make_unique<MockBitrateEstimator>(&states.field_trial_config);
   states.mock_bitrate_estimator = mock_bitrate_estimator.get();
-  states.acknowledged_bitrate_estimator =
-      absl::make_unique<AcknowledgedBitrateEstimator>(
-          &states.field_trial_config, std::move(mock_bitrate_estimator));
+  states.acknowledged_bitrate_estimator = 
+	  absl::make_unique<AcknowledgedBitrateEstimator>( &states.field_trial_config, std::move(mock_bitrate_estimator));
   return states;
 }
 
@@ -72,14 +70,14 @@ std::vector<PacketFeedback> CreateFeedbackVector() {
 
 }  // anonymous namespace
 
-TEST(TestAcknowledgedBitrateEstimator, DontAddPacketsWhichAreNotInSendHistory) {
-  auto states = CreateTestStates();
+TEST(TestAcknowledgedBitrateEstimator, DontAddPacketsWhichAreNotInSendHistory)
+{
+	AcknowledgedBitrateEstimatorTestStates states = CreateTestStates();
   std::vector<PacketFeedback> packet_feedback_vector;
-  packet_feedback_vector.push_back(
-      PacketFeedback(kFirstArrivalTimeMs, kSequenceNumber));
+  packet_feedback_vector.push_back( PacketFeedback(kFirstArrivalTimeMs, kSequenceNumber));
+  //states.mock_bitrate_estimator->gmock_Update(_/*{}*/, _/ * {}*/);  // _ = {}
   EXPECT_CALL(*states.mock_bitrate_estimator, Update(_, _)).Times(0);
-  states.acknowledged_bitrate_estimator->IncomingPacketFeedbackVector(
-      packet_feedback_vector);
+  states.acknowledged_bitrate_estimator->IncomingPacketFeedbackVector( packet_feedback_vector);
 }
 
 TEST(TestAcknowledgedBitrateEstimator, UpdateBandwith) {

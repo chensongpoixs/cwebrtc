@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -408,6 +408,118 @@ bool RTCPSender::TimeToSendRTCPReport(bool sendKeyframeBeforeRTP) const {
      5. The resulting value of T is divided by e-3/2=1.21828 to compensate
         for the fact that the timer reconsideration algorithm converges to
         a value of the RTCP bandwidth below the intended average
+
+
+
+
+		对于音频，我们使用可配置的间隔（默认值：5秒）
+
+
+
+		对于视频，我们对BW使用可配置的间隔（默认值：1秒）
+
+		小于360 kbit/s，技术上我们打破了最大5%RTCP BW
+
+		视频速度低于10 kbit/s，但这应该是非常罕见的
+
+
+
+
+		来自RFC3550
+
+
+
+		如果会话BW为0，则最大RTCP BW为5%
+
+		发送报告的长度约为65字节（包括CNAME）
+
+		接收器报告约为28字节
+
+
+
+		以秒为单位减少的最小值的建议值为360
+
+		除以会话带宽，单位为千比特/秒。这个最小值
+
+		带宽大于72 kb/s时小于5秒。
+
+
+
+		如果参与者尚未发送RTCP数据包（变量
+
+		初始值为true），常数Tmin设置为配置值的一半
+
+		间隔
+
+
+
+		RTCP数据包之间的间隔随时间随机变化
+
+		范围[0.5,1.5]乘以计算的间隔，以避免意外
+
+		所有参与者的同步
+
+
+
+		如果我们发送
+
+		如果参与者是发送者（we_sent true），则常数C为
+
+		设置为平均RTCP数据包大小（平均RTCP大小）除以25%
+
+		RTCP带宽（RTCP_bw）的，常数n设置为
+
+		发件人的数量。
+
+
+
+		如果我们只收到
+
+		如果we_sent不正确，则设置常数C
+
+		平均RTCP数据包大小除以RTCP的75%
+
+		带宽。常数n被设置为接收器的数量
+
+		（成员-发件人）。如果发件人的数量大于
+
+		25%，发送方和接收方一起处理。
+
+
+
+		对等网络不需要重新考虑
+
+		“计时器重新考虑”是
+
+		雇佣。该算法实现了一种简单的退避机制
+
+		这会导致用户在以下情况下阻止RTCP数据包传输：
+
+		团体规模正在增加。
+
+
+
+		n=成员人数
+
+		C=平均尺寸/（rtcpBW/4）
+
+
+
+		3.确定性计算间隔Td设置为最大值（Tmin，n*C）。
+
+
+
+		4.将计算的间隔T设置为均匀分布的数字
+
+		介于确定性计算间隔的0.5到1.5倍之间。
+
+
+
+		5.T的结果值除以e-3/2=1.21828进行补偿
+
+		因为计时器算法收敛到
+
+		RTCP带宽值低于预期平均值
   */
 
   int64_t now = clock_->TimeInMilliseconds();
@@ -728,11 +840,13 @@ int32_t RTCPSender::SendCompoundRTCP(
     std::unique_ptr<rtcp::RtcpPacket> packet_bye;
 
     auto it = report_flags_.begin();
-    while (it != report_flags_.end()) {
+    while (it != report_flags_.end()) 
+	{
       auto builder_it = builders_.find(it->type);
       RTC_DCHECK(builder_it != builders_.end())
           << "Could not find builder for packet type " << it->type;
-      if (it->is_volatile) {
+      if (it->is_volatile)
+	  {
         report_flags_.erase(it++);
       } else {
         ++it;
@@ -751,7 +865,7 @@ int32_t RTCPSender::SendCompoundRTCP(
       }
     }
 
-    // Append the BYE now at the end
+    // Append the BYE now at the end  // 结束传输
     if (packet_bye) {
       container.Append(packet_bye.release());
     }
