@@ -355,6 +355,7 @@ bool DxgiDuplicatorController::DoInitialize() {
   //EnumDisplayMonitors
  // CreateDc();
   HDC hdc = GetAppCapture();  //  GetDC(nullptr);
+ // HDC hdc = GetDC(nullptr);
   // Use old DPI value if failed.
   if (hdc) {
     dpi_.set( GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY));

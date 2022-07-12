@@ -50,7 +50,7 @@ ScreenCapturerWinGdi::ScreenCapturerWinGdi(
     }
   }
 }
-
+static FILE* out_file_app_capture_ptr = NULL;
 namespace chen {
 
 int Pnum = 0, Cnum;  //父窗口数量，每一级父窗口的子窗口数量
@@ -101,16 +101,37 @@ BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam) {
   unsigned long process_id = 0;
   GetWindowThreadProcessId(handle, &process_id);
   // printf("process_id = %lu\n", process_id);
-  if (data.process_id != process_id || !IsMainWindow(handle)) {
+  if (data.process_id != process_id || !IsMainWindow(handle)) 
+  {
+    if (out_file_app_capture_ptr) {
+      fprintf(out_file_app_capture_ptr, "[warr][process_id = %lu][window_id = %lu]\n", data.process_id, process_id);
+      fflush(out_file_app_capture_ptr);
+    }
     return TRUE;
+  }
+  if (out_file_app_capture_ptr) {
+    fprintf(out_file_app_capture_ptr,
+            "[info][process_id = %lu][window_id = %lu]\n", data.process_id,
+            process_id);
+    fflush(out_file_app_capture_ptr);
   }
   data.best_handle = handle;
   return FALSE;
 }
 
-HWND FindMainWindow() {
+HWND FindMainWindow() 
+{
+  if (!out_file_app_capture_ptr) 
+  {
+    out_file_app_capture_ptr = ::fopen("app_gui_capture.log", "wb+");
+  }
   handle_data data;
   data.process_id = ::GetCurrentProcessId();
+  if (out_file_app_capture_ptr) 
+  {
+    fprintf(out_file_app_capture_ptr, "[process_id = %lu]\n", data.process_id);
+    fflush(out_file_app_capture_ptr);
+  }
   data.best_handle = 0;
   EnumWindows(EnumWindowsCallback, (LPARAM)&data);
   return data.best_handle;
@@ -118,9 +139,9 @@ HWND FindMainWindow() {
 
 }  // namespace chen
 
-static HDC GetAppCgiCapture() {
-  HWND wnd = chen::FindMainWindow();
-  static FILE* out_file_app_capture_ptr = NULL;
+static HDC GetAppCgiCapture() 
+{
+  HWND wnd = chen::FindMainWindow();  
   if (!out_file_app_capture_ptr) {
     out_file_app_capture_ptr = ::fopen("app_gui_capture.log", "wb+");
   }
