@@ -25,7 +25,7 @@ app.get("/webrtc",function (req,res,next) {
     res.sendFile(__dirname+"/webrtc/room.html");
 });
  
-server.listen(8088);//express 监听 8080 端口，因为本机80端口已被暂用
+server.listen(8080);//express 监听 8080 端口，因为本机80端口已被暂用
  
 
 var log4js = require('log4js');

@@ -65,10 +65,25 @@ apt-cahr npm
 
 
 
+--args='target_os=\"unix\" target_cpu=\"x64\" is_debug=false is_clang=false use_lld=false is_component_build=false rtc_use_h264=true ffmpeg_branding=\"Chrome\" rtc_build_ssl=true'
 
 
 
+gn gen out/linux  --args='target_os="linux" target_cpu="x86_x64" is_debug=false is_clang=false use_lld=false is_component_build=false rtc_use_h264=true ffmpeg_branding="Chrome"  '
 
+
+
+gn gen out/linux --args='target_os="linux" target_cpu="x64" is_debug=false is_clang=false treat_warnings_as_errors=false rtc_include_tests=false is_component_build=false use_custom_libcxx=false rtc_enable_protobuf=false'
+ 
+ 
+ 
+ 
+ 
+ gn gen out/linux_include --args='target_os="linux" target_cpu="x64" is_debug=false is_clang=false treat_warnings_as_errors=false rtc_include_tests=true is_component_build=false use_custom_libcxx=false rtc_enable_protobuf=false'
+ 
+  tar -czvf  mediasoup.tar.gz  /root/mediasoup
+  
+  
 # 二、切换版本
 
 
@@ -249,3 +264,16 @@ find . -name abc -type d -print -exec rm -rf {} \;
 (3) " -type f "查找的类型为文件
 (4) "-print" 输出查找的文件目录名
 (5) 最主要的是是-exec了，-exec选项后边跟着一个所要执行的命令，表示将find出来的文件或目录执行该命令。exec选项后面跟随着所要执行的命令或脚本，然后是一对儿{}，一个空格和一个\，最后是一个分号
+
+
+gn gen out/Release-clang --args='target_os="linux" target_cpu="x64" is_debug=false is_component_build=false rtc_include_tests=false rtc_build_examples=false'
+ninja -C out/Release-clang
+# gcc编译x64版
+gn gen out/Release-gcc --args='target_os="linux" target_cpu="x64" is_debug=false is_component_build=false use_sysroot=false is_clang=false use_lld=false treat_warnings_as_errors=false rtc_include_tests=false rtc_build_examples=false use_custom_libcxx=false use_rtti=true'
+ninja -C out/Release-gcc
+# gcc编译arm64版（需要先安装编译工具）
+build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
+gn gen out/Release-arm64 --args='target_os="linux" target_cpu="arm64" is_debug=false is_component_build=false use_sysroot=false is_clang=false use_lld=false treat_warnings_as_errors=false rtc_include_tests=false rtc_build_examples=false use_custom_libcxx=false use_rtti=true'
+ninja -C out/Release-arm64
+
+ 

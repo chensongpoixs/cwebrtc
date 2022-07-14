@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -46,8 +46,8 @@ class BitrateEstimator {
   FieldTrialParameter<DataRate> estimate_floor_;
   int64_t current_window_ms_;
   int64_t prev_time_ms_;
-  float bitrate_estimate_kbps_;
-  float bitrate_estimate_var_;
+  float bitrate_estimate_kbps_;   // 上一个时刻估计码率
+  float bitrate_estimate_var_;    // 上一个时刻估计的？？？
 };
 
 }  // namespace webrtc

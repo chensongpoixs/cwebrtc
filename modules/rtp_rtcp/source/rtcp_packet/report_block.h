@@ -58,13 +58,13 @@ class ReportBlock {
   uint32_t delay_since_last_sr() const { return delay_since_last_sr_; }
 
  private:
-  uint32_t source_ssrc_;     // 32 bits
-  uint8_t fraction_lost_;    // 8 bits representing a fixed point value 0..1
-  int32_t cumulative_lost_;  // Signed 24-bit value
-  uint32_t extended_high_seq_num_;  // 32 bits
-  uint32_t jitter_;                 // 32 bits
-  uint32_t last_sr_;                // 32 bits
-  uint32_t delay_since_last_sr_;    // 32 bits, units of 1/65536 seconds
+  uint32_t source_ssrc_;     // 32 bits 接收到的每个媒体源
+  uint8_t fraction_lost_;    // 8 bits representing a fixed point value 0..1 上一次报告之后从SSRC_n来包的漏包比列
+  int32_t cumulative_lost_;  // Signed 24-bit value 自接收开始漏包总数，迟到包不算漏包，重传有可以导致负数
+  uint32_t extended_high_seq_num_;  // 32 bits  低16位表式收到的最大seq，高16位表式seq循环次数 
+  uint32_t jitter_;                 // 32 bits RTP包到达时间间隔的统计方差
+  uint32_t last_sr_;                // 32 bits NTP时间戳的中间32位
+  uint32_t delay_since_last_sr_;    // 32 bits, units of 1/65536 seconds//记录接收SR的时间与发送SR的时间差
 };
 
 }  // namespace rtcp

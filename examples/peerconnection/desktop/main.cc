@@ -21,7 +21,7 @@
 
 #include <iostream>
 #include <thread>
-
+#include <chrono>
 //webrtc::VoiceEngine* ptrVoEngine_;  //核心引擎类，下面的四个类的都是基于引擎创建的
 //webrtc::VoEBase* ptrVoEBase_;
 //webrtc::VoEVolumeControl* ptrVoEVolumeControl_;//声音控制类，设置麦克风与声卡的声音等
@@ -101,6 +101,138 @@ HWND FindMainWindow()
 	return data.best_handle;
 }
 
+#include <dinput.h>
+#include <dinputd.h>
+#include <iostream>
+using namespace std;
+#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib, "DXGuid.lib")  // unresolved external symbol for guid
+
+//#define DIRECTINPUT_VERSION 0x0700
+#include <dinput.h>
+#define DINPUT_BUFFERSIZE 16
+LPDIRECTINPUT8 lpDirectInput;  // DirectInput object
+LPDIRECTINPUTDEVICE8 lpMouse;  // DirectInput device
+
+#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "dinput.lib")
+
+
+  BOOL InitDInput(HWND hWnd) {
+  HRESULT hr;
+
+  // 创建一个 DIRECTINPUT 对象
+  hr = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION,
+                          IID_IDirectInput8, (LPVOID*)&lpDirectInput, NULL);
+  if
+    FAILED(hr) return FALSE;
+
+  // 创建一个 DIRECTINPUTDEVICE 界面
+  hr = lpDirectInput->CreateDevice(GUID_SysMouse, &lpMouse, NULL);
+  if
+    FAILED(hr) return FALSE;
+
+  // 设定查询鼠标状态的返回数据格式
+  hr = lpMouse->SetDataFormat(&c_dfDIMouse);
+  if
+    FAILED(hr) return FALSE;
+
+  // 设定协作模式
+  hr = lpMouse->SetCooperativeLevel(hWnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+  if
+    FAILED(hr) return FALSE;
+
+  // 设定缓冲区大小(不设定，缓冲区大小默认值为
+  // 0，程序就只能按立即模式工作;如果要用缓冲模式工作，必须使缓冲区大小超过0)
+  DIPROPDWORD property;
+  property.diph.dwSize = sizeof(DIPROPDWORD);
+  property.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+  property.diph.dwObj = 0;
+  property.diph.dwHow = DIPH_DEVICE;
+  property.dwData = DINPUT_BUFFERSIZE;
+  hr = lpMouse->SetProperty(DIPROP_BUFFERSIZE, &property.diph);
+  if
+    FAILED(hr) return FALSE;
+
+  //获取使用权
+  hr = lpMouse->Acquire();
+  // lpMouse->SendDeviceData();
+  if
+    FAILED(hr) return FALSE;
+
+  return TRUE;
+}
+
+HRESULT UpdateInputState(void) {
+  DWORD i;
+  printf("[%s][%s][%d]\n", __FILE__, __FUNCTION__, __LINE__);
+  if (lpMouse != NULL) {
+    DIDEVICEOBJECTDATA didod;  // Receives buffered data
+    DWORD dwElements;
+    HRESULT hr;
+
+    while (TRUE) {
+      dwElements = 1;  // 每次从缓冲区中读一个数据
+      hr = lpMouse->GetDeviceData(sizeof(DIDEVICEOBJECTDATA), &didod,
+                                  &dwElements, 0);
+      printf("[%s][%s][%d]\n", __FILE__, __FUNCTION__, __LINE__);
+      if
+        FAILED(hr) {
+          // 发生了一个错误
+          if (hr == DIERR_INPUTLOST) {
+            hr = lpMouse->Acquire();  // 试图重新取回设备
+            if
+              FAILED(hr)
+
+            return S_FALSE;  // 失败
+          }
+        }
+      else if (dwElements == 1) {
+        switch (didod.dwOfs) {
+          case DIMOFS_X:  // X 轴偏移量
+            // didod.dwData 里是具体偏移相对值，单位为像素
+            break;
+          case DIMOFS_Y:  // Y 轴偏移量
+            // didod.dwData 里是具体偏移相对值，单位为像素
+            break;
+          case DIMOFS_BUTTON0:  // 0 号键（左键）状态
+            // didod.dwData 里是具体状态值
+            // 低字节最高位为 1 则表示按下
+            // 低字节最高位为 0 表示未按下
+            break;
+          case DIMOFS_BUTTON1:  // 1 号键（右键）状态
+            // 同上
+            break;
+          case DIMOFS_BUTTON2:  // 2 号键（中键）状态
+            // 同上
+            break;
+          case DIMOFS_BUTTON3:  // 3 号键状态
+            // 同上
+            break;
+        }
+      } else if (dwElements == 0)
+        break;  // 缓冲区读空
+    }
+  }
+  printf("[%s][%s][%d]\n", __FILE__, __FUNCTION__, __LINE__);
+  return S_OK;
+}
+
+void ReleaseDInput(void) {
+  if (lpDirectInput) {
+    if (lpMouse) {
+      // Always unacquire the device before calling Release().
+      lpMouse->Unacquire();
+      lpMouse->Release();
+      lpMouse = NULL;
+    }
+    lpDirectInput->Release();
+    lpDirectInput = NULL;
+  }
+}
+
+
+
 
 
 int PASCAL wWinMain(HINSTANCE instance,
@@ -145,6 +277,13 @@ int PASCAL wWinMain(HINSTANCE instance,
   rtc::scoped_refptr<Conductor> conductor(
       new rtc::RefCountedObject<Conductor>(&client, &wnd));
 
+
+
+  InitDInput(wnd.handle());
+  std::thread([]() 
+  { 
+	  UpdateInputState(); 
+  }).detach();
   // Main loop.
   MSG msg;
 
@@ -168,16 +307,32 @@ int PASCAL wWinMain(HINSTANCE instance,
     POINT       pt;
 		
 		*/
-
+     static  std::chrono::steady_clock::time_point pre_time =
+          std::chrono::steady_clock::now();
+                std::chrono::steady_clock::time_point cur_time_ms =
+                    std::chrono::steady_clock::now();
+   
 		 std::string string_pt =
                     std::to_string(msg.pt.x) + " " + std::to_string(msg.pt.y);
-          ::fprintf( out_file_ptr, "[^_^]hwnd  = %p, message = %u,  time = %lu , pt = %s\n",
-                    msg.hwnd, msg.message,  msg.time,
-                    string_pt.c_str());
+          ::fprintf( out_file_ptr, "[^_^]hwnd  = %p, message = %u, cur_time = %s,   time = %lu , pt = %s, ms = %s , pre_time = %s, rparam = %s, lparam = %s\n",
+                     msg.hwnd, msg.message, std::to_string(::time(NULL)).c_str(),
+                     msg.time, string_pt.c_str(),
+                           std::to_string(cur_time_ms.time_since_epoch().count()).c_str(),
+                     std::to_string(pre_time.time_since_epoch().count())
+                         .c_str(),
+                     std::to_string(msg.wParam).c_str(), std::to_string(msg.lParam).c_str());
 
 		  ::fflush(out_file_ptr);
       ::TranslateMessage(&msg);
-               
+             
+	 /* string_pt = std::to_string(msg.pt.x) + " " + std::to_string(msg.pt.y);
+      ::fprintf(out_file_ptr,
+                "[^_^]hwnd  = %p, message = %u,  time = %lu , pt = %s, ms = %s "
+                ", pre_time = %s\n",
+                msg.hwnd, msg.message, msg.time, string_pt.c_str(),
+                std::to_string(cur_time_ms.time_since_epoch().count()).c_str(),
+                std::to_string(pre_time.time_since_epoch().count()).c_str());
+          ::fflush(out_file_ptr);*/
       ::DispatchMessage(&msg);
     }
   }

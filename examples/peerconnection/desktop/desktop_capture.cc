@@ -39,7 +39,7 @@ bool DesktopCapture::Init(size_t target_fps, size_t capture_screen_index)
 		webrtc::DesktopCaptureOptions::CreateDefault());*/
 	//桌面allow_directx_capturer_
 	webrtc::DesktopCaptureOptions options;
-	options.set_allow_directx_capturer(true);
+	//options.set_allow_directx_capturer(true);
 	dc_ = webrtc::DesktopCapturer::CreateScreenCapturer(options);
 
   if (!dc_)

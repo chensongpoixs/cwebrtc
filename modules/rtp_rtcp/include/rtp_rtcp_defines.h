@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -77,7 +77,7 @@ enum RTCPAppSubTypes { kAppSubtypeBwe = 0x00 };
 
 // TODO(sprang): Make this an enum class once rtcp_receiver has been cleaned up.
 enum RTCPPacketType : uint32_t {
-  kRtcpReport = 0x0001,
+  kRtcpReport = 0x0001, // 发送信息
   kRtcpSr = 0x0002,
   kRtcpRr = 0x0004,
   kRtcpSdes = 0x0008,

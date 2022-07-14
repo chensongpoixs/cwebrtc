@@ -66,7 +66,20 @@ int I420BufferInterface::ChromaWidth() const {
 int I420BufferInterface::ChromaHeight() const {
   return (height() + 1) / 2;
 }
+bool I420BufferInterface::set_texture(void* texture) {
+  if (!texture) {
+    return false;
+  }
+  m_texture = texture;
+  return true;
+}
 
+void* I420BufferInterface::get_texture() const {
+  return m_texture;
+}
+void* I420BufferInterface::get_texture() {
+  return m_texture;
+}
 rtc::scoped_refptr<I420BufferInterface> I420BufferInterface::ToI420() {
   return this;
 }

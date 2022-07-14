@@ -67,4 +67,6 @@
 /x86-generic_out/
 /xcodebuild
 /.vscode
+examples/html/simple_demo/node_modules
 !webrtc/*
+
