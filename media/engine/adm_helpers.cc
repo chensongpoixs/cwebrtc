@@ -44,6 +44,7 @@ void Init(AudioDeviceModule* adm) {
       RTC_LOG(LS_ERROR) << "Unable to set playout device.";
       return;
     }
+	// TODO@chensong 20220718 
     if (adm->InitSpeaker() != 0) {
       RTC_LOG(LS_ERROR) << "Unable to access speaker.";
     }

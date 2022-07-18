@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -676,6 +676,8 @@ bool AudioDeviceWindowsCore::Initialized() const {
 
 // ----------------------------------------------------------------------------
 //  InitSpeaker
+// 从新获取设备
+// 
 // ----------------------------------------------------------------------------
 
 int32_t AudioDeviceWindowsCore::InitSpeaker() {
@@ -688,7 +690,7 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
   if (_ptrDeviceOut == NULL) {
     return -1;
   }
-
+  // TODO@chensong 20220718  设备是否使用索引号
   if (_usingOutputDeviceIndex) {
     int16_t nDevices = PlayoutDevices();
     if (_outputDeviceIndex > (nDevices - 1)) {
@@ -710,6 +712,7 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
         ? role = eConsole
         : role = eCommunications;
     // Refresh the selected rendering endpoint device using role
+	// TODO@chensong 20220718 从新刷新设备 ---》 为什么刷新
     ret = _GetDefaultDevice(eRender, role, &_ptrDeviceOut);
   }
 
@@ -729,6 +732,12 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
   }
 
   SAFE_RELEASE(_ptrRenderSimpleVolume);
+  // TODO@chensong 20220718  ===>GetSimpleAudioVolume
+  // 该方法属于IAudioSessionManager(WASAPI)
+  // 简单的音频音量控制, 只改变应用组件的音量
+  // 参数1： 指向会话GUID的指针,如果该参数为NULL, 该方法将音频流设置给默认Session
+  // 参数2:  指定该Session是否是一个跨进程的Session
+  // 参数3:  获得SimpleAudioVolume对象 调整扬声器得大小了
   ret = pManager->GetSimpleAudioVolume(NULL, FALSE, &_ptrRenderSimpleVolume);
   if (ret != 0 || _ptrRenderSimpleVolume == NULL) {
     RTC_LOG(LS_ERROR) << "failed to initialize the render simple volume";
@@ -737,7 +746,7 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
     return -1;
   }
   SAFE_RELEASE(pManager);
-
+  // 修改speaker状态 
   _speakerIsInitialized = true;
 
   return 0;
@@ -3929,7 +3938,7 @@ int32_t AudioDeviceWindowsCore::_GetDefaultDevice(EDataFlow dir,
   HRESULT hr(S_OK);
 
   assert(_ptrEnumerator != NULL);
-
+  // 获取系统默认输出设备
   hr = _ptrEnumerator->GetDefaultAudioEndpoint(dir, role, ppDevice);
   if (FAILED(hr)) {
     _TraceCOMError(hr);
