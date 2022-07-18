@@ -68,7 +68,7 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
 	  // 
 	  rate_window_ms = initial_window_ms_.Get();
   }
-  // 计算当前时刻码率
+  // 计算当前时刻码率即卡尔曼率滤波中的观测码率
   float bitrate_sample_kbps = UpdateWindow(now_ms, bytes, rate_window_ms);
   if (bitrate_sample_kbps < 0.0f)
   {
@@ -85,6 +85,8 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
   // current estimate. With low values of uncertainty_symmetry_cap_ we add more
   // uncertainty to increases than to decreases. For higher values we approach
   // symmetry.
+  // 1. 预估码率
+  // 2. 观测码率
   // 此处定义了一个sample_uncertainty，含义上是预估码率和观测码率的偏差
   // 偏差越大说明采样点的方差越大，可信度越低
   // bitrate_estimate_kbps_: 上一个时刻估计码率

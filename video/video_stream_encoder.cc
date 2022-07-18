@@ -962,6 +962,7 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
         if (posted_frames_waiting_for_encode == 1) {
           MaybeEncodeVideoFrame(incoming_frame, post_time_us);
         } else {
+			//有一个更新的帧正在飞行。不要对此帧进行编码。
           // There is a newer frame in flight. Do not encode this frame.
           RTC_LOG(LS_VERBOSE)
               << "Incoming frame dropped due to that the encoder is blocked.";
