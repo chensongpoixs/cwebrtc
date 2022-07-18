@@ -754,20 +754,25 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
 
 // ----------------------------------------------------------------------------
 //  InitMicrophone
+//   使用那个设备
+//  设备音量控制
 // ----------------------------------------------------------------------------
 
 int32_t AudioDeviceWindowsCore::InitMicrophone() {
   rtc::CritScope lock(&_critSect);
-
-  if (_recording) {
+  //有没有开启录制
+  if (_recording)
+  {
+    return -1;
+  }
+  // 采集设备是否获取到了
+  if (_ptrDeviceIn == NULL)
+  {
     return -1;
   }
 
-  if (_ptrDeviceIn == NULL) {
-    return -1;
-  }
-
-  if (_usingInputDeviceIndex) {
+  if (_usingInputDeviceIndex)
+  {
     int16_t nDevices = RecordingDevices();
     if (_inputDeviceIndex > (nDevices - 1)) {
       RTC_LOG(LS_ERROR) << "current device selection is invalid => unable to"
@@ -788,6 +793,7 @@ int32_t AudioDeviceWindowsCore::InitMicrophone() {
         ? role = eConsole
         : role = eCommunications;
     // Refresh the selected capture endpoint device using role
+	//从新获取采集设备
     ret = _GetDefaultDevice(eCapture, role, &_ptrDeviceIn);
   }
 
@@ -800,7 +806,8 @@ int32_t AudioDeviceWindowsCore::InitMicrophone() {
   SAFE_RELEASE(_ptrCaptureVolume);
   ret = _ptrDeviceIn->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL,
                                reinterpret_cast<void**>(&_ptrCaptureVolume));
-  if (ret != 0 || _ptrCaptureVolume == NULL) {
+  if (ret != 0 || _ptrCaptureVolume == NULL) 
+  {
     RTC_LOG(LS_ERROR) << "failed to initialize the capture volume";
     SAFE_RELEASE(_ptrCaptureVolume);
     return -1;
