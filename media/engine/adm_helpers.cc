@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -49,11 +49,15 @@ void Init(AudioDeviceModule* adm) {
       RTC_LOG(LS_ERROR) << "Unable to access speaker.";
     }
 
-    // Set number of channels
+    // Set number of channels  
+	// 下面两个函数调用都是设置声道的函数
     bool available = false;
+	// webrtc是否使用立体声 ，webrtc默认使用立体声
     if (adm->StereoPlayoutIsAvailable(&available) != 0) {
       RTC_LOG(LS_ERROR) << "Failed to query stereo playout.";
     }
+	// 先尝试双通道 再单通道
+	// 设置扬声器的buffer的缓冲区
     if (adm->SetStereoPlayout(available) != 0) {
       RTC_LOG(LS_ERROR) << "Failed to set stereo playout mode.";
     }

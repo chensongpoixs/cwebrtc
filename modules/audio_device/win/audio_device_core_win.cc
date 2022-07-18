@@ -1243,7 +1243,9 @@ int32_t AudioDeviceWindowsCore::StereoPlayoutIsAvailable(bool& available) {
 int32_t AudioDeviceWindowsCore::SetStereoPlayout(bool enable) {
   rtc::CritScope lock(&_critSect);
 
-  if (enable) {
+  if (enable) 
+  {
+	  //优先尝试双通道 不行再尝试单通道
     _playChannelsPrioList[0] = 2;  // try stereo first
     _playChannelsPrioList[1] = 1;
     _playChannels = 2;
