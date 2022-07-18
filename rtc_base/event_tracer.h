@@ -70,7 +70,10 @@ class EventTracer {
 namespace rtc {
 namespace tracing {
 // Set up internal event tracer.
+   //TODO@chensong 20220718 webrtc event log show used ---->>>>>>>>
+    // 1. 设置日志回调函数 打印日志
 void SetupInternalTracer();
+// 2. 开启打印日志函数的线程打印到filename文件中去
 bool StartInternalCapture(const char* filename);
 void StartInternalCaptureToFile(FILE* file);
 void StopInternalCapture();

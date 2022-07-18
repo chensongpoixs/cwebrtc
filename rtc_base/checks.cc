@@ -153,7 +153,12 @@ RTC_NORETURN void FatalLog(const char* file,
 #if defined(WEBRTC_ANDROID)
   __android_log_print(ANDROID_LOG_ERROR, RTC_LOG_TAG_ANDROID, "%s\n", output);
 #endif
-
+  FILE* out_log_ptr = fopen("./chensong_rtc_error.log", "wb+");
+  if (out_log_ptr)
+  {
+    ::fprintf(out_log_ptr, "%s\n", output);
+    ::fflush(out_log_ptr);
+  }
   fflush(stdout);
   fprintf(stderr, "%s", output);
   fflush(stderr);

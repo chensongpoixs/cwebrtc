@@ -403,8 +403,10 @@ bool ModuleRtpRtcpImpl::OnSendingRtpFrame(uint32_t timestamp,
   // 设置编码时间、capture的时间戳、 类型 payload_type 是编码器的编号？
   rtcp_sender_.SetLastRtpTime(timestamp, capture_time_ms, payload_type);
   // Make sure an RTCP report isn't queued behind a key frame.
-  if (rtcp_sender_.TimeToSendRTCPReport(force_sender_report))
+  if (rtcp_sender_.TimeToSendRTCPReport(force_sender_report)) 
+  {
     rtcp_sender_.SendRTCP(GetFeedbackState(), kRtcpReport);
+  }
 
   return true;
 }
