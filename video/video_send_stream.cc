@@ -87,8 +87,7 @@ VideoSendStream::VideoSendStream(
   RTC_DCHECK(config_.encoder_settings.encoder_factory);
   RTC_DCHECK(config_.encoder_settings.bitrate_allocator_factory);
   // 编码器的流的初始化
-  video_stream_encoder_ =
-      CreateVideoStreamEncoder(clock, task_queue_factory, num_cpu_cores,
+  video_stream_encoder_ = CreateVideoStreamEncoder(clock, task_queue_factory, num_cpu_cores,
                                &stats_proxy_, config_.encoder_settings);
   // TODO(srte): Initialization should not be done posted on a task queue.
   // Note that the posted task must not outlive this scope since the closure
