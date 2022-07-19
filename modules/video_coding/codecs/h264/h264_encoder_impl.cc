@@ -405,17 +405,20 @@ int32_t H264EncoderImpl::Encode(
       input_frame.video_frame_buffer()->ToI420();
 
   bool send_key_frame = false;
-  for (size_t i = 0; i < configurations_.size(); ++i) {
-    if (configurations_[i].key_frame_request && configurations_[i].sending) {
+  for (size_t i = 0; i < configurations_.size(); ++i) 
+  {
+    if (configurations_[i].key_frame_request && configurations_[i].sending) 
+    {
       send_key_frame = true;
       break;
     }
   }
-  if (!send_key_frame && frame_types) {
-    for (size_t i = 0; i < frame_types->size() && i < configurations_.size();
-         ++i) {
-      if ((*frame_types)[i] == VideoFrameType::kVideoFrameKey &&
-          configurations_[i].sending) {
+  if (!send_key_frame && frame_types) 
+  {
+    for (size_t i = 0; i < frame_types->size() && i < configurations_.size(); ++i) 
+    {
+      if ((*frame_types)[i] == VideoFrameType::kVideoFrameKey && configurations_[i].sending) 
+      {
         send_key_frame = true;
         break;
       }
@@ -434,14 +437,17 @@ int32_t H264EncoderImpl::Encode(
     pictures_[i].iColorFormat = EVideoFormatType::videoFormatI420;
     pictures_[i].uiTimeStamp = input_frame.ntp_time_ms();
     // Downscale images on second and ongoing layers.
-    if (i == 0) {
+    if (i == 0) 
+    {
       pictures_[i].iStride[0] = frame_buffer->StrideY();
       pictures_[i].iStride[1] = frame_buffer->StrideU();
       pictures_[i].iStride[2] = frame_buffer->StrideV();
       pictures_[i].pData[0] = const_cast<uint8_t*>(frame_buffer->DataY());
       pictures_[i].pData[1] = const_cast<uint8_t*>(frame_buffer->DataU());
       pictures_[i].pData[2] = const_cast<uint8_t*>(frame_buffer->DataV());
-    } else {
+    } 
+    else 
+    {
       pictures_[i].iStride[0] = downscaled_buffers_[i - 1]->StrideY();
       pictures_[i].iStride[1] = downscaled_buffers_[i - 1]->StrideU();
       pictures_[i].iStride[2] = downscaled_buffers_[i - 1]->StrideV();
@@ -463,16 +469,20 @@ int32_t H264EncoderImpl::Encode(
                         configurations_[i].height, libyuv::kFilterBilinear);
     }
 
-    if (!configurations_[i].sending) {
+    if (!configurations_[i].sending) 
+    {
       continue;
     }
-    if (frame_types != nullptr) {
+    if (frame_types != nullptr) 
+    {
       // Skip frame?
-      if ((*frame_types)[i] == VideoFrameType::kEmptyFrame) {
+      if ((*frame_types)[i] == VideoFrameType::kEmptyFrame) 
+      {
         continue;
       }
     }
-    if (send_key_frame) {
+    if (send_key_frame) 
+    {
       // API doc says ForceIntraFrame(false) does nothing, but calling this
       // function forces a key frame regardless of the |bIDR| argument's value.
       // (If every frame is a key frame we get lag/delays.)
@@ -515,8 +525,10 @@ int32_t H264EncoderImpl::Encode(
 
     // Encoder can skip frames to save bandwidth in which case
     // |encoded_images_[i]._length| == 0.
-    if (encoded_images_[i].size() > 0) {
-      // Parse QP.
+    if (encoded_images_[i].size() > 0) 
+    {
+      // Parse QP. 
+        // check nal data 
       h264_bitstream_parser_.ParseBitstream(encoded_images_[i].data(),
                                             encoded_images_[i].size());
       h264_bitstream_parser_.GetLastSliceQp(&encoded_images_[i].qp_);
@@ -524,21 +536,21 @@ int32_t H264EncoderImpl::Encode(
       // Deliver encoded image.
       CodecSpecificInfo codec_specific;
       codec_specific.codecType = kVideoCodecH264;
-      codec_specific.codecSpecific.H264.packetization_mode =
-          packetization_mode_;
+      codec_specific.codecSpecific.H264.packetization_mode = packetization_mode_;
       codec_specific.codecSpecific.H264.temporal_idx = kNoTemporalIdx;
-      codec_specific.codecSpecific.H264.idr_frame =
-          info.eFrameType == videoFrameTypeIDR;
+      codec_specific.codecSpecific.H264.idr_frame = info.eFrameType == videoFrameTypeIDR;
       codec_specific.codecSpecific.H264.base_layer_sync = false;
-      if (num_temporal_layers_ > 1) {
+      if (num_temporal_layers_ > 1) 
+      {
         const uint8_t tid = info.sLayerInfo[0].uiTemporalId;
         codec_specific.codecSpecific.H264.temporal_idx = tid;
-        codec_specific.codecSpecific.H264.base_layer_sync =
-            tid > 0 && tid < tl0sync_limit_;
-        if (codec_specific.codecSpecific.H264.base_layer_sync) {
+        codec_specific.codecSpecific.H264.base_layer_sync = tid > 0 && tid < tl0sync_limit_;
+        if (codec_specific.codecSpecific.H264.base_layer_sync) 
+        {
           tl0sync_limit_ = tid;
         }
-        if (tid == 0) {
+        if (tid == 0) 
+        {
           tl0sync_limit_ = num_temporal_layers_;
         }
       }

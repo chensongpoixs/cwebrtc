@@ -4345,7 +4345,8 @@ static cricket::MediaDescriptionOptions
 GetMediaDescriptionOptionsForTransceiver(
     rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>
         transceiver,
-    const std::string& mid) {
+    const std::string& mid) 
+{
   cricket::MediaDescriptionOptions media_description_options(
       transceiver->media_type(), mid, transceiver->direction(),
       transceiver->stopped());
@@ -4356,7 +4357,8 @@ GetMediaDescriptionOptionsForTransceiver(
   //    offer/answer exactly the same until the RtpTransceiver is stopped.
   if (transceiver->stopped() ||
       (!RtpTransceiverDirectionHasSend(transceiver->direction()) &&
-       !transceiver->internal()->has_ever_been_used_to_send())) {
+       !transceiver->internal()->has_ever_been_used_to_send())) 
+  {
     return media_description_options;
   }
 
@@ -4373,11 +4375,13 @@ GetMediaDescriptionOptionsForTransceiver(
                               [](const RtpEncodingParameters& encoding) {
                                 return !encoding.rid.empty();
                               });
-
+  // SVC 
   std::vector<RidDescription> send_rids;
   SimulcastLayerList send_layers;
-  for (const RtpEncodingParameters& encoding : send_parameters.encodings) {
-    if (encoding.rid.empty()) {
+  for (const RtpEncodingParameters& encoding : send_parameters.encodings) 
+  {
+    if (encoding.rid.empty()) 
+    {
       continue;
     }
     send_rids.push_back(RidDescription(encoding.rid, RidDirection::kSend));
