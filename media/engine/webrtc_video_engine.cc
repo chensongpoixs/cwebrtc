@@ -1355,11 +1355,9 @@ bool WebRtcVideoChannel::GetStats(VideoMediaInfo* info) {
 
 void WebRtcVideoChannel::FillSenderStats(VideoMediaInfo* video_media_info,
                                          bool log_stats) {
-  for (std::map<uint32_t, WebRtcVideoSendStream*>::iterator it =
-           send_streams_.begin();
-       it != send_streams_.end(); ++it) {
-    video_media_info->senders.push_back(
-        it->second->GetVideoSenderInfo(log_stats));
+  for (std::map<uint32_t, WebRtcVideoSendStream*>::iterator it = send_streams_.begin(); it != send_streams_.end(); ++it) 
+  {
+    video_media_info->senders.push_back( it->second->GetVideoSenderInfo(log_stats));
   }
 }
 

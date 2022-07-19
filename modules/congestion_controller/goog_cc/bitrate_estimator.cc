@@ -57,6 +57,10 @@ BitrateEstimator::BitrateEstimator(const WebRtcKeyValueConfig* key_value_config)
 
 BitrateEstimator::~BitrateEstimator() = default;
 
+/**
+* 1. 观测码率
+* 2. 预估码率
+*/
 void BitrateEstimator::Update(int64_t now_ms, int bytes) 
 {
 	//这边使用默认值  kRateWindowMs =  150
@@ -68,7 +72,7 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
 	  // 
 	  rate_window_ms = initial_window_ms_.Get();
   }
-  // 计算当前时刻码率
+  // 计算当前时刻观测码率
   float bitrate_sample_kbps = UpdateWindow(now_ms, bytes, rate_window_ms);
   if (bitrate_sample_kbps < 0.0f)
   {
@@ -87,7 +91,7 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
   // symmetry.
   // 此处定义了一个sample_uncertainty，含义上是预估码率和观测码率的偏差
   // 偏差越大说明采样点的方差越大，可信度越低
-  // bitrate_estimate_kbps_: 上一个时刻估计码率
+  // bitrate_estimate_kbps_: 上一个时刻观测码率
   float sample_uncertainty = uncertainty_scale_ * std::abs(bitrate_estimate_kbps_ - bitrate_sample_kbps) /
       (bitrate_estimate_kbps_ +  std::min(bitrate_sample_kbps, uncertainty_symmetry_cap_.Get().kbps<float>()));
 
@@ -98,14 +102,14 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
   // that the bitrate changes over time.
   float pred_bitrate_estimate_var = bitrate_estimate_var_ + 5.f;
 
-  // 这其实对应的是一个卡尔曼率滤波的后验期望的更新过程
+  // 这其实对应的是一个卡尔曼滤波的后验期望的更新过程
   // 后验期望:exp[k]+ = exp[k]ˉ + k*(y[k] - h* exp[k]ˉ)
   // 其中 k = var[k]ˉ / (var[k]ˉ + sample_var) (var 和 sample_var 分别为预测误差方差和观测误差方差)
   bitrate_estimate_kbps_ = (sample_var * bitrate_estimate_kbps_ + pred_bitrate_estimate_var * bitrate_sample_kbps) /
                            (sample_var + pred_bitrate_estimate_var);
   bitrate_estimate_kbps_ = std::max(bitrate_estimate_kbps_, estimate_floor_.Get().kbps<float>());
 
-  // 这其实对应的是一个卡尔曼率滤波的后验方差的更新过程,
+  // 这其实对应的是一个卡尔曼滤波的后验方差的更新过程,
   // 后验方差: var[k] = (1 - k) * var[k]ˉ
   // 其中 k = var[k]ˉ / (var[k]ˉ + sample_var) (var 和 sample_var 分别为预测误差方差和观测误差方差)
   bitrate_estimate_var_ = sample_var * pred_bitrate_estimate_var /
