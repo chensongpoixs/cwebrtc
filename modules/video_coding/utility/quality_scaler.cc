@@ -89,7 +89,8 @@ QualityScaler::QualityScaler(rtc::TaskQueue* task_queue,
       experiment_enabled_(QualityScalingExperiment::Enabled()),
       observed_enough_frames_(false) {
   RTC_DCHECK_RUN_ON(&task_checker_);
-  if (experiment_enabled_) {
+  if (experiment_enabled_) 
+  {
     config_ = QualityScalingExperiment::GetConfig();
     qp_smoother_high_.reset(new QpSmoother(config_.alpha_high));
     qp_smoother_low_.reset(new QpSmoother(config_.alpha_low));
@@ -171,20 +172,21 @@ void QualityScaler::CheckQp() {
   }
 
   // Check if we should scale up or down based on QP.
-  const absl::optional<int> avg_qp_high =
-      qp_smoother_high_ ? qp_smoother_high_->GetAvg()
+  const absl::optional<int> avg_qp_high = qp_smoother_high_ ? qp_smoother_high_->GetAvg()
                         : average_qp_.GetAverageRoundedDown();
-  const absl::optional<int> avg_qp_low =
-      qp_smoother_low_ ? qp_smoother_low_->GetAvg()
+  const absl::optional<int> avg_qp_low = qp_smoother_low_ ? qp_smoother_low_->GetAvg()
                        : average_qp_.GetAverageRoundedDown();
-  if (avg_qp_high && avg_qp_low) {
+  if (avg_qp_high && avg_qp_low) 
+  {
     RTC_LOG(LS_INFO) << "Checking average QP " << *avg_qp_high << " ("
                      << *avg_qp_low << ").";
-    if (*avg_qp_high > thresholds_.high) {
+    if (*avg_qp_high > thresholds_.high) 
+    {
       ReportQpHigh();
       return;
     }
-    if (*avg_qp_low <= thresholds_.low) {
+    if (*avg_qp_low <= thresholds_.low) 
+    {
       // QP has been low. We want to try a higher resolution.
       ReportQpLow();
       return;

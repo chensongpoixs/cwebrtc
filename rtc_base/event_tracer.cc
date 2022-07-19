@@ -367,6 +367,7 @@ void SetupInternalTracer() {
   RTC_CHECK(rtc::AtomicOps::CompareAndSwapPtr(
                 &g_event_logger, static_cast<EventLogger*>(nullptr),
                 new EventLogger()) == nullptr);
+  // 设置loger event 日志系统回调函数
   webrtc::SetupEventTracer(InternalGetCategoryEnabled, InternalAddTraceEvent);
 }
 

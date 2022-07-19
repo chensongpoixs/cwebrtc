@@ -200,9 +200,11 @@ VideoBitrateAllocation EncoderBitrateAdjuster::AdjustRateAllocation(
 }
 
 void EncoderBitrateAdjuster::OnEncoderInfo(
-    const VideoEncoder::EncoderInfo& encoder_info) {
+    const VideoEncoder::EncoderInfo& encoder_info) 
+{
   // Copy allocation into current state and re-allocate.
-  for (size_t si = 0; si < kMaxSpatialLayers; ++si) {
+  for (size_t si = 0; si < kMaxSpatialLayers; ++si) 
+  {
     current_fps_allocation_[si] = encoder_info.fps_allocation[si];
   }
 

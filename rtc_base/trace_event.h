@@ -369,8 +369,8 @@
 // async event. This should be called at the beginning of the next phase of an
 // asynchronous operation.
 #define TRACE_EVENT_ASYNC_STEP0(category, name, id, step) \
-    INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP, \
-        category, name, id, TRACE_EVENT_FLAG_NONE, "step", step)
+    INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP, category, name, id, TRACE_EVENT_FLAG_NONE, "step", step)
+
 #define TRACE_EVENT_ASYNC_STEP1(category, name, id, step, \
                                       arg1_name, arg1_val) \
     INTERNAL_TRACE_EVENT_ADD_WITH_ID(TRACE_EVENT_PHASE_ASYNC_STEP, \

@@ -134,13 +134,12 @@ SendStatisticsProxy::SendStatisticsProxy(
       fallback_max_pixels_disabled_(GetFallbackMaxPixelsIfFieldTrialDisabled()),
       content_type_(content_type),
       start_ms_(clock->TimeInMilliseconds()),
-      encode_time_(kEncodeTimeWeigthFactor),
+      encode_time_(kEncodeTimeWeigthFactor /*0.5f*/),
       quality_downscales_(-1),
       cpu_downscales_(-1),
       media_byte_rate_tracker_(kBucketSizeMs, kBucketCount),
       encoded_frame_rate_tracker_(kBucketSizeMs, kBucketCount),
-      uma_container_(
-          new UmaSamplesContainer(GetUmaPrefix(content_type_), stats_, clock)) {
+      uma_container_(  new UmaSamplesContainer(GetUmaPrefix(content_type_), stats_, clock)) {
 }
 
 SendStatisticsProxy::~SendStatisticsProxy() {
@@ -186,22 +185,22 @@ SendStatisticsProxy::UmaSamplesContainer::UmaSamplesContainer(
 SendStatisticsProxy::UmaSamplesContainer::~UmaSamplesContainer() {}
 
 void SendStatisticsProxy::UmaSamplesContainer::InitializeBitrateCounters(
-    const VideoSendStream::Stats& stats) {
-  for (const auto& it : stats.substreams) {
+    const VideoSendStream::Stats& stats) 
+{
+  for (const auto& it : stats.substreams) 
+  {
     uint32_t ssrc = it.first;
-    total_byte_counter_.SetLast(it.second.rtp_stats.transmitted.TotalBytes(),
-                                ssrc);
-    padding_byte_counter_.SetLast(it.second.rtp_stats.transmitted.padding_bytes,
-                                  ssrc);
-    retransmit_byte_counter_.SetLast(
-        it.second.rtp_stats.retransmitted.TotalBytes(), ssrc);
+    total_byte_counter_.SetLast(it.second.rtp_stats.transmitted.TotalBytes(), ssrc);
+    padding_byte_counter_.SetLast(it.second.rtp_stats.transmitted.padding_bytes,  ssrc);
+    retransmit_byte_counter_.SetLast( it.second.rtp_stats.retransmitted.TotalBytes(), ssrc);
     fec_byte_counter_.SetLast(it.second.rtp_stats.fec.TotalBytes(), ssrc);
-    if (it.second.is_rtx) {
-      rtx_byte_counter_.SetLast(it.second.rtp_stats.transmitted.TotalBytes(),
-                                ssrc);
-    } else {
-      media_byte_counter_.SetLast(it.second.rtp_stats.MediaPayloadBytes(),
-                                  ssrc);
+    if (it.second.is_rtx) 
+    {
+      rtx_byte_counter_.SetLast(it.second.rtp_stats.transmitted.TotalBytes(), ssrc);
+    }
+    else 
+    {
+      media_byte_counter_.SetLast(it.second.rtp_stats.MediaPayloadBytes(), ssrc);
     }
   }
 }
@@ -1003,11 +1002,12 @@ void SendStatisticsProxy::OnIncomingFrame(int width, int height) {
   uma_container_->input_fps_counter_.Add(1);
   uma_container_->input_width_counter_.Add(width);
   uma_container_->input_height_counter_.Add(height);
-  if (cpu_downscales_ >= 0) {
-    uma_container_->cpu_limited_frame_counter_.Add(
-        stats_.cpu_limited_resolution);
+  if (cpu_downscales_ >= 0) 
+  {
+    uma_container_->cpu_limited_frame_counter_.Add( stats_.cpu_limited_resolution);
   }
-  if (encoded_frame_rate_tracker_.TotalSampleCount() == 0) {
+  if (encoded_frame_rate_tracker_.TotalSampleCount() == 0) 
+  {
     // Set start time now instead of when first key frame is encoded to avoid a
     // too high initial estimate.
     encoded_frame_rate_tracker_.AddSamples(0);

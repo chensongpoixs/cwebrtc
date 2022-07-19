@@ -40,6 +40,7 @@ std::string AggregatedStats::ToStringWithMultiplier(int multiplier) const {
 }
 
 // Class holding periodically computed metrics.
+//持有定期计算的指标
 class AggregatedCounter {
  public:
   AggregatedCounter() : last_sample_(0), sum_samples_(0) {}

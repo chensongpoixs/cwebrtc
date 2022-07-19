@@ -24,8 +24,10 @@ std::vector<NaluIndex> FindNaluIndices(const uint8_t* buffer,
   // skip ahead to the next 3-byte sequence. 0s and 1s are relatively rare, so
   // this will skip the majority of reads/checks.
   std::vector<NaluIndex> sequences;
-  if (buffer_size < kNaluShortStartSequenceSize)
+  if (buffer_size < kNaluShortStartSequenceSize) 
+  {
     return sequences;
+  }
 
   const size_t end = buffer_size - kNaluShortStartSequenceSize;
   for (size_t i = 0; i < end;) {
@@ -52,8 +54,10 @@ std::vector<NaluIndex> FindNaluIndices(const uint8_t* buffer,
 
   // Update length of last entry, if any.
   auto it = sequences.rbegin();
-  if (it != sequences.rend())
+  if (it != sequences.rend()) 
+  {
     it->payload_size = buffer_size - it->payload_start_offset;
+  }
 
   return sequences;
 }

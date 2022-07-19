@@ -954,14 +954,21 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
       [this, incoming_frame, post_time_us, log_stats]() 
   {
         RTC_DCHECK_RUN_ON(&encoder_queue_);
-        encoder_stats_observer_->OnIncomingFrame(incoming_frame.width(),
-                                                 incoming_frame.height());
+        encoder_stats_observer_->OnIncomingFrame(incoming_frame.width(), incoming_frame.height());
         ++captured_frame_count_;
         const int posted_frames_waiting_for_encode = posted_frames_waiting_for_encode_.fetch_sub(1);
         RTC_DCHECK_GT(posted_frames_waiting_for_encode, 0);
-        if (posted_frames_waiting_for_encode == 1) {
+        if (posted_frames_waiting_for_encode == 1) 
+        {
           MaybeEncodeVideoFrame(incoming_frame, post_time_us);
-        } else {
+//<<<<<<< HEAD
+        } 
+        else 
+        {
+//=======
+ //       } else {
+			//有一个更新的帧正在飞行。不要对此帧进行编码。
+//>>>>>>> b0b67dc753b17e12f51e246aed25a1b05bc5ee09
           // There is a newer frame in flight. Do not encode this frame.
           RTC_LOG(LS_VERBOSE)
               << "Incoming frame dropped due to that the encoder is blocked.";
@@ -1110,7 +1117,11 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
 
   if (!last_frame_info_ || video_frame.width() != last_frame_info_->width ||
       video_frame.height() != last_frame_info_->height ||
-      video_frame.is_texture() != last_frame_info_->is_texture) {
+      video_frame.is_texture() != last_frame_info_->is_texture) 
+  {
+      // 1. 是否第一帧
+      // 2. 是否中途改变分辨率了
+      // 3. 原始格式修改了      ========>  pending_encoder_reconfiguration_
     pending_encoder_reconfiguration_ = true;
     last_frame_info_ = VideoFrameInfo(video_frame.width(), video_frame.height(),
                                       video_frame.is_texture());
@@ -1119,8 +1130,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
                      << last_frame_info_->height
                      << ", texture=" << last_frame_info_->is_texture << ".";
     // Force full frame update, since resolution has changed.
-    accumulated_update_rect_ =
-        VideoFrame::UpdateRect{0, 0, video_frame.width(), video_frame.height()};
+    accumulated_update_rect_ = VideoFrame::UpdateRect{0, 0, video_frame.width(), video_frame.height()};
   }
 
   // We have to create then encoder before the frame drop logic,
@@ -1137,13 +1147,18 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   input_framerate_.Update(1u, clock_->TimeInMilliseconds());
 
   int64_t now_ms = clock_->TimeInMilliseconds();
-  if (pending_encoder_reconfiguration_) {
+  // 是否需要从新配置编码器的
+  if (pending_encoder_reconfiguration_) 
+  {
     ReconfigureEncoder();
     last_parameters_update_ms_.emplace(now_ms);
-  } else if (!last_parameters_update_ms_ ||
+  }
+  else if (!last_parameters_update_ms_ ||
              now_ms - *last_parameters_update_ms_ >=
-                 vcm::VCMProcessTimer::kDefaultProcessIntervalMs) {
-    if (last_encoder_rate_settings_) {
+                 vcm::VCMProcessTimer::kDefaultProcessIntervalMs) 
+  {
+    if (last_encoder_rate_settings_) 
+    {
       // Clone rate settings before update, so that SetEncoderRates() will
       // actually detect the change between the input and
       // |last_encoder_rate_setings_|, triggering the call to SetRate() on the
@@ -1158,7 +1173,8 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
 
   // Because pending frame will be dropped in any case, we need to
   // remember its updated region.
-  if (pending_frame_) {
+  if (pending_frame_) 
+  {
     encoder_stats_observer_->OnFrameDropped(
         VideoStreamEncoderObserver::DropReason::kEncoderQueue);
     accumulated_update_rect_.Union(pending_frame_->update_rect());
@@ -1188,10 +1204,12 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
 
   if (EncoderPaused()) {
     // Storing references to a native buffer risks blocking frame capture.
-    if (video_frame.video_frame_buffer()->type() !=
-        VideoFrameBuffer::Type::kNative) {
-      if (pending_frame_)
-        TraceFrameDropStart();
+    if (video_frame.video_frame_buffer()->type() != VideoFrameBuffer::Type::kNative) 
+    {
+        if (pending_frame_)
+        {
+            TraceFrameDropStart();
+        }
       pending_frame_ = video_frame;
       pending_frame_post_time_us_ = time_when_posted_us;
     } else {
@@ -1236,7 +1254,8 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
 
   VideoFrame out_frame(video_frame);
   // Crop frame if needed.
-  if (crop_width_ > 0 || crop_height_ > 0) {
+  if (crop_width_ > 0 || crop_height_ > 0) 
+  {
     int cropped_width = video_frame.width() - crop_width_;
     int cropped_height = video_frame.height() - crop_height_;
     rtc::scoped_refptr<I420Buffer> cropped_buffer =
@@ -1296,18 +1315,23 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
 
   // Encoder metadata needs to be updated before encode complete callback.
   VideoEncoder::EncoderInfo info = encoder_->GetEncoderInfo();
-  if (info.implementation_name != encoder_info_.implementation_name) {
-    encoder_stats_observer_->OnEncoderImplementationChanged(
-        info.implementation_name);
-    if (bitrate_adjuster_) {
+  if (info.implementation_name != encoder_info_.implementation_name) 
+  {
+    encoder_stats_observer_->OnEncoderImplementationChanged( info.implementation_name);
+    if (bitrate_adjuster_) 
+    {
       // Encoder implementation changed, reset overshoot detector states.
       bitrate_adjuster_->Reset();
     }
   }
 
-  if (bitrate_adjuster_) {
-    for (size_t si = 0; si < kMaxSpatialLayers; ++si) {
-      if (info.fps_allocation[si] != encoder_info_.fps_allocation[si]) {
+  if (bitrate_adjuster_) 
+  {
+      //TODO@chensong 20220718 编码器 空间层????? ---> 为什么是定义为5呢
+    for (size_t si = 0; si < kMaxSpatialLayers /*5*/; ++si) 
+    {
+      if (info.fps_allocation[si] != encoder_info_.fps_allocation[si]) 
+      {
         bitrate_adjuster_->OnEncoderInfo(info);
         break;
       }
@@ -1433,8 +1457,7 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
       rtc::TimeMicros() / rtc::kNumMicrosecsPerMillisec);
 
   // Piggyback ALR experiment group id and simulcast id into the content type.
-  const uint8_t experiment_id =
-      experiment_groups_[videocontenttypehelpers::IsScreenshare(
+  const uint8_t experiment_id = experiment_groups_[videocontenttypehelpers::IsScreenshare(
           image_copy.content_type_)];
 
   // TODO(ilnik): This will force content type extension to be present even
@@ -1583,10 +1606,14 @@ void VideoStreamEncoder::OnBitrateUpdated(DataRate target_bitrate,
 
 bool VideoStreamEncoder::DropDueToSize(uint32_t pixel_count) const {
   if (initial_framedrop_ < kMaxInitialFramedrop &&
-      encoder_start_bitrate_bps_ > 0) {
-    if (encoder_start_bitrate_bps_ < 300000 /* qvga */) {
+      encoder_start_bitrate_bps_ > 0) 
+  {
+    if (encoder_start_bitrate_bps_ < 300000 /* qvga */)
+    {
       return pixel_count > 320 * 240;
-    } else if (encoder_start_bitrate_bps_ < 500000 /* vga */) {
+    } 
+    else if (encoder_start_bitrate_bps_ < 500000 /* vga */) 
+    {
       return pixel_count > 640 * 480;
     }
   }

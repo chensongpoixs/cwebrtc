@@ -25,8 +25,10 @@ MovingAverage::~MovingAverage() = default;
 void MovingAverage::AddSample(int sample) {
   count_++;
   size_t index = count_ % history_.size();
-  if (count_ > history_.size())
+  if (count_ > history_.size()) 
+  {
     sum_ -= history_[index];
+  }
   sum_ += sample;
   history_[index] = sample;
 }

@@ -69,7 +69,8 @@ void FrameEncodeTimer::OnEncodeStarted(uint32_t rtp_timestamp,
 
   const size_t num_spatial_layers = NumSpatialLayers();
   timing_frames_info_.resize(num_spatial_layers);
-  for (size_t si = 0; si < num_spatial_layers; ++si) {
+  for (size_t si = 0; si < num_spatial_layers; ++si) 
+  {
     RTC_DCHECK(
         timing_frames_info_[si].encode_start_list.empty() ||
         rtc::TimeDiff(
@@ -78,10 +79,12 @@ void FrameEncodeTimer::OnEncodeStarted(uint32_t rtp_timestamp,
             0);
     // If stream is disabled due to low bandwidth OnEncodeStarted still will be
     // called and have to be ignored.
-    if (timing_frames_info_[si].target_bitrate_bytes_per_sec == 0)
+    if (timing_frames_info_[si].target_bitrate_bytes_per_sec == 0) 
+    {
       return;
-    if (timing_frames_info_[si].encode_start_list.size() ==
-        kMaxEncodeStartTimeListSize) {
+    }
+    if (timing_frames_info_[si].encode_start_list.size() == kMaxEncodeStartTimeListSize) 
+    {
       ++stalled_encoder_logged_messages_;
       if (stalled_encoder_logged_messages_ <= kMessagesThrottlingThreshold ||
           stalled_encoder_logged_messages_ % kThrottleRatio == 0) {
@@ -243,12 +246,12 @@ absl::optional<int64_t> FrameEncodeTimer::ExtractEncodeStartTime(
   return result;
 }
 
-size_t FrameEncodeTimer::NumSpatialLayers() const {
+size_t FrameEncodeTimer::NumSpatialLayers() const 
+{
   size_t num_spatial_layers = codec_settings_.numberOfSimulcastStreams;
-  if (codec_settings_.codecType == kVideoCodecVP9) {
-    num_spatial_layers = std::max(
-        num_spatial_layers,
-        static_cast<size_t>(codec_settings_.VP9().numberOfSpatialLayers));
+  if (codec_settings_.codecType == kVideoCodecVP9) 
+  {
+    num_spatial_layers = std::max(num_spatial_layers, static_cast<size_t>(codec_settings_.VP9().numberOfSpatialLayers));
   }
   return std::max(num_spatial_layers, size_t{1});
 }
