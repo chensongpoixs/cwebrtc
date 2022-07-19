@@ -953,11 +953,9 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
   encoder_queue_.PostTask(
       [this, incoming_frame, post_time_us, log_stats]() {
         RTC_DCHECK_RUN_ON(&encoder_queue_);
-        encoder_stats_observer_->OnIncomingFrame(incoming_frame.width(),
-                                                 incoming_frame.height());
+        encoder_stats_observer_->OnIncomingFrame(incoming_frame.width(), incoming_frame.height());
         ++captured_frame_count_;
-        const int posted_frames_waiting_for_encode =
-            posted_frames_waiting_for_encode_.fetch_sub(1);
+        const int posted_frames_waiting_for_encode = posted_frames_waiting_for_encode_.fetch_sub(1);
         RTC_DCHECK_GT(posted_frames_waiting_for_encode, 0);
         if (posted_frames_waiting_for_encode == 1) 
         {

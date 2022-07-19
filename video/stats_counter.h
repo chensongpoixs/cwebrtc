@@ -29,7 +29,7 @@ class StatsCounterObserver {
 
   virtual ~StatsCounterObserver() {}
 };
-
+//¾ÛºÏÍ³¼Æ
 struct AggregatedStats {
   std::string ToString() const;
   std::string ToStringWithMultiplier(int multiplier) const;

@@ -271,7 +271,7 @@ class SendStatisticsProxy : public VideoStreamEncoderObserver,
                             bool* is_limited_in_resolution);
     void RemoveOld(int64_t now_ms, bool* is_limited_in_resolution);
 
-    const std::string uma_prefix_;
+    const std::string uma_prefix_; // 是屏幕同享还是 视频分享
     Clock* const clock_;
     SampleCounter input_width_counter_;
     SampleCounter input_height_counter_;
@@ -311,8 +311,7 @@ class SendStatisticsProxy : public VideoStreamEncoderObserver,
     EncodedFrameMap encoded_frames_;
     AdaptChanges initial_quality_changes_;
 
-    std::map<int, QpCounters>
-        qp_counters_;  // QP counters mapped by spatial idx.
+    std::map<int, QpCounters> qp_counters_;  // QP counters mapped by spatial idx.
   };
 
   std::unique_ptr<UmaSamplesContainer> uma_container_ RTC_GUARDED_BY(crit_);
