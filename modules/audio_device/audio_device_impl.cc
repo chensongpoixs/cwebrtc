@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -598,7 +598,8 @@ int32_t AudioDeviceModuleImpl::StereoPlayoutIsAvailable(bool* available) const {
 int32_t AudioDeviceModuleImpl::SetStereoPlayout(bool enable) {
   RTC_LOG(INFO) << __FUNCTION__ << "(" << enable << ")";
   CHECKinitialized_();
-  if (audio_device_->PlayoutIsInitialized()) {
+  if (audio_device_->PlayoutIsInitialized()) 
+  {
     RTC_LOG(LERROR)
         << "unable to set stereo mode while playing side is initialized";
     return -1;
@@ -611,6 +612,7 @@ int32_t AudioDeviceModuleImpl::SetStereoPlayout(bool enable) {
   if (enable) {
     nChannels = 2;
   }
+  //扬声器的设置buffer 根据通道数设置
   audio_device_buffer_.SetPlayoutChannels(nChannels);
   return 0;
 }

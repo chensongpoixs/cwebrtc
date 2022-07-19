@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -676,6 +676,8 @@ bool AudioDeviceWindowsCore::Initialized() const {
 
 // ----------------------------------------------------------------------------
 //  InitSpeaker
+// 从新获取设备
+// 
 // ----------------------------------------------------------------------------
 
 int32_t AudioDeviceWindowsCore::InitSpeaker() {
@@ -688,7 +690,7 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
   if (_ptrDeviceOut == NULL) {
     return -1;
   }
-
+  // TODO@chensong 20220718  设备是否使用索引号
   if (_usingOutputDeviceIndex) {
     int16_t nDevices = PlayoutDevices();
     if (_outputDeviceIndex > (nDevices - 1)) {
@@ -710,6 +712,7 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
         ? role = eConsole
         : role = eCommunications;
     // Refresh the selected rendering endpoint device using role
+	// TODO@chensong 20220718 从新刷新设备 ---》 为什么刷新
     ret = _GetDefaultDevice(eRender, role, &_ptrDeviceOut);
   }
 
@@ -729,6 +732,12 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
   }
 
   SAFE_RELEASE(_ptrRenderSimpleVolume);
+  // TODO@chensong 20220718  ===>GetSimpleAudioVolume
+  // 该方法属于IAudioSessionManager(WASAPI)
+  // 简单的音频音量控制, 只改变应用组件的音量
+  // 参数1： 指向会话GUID的指针,如果该参数为NULL, 该方法将音频流设置给默认Session
+  // 参数2:  指定该Session是否是一个跨进程的Session
+  // 参数3:  获得SimpleAudioVolume对象 调整扬声器得大小了
   ret = pManager->GetSimpleAudioVolume(NULL, FALSE, &_ptrRenderSimpleVolume);
   if (ret != 0 || _ptrRenderSimpleVolume == NULL) {
     RTC_LOG(LS_ERROR) << "failed to initialize the render simple volume";
@@ -737,7 +746,7 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
     return -1;
   }
   SAFE_RELEASE(pManager);
-
+  // 修改speaker状态 
   _speakerIsInitialized = true;
 
   return 0;
@@ -745,20 +754,25 @@ int32_t AudioDeviceWindowsCore::InitSpeaker() {
 
 // ----------------------------------------------------------------------------
 //  InitMicrophone
+//   使用那个设备
+//  设备音量控制
 // ----------------------------------------------------------------------------
 
 int32_t AudioDeviceWindowsCore::InitMicrophone() {
   rtc::CritScope lock(&_critSect);
-
-  if (_recording) {
+  //有没有开启录制
+  if (_recording)
+  {
+    return -1;
+  }
+  // 采集设备是否获取到了
+  if (_ptrDeviceIn == NULL)
+  {
     return -1;
   }
 
-  if (_ptrDeviceIn == NULL) {
-    return -1;
-  }
-
-  if (_usingInputDeviceIndex) {
+  if (_usingInputDeviceIndex)
+  {
     int16_t nDevices = RecordingDevices();
     if (_inputDeviceIndex > (nDevices - 1)) {
       RTC_LOG(LS_ERROR) << "current device selection is invalid => unable to"
@@ -779,6 +793,7 @@ int32_t AudioDeviceWindowsCore::InitMicrophone() {
         ? role = eConsole
         : role = eCommunications;
     // Refresh the selected capture endpoint device using role
+	//从新获取采集设备
     ret = _GetDefaultDevice(eCapture, role, &_ptrDeviceIn);
   }
 
@@ -791,7 +806,8 @@ int32_t AudioDeviceWindowsCore::InitMicrophone() {
   SAFE_RELEASE(_ptrCaptureVolume);
   ret = _ptrDeviceIn->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL,
                                reinterpret_cast<void**>(&_ptrCaptureVolume));
-  if (ret != 0 || _ptrCaptureVolume == NULL) {
+  if (ret != 0 || _ptrCaptureVolume == NULL) 
+  {
     RTC_LOG(LS_ERROR) << "failed to initialize the capture volume";
     SAFE_RELEASE(_ptrCaptureVolume);
     return -1;
@@ -1234,7 +1250,9 @@ int32_t AudioDeviceWindowsCore::StereoPlayoutIsAvailable(bool& available) {
 int32_t AudioDeviceWindowsCore::SetStereoPlayout(bool enable) {
   rtc::CritScope lock(&_critSect);
 
-  if (enable) {
+  if (enable) 
+  {
+	  //优先尝试双通道 不行再尝试单通道
     _playChannelsPrioList[0] = 2;  // try stereo first
     _playChannelsPrioList[1] = 1;
     _playChannels = 2;
@@ -3929,7 +3947,7 @@ int32_t AudioDeviceWindowsCore::_GetDefaultDevice(EDataFlow dir,
   HRESULT hr(S_OK);
 
   assert(_ptrEnumerator != NULL);
-
+  // 获取系统默认输出设备
   hr = _ptrEnumerator->GetDefaultAudioEndpoint(dir, role, ppDevice);
   if (FAILED(hr)) {
     _TraceCOMError(hr);
