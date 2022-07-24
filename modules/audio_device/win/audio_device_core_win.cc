@@ -1865,7 +1865,7 @@ int32_t AudioDeviceWindowsCore::InitPlayout() {
   if (_ptrDeviceOut == NULL) {
     return -1;
   }
-
+  // 是否使用硬件的AEC处理和 录制的初始化
   if (_builtInAecEnabled && _recIsInitialized) {
     // Ensure the correct render device is configured in case
     // InitRecording() was called before InitPlayout().
@@ -1887,6 +1887,7 @@ int32_t AudioDeviceWindowsCore::InitPlayout() {
 
   // Retrieve the stream format that the audio engine uses for its internal
   // processing (mixing) of shared-mode streams.
+  // 获取扬声器的参数
   hr = _ptrClientOut->GetMixFormat(&pWfxOut);
   if (SUCCEEDED(hr)) {
     RTC_LOG(LS_VERBOSE) << "Audio Engine's current rendering mix format:";
@@ -1916,17 +1917,24 @@ int32_t AudioDeviceWindowsCore::InitPlayout() {
   hr = S_FALSE;
 
   // Iterate over frequencies and channels, in order of priority
-  for (unsigned int freq = 0; freq < sizeof(freqs) / sizeof(freqs[0]); freq++) {
+  // TODO@chensong 2022-07-24 
+  //单声道和双声道的尝试 找到最优匹配的参数
+  for (unsigned int freq = 0; freq < sizeof(freqs) / sizeof(freqs[0]); freq++) 
+  {
     for (unsigned int chan = 0; chan < sizeof(_playChannelsPrioList) /
                                            sizeof(_playChannelsPrioList[0]);
-         chan++) {
+         chan++)
+	{
       Wfx.nChannels = _playChannelsPrioList[chan];
+	  // 采集率
       Wfx.nSamplesPerSec = freqs[freq];
       Wfx.nBlockAlign = Wfx.nChannels * Wfx.wBitsPerSample / 8;
+	  //每秒的字节数
       Wfx.nAvgBytesPerSec = Wfx.nSamplesPerSec * Wfx.nBlockAlign;
       // If the method succeeds and the audio endpoint device supports the
       // specified stream format, it returns S_OK. If the method succeeds and
       // provides a closest match to the specified format, it returns S_FALSE.
+	  // 现在系统是否支持共享的参数
       hr = _ptrClientOut->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, &Wfx,
                                             &pWfxClosestMatch);
       if (hr == S_OK) {
@@ -1960,8 +1968,7 @@ int32_t AudioDeviceWindowsCore::InitPlayout() {
     // Block size is the number of samples each channel in 10ms.
     _playBlockSize = Wfx.nSamplesPerSec / 100;
     _playSampleRate = Wfx.nSamplesPerSec;
-    _devicePlaySampleRate =
-        Wfx.nSamplesPerSec;  // The device itself continues to run at 44.1 kHz.
+    _devicePlaySampleRate = Wfx.nSamplesPerSec;  // The device itself continues to run at 44.1 kHz.
     _devicePlayBlockSize = Wfx.nSamplesPerSec / 100;
     _playChannels = Wfx.nChannels;
 
@@ -2009,9 +2016,27 @@ int32_t AudioDeviceWindowsCore::InitPlayout() {
     // read by GetBufferSize() and it is 20ms on most machines.
     hnsBufferDuration = 30 * 10000;
   }
+   
+  ////////////////////////////////////////////////////
+  //        TODO@chensong 2022-07-24 初始化音频流
+  ///////////////////////////////////////////////////
+  /**
+  * @param AUDCLNT_SHAREMODE : 共享模式/独占模式
+  * @param DWORD             : 控制流创建的flag
+  * @param REFERENCE_TIME    : 请求缓冲区的大小 [是与时间有关系的哈]
+  * @param REFERENCE_TIME    : 周期时间 [10ms采集一次、 20ms采集一次]
+  * @param WAVEFORMATEX      : 数据格式
+  * @param LPCGUID           : Audio Session 的 GUID       
+  * @return
+  */
+ /////////////////////////////////////////////////////////////////
+  // StreamFlags 参数类型解释：
+  // AUDCLNT_STREAMFLAGS_LOOPBACK		: 
+  // AUDCLNT_STREAMFLAGS_EVENTCALLBACK	:
+  // ...
   hr = _ptrClientOut->Initialize(
       AUDCLNT_SHAREMODE_SHARED,  // share Audio Engine with other applications
-      AUDCLNT_STREAMFLAGS_EVENTCALLBACK,  // processing of the audio buffer by
+      AUDCLNT_STREAMFLAGS_EVENTCALLBACK /*事件驱动方法*/,  // processing of the audio buffer by
                                           // the client will be event driven
       hnsBufferDuration,  // requested buffer capacity as a time value (in
                           // 100-nanosecond units)
@@ -2024,11 +2049,17 @@ int32_t AudioDeviceWindowsCore::InitPlayout() {
   }
   EXIT_ON_ERROR(hr);
 
-  if (_ptrAudioBuffer) {
+  // _ptrAudioBuffer 是数据的来源 ？？？
+  if (_ptrAudioBuffer) 
+  {
     // Update the audio buffer with the selected parameters
-    _ptrAudioBuffer->SetPlayoutSampleRate(_playSampleRate);
-    _ptrAudioBuffer->SetPlayoutChannels((uint8_t)_playChannels);
-  } else {
+	// 设置采样率
+	_ptrAudioBuffer->SetPlayoutSampleRate(_playSampleRate);
+    // 设置通道数
+	_ptrAudioBuffer->SetPlayoutChannels((uint8_t)_playChannels);
+  } 
+  else 
+  {
     // We can enter this state during CoreAudioIsSupported() when no
     // AudioDeviceImplementation has been created, hence the AudioDeviceBuffer
     // does not exist. It is OK to end up here since we don't initiate any media
@@ -2040,8 +2071,11 @@ int32_t AudioDeviceWindowsCore::InitPlayout() {
   // Get the actual size of the shared (endpoint buffer).
   // Typical value is 960 audio frames <=> 20ms @ 48kHz sample rate.
   UINT bufferFrameCount(0);
+  // TODO@chensong 2022-07-24 
+  // 从设备获取buffer缓冲区的大小
   hr = _ptrClientOut->GetBufferSize(&bufferFrameCount);
-  if (SUCCEEDED(hr)) {
+  if (SUCCEEDED(hr)) 
+  {
     RTC_LOG(LS_VERBOSE) << "IAudioClient::GetBufferSize() => "
                         << bufferFrameCount << " (<=> "
                         << bufferFrameCount * _playAudioFrameSize << " bytes)";
@@ -2049,9 +2083,20 @@ int32_t AudioDeviceWindowsCore::InitPlayout() {
 
   // Set the event handle that the system signals when an audio buffer is ready
   // to be processed by the client.
+  // TODO@chensong 2022-07-24 
+  // 设置音频系统的回调事件 处理 ？？？？？  ——————》》》 
   hr = _ptrClientOut->SetEventHandle(_hRenderSamplesReadyEvent);
   EXIT_ON_ERROR(hr);
 
+  /////////////////////////////////////////////////////////
+  //   TODO@chensong 2022-07-24 GetService 方法解释
+  ////////////////////////////////////////////////////////
+  /** 
+  * 
+  *   @param rrid    : 接口ID
+  *   @param ppv     : 输出的接口对象
+  *   return STDMETHODCALLTYPE 
+  */
   // Get an IAudioRenderClient interface.
   SAFE_RELEASE(_ptrRenderClient);
   hr = _ptrClientOut->GetService(__uuidof(IAudioRenderClient),
@@ -2745,6 +2790,11 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
   // lifetime  of the IAudioClient object).
   //
   REFERENCE_TIME latency;
+  /////////////////////////////////////////////////////////
+  // TODO@chensong 2022-07-24 获取当前音频流最大延迟时间
+  /////////////////////////////////////////////////////////
+  // phnsLatency :  获取当前音频流最大延迟时间
+  // 时间单位为100ns, 1毫秒 =  1000 000 ns
   _ptrClientOut->GetStreamLatency(&latency);
   RTC_LOG(LS_VERBOSE) << "[REND] max stream latency   : " << (DWORD)latency
                       << " (" << (double)(latency / 10000.0) << " ms)";
@@ -2758,7 +2808,11 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
   // the buffer and endpoint device represents the minimum possible latency that
   // an audio application can achieve. Typical value: 100000 <=> 0.01 sec =
   // 10ms.
-  //
+  //////////////////////////////////////////////////////////////////////////////////
+  //   TODO@chensong 2022-07-24 获取音频引擎处理终端Buf的间隔时间
+  //参数说明 ：
+  //    devPeriod :   默认处理周期
+  // devPeriodMin :   最小处理周期
   REFERENCE_TIME devPeriod = 0;
   REFERENCE_TIME devPeriodMin = 0;
   _ptrClientOut->GetDevicePeriod(&devPeriod, &devPeriodMin);
@@ -2780,13 +2834,28 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
                       << endpointBufferSizeMS;
 
   // Before starting the stream, fill the rendering buffer with silence.
-  //
+  //////////////////////////////////////////////////////////////////////////////////////
+  //        TODO@chensong 2022-07-24  获取扬声器终端Buffer中下一个可用空间 
+  //  参数说明: 
+  // bufferLength   : 计划请求的采样个数
+  // pData          : 返回的可放入数据的地址指针
   BYTE* pData = NULL;
   hr = _ptrRenderClient->GetBuffer(bufferLength, &pData);
   EXIT_ON_ERROR(hr);
-
-  hr =
-      _ptrRenderClient->ReleaseBuffer(bufferLength, AUDCLNT_BUFFERFLAGS_SILENT);
+  //////////////////////////////////////////////////////////////////////////////////////
+  //        TODO@chensong 2022-07-24  释放上一次获取的Buffer 
+  //  参数说明: 
+  //   bufferLength				 : 写入的采样的个数
+  // AUDCLNT_BUFFERFLAGS_SILENT  : buffer配置标记
+/**
+enum _AUDCLNT_BUFFERFLAGS
+{
+AUDCLNT_BUFFERFLAGS_DATA_DISCONTINUITY	= 0x1,// 表示后面还有数据
+AUDCLNT_BUFFERFLAGS_SILENT	= 0x2,   //静音数据
+AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
+} ;
+*/
+  hr = _ptrRenderClient->ReleaseBuffer(bufferLength, AUDCLNT_BUFFERFLAGS_SILENT);
   EXIT_ON_ERROR(hr);
 
   _writtenSamples += bufferLength;
@@ -2841,6 +2910,10 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
 
       // Get the number of frames of padding (queued up to play) in the endpoint
       // buffer.
+	  /////////////////////////////////////////////////////////////////////////////////
+	  //   TODO@chensong 2022-07-24 获取终端Buf中需填充的采样个数
+	  // 参数说明:
+	  // padding  : 获取需要填充的采样个数 
       UINT32 padding = 0;
       hr = _ptrClientOut->GetCurrentPadding(&padding);
       EXIT_ON_ERROR(hr);
@@ -2909,7 +2982,17 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
       if (clock) {
         UINT64 pos = 0;
         UINT64 freq = 1;
+		////////////////////////////////////////////////////////////////
+		//    TODO@chensong  2022-07-24 获取从流开始到当前位置的数据偏移量
+		//  参数说明:
+		// pos					: 流从开始到当前位置的偏移量
+		// pu64QPCPosition-NUL  : 其保存的是当前的时钟计数
+
         clock->GetPosition(&pos, NULL);
+		////////////////////////////////////////////////////////////////
+		//    TODO@chensong  2022-07-24 获取每秒音频流通过鼠标的数据量
+		//  参数说明:
+		//    freq		: 其存放的是每秒的字节数
         clock->GetFrequency(&freq);
         playout_delay = ROUND((double(_writtenSamples) / _devicePlaySampleRate -
                                double(pos) / freq) *
@@ -3181,6 +3264,11 @@ DWORD AudioDeviceWindowsCore::DoCaptureThread() {
   // Get maximum latency for the current stream (will not change for the
   // lifetime of the IAudioClient object).
   //
+  /////////////////////////////////////////////////////////
+  // TODO@chensong 2022-07-24 获取当前音频流最大延迟时间
+  /////////////////////////////////////////////////////////
+  // phnsLatency :  获取当前音频流最大延迟时间
+  // 时间单位为100ns, 1毫秒 =  1000 000 ns
   REFERENCE_TIME latency;
   _ptrClientIn->GetStreamLatency(&latency);
   RTC_LOG(LS_VERBOSE) << "[CAPT] max stream latency   : " << (DWORD)latency
@@ -3188,7 +3276,11 @@ DWORD AudioDeviceWindowsCore::DoCaptureThread() {
 
   // Get the length of the periodic interval separating successive processing
   // passes by the audio engine on the data in the endpoint buffer.
-  //
+  /////////////////////////////////////////////////////////////////////////////////
+  //   TODO@chensong 2022-07-24 获取音频引擎处理终端Buf的间隔时间
+  //参数说明 ：
+  //    devPeriod :   默认处理周期
+  // devPeriodMin :   最小处理周期
   REFERENCE_TIME devPeriod = 0;
   REFERENCE_TIME devPeriodMin = 0;
   _ptrClientIn->GetDevicePeriod(&devPeriod, &devPeriodMin);

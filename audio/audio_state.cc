@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -52,7 +52,10 @@ bool AudioState::typing_noise_detected() const {
   RTC_DCHECK(thread_checker_.IsCurrent());
   return audio_transport_.typing_noise_detected();
 }
-
+// TODO@chensong 2022-07-24 
+/************************************************************************/
+/* 音频设备的初始化                                                                     */
+/************************************************************************/
 void AudioState::AddReceivingStream(webrtc::AudioReceiveStream* stream) {
   RTC_DCHECK(thread_checker_.IsCurrent());
   RTC_DCHECK_EQ(0, receiving_streams_.count(stream));
