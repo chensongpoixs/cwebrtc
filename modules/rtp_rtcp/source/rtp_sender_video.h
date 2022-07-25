@@ -184,6 +184,10 @@ class RTPSenderVideo {
   const std::unique_ptr<RtpSequenceNumberMap> rtp_sequence_number_map_
       RTC_PT_GUARDED_BY(crit_);
 
+
+  ///////////////////////////////////////////////////////////////////////
+  //    TODO@chensong 2022-07-24  RTC 中FEC中前向纠错，  
+  //    ULPFEC(Uneven Level Protection FEC  直译为非均等保护前向纠错）
   // RED/ULPFEC.
   int red_payload_type_ RTC_GUARDED_BY(crit_);
   int ulpfec_payload_type_ RTC_GUARDED_BY(crit_);
@@ -192,6 +196,9 @@ class RTPSenderVideo {
   //RTC 对抗网络丢包:
   //     1. 丢包重传(NACK)
   //     2. 前向纠错(FEC)
+  ///////////////////////////////////////////////////////////////
+    
+
   // FlexFEC.
   FlexfecSender* const flexfec_sender_;
 
