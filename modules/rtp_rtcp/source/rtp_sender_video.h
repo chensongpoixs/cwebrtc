@@ -189,6 +189,9 @@ class RTPSenderVideo {
   int ulpfec_payload_type_ RTC_GUARDED_BY(crit_);
   UlpfecGenerator ulpfec_generator_ RTC_GUARDED_BY(crit_);
 
+  //RTC 对抗网络丢包:
+  //     1. 丢包重传(NACK)
+  //     2. 前向纠错(FEC)
   // FlexFEC.
   FlexfecSender* const flexfec_sender_;
 
