@@ -227,7 +227,7 @@ class SendStatisticsProxy : public VideoStreamEncoderObserver,
       RTC_EXCLUSIVE_LOCKS_REQUIRED(crit_);
 
   Clock* const clock_;
-  const std::string payload_name_;
+  const std::string payload_name_; // Ê¹ÓÃ±àÂë ÀýÈç: H264¡¢ VP8¡¢ VP9 ...
   const RtpConfig rtp_config_;
   const absl::optional<int> fallback_max_pixels_;
   const absl::optional<int> fallback_max_pixels_disabled_;

@@ -150,7 +150,9 @@ void AudioReceiveStream::Reconfigure(
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   ConfigureStream(this, config, false);
 }
-
+/**
+* 开始播放设置
+*/
 void AudioReceiveStream::Start() {
   RTC_DCHECK_RUN_ON(&worker_thread_checker_);
   if (playing_) {

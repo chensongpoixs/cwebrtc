@@ -299,24 +299,24 @@ RtpVideoSender::RtpVideoSender(
   ConfigureSsrcs(rtp_config);
   ConfigureRids(rtp_config);
 
-  if (!rtp_config.mid.empty()) {
-    for (const RtpStreamSender& stream : rtp_streams_) {
+  if (!rtp_config.mid.empty()) 
+  {
+    for (const RtpStreamSender& stream : rtp_streams_) 
+	{
       stream.rtp_rtcp->SetMid(rtp_config.mid);
     }
   }
 
-  for (const RtpStreamSender& stream : rtp_streams_) {
+  for (const RtpStreamSender& stream : rtp_streams_) 
+  {
     // Simulcast has one module for each layer. Set the CNAME on all modules.
     stream.rtp_rtcp->SetCNAME(rtp_config.c_name.c_str());
     stream.rtp_rtcp->RegisterRtcpStatisticsCallback(observers.rtcp_stats);
-    stream.rtp_rtcp->RegisterSendChannelRtpStatisticsCallback(
-        observers.rtp_stats);
+    stream.rtp_rtcp->RegisterSendChannelRtpStatisticsCallback( observers.rtp_stats);
     stream.rtp_rtcp->SetMaxRtpPacketSize(rtp_config.max_packet_size);
-    stream.rtp_rtcp->RegisterSendPayloadFrequency(rtp_config.payload_type,
-                                                  kVideoPayloadTypeFrequency);
+    stream.rtp_rtcp->RegisterSendPayloadFrequency(rtp_config.payload_type, kVideoPayloadTypeFrequency);
 	// TODO@chensong 注册编码器的网络发送类型 [96, H264]
-    stream.sender_video->RegisterPayloadType(rtp_config.payload_type,
-                                             rtp_config.payload_name);
+    stream.sender_video->RegisterPayloadType(rtp_config.payload_type, rtp_config.payload_name);
   }
   // Currently, both ULPFEC and FlexFEC use the same FEC rate calculation logic,
   // so enable that logic if either of those FEC schemes are enabled.
@@ -324,7 +324,8 @@ RtpVideoSender::RtpVideoSender(
 
   fec_controller_->SetProtectionCallback(this);
   // Signal congestion controller this object is ready for OnPacket* callbacks.
-  if (fec_controller_->UseLossVectorMask()) {
+  if (fec_controller_->UseLossVectorMask()) 
+  {
     transport_->RegisterPacketFeedbackObserver(this);
   }
 }

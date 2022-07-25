@@ -227,17 +227,28 @@ void RTPSenderVideo::RegisterPayloadType(int8_t payload_type,
                                          absl::string_view payload_name) {
   VideoCodecType video_type;
   //TODO@chensong 2022-04-04   在rtp_video_sender 中构造函数中进行注册编码器哈
-  if (absl::EqualsIgnoreCase(payload_name, "VP8")) {
+  if (absl::EqualsIgnoreCase(payload_name, "VP8")) 
+  {
     video_type = kVideoCodecVP8;
-  } else if (absl::EqualsIgnoreCase(payload_name, "VP9")) {
+  } 
+  else if (absl::EqualsIgnoreCase(payload_name, "VP9")) 
+  {
     video_type = kVideoCodecVP9;
-  } else if (absl::EqualsIgnoreCase(payload_name, "H264")) {
+  } 
+  else if (absl::EqualsIgnoreCase(payload_name, "H264")) 
+  {
     video_type = kVideoCodecH264;
-  } else if (absl::EqualsIgnoreCase(payload_name, "I420")) {
+  } 
+  else if (absl::EqualsIgnoreCase(payload_name, "I420")) 
+  {
     video_type = kVideoCodecGeneric;
-  } else if (absl::EqualsIgnoreCase(payload_name, "stereo")) {
+  } 
+  else if (absl::EqualsIgnoreCase(payload_name, "stereo")) 
+  {
     video_type = kVideoCodecGeneric;
-  } else {
+  } 
+  else 
+  {
     video_type = kVideoCodecGeneric;
   }
 
@@ -246,7 +257,8 @@ void RTPSenderVideo::RegisterPayloadType(int8_t payload_type,
 
   // Backward compatibility for older receivers without temporal layer logic
   // 无时间层逻辑的老式接收机的向后兼容性
-  if (video_type == kVideoCodecH264) {
+  if (video_type == kVideoCodecH264) 
+  {
     rtc::CritScope cs(&crit_);
     retransmission_settings_ = kRetransmitBaseLayer | kRetransmitHigherLayers;
   }
