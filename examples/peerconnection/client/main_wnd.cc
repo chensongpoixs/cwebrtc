@@ -621,7 +621,7 @@ void MainWnd::VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
     }
 
     SetSize(buffer->width(), buffer->height());
-	RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
+	//RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
 
     RTC_DCHECK(image_.get() != NULL);
     libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),

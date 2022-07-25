@@ -3029,6 +3029,7 @@ RTCError PeerConnection::UpdateTransceiverChannel(
         channel = CreateVoiceChannel(content.name);
       } else {
         RTC_DCHECK_EQ(cricket::MEDIA_TYPE_VIDEO, transceiver->media_type());
+		// TODO@chensong 创建视频通道
         channel = CreateVideoChannel(content.name);
       }
       if (!channel) {

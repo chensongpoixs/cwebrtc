@@ -139,7 +139,12 @@ SendStatisticsProxy::SendStatisticsProxy(
       cpu_downscales_(-1),
       media_byte_rate_tracker_(kBucketSizeMs, kBucketCount),
       encoded_frame_rate_tracker_(kBucketSizeMs, kBucketCount),
-      uma_container_(  new UmaSamplesContainer(GetUmaPrefix(content_type_), stats_, clock)) {
+      uma_container_(
+          new UmaSamplesContainer(GetUmaPrefix(content_type_), stats_, clock)),
+      m_send_video_statistics_info_ptr(NULL),
+      m_pre_send_video_info_time(clock->TimeInMilliseconds()) {
+  m_send_video_statistics_info_ptr =
+      ::fopen("./send_statistic/video.log", "wb+");
 }
 
 SendStatisticsProxy::~SendStatisticsProxy() {
@@ -150,8 +155,16 @@ SendStatisticsProxy::~SendStatisticsProxy() {
   RTC_HISTOGRAM_COUNTS_100000("WebRTC.Video.SendStreamLifetimeInSeconds",
                               elapsed_sec);
 
-  if (elapsed_sec >= metrics::kMinRunTimeInSeconds)
+  if (elapsed_sec >= metrics::kMinRunTimeInSeconds) 
+  {
     UpdateCodecTypeHistogram(payload_name_);
+  }
+
+  if (m_send_video_statistics_info_ptr)
+  {
+    ::fclose(m_send_video_statistics_info_ptr);
+    m_send_video_statistics_info_ptr = NULL;
+  }
 }
 
 SendStatisticsProxy::FallbackEncoderInfo::FallbackEncoderInfo() = default;
@@ -185,22 +198,22 @@ SendStatisticsProxy::UmaSamplesContainer::UmaSamplesContainer(
 SendStatisticsProxy::UmaSamplesContainer::~UmaSamplesContainer() {}
 
 void SendStatisticsProxy::UmaSamplesContainer::InitializeBitrateCounters(
-    const VideoSendStream::Stats& stats) 
-{
-  for (const auto& it : stats.substreams) 
-  {
+    const VideoSendStream::Stats& stats) {
+  for (const auto& it : stats.substreams) {
     uint32_t ssrc = it.first;
-    total_byte_counter_.SetLast(it.second.rtp_stats.transmitted.TotalBytes(), ssrc);
-    padding_byte_counter_.SetLast(it.second.rtp_stats.transmitted.padding_bytes,  ssrc);
-    retransmit_byte_counter_.SetLast( it.second.rtp_stats.retransmitted.TotalBytes(), ssrc);
+    total_byte_counter_.SetLast(it.second.rtp_stats.transmitted.TotalBytes(),
+                                ssrc);
+    padding_byte_counter_.SetLast(it.second.rtp_stats.transmitted.padding_bytes,
+                                  ssrc);
+    retransmit_byte_counter_.SetLast(
+        it.second.rtp_stats.retransmitted.TotalBytes(), ssrc);
     fec_byte_counter_.SetLast(it.second.rtp_stats.fec.TotalBytes(), ssrc);
-    if (it.second.is_rtx) 
-    {
-      rtx_byte_counter_.SetLast(it.second.rtp_stats.transmitted.TotalBytes(), ssrc);
-    }
-    else 
-    {
-      media_byte_counter_.SetLast(it.second.rtp_stats.MediaPayloadBytes(), ssrc);
+    if (it.second.is_rtx) {
+      rtx_byte_counter_.SetLast(it.second.rtp_stats.transmitted.TotalBytes(),
+                                ssrc);
+    } else {
+      media_byte_counter_.SetLast(it.second.rtp_stats.MediaPayloadBytes(),
+                                  ssrc);
     }
   }
 }
@@ -281,7 +294,8 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
 
 void SendStatisticsProxy::UmaSamplesContainer::UpdateHistograms(
     const RtpConfig& rtp_config,
-    const VideoSendStream::Stats& current_stats) {
+    const VideoSendStream::Stats& current_stats,
+    FILE* send_video_statistics_info_ptr) {
   RTC_DCHECK(uma_prefix_ == kRealtimePrefix || uma_prefix_ == kScreenPrefix);
   const int kIndex = uma_prefix_ == kScreenPrefix ? 1 : 0;
   const int kMinRequiredPeriodicSamples = 6;
@@ -652,6 +666,11 @@ void SendStatisticsProxy::UmaSamplesContainer::UpdateHistograms(
                              current_stats.frames_dropped_by_rate_limiter);
 
   RTC_LOG(LS_INFO) << log_stream.str();
+  if (send_video_statistics_info_ptr) {
+    ::fwrite(log_stream.str(), 1, log_stream.size(),
+             send_video_statistics_info_ptr);
+    ::fflush(send_video_statistics_info_ptr);
+  }
 }
 
 void SendStatisticsProxy::OnEncoderReconfigured(
@@ -976,6 +995,15 @@ void SendStatisticsProxy::OnSendEncodedImage(
     if (quality_downscales_ > 0)
       uma_container_->quality_downscales_counter_.Add(quality_downscales_);
   }
+
+  // TODO@chensong 2022-07-25 video statistics info
+  if (m_send_video_statistics_info_ptr &&
+      clock_->TimeInMilliseconds() - m_pre_send_video_info_time > 400) 
+  {
+    m_pre_send_video_info_time = clock_->TimeInMilliseconds();
+    uma_container_->UpdateHistograms(rtp_config_, stats_,
+                                     m_send_video_statistics_info_ptr);
+  }
 }
 
 void SendStatisticsProxy::OnEncoderImplementationChanged(
@@ -1002,12 +1030,11 @@ void SendStatisticsProxy::OnIncomingFrame(int width, int height) {
   uma_container_->input_fps_counter_.Add(1);
   uma_container_->input_width_counter_.Add(width);
   uma_container_->input_height_counter_.Add(height);
-  if (cpu_downscales_ >= 0) 
-  {
-    uma_container_->cpu_limited_frame_counter_.Add( stats_.cpu_limited_resolution);
+  if (cpu_downscales_ >= 0) {
+    uma_container_->cpu_limited_frame_counter_.Add(
+        stats_.cpu_limited_resolution);
   }
-  if (encoded_frame_rate_tracker_.TotalSampleCount() == 0) 
-  {
+  if (encoded_frame_rate_tracker_.TotalSampleCount() == 0) {
     // Set start time now instead of when first key frame is encoded to avoid a
     // too high initial estimate.
     encoded_frame_rate_tracker_.AddSamples(0);

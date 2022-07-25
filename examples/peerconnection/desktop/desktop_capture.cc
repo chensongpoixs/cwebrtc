@@ -80,7 +80,7 @@ void DesktopCapture::OnCaptureResult(
                             std::chrono::system_clock::now().time_since_epoch())
                             .count();
   if (timestamp_curr - timestamp > 1000) {
-    RTC_LOG(LS_INFO) << "FPS: " << cnt;
+    //RTC_LOG(LS_INFO) << "FPS: " << cnt;
     cnt = 0;
     timestamp = timestamp_curr;
   }

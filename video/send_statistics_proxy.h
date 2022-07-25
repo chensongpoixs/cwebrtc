@@ -234,7 +234,11 @@ class SendStatisticsProxy : public VideoStreamEncoderObserver,
   rtc::CriticalSection crit_;
   VideoEncoderConfig::ContentType content_type_ RTC_GUARDED_BY(crit_);
   const int64_t start_ms_;
+  //////////////////////////////////////////////////////////
+  // TODO@chensong 2022-07-25  video send stream stats ----->>>>>>>>
+  //   
   VideoSendStream::Stats stats_ RTC_GUARDED_BY(crit_);
+
   std::map<uint32_t, StatsUpdateTimes> update_times_ RTC_GUARDED_BY(crit_);
   rtc::ExpFilter encode_time_ RTC_GUARDED_BY(crit_);
   int quality_downscales_ RTC_GUARDED_BY(crit_);
@@ -262,7 +266,8 @@ class SendStatisticsProxy : public VideoStreamEncoderObserver,
     ~UmaSamplesContainer();
 
     void UpdateHistograms(const RtpConfig& rtp_config,
-                          const VideoSendStream::Stats& current_stats);
+                          const VideoSendStream::Stats& current_stats,
+                          FILE* send_video_statistics_info_ptr = NULL);
 
     void InitializeBitrateCounters(const VideoSendStream::Stats& stats);
 
@@ -315,6 +320,8 @@ class SendStatisticsProxy : public VideoStreamEncoderObserver,
   };
 
   std::unique_ptr<UmaSamplesContainer> uma_container_ RTC_GUARDED_BY(crit_);
+  FILE* m_send_video_statistics_info_ptr;
+  int64_t  m_pre_send_video_info_time;
 };
 
 }  // namespace webrtc

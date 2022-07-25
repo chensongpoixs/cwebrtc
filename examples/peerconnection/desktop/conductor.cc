@@ -100,7 +100,9 @@ class CapturerTrackSource : public webrtc::VideoTrackSource {
 	  }
 	  return nullptr;
   }
-
+  bool is_screencast() const override { return m_screencast; }
+  absl::optional<bool> needs_denoising() const override { return m_screencast;
+  }
  protected:
   explicit CapturerTrackSource(
       std::unique_ptr<webrtc_demo::DesktopCapture> capturer)
@@ -112,6 +114,7 @@ class CapturerTrackSource : public webrtc::VideoTrackSource {
   }
   //std::unique_ptr<webrtc::test::VcmCapturer> capturer_;
   std::unique_ptr<webrtc_demo::DesktopCapture> capturer_;
+  bool m_screencast = true;
 };
 //////////////////////////////////////////////////////////////////////////////
 //class DesktopCaptureSource
