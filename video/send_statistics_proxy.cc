@@ -155,13 +155,11 @@ SendStatisticsProxy::~SendStatisticsProxy() {
   RTC_HISTOGRAM_COUNTS_100000("WebRTC.Video.SendStreamLifetimeInSeconds",
                               elapsed_sec);
 
-  if (elapsed_sec >= metrics::kMinRunTimeInSeconds) 
-  {
+  if (elapsed_sec >= metrics::kMinRunTimeInSeconds) {
     UpdateCodecTypeHistogram(payload_name_);
   }
 
-  if (m_send_video_statistics_info_ptr)
-  {
+  if (m_send_video_statistics_info_ptr) {
     ::fclose(m_send_video_statistics_info_ptr);
     m_send_video_statistics_info_ptr = NULL;
   }
@@ -223,8 +221,11 @@ void SendStatisticsProxy::UmaSamplesContainer::RemoveOld(
     bool* is_limited_in_resolution) {
   while (!encoded_frames_.empty()) {
     auto it = encoded_frames_.begin();
-    if (now_ms - it->second.send_ms < kMaxEncodedFrameWindowMs)
+    // TODO@chensong 2022-07-26
+    // 发送队列延迟 在 WebRTC在m74版本中默认一帧数据在队列中800ms
+    if (now_ms - it->second.send_ms < kMaxEncodedFrameWindowMs) {
       break;
+    }
 
     // Use max per timestamp.
     sent_width_counter_.Add(it->second.max_width);
@@ -256,7 +257,21 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
     int simulcast_idx,
     bool* is_limited_in_resolution) {
   int64_t now_ms = clock_->TimeInMilliseconds();
+  ////////////////////////////////////////////////////////////////
+  // TODO@chensong  2022-07-26
+  //  检查编码队列分为三种检查策略
+  //          1. 从编码队列中头部依次比较时间戳与现在要插入的时间戳的差值
+  //          是否大于默认值[WebRTC = 800ms]  大于就删除了，
+  //          小于等于就退出取出队列
+  //          2. 编码队列的数量是否大约默认队列的大小 [WebRTC = 150]
+  //          大约就清空队列
+  //          3.
+  //          从队列头部取出一个数据的中时间戳和当前的时间戳比较是否大于默认值
+  //          [WebRTC = 900000us] 大于就清空队列
+  ////////////////////////////////////////////////////////////////
+  // 检查encoded_frames_发送队列中是否有超时的数据
   RemoveOld(now_ms, is_limited_in_resolution);
+  // 检查encoded_frames_ 队列数据是否已经大默认值了， 大于就全部清除
   if (encoded_frames_.size() > kMaxEncodedFrameMapSize) {
     encoded_frames_.clear();
   }
@@ -264,6 +279,9 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
   // Check for jump in timestamp.
   if (!encoded_frames_.empty()) {
     uint32_t oldest_timestamp = encoded_frames_.begin()->first;
+    // 检查encoded_frames_中队列头部时间戳
+    // 和当前编码帧的时间戳的差值是否大约默认值 900000微妙，
+    // 大于就清除全部队列中数据
     if (ForwardDiff(oldest_timestamp, encoded_frame.Timestamp()) >
         kMaxEncodedFrameTimestampDiff) {
       // Gap detected, clear frames to have a sequence where newest timestamp
@@ -271,7 +289,9 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
       encoded_frames_.clear();
     }
   }
-
+  // TODO@chensong 2022-07-26  查找当前编码队列中时间戳是否有一样的  ？？？？
+  // 1. 没有就插入，增加一帧的数据
+  // 2. 有了  修改到最大分辨率   没有看懂啥意思 ？？？ simulcat ？？？
   auto it = encoded_frames_.find(encoded_frame.Timestamp());
   if (it == encoded_frames_.end()) {
     // First frame with this timestamp.
@@ -282,7 +302,7 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
     sent_fps_counter_.Add(1);
     return true;
   }
-
+  // TODO@chensong 2022-07-26  WebRTC 中为什么要怎么玩呢
   it->second.max_width =
       std::max(it->second.max_width, encoded_frame._encodedWidth);
   it->second.max_height =
@@ -929,8 +949,9 @@ void SendStatisticsProxy::OnSendEncodedImage(
   uint32_t ssrc = rtp_config_.ssrcs[simulcast_idx];
 
   VideoSendStream::StreamStats* stats = GetStatsEntry(ssrc);
-  if (!stats)
+  if (!stats) {
     return;
+  }
 
   // Report resolution of top spatial layer in case of VP9 SVC.
   bool is_svc_low_spatial_layer =
@@ -948,8 +969,9 @@ void SendStatisticsProxy::OnSendEncodedImage(
                                          VideoFrameType::kVideoFrameKey);
 
   if (encoded_image.qp_ != -1) {
-    if (!stats_.qp_sum)
+    if (!stats_.qp_sum) {
       stats_.qp_sum = 0;
+    }
     *stats_.qp_sum += encoded_image.qp_;
 
     if (codec_info) {
@@ -960,6 +982,8 @@ void SendStatisticsProxy::OnSendEncodedImage(
         int spatial_idx = encoded_image.SpatialIndex().value_or(-1);
         uma_container_->qp_counters_[spatial_idx].vp9.Add(encoded_image.qp_);
       } else if (codec_info->codecType == kVideoCodecH264) {
+        // TODO@chensong  2022-07-26 把simulcat的idx作为key值或者-1
+        // 作为索引值保持QP的值
         int spatial_idx = (rtp_config_.ssrcs.size() == 1) ? -1 : simulcast_idx;
         uma_container_->qp_counters_[spatial_idx].h264.Add(encoded_image.qp_);
       }
@@ -969,6 +993,8 @@ void SendStatisticsProxy::OnSendEncodedImage(
   // If any of the simulcast streams have a huge frame, it should be counted
   // as a single difficult input frame.
   // https://w3c.github.io/webrtc-stats/#dom-rtcvideosenderstats-hugeframessent
+  // TODO@chensong 2022-07-26  输入一帧特别的大的时候设置这个参数flags [simulcat
+  // 模式]
   if (encoded_image.timing_.flags & VideoSendTiming::kTriggeredBySize) {
     if (!last_outlier_timestamp_ ||
         *last_outlier_timestamp_ < encoded_image.capture_time_ms_) {
@@ -987,16 +1013,18 @@ void SendStatisticsProxy::OnSendEncodedImage(
     encoded_frame_rate_tracker_.AddSamples(1);
   }
 
-  stats_.bw_limited_resolution =
-      is_limited_in_resolution || quality_downscales_ > 0;
+  stats_.bw_limited_resolution = is_limited_in_resolution || quality_downscales_ > 0;
 
-  if (quality_downscales_ != -1) {
+  if (quality_downscales_ != -1) 
+  {
     uma_container_->quality_limited_frame_counter_.Add(quality_downscales_ > 0);
-    if (quality_downscales_ > 0)
+    if (quality_downscales_ > 0) 
+	{
       uma_container_->quality_downscales_counter_.Add(quality_downscales_);
+    }
   }
 
-  // TODO@chensong 2022-07-25 video statistics info
+  // TODO@chensong 2022-07-25 video statistics info write file 
   if (m_send_video_statistics_info_ptr &&
       clock_->TimeInMilliseconds() - m_pre_send_video_info_time > 400) 
   {
@@ -1248,8 +1276,9 @@ void SendStatisticsProxy::SampleCounter::Add(int sample) {
 
 int SendStatisticsProxy::SampleCounter::Avg(
     int64_t min_required_samples) const {
-  if (num_samples < min_required_samples || num_samples == 0)
+  if (num_samples < min_required_samples || num_samples == 0) {
     return -1;
+  }
   return static_cast<int>((sum + (num_samples / 2)) / num_samples);
 }
 

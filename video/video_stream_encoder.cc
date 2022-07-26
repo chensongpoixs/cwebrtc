@@ -1175,8 +1175,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   // remember its updated region.
   if (pending_frame_) 
   {
-    encoder_stats_observer_->OnFrameDropped(
-        VideoStreamEncoderObserver::DropReason::kEncoderQueue);
+    encoder_stats_observer_->OnFrameDropped( VideoStreamEncoderObserver::DropReason::kEncoderQueue);
     accumulated_update_rect_.Union(pending_frame_->update_rect());
   }
 
@@ -1189,11 +1188,13 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
     }
     ++initial_framedrop_;
     // Storing references to a native buffer risks blocking frame capture.
-    if (video_frame.video_frame_buffer()->type() !=
-        VideoFrameBuffer::Type::kNative) {
+    if (video_frame.video_frame_buffer()->type() != VideoFrameBuffer::Type::kNative) 
+	{
       pending_frame_ = video_frame;
       pending_frame_post_time_us_ = time_when_posted_us;
-    } else {
+    }
+	else 
+	{
       // Ensure that any previously stored frame is dropped.
       pending_frame_.reset();
       accumulated_update_rect_.Union(video_frame.update_rect());
@@ -1258,8 +1259,7 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
   {
     int cropped_width = video_frame.width() - crop_width_;
     int cropped_height = video_frame.height() - crop_height_;
-    rtc::scoped_refptr<I420Buffer> cropped_buffer =
-        I420Buffer::Create(cropped_width, cropped_height);
+    rtc::scoped_refptr<I420Buffer> cropped_buffer = I420Buffer::Create(cropped_width, cropped_height);
     // TODO(ilnik): Remove scaling if cropping is too big, as it should never
     // happen after SinkWants signaled correctly from ReconfigureEncoder.
     VideoFrame::UpdateRect update_rect = video_frame.update_rect();
@@ -1300,7 +1300,8 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
     }
   }
 
-  if (!accumulated_update_rect_.IsEmpty()) {
+  if (!accumulated_update_rect_.IsEmpty()) 
+  {
     accumulated_update_rect_.Union(out_frame.update_rect());
     accumulated_update_rect_.Intersect(
         VideoFrame::UpdateRect{0, 0, out_frame.width(), out_frame.height()});
@@ -1342,19 +1343,19 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
   last_encode_info_ms_ = clock_->TimeInMilliseconds();
   RTC_DCHECK_EQ(send_codec_.width, out_frame.width());
   RTC_DCHECK_EQ(send_codec_.height, out_frame.height());
-  const VideoFrameBuffer::Type buffer_type =
-      out_frame.video_frame_buffer()->type();
+  const VideoFrameBuffer::Type buffer_type = out_frame.video_frame_buffer()->type();
   const bool is_buffer_type_supported =
       buffer_type == VideoFrameBuffer::Type::kI420 ||
       (buffer_type == VideoFrameBuffer::Type::kNative &&
        info.supports_native_handle);
 
-  if (!is_buffer_type_supported) {
+  if (!is_buffer_type_supported) 
+  {
     // This module only supports software encoding.
-    rtc::scoped_refptr<I420BufferInterface> converted_buffer(
-        out_frame.video_frame_buffer()->ToI420());
+    rtc::scoped_refptr<I420BufferInterface> converted_buffer(out_frame.video_frame_buffer()->ToI420());
 
-    if (!converted_buffer) {
+    if (!converted_buffer) 
+	{
       RTC_LOG(LS_ERROR) << "Frame conversion failed, dropping frame.";
       return;
     }
@@ -1386,13 +1387,14 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
 
   const int32_t encode_status = encoder_->Encode(out_frame, &next_frame_types_);
 
-  if (encode_status < 0) {
-    RTC_LOG(LS_ERROR) << "Failed to encode frame. Error code: "
-                      << encode_status;
+  if (encode_status < 0) 
+  {
+    RTC_LOG(LS_ERROR) << "Failed to encode frame. Error code: " << encode_status;
     return;
   }
 
-  for (auto& it : next_frame_types_) {
+  for (auto& it : next_frame_types_) 
+  {
     it = VideoFrameType::kVideoFrameDelta;
   }
 }
@@ -1449,27 +1451,23 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
     const RTPFragmentationHeader* fragmentation) {
   TRACE_EVENT_INSTANT1("webrtc", "VCMEncodedFrameCallback::Encoded",
                        "timestamp", encoded_image.Timestamp());
+  // TODO@chensong 2022-07-26 这个字段是啥意思 spatial_idx ？？？？？
   const size_t spatial_idx = encoded_image.SpatialIndex().value_or(0);
   EncodedImage image_copy(encoded_image);
 
-  frame_encoder_timer_.FillTimingInfo(
-      spatial_idx, &image_copy,
-      rtc::TimeMicros() / rtc::kNumMicrosecsPerMillisec);
+  frame_encoder_timer_.FillTimingInfo( spatial_idx, &image_copy, rtc::TimeMicros() / rtc::kNumMicrosecsPerMillisec);
 
   // Piggyback ALR experiment group id and simulcast id into the content type.
-  const uint8_t experiment_id = experiment_groups_[videocontenttypehelpers::IsScreenshare(
-          image_copy.content_type_)];
+  const uint8_t experiment_id = experiment_groups_[videocontenttypehelpers::IsScreenshare(image_copy.content_type_)];
 
   // TODO(ilnik): This will force content type extension to be present even
   // for realtime video. At the expense of miniscule overhead we will get
   // sliced receive statistics.
-  RTC_CHECK(videocontenttypehelpers::SetExperimentId(&image_copy.content_type_,
-                                                     experiment_id));
+  RTC_CHECK(videocontenttypehelpers::SetExperimentId(&image_copy.content_type_, experiment_id));
   // We count simulcast streams from 1 on the wire. That's why we set simulcast
   // id in content type to +1 of that is actual simulcast index. This is because
   // value 0 on the wire is reserved for 'no simulcast stream specified'.
-  RTC_CHECK(videocontenttypehelpers::SetSimulcastId(
-      &image_copy.content_type_, static_cast<uint8_t>(spatial_idx + 1)));
+  RTC_CHECK(videocontenttypehelpers::SetSimulcastId( &image_copy.content_type_, static_cast<uint8_t>(spatial_idx + 1)));
 
   // Encoded is called on whatever thread the real encoder implementation run
   // on. In the case of hardware encoders, there might be several encoders
@@ -1886,11 +1884,8 @@ void VideoStreamEncoder::RunPostEncode(EncodedImage encoded_image,
       pending_frame_drops_.fetch_add(1);
     }
   }
-
-  overuse_detector_->FrameSent(
-      encoded_image.Timestamp(), time_sent_us,
-      encoded_image.capture_time_ms_ * rtc::kNumMicrosecsPerMillisec,
-      encode_duration_us);
+  // TODO@chensong 20222-07-26 统计视频编码的延迟
+  overuse_detector_->FrameSent( encoded_image.Timestamp(), time_sent_us, encoded_image.capture_time_ms_ * rtc::kNumMicrosecsPerMillisec, encode_duration_us);
   if (quality_scaler_ && encoded_image.qp_ >= 0)
     quality_scaler_->ReportQp(encoded_image.qp_, time_sent_us);
   if (bitrate_adjuster_) {
