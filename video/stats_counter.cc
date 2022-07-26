@@ -40,7 +40,11 @@ std::string AggregatedStats::ToStringWithMultiplier(int multiplier) const {
 }
 
 // Class holding periodically computed metrics.
+//////////////////////////////////////////////////////
+//   TODO@chensong
+//////////////////////////////////////////////////////
 //持有定期计算的指标
+//
 class AggregatedCounter {
  public:
   AggregatedCounter() : last_sample_(0), sum_samples_(0) {}
@@ -69,18 +73,20 @@ class AggregatedCounter {
 
  private:
   void Compute() {
-    if (stats_.num_samples == 0)
+    if (stats_.num_samples == 0) {
       return;
-
+    }
+    // 平均值  公式 = （ 每个数据的叠加值  + 次数的平均数）/ 次数
     stats_.average =
         (sum_samples_ + stats_.num_samples / 2) / stats_.num_samples;
   }
-  int last_sample_;
-  int64_t sum_samples_;
-  AggregatedStats stats_;
+  int last_sample_;        //记录上一次的数据值
+  int64_t sum_samples_;    // 每个数据的叠加值
+  AggregatedStats stats_;  // 记录次数 和 min、avg、max
 };
 
 // Class holding gathered samples within a process interval.
+// 类在进程间隔内保存收集的样本
 class Samples {
  public:
   Samples() : total_count_(0) {}
@@ -90,8 +96,10 @@ class Samples {
     samples_[stream_id].Add(sample);
     ++total_count_;
   }
+
   void Set(int64_t sample, uint32_t stream_id) {
     samples_[stream_id].Set(sample);
+    //改变总数据的后 为什么还要修改 总次数呢？？？
     ++total_count_;
   }
   void SetLast(int64_t sample, uint32_t stream_id) {
@@ -104,24 +112,28 @@ class Samples {
 
   int64_t Sum() const {
     int64_t sum = 0;
-    for (const auto& it : samples_)
+    for (const auto& it : samples_) {
       sum += it.second.sum_;
+    }
     return sum;
   }
 
   int Max() const {
     int max = std::numeric_limits<int>::min();
-    for (const auto& it : samples_)
+    for (const auto& it : samples_) {
       max = std::max(it.second.max_, max);
+    }
     return max;
   }
 
   void Reset() {
-    for (auto& it : samples_)
+    for (auto& it : samples_) {
       it.second.Reset();
+    }
     total_count_ = 0;
   }
 
+  // 这个接口意义是什么？？？
   int64_t Diff() const {
     int64_t sum_diff = 0;
     int count = 0;
@@ -151,8 +163,9 @@ class Samples {
     void SetLast(int64_t sample) { last_sum_ = sample; }
     int64_t GetLast() const { return last_sum_; }
     void Reset() {
-      if (count_ > 0)
+      if (count_ > 0) {
         last_sum_ = sum_;
+      }
       sum_ = 0;
       count_ = 0;
       max_ = std::numeric_limits<int>::min();
@@ -165,7 +178,8 @@ class Samples {
   };
 
   int64_t total_count_;
-  std::map<uint32_t, Stats> samples_;  // Gathered samples mapped by stream id.
+  std::map<uint32_t, Stats> samples_;  // key : 视频流的id 和统计的数据 Gathered
+                                       // samples mapped by stream id.
 };
 
 // StatsCounter class.
@@ -193,8 +207,9 @@ AggregatedStats StatsCounter::GetStats() {
 }
 
 AggregatedStats StatsCounter::ProcessAndGetStats() {
-  if (HasSample())
+  if (HasSample()) {
     TryProcess();
+  }
   return aggregated_counter_->ComputeStats();
 }
 
@@ -204,32 +219,44 @@ void StatsCounter::ProcessAndPauseForDuration(int64_t min_pause_time_ms) {
 }
 
 void StatsCounter::ProcessAndPause() {
-  if (HasSample())
+  if (HasSample()) 
+  {
     TryProcess();
+  }
   paused_ = true;
   pause_time_ms_ = clock_->TimeInMilliseconds();
 }
 
-void StatsCounter::ProcessAndStopPause() {
-  if (HasSample())
+void StatsCounter::ProcessAndStopPause() 
+{
+  if (HasSample()) 
+  {
     TryProcess();
+  }
   Resume();
 }
 
-bool StatsCounter::HasSample() const {
+bool StatsCounter::HasSample() const 
+{
   return last_process_time_ms_ != -1;
 }
 
-bool StatsCounter::TimeToProcess(int* elapsed_intervals) {
+bool StatsCounter::TimeToProcess(int* elapsed_intervals) 
+{
   int64_t now = clock_->TimeInMilliseconds();
-  if (last_process_time_ms_ == -1)
+  if (last_process_time_ms_ == -1) 
+  {
     last_process_time_ms_ = now;
+  }
 
   int64_t diff_ms = now - last_process_time_ms_;
-  if (diff_ms < process_intervals_ms_)
+  if (diff_ms < process_intervals_ms_) 
+  {
     return false;
+  }
 
   // Advance number of complete |process_intervals_ms_| that have passed.
+  // 时间间隔中毫秒数 调整差值 [多减去的毫秒数 添加上]
   int64_t num_intervals = diff_ms / process_intervals_ms_;
   last_process_time_ms_ += num_intervals * process_intervals_ms_;
 
@@ -237,14 +264,17 @@ bool StatsCounter::TimeToProcess(int* elapsed_intervals) {
   return true;
 }
 
-void StatsCounter::Add(int sample) {
+void StatsCounter::Add(int sample) 
+{
   TryProcess();
   samples_->Add(sample, kStreamId0);
   ResumeIfMinTimePassed();
 }
 
-void StatsCounter::Set(int64_t sample, uint32_t stream_id) {
-  if (paused_ && sample == samples_->GetLast(stream_id)) {
+void StatsCounter::Set(int64_t sample, uint32_t stream_id) 
+{
+  if (paused_ && sample == samples_->GetLast(stream_id)) 
+  {
     // Do not add same sample while paused (will reset pause).
     return;
   }
@@ -261,23 +291,31 @@ void StatsCounter::SetLast(int64_t sample, uint32_t stream_id) {
 // Reports periodically computed metric.
 void StatsCounter::ReportMetricToAggregatedCounter(
     int value,
-    int num_values_to_add) const {
-  for (int i = 0; i < num_values_to_add; ++i) {
+    int num_values_to_add) const 
+{
+  for (int i = 0; i < num_values_to_add; ++i) 
+  {
     aggregated_counter_->Add(value);
-    if (observer_)
+    if (observer_) 
+	{
       observer_->OnMetricUpdated(value);
+    }
   }
 }
 
-void StatsCounter::TryProcess() {
+void StatsCounter::TryProcess() 
+{
   int elapsed_intervals;
-  if (!TimeToProcess(&elapsed_intervals))
+  if (!TimeToProcess(&elapsed_intervals)) 
+  {
     return;
+  }
 
   // Get and report periodically computed metric.
   int metric;
-  if (GetMetric(&metric))
+  if (GetMetric(&metric)) {
     ReportMetricToAggregatedCounter(metric, 1);
+  }
 
   // Report value for elapsed intervals without samples.
   if (IncludeEmptyIntervals()) {
@@ -297,8 +335,8 @@ bool StatsCounter::IncludeEmptyIntervals() const {
   return include_empty_intervals_ && !paused_ && !aggregated_counter_->Empty();
 }
 void StatsCounter::ResumeIfMinTimePassed() {
-  if (paused_ &&
-      (clock_->TimeInMilliseconds() - pause_time_ms_) >= min_pause_time_ms_) {
+  if (paused_ && (clock_->TimeInMilliseconds() - pause_time_ms_) >= min_pause_time_ms_) 
+  {
     Resume();
   }
 }
@@ -323,9 +361,10 @@ void AvgCounter::Add(int sample) {
 
 bool AvgCounter::GetMetric(int* metric) const {
   int64_t count = samples_->Count();
-  if (count == 0)
+  if (count == 0) {
     return false;
-
+  }
+  //  [count / 2] : 次数的平均值
   *metric = (samples_->Sum() + count / 2) / count;
   return true;
 }
@@ -411,7 +450,7 @@ RateCounter::RateCounter(Clock* clock,
                          StatsCounterObserver* observer,
                          bool include_empty_intervals)
     : StatsCounter(clock,
-                   kDefaultProcessIntervalMs,
+                   kDefaultProcessIntervalMs /*2000*/,
                    include_empty_intervals,
                    observer) {}
 

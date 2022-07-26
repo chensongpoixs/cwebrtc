@@ -1473,9 +1473,8 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
   // on. In the case of hardware encoders, there might be several encoders
   // running in parallel on different threads.
   encoder_stats_observer_->OnSendEncodedImage(image_copy, codec_specific_info);
-
-  EncodedImageCallback::Result result =
-      sink_->OnEncodedImage(image_copy, codec_specific_info, fragmentation);
+  // TODO@chensong ----->VideoSendStreamImpl
+  EncodedImageCallback::Result result = sink_->OnEncodedImage(image_copy, codec_specific_info, fragmentation);
 
   // We are only interested in propagating the meta-data about the image, not
   // encoded data itself, to the post encode function. Since we cannot be sure
@@ -1483,26 +1482,33 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
   image_copy.set_buffer(nullptr, 0);
 
   int temporal_index = 0;
-  if (codec_specific_info) {
-    if (codec_specific_info->codecType == kVideoCodecVP9) {
+  if (codec_specific_info) 
+  {
+    if (codec_specific_info->codecType == kVideoCodecVP9) 
+	{
       temporal_index = codec_specific_info->codecSpecific.VP9.temporal_idx;
-    } else if (codec_specific_info->codecType == kVideoCodecVP8) {
+    } 
+	else if (codec_specific_info->codecType == kVideoCodecVP8) 
+	{
       temporal_index = codec_specific_info->codecSpecific.VP8.temporalIdx;
     }
   }
-  if (temporal_index == kNoTemporalIdx) {
+  if (temporal_index == kNoTemporalIdx) 
+  {
     temporal_index = 0;
   }
 
   RunPostEncode(image_copy, rtc::TimeMicros(), temporal_index);
 
-  if (result.error == Result::OK) {
+  if (result.error == Result::OK) 
+  {
     // In case of an internal encoder running on a separate thread, the
     // decision to drop a frame might be a frame late and signaled via
     // atomic flag. This is because we can't easily wait for the worker thread
     // without risking deadlocks, eg during shutdown when the worker thread
     // might be waiting for the internal encoder threads to stop.
-    if (pending_frame_drops_.load() > 0) {
+    if (pending_frame_drops_.load() > 0) 
+	{
       int pending_drops = pending_frame_drops_.fetch_sub(1);
       RTC_DCHECK_GT(pending_drops, 0);
       result.drop_next_frame = true;

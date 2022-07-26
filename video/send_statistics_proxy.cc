@@ -1029,8 +1029,7 @@ void SendStatisticsProxy::OnSendEncodedImage(
       clock_->TimeInMilliseconds() - m_pre_send_video_info_time > 400) 
   {
     m_pre_send_video_info_time = clock_->TimeInMilliseconds();
-    uma_container_->UpdateHistograms(rtp_config_, stats_,
-                                     m_send_video_statistics_info_ptr);
+    uma_container_->UpdateHistograms(rtp_config_, stats_, m_send_video_statistics_info_ptr);
   }
 }
 

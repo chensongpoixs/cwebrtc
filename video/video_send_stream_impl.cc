@@ -492,7 +492,8 @@ void VideoSendStreamImpl::OnBitrateAllocationUpdated(
 
 void VideoSendStreamImpl::SignalEncoderActive() {
   RTC_DCHECK_RUN_ON(worker_queue_);
-  if (rtp_video_sender_->IsActive()) {
+  if (rtp_video_sender_->IsActive()) 
+  {
     RTC_LOG(LS_INFO) << "SignalEncoderActive, Encoder is active.";
     bitrate_allocator_->AddObserver(this, GetAllocationConfig());
   }
@@ -588,7 +589,8 @@ EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
   // Indicate that there still is activity going on.
   activity_ = true;
 
-  auto enable_padding_task = [this]() {
+  auto enable_padding_task = [this]() 
+  {
     if (disable_padding_) {
       RTC_DCHECK_RUN_ON(worker_queue_);
       disable_padding_ = false;
@@ -596,9 +598,12 @@ EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
       SignalEncoderActive();
     }
   };
-  if (!worker_queue_->IsCurrent()) {
+  if (!worker_queue_->IsCurrent()) 
+  {
     worker_queue_->PostTask(enable_padding_task);
-  } else {
+  }
+  else 
+  {
     enable_padding_task();
   }
 
@@ -616,33 +621,41 @@ EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
     // will need to do some translation to produce reference info using frame
     // ids.
     std::vector<int64_t> referenced_frame_ids;
-    if (encoded_image._frameType != VideoFrameType::kVideoFrameKey) {
+    if (encoded_image._frameType != VideoFrameType::kVideoFrameKey) 
+	{
       RTC_DCHECK_GT(frame_id, 0);
       referenced_frame_ids.push_back(frame_id - 1);
     }
-    media_transport_->SendVideoFrame(
-        config_->rtp.ssrcs[0], webrtc::MediaTransportEncodedVideoFrame(
+    media_transport_->SendVideoFrame( config_->rtp.ssrcs[0], webrtc::MediaTransportEncodedVideoFrame(
                                    frame_id, referenced_frame_ids,
                                    config_->rtp.payload_type, encoded_image));
-  } else {
+  }
+  else 
+  {
     result = rtp_video_sender_->OnEncodedImage(
         encoded_image, codec_specific_info, fragmentation);
   }
   // Check if there's a throttled VideoBitrateAllocation that we should try
   // sending.
   rtc::WeakPtr<VideoSendStreamImpl> send_stream = weak_ptr_;
-  auto update_task = [send_stream]() {
-    if (send_stream) {
+  auto update_task = [send_stream]() 
+  {
+    if (send_stream) 
+	{
       RTC_DCHECK_RUN_ON(send_stream->worker_queue_);
       auto& context = send_stream->video_bitrate_allocation_context_;
-      if (context && context->throttled_allocation) {
+      if (context && context->throttled_allocation) 
+	  {
         send_stream->OnBitrateAllocationUpdated(*context->throttled_allocation);
       }
     }
   };
-  if (!worker_queue_->IsCurrent()) {
+  if (!worker_queue_->IsCurrent()) 
+  {
     worker_queue_->PostTask(update_task);
-  } else {
+  }
+  else 
+  {
     update_task();
   }
 
