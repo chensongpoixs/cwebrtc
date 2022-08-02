@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -31,7 +31,8 @@ SendDelayStats::SendDelayStats(Clock* clock)
     : clock_(clock), num_old_packets_(0), num_skipped_packets_(0) {}
 
 SendDelayStats::~SendDelayStats() {
-  if (num_old_packets_ > 0 || num_skipped_packets_ > 0) {
+  if (num_old_packets_ > 0 || num_skipped_packets_ > 0) 
+  {
     RTC_LOG(LS_WARNING) << "Delay stats: number of old packets "
                         << num_old_packets_ << ", skipped packets "
                         << num_skipped_packets_ << ". Number of streams "
@@ -42,9 +43,11 @@ SendDelayStats::~SendDelayStats() {
 
 void SendDelayStats::UpdateHistograms() {
   rtc::CritScope lock(&crit_);
-  for (const auto& it : send_delay_counters_) {
+  for (const auto& it : send_delay_counters_) 
+  {
     AggregatedStats stats = it.second->GetStats();
-    if (stats.num_samples >= kMinRequiredPeriodicSamples) {
+    if (stats.num_samples >= kMinRequiredPeriodicSamples) 
+	{
       RTC_HISTOGRAM_COUNTS_10000("WebRTC.Video.SendDelayInMs", stats.average);
       RTC_LOG(LS_INFO) << "WebRTC.Video.SendDelayInMs, " << stats.ToString();
     }
@@ -53,16 +56,23 @@ void SendDelayStats::UpdateHistograms() {
 
 void SendDelayStats::AddSsrcs(const VideoSendStream::Config& config) {
   rtc::CritScope lock(&crit_);
-  if (ssrcs_.size() > kMaxSsrcMapSize)
+  // 这边判断ssrc大于 50时就不在插入ssrc中
+  if (ssrcs_.size() > kMaxSsrcMapSize) 
+  {
     return;
-  for (const auto& ssrc : config.rtp.ssrcs)
+  }
+  for (const auto& ssrc : config.rtp.ssrcs) 
+  {
     ssrcs_.insert(ssrc);
+  }
 }
 
 AvgCounter* SendDelayStats::GetSendDelayCounter(uint32_t ssrc) {
   const auto& it = send_delay_counters_.find(ssrc);
   if (it != send_delay_counters_.end())
+  {
     return it->second.get();
+  }
 
   AvgCounter* counter = new AvgCounter(clock_, nullptr, false);
   send_delay_counters_[ssrc].reset(counter);
@@ -74,14 +84,17 @@ void SendDelayStats::OnSendPacket(uint16_t packet_id,
                                   uint32_t ssrc) {
   // Packet sent to transport.
   rtc::CritScope lock(&crit_);
-  if (ssrcs_.find(ssrc) == ssrcs_.end())
+  if (ssrcs_.find(ssrc) == ssrcs_.end()) 
+  {
     return;
+  }
 
   int64_t now = clock_->TimeInMilliseconds();
   RemoveOld(now, &packets_);
 
-  if (packets_.size() > kMaxPacketMapSize) {
-    ++num_skipped_packets_;
+  if (packets_.size() > kMaxPacketMapSize) 
+  {
+    ++num_skipped_packets_;  // ？？？ 跳包吗？
     return;
   }
   packets_.insert(
@@ -90,13 +103,17 @@ void SendDelayStats::OnSendPacket(uint16_t packet_id,
 
 bool SendDelayStats::OnSentPacket(int packet_id, int64_t time_ms) {
   // Packet leaving socket.
-  if (packet_id == -1)
+  if (packet_id == -1) 
+  {
     return false;
+  }
 
   rtc::CritScope lock(&crit_);
   auto it = packets_.find(packet_id);
-  if (it == packets_.end())
+  if (it == packets_.end()) 
+  {
     return false;
+  }
 
   // TODO(asapersson): Remove SendSideDelayUpdated(), use capture -> sent.
   // Elapsed time from send (to transport) -> sent (leaving socket).
@@ -107,10 +124,13 @@ bool SendDelayStats::OnSentPacket(int packet_id, int64_t time_ms) {
 }
 
 void SendDelayStats::RemoveOld(int64_t now, PacketMap* packets) {
-  while (!packets->empty()) {
+  while (!packets->empty()) 
+  {
     auto it = packets->begin();
-    if (now - it->second.capture_time_ms < kMaxSentPacketDelayMs)
+    if (now - it->second.capture_time_ms < kMaxSentPacketDelayMs) 
+	{
       break;
+    }
 
     packets->erase(it);
     ++num_old_packets_;
