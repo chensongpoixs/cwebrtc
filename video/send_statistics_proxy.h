@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -227,7 +227,7 @@ class SendStatisticsProxy : public VideoStreamEncoderObserver,
       RTC_EXCLUSIVE_LOCKS_REQUIRED(crit_);
 
   Clock* const clock_;
-  const std::string payload_name_; // Ê¹ÓÃ±àÂë ÀıÈç: H264¡¢ VP8¡¢ VP9 ...
+  const std::string payload_name_; // ä½¿ç”¨ç¼–ç  ä¾‹å¦‚: H264ã€ VP8ã€ VP9 ...
   const RtpConfig rtp_config_;
   const absl::optional<int> fallback_max_pixels_;
   const absl::optional<int> fallback_max_pixels_disabled_;
@@ -276,7 +276,7 @@ class SendStatisticsProxy : public VideoStreamEncoderObserver,
                             bool* is_limited_in_resolution);
     void RemoveOld(int64_t now_ms, bool* is_limited_in_resolution);
 
-    const std::string uma_prefix_; // ÊÇÆÁÄ»Í¬Ïí»¹ÊÇ ÊÓÆµ·ÖÏí
+    const std::string uma_prefix_; // æ˜¯å±å¹•åŒäº«è¿˜æ˜¯ è§†é¢‘åˆ†äº«
     Clock* const clock_;
     SampleCounter input_width_counter_;
     SampleCounter input_height_counter_;

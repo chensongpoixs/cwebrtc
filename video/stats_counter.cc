@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -43,7 +43,7 @@ std::string AggregatedStats::ToStringWithMultiplier(int multiplier) const {
 //////////////////////////////////////////////////////
 //   TODO@chensong
 //////////////////////////////////////////////////////
-//³ÖÓĞ¶¨ÆÚ¼ÆËãµÄÖ¸±ê
+//æŒæœ‰å®šæœŸè®¡ç®—çš„æŒ‡æ ‡
 //
 class AggregatedCounter {
  public:
@@ -76,17 +76,17 @@ class AggregatedCounter {
     if (stats_.num_samples == 0) {
       return;
     }
-    // Æ½¾ùÖµ  ¹«Ê½ = £¨ Ã¿¸öÊı¾İµÄµş¼ÓÖµ  + ´ÎÊıµÄÆ½¾ùÊı£©/ ´ÎÊı
+    // å¹³å‡å€¼  å…¬å¼ = ï¼ˆ æ¯ä¸ªæ•°æ®çš„å åŠ å€¼  + æ¬¡æ•°çš„å¹³å‡æ•°ï¼‰/ æ¬¡æ•°
     stats_.average =
         (sum_samples_ + stats_.num_samples / 2) / stats_.num_samples;
   }
-  int last_sample_;        //¼ÇÂ¼ÉÏÒ»´ÎµÄÊı¾İÖµ
-  int64_t sum_samples_;    // Ã¿¸öÊı¾İµÄµş¼ÓÖµ
-  AggregatedStats stats_;  // ¼ÇÂ¼´ÎÊı ºÍ min¡¢avg¡¢max
+  int last_sample_;        //è®°å½•ä¸Šä¸€æ¬¡çš„æ•°æ®å€¼
+  int64_t sum_samples_;    // æ¯ä¸ªæ•°æ®çš„å åŠ å€¼
+  AggregatedStats stats_;  // è®°å½•æ¬¡æ•° å’Œ minã€avgã€max
 };
 
 // Class holding gathered samples within a process interval.
-// ÀàÔÚ½ø³Ì¼ä¸ôÄÚ±£´æÊÕ¼¯µÄÑù±¾
+// ç±»åœ¨è¿›ç¨‹é—´éš”å†…ä¿å­˜æ”¶é›†çš„æ ·æœ¬
 class Samples {
  public:
   Samples() : total_count_(0) {}
@@ -99,7 +99,7 @@ class Samples {
 
   void Set(int64_t sample, uint32_t stream_id) {
     samples_[stream_id].Set(sample);
-    //¸Ä±ä×ÜÊı¾İµÄºó ÎªÊ²Ã´»¹ÒªĞŞ¸Ä ×Ü´ÎÊıÄØ£¿£¿£¿
+    //æ”¹å˜æ€»æ•°æ®çš„å ä¸ºä»€ä¹ˆè¿˜è¦ä¿®æ”¹ æ€»æ¬¡æ•°å‘¢ï¼Ÿï¼Ÿï¼Ÿ
     ++total_count_;
   }
   void SetLast(int64_t sample, uint32_t stream_id) {
@@ -133,7 +133,7 @@ class Samples {
     total_count_ = 0;
   }
 
-  // Õâ¸ö½Ó¿ÚÒâÒåÊÇÊ²Ã´£¿£¿£¿
+  // è¿™ä¸ªæ¥å£æ„ä¹‰æ˜¯ä»€ä¹ˆï¼Ÿï¼Ÿï¼Ÿ
   int64_t Diff() const {
     int64_t sum_diff = 0;
     int count = 0;
@@ -178,7 +178,7 @@ class Samples {
   };
 
   int64_t total_count_;
-  std::map<uint32_t, Stats> samples_;  // key : ÊÓÆµÁ÷µÄid ºÍÍ³¼ÆµÄÊı¾İ Gathered
+  std::map<uint32_t, Stats> samples_;  // key : è§†é¢‘æµçš„id å’Œç»Ÿè®¡çš„æ•°æ® Gathered
                                        // samples mapped by stream id.
 };
 
@@ -256,7 +256,7 @@ bool StatsCounter::TimeToProcess(int* elapsed_intervals)
   }
 
   // Advance number of complete |process_intervals_ms_| that have passed.
-  // Ê±¼ä¼ä¸ôÖĞºÁÃëÊı µ÷Õû²îÖµ [¶à¼õÈ¥µÄºÁÃëÊı Ìí¼ÓÉÏ]
+  // æ—¶é—´é—´éš”ä¸­æ¯«ç§’æ•° è°ƒæ•´å·®å€¼ [å¤šå‡å»çš„æ¯«ç§’æ•° æ·»åŠ ä¸Š]
   int64_t num_intervals = diff_ms / process_intervals_ms_;
   last_process_time_ms_ += num_intervals * process_intervals_ms_;
 
@@ -364,7 +364,7 @@ bool AvgCounter::GetMetric(int* metric) const {
   if (count == 0) {
     return false;
   }
-  //  [count / 2] : ´ÎÊıµÄÆ½¾ùÖµ
+  //  [count / 2] : æ¬¡æ•°çš„å¹³å‡å€¼
   *metric = (samples_->Sum() + count / 2) / count;
   return true;
 }

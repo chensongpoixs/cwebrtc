@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -222,7 +222,7 @@ void SendStatisticsProxy::UmaSamplesContainer::RemoveOld(
   while (!encoded_frames_.empty()) {
     auto it = encoded_frames_.begin();
     // TODO@chensong 2022-07-26
-    // ·¢ËÍ¶ÓÁĞÑÓ³Ù ÔÚ WebRTCÔÚm74°æ±¾ÖĞÄ¬ÈÏÒ»Ö¡Êı¾İÔÚ¶ÓÁĞÖĞ800ms
+    // å‘é€é˜Ÿåˆ—å»¶è¿Ÿ åœ¨ WebRTCåœ¨m74ç‰ˆæœ¬ä¸­é»˜è®¤ä¸€å¸§æ•°æ®åœ¨é˜Ÿåˆ—ä¸­800ms
     if (now_ms - it->second.send_ms < kMaxEncodedFrameWindowMs) {
       break;
     }
@@ -259,19 +259,19 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
   int64_t now_ms = clock_->TimeInMilliseconds();
   ////////////////////////////////////////////////////////////////
   // TODO@chensong  2022-07-26
-  //  ¼ì²é±àÂë¶ÓÁĞ·ÖÎªÈıÖÖ¼ì²é²ßÂÔ
-  //          1. ´Ó±àÂë¶ÓÁĞÖĞÍ·²¿ÒÀ´Î±È½ÏÊ±¼ä´ÁÓëÏÖÔÚÒª²åÈëµÄÊ±¼ä´ÁµÄ²îÖµ
-  //          ÊÇ·ñ´óÓÚÄ¬ÈÏÖµ[WebRTC = 800ms]  ´óÓÚ¾ÍÉ¾³ıÁË£¬
-  //          Ğ¡ÓÚµÈÓÚ¾ÍÍË³öÈ¡³ö¶ÓÁĞ
-  //          2. ±àÂë¶ÓÁĞµÄÊıÁ¿ÊÇ·ñ´óÔ¼Ä¬ÈÏ¶ÓÁĞµÄ´óĞ¡ [WebRTC = 150]
-  //          ´óÔ¼¾ÍÇå¿Õ¶ÓÁĞ
+  //  æ£€æŸ¥ç¼–ç é˜Ÿåˆ—åˆ†ä¸ºä¸‰ç§æ£€æŸ¥ç­–ç•¥
+  //          1. ä»ç¼–ç é˜Ÿåˆ—ä¸­å¤´éƒ¨ä¾æ¬¡æ¯”è¾ƒæ—¶é—´æˆ³ä¸ç°åœ¨è¦æ’å…¥çš„æ—¶é—´æˆ³çš„å·®å€¼
+  //          æ˜¯å¦å¤§äºé»˜è®¤å€¼[WebRTC = 800ms]  å¤§äºå°±åˆ é™¤äº†ï¼Œ
+  //          å°äºç­‰äºå°±é€€å‡ºå–å‡ºé˜Ÿåˆ—
+  //          2. ç¼–ç é˜Ÿåˆ—çš„æ•°é‡æ˜¯å¦å¤§çº¦é»˜è®¤é˜Ÿåˆ—çš„å¤§å° [WebRTC = 150]
+  //          å¤§çº¦å°±æ¸…ç©ºé˜Ÿåˆ—
   //          3.
-  //          ´Ó¶ÓÁĞÍ·²¿È¡³öÒ»¸öÊı¾İµÄÖĞÊ±¼ä´ÁºÍµ±Ç°µÄÊ±¼ä´Á±È½ÏÊÇ·ñ´óÓÚÄ¬ÈÏÖµ
-  //          [WebRTC = 900000us] ´óÓÚ¾ÍÇå¿Õ¶ÓÁĞ
+  //          ä»é˜Ÿåˆ—å¤´éƒ¨å–å‡ºä¸€ä¸ªæ•°æ®çš„ä¸­æ—¶é—´æˆ³å’Œå½“å‰çš„æ—¶é—´æˆ³æ¯”è¾ƒæ˜¯å¦å¤§äºé»˜è®¤å€¼
+  //          [WebRTC = 900000us] å¤§äºå°±æ¸…ç©ºé˜Ÿåˆ—
   ////////////////////////////////////////////////////////////////
-  // ¼ì²éencoded_frames_·¢ËÍ¶ÓÁĞÖĞÊÇ·ñÓĞ³¬Ê±µÄÊı¾İ
+  // æ£€æŸ¥encoded_frames_å‘é€é˜Ÿåˆ—ä¸­æ˜¯å¦æœ‰è¶…æ—¶çš„æ•°æ®
   RemoveOld(now_ms, is_limited_in_resolution);
-  // ¼ì²éencoded_frames_ ¶ÓÁĞÊı¾İÊÇ·ñÒÑ¾­´óÄ¬ÈÏÖµÁË£¬ ´óÓÚ¾ÍÈ«²¿Çå³ı
+  // æ£€æŸ¥encoded_frames_ é˜Ÿåˆ—æ•°æ®æ˜¯å¦å·²ç»å¤§é»˜è®¤å€¼äº†ï¼Œ å¤§äºå°±å…¨éƒ¨æ¸…é™¤
   if (encoded_frames_.size() > kMaxEncodedFrameMapSize) {
     encoded_frames_.clear();
   }
@@ -279,9 +279,9 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
   // Check for jump in timestamp.
   if (!encoded_frames_.empty()) {
     uint32_t oldest_timestamp = encoded_frames_.begin()->first;
-    // ¼ì²éencoded_frames_ÖĞ¶ÓÁĞÍ·²¿Ê±¼ä´Á
-    // ºÍµ±Ç°±àÂëÖ¡µÄÊ±¼ä´ÁµÄ²îÖµÊÇ·ñ´óÔ¼Ä¬ÈÏÖµ 900000Î¢Ãî£¬
-    // ´óÓÚ¾ÍÇå³ıÈ«²¿¶ÓÁĞÖĞÊı¾İ
+    // æ£€æŸ¥encoded_frames_ä¸­é˜Ÿåˆ—å¤´éƒ¨æ—¶é—´æˆ³
+    // å’Œå½“å‰ç¼–ç å¸§çš„æ—¶é—´æˆ³çš„å·®å€¼æ˜¯å¦å¤§çº¦é»˜è®¤å€¼ 900000å¾®å¦™ï¼Œ
+    // å¤§äºå°±æ¸…é™¤å…¨éƒ¨é˜Ÿåˆ—ä¸­æ•°æ®
     if (ForwardDiff(oldest_timestamp, encoded_frame.Timestamp()) >
         kMaxEncodedFrameTimestampDiff) {
       // Gap detected, clear frames to have a sequence where newest timestamp
@@ -289,9 +289,9 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
       encoded_frames_.clear();
     }
   }
-  // TODO@chensong 2022-07-26  ²éÕÒµ±Ç°±àÂë¶ÓÁĞÖĞÊ±¼ä´ÁÊÇ·ñÓĞÒ»ÑùµÄ  £¿£¿£¿£¿
-  // 1. Ã»ÓĞ¾Í²åÈë£¬Ôö¼ÓÒ»Ö¡µÄÊı¾İ
-  // 2. ÓĞÁË  ĞŞ¸Äµ½×î´ó·Ö±æÂÊ   Ã»ÓĞ¿´¶®É¶ÒâË¼ £¿£¿£¿ simulcat £¿£¿£¿
+  // TODO@chensong 2022-07-26  æŸ¥æ‰¾å½“å‰ç¼–ç é˜Ÿåˆ—ä¸­æ—¶é—´æˆ³æ˜¯å¦æœ‰ä¸€æ ·çš„  ï¼Ÿï¼Ÿï¼Ÿï¼Ÿ
+  // 1. æ²¡æœ‰å°±æ’å…¥ï¼Œå¢åŠ ä¸€å¸§çš„æ•°æ®
+  // 2. æœ‰äº†  ä¿®æ”¹åˆ°æœ€å¤§åˆ†è¾¨ç‡   æ²¡æœ‰çœ‹æ‡‚å•¥æ„æ€ ï¼Ÿï¼Ÿï¼Ÿ simulcat ï¼Ÿï¼Ÿï¼Ÿ
   auto it = encoded_frames_.find(encoded_frame.Timestamp());
   if (it == encoded_frames_.end()) {
     // First frame with this timestamp.
@@ -302,7 +302,7 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
     sent_fps_counter_.Add(1);
     return true;
   }
-  // TODO@chensong 2022-07-26  WebRTC ÖĞÎªÊ²Ã´ÒªÔõÃ´ÍæÄØ
+  // TODO@chensong 2022-07-26  WebRTC ä¸­ä¸ºä»€ä¹ˆè¦æ€ä¹ˆç©å‘¢
   it->second.max_width =
       std::max(it->second.max_width, encoded_frame._encodedWidth);
   it->second.max_height =
@@ -982,8 +982,8 @@ void SendStatisticsProxy::OnSendEncodedImage(
         int spatial_idx = encoded_image.SpatialIndex().value_or(-1);
         uma_container_->qp_counters_[spatial_idx].vp9.Add(encoded_image.qp_);
       } else if (codec_info->codecType == kVideoCodecH264) {
-        // TODO@chensong  2022-07-26 °ÑsimulcatµÄidx×÷ÎªkeyÖµ»òÕß-1
-        // ×÷ÎªË÷ÒıÖµ±£³ÖQPµÄÖµ
+        // TODO@chensong  2022-07-26 æŠŠsimulcatçš„idxä½œä¸ºkeyå€¼æˆ–è€…-1
+        // ä½œä¸ºç´¢å¼•å€¼ä¿æŒQPçš„å€¼
         int spatial_idx = (rtp_config_.ssrcs.size() == 1) ? -1 : simulcast_idx;
         uma_container_->qp_counters_[spatial_idx].h264.Add(encoded_image.qp_);
       }
@@ -993,8 +993,8 @@ void SendStatisticsProxy::OnSendEncodedImage(
   // If any of the simulcast streams have a huge frame, it should be counted
   // as a single difficult input frame.
   // https://w3c.github.io/webrtc-stats/#dom-rtcvideosenderstats-hugeframessent
-  // TODO@chensong 2022-07-26  ÊäÈëÒ»Ö¡ÌØ±ğµÄ´óµÄÊ±ºòÉèÖÃÕâ¸ö²ÎÊıflags [simulcat
-  // Ä£Ê½]
+  // TODO@chensong 2022-07-26  è¾“å…¥ä¸€å¸§ç‰¹åˆ«çš„å¤§çš„æ—¶å€™è®¾ç½®è¿™ä¸ªå‚æ•°flags [simulcat
+  // æ¨¡å¼]
   if (encoded_image.timing_.flags & VideoSendTiming::kTriggeredBySize) {
     if (!last_outlier_timestamp_ ||
         *last_outlier_timestamp_ < encoded_image.capture_time_ms_) {
