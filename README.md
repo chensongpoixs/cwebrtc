@@ -27,7 +27,7 @@ native API header files.
  * [Coding style guide](style-guide.md)
  * [Code of conduct](CODE_OF_CONDUCT.md)
 
-![](https://github.com/chensongpoixs/cwebrtc/tree/chensong/img/video_send_encoder.jpg)
+![](https://github.com/chensongpoixs/cwebrtc/blob/chensong/img/video_send_encoder.jpg?raw=true)
 
 
 RtpStreamSender有三个成员变量:rtp_rtcp(rtp\rtcp 打包、接收、发送), sender_video(pacer 发送), fec_generator(fec)，
