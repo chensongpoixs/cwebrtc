@@ -474,6 +474,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   bool set_frame_marking = video_header->codec == kVideoCodecH264 &&
         video_header->frame_marking.temporal_id != kNoTemporalIdx;
 
+   // 根据video_header信息，更新播放延迟(current_playout_delay_)
   const absl::optional<PlayoutDelay> playout_delay =
       playout_delay_oracle_->PlayoutDelayToSend(video_header->playout_delay);
   {
@@ -529,8 +530,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   int packet_capacity = rtp_sender_->MaxRtpPacketSize() - fec_packet_overhead -
                         (rtp_sender_->RtxStatus() ? kRtxHeaderSize : 0);
 
-  std::unique_ptr<RtpPacketToSend> single_packet =
-      rtp_sender_->AllocatePacket();
+  std::unique_ptr<RtpPacketToSend> single_packet = rtp_sender_->AllocatePacket();
   RTC_DCHECK_LE(packet_capacity, single_packet->capacity());
   single_packet->SetPayloadType(payload_type);
   single_packet->SetTimestamp(rtp_timestamp);
@@ -540,6 +540,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   auto middle_packet = absl::make_unique<RtpPacketToSend>(*single_packet);
   auto last_packet = absl::make_unique<RtpPacketToSend>(*single_packet);
   // Simplest way to estimate how much extensions would occupy is to set them.
+  // 根据video_header 给packet添加extension
   AddRtpHeaderExtensions(*video_header, playout_delay, frame_type,
                          set_video_rotation, set_color_space, set_frame_marking,
                          /*first=*/true, /*last=*/true, single_packet.get());
@@ -595,13 +596,14 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
     }
   }
 
+  // 如果帧加密了，对payload和header进行加密
   // TODO(benwright@webrtc.org) - Allocate enough to always encrypt inline.
   rtc::Buffer encrypted_video_payload;
   if (frame_encryptor_ != nullptr) {
     if (generic_descriptor_raw.empty()) {
       return false;
     }
-
+    // 获取帧加密后最大的长度
     const size_t max_ciphertext_size =
         frame_encryptor_->GetMaxCiphertextByteSize(cricket::MEDIA_TYPE_VIDEO,
                                                    payload_size);
@@ -730,7 +732,10 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
     } else if (red_enabled) {
       SendVideoPacketAsRedMaybeWithUlpfec(std::move(packet), storage,
                                           protect_packet);
-    } else {
+    }
+	else 
+	{
+		// TODO@chensong   
       SendVideoPacket(std::move(packet), storage);
     }
 

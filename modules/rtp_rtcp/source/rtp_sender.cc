@@ -676,6 +676,7 @@ bool RTPSender::SendToNetwork(std::unique_ptr<RtpPacketToSend> packet,
     if (ssrc == FlexfecSsrc()) {
       // Store FlexFEC packets in the history here, so they can be found
       // when the pacer calls TimeToSendPacket.
+		//统计打包后的payload的码率开销
       flexfec_packet_history_.PutRtpPacket(std::move(packet), storage,
                                            absl::nullopt);
     } else {

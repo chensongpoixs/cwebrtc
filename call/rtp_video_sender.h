@@ -47,6 +47,10 @@ class RtpTransportControllerSendInterface;
 namespace webrtc_internal_rtp_video_sender {
 // RTP state for a single simulcast stream. Internal to the implementation of
 // RtpVideoSender.
+	// RtpStreamSender有三个成员变量:
+	// 1. rtp_rtcp(rtp\rtcp 打包、接收、发送), 
+	// 2. sender_video(pacer 发送), 
+	// 3. fec_generator(fec)，
 struct RtpStreamSender {
   RtpStreamSender(std::unique_ptr<PlayoutDelayOracle> playout_delay_oracle,
                   std::unique_ptr<RtpRtcp> rtp_rtcp,

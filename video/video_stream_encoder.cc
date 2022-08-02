@@ -1325,7 +1325,7 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
       bitrate_adjuster_->Reset();
     }
   }
-
+  //TODO@chensong 20220802   根据变更的帧率，重新设定码率调节器
   if (bitrate_adjuster_) 
   {
       //TODO@chensong 20220718 编码器 空间层????? ---> 为什么是定义为5呢
@@ -1343,7 +1343,9 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
   last_encode_info_ms_ = clock_->TimeInMilliseconds();
   RTC_DCHECK_EQ(send_codec_.width, out_frame.width());
   RTC_DCHECK_EQ(send_codec_.height, out_frame.height());
-  const VideoFrameBuffer::Type buffer_type = out_frame.video_frame_buffer()->type();
+
+  //TODO@chensong 20220802 对原始帧进行420转码
+  const VideoFrameBuffer::Type buffer_type = out_frame.video_frame_buffer()->type(); 
   const bool is_buffer_type_supported =
       buffer_type == VideoFrameBuffer::Type::kI420 ||
       (buffer_type == VideoFrameBuffer::Type::kNative &&
@@ -1384,7 +1386,7 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
 
   frame_encoder_timer_.OnEncodeStarted(out_frame.timestamp(),
                                        out_frame.render_time_ms());
-
+  //// 将帧送入编码队列
   const int32_t encode_status = encoder_->Encode(out_frame, &next_frame_types_);
 
   if (encode_status < 0) 
@@ -1451,7 +1453,7 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
     const RTPFragmentationHeader* fragmentation) {
   TRACE_EVENT_INSTANT1("webrtc", "VCMEncodedFrameCallback::Encoded",
                        "timestamp", encoded_image.Timestamp());
-  // TODO@chensong 2022-07-26 这个字段是啥意思 spatial_idx ？？？？？
+  // TODO@chensong 2022-07-26 这个字段是啥意思 spatial_idx ？？？？？ -->解析Image的Info: ExperimentId,simulcast
   const size_t spatial_idx = encoded_image.SpatialIndex().value_or(0);
   EncodedImage image_copy(encoded_image);
 
@@ -1473,14 +1475,15 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
   // on. In the case of hardware encoders, there might be several encoders
   // running in parallel on different threads.
   encoder_stats_observer_->OnSendEncodedImage(image_copy, codec_specific_info);
-  // TODO@chensong ----->VideoSendStreamImpl
+  // TODO@chensong ----->VideoSendStreamImpl  -->  -----> 真正视频 将帧传给VideoSendStreamImpl
   EncodedImageCallback::Result result = sink_->OnEncodedImage(image_copy, codec_specific_info, fragmentation);
 
   // We are only interested in propagating the meta-data about the image, not
   // encoded data itself, to the post encode function. Since we cannot be sure
   // the pointer will still be valid when run on the task queue, set it to null.
   image_copy.set_buffer(nullptr, 0);
-
+  //bug: simulcast_id用了image.SpatialIndex()的位置，对于提供spatial的编码器就无法
+  // 获取spatial layer信息了，
   int temporal_index = 0;
   if (codec_specific_info) 
   {
@@ -1497,7 +1500,7 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
   {
     temporal_index = 0;
   }
-
+  //  TODO@chensong 20220802 使用该帧去更新码率调节器，媒体源调节器等
   RunPostEncode(image_copy, rtc::TimeMicros(), temporal_index);
 
   if (result.error == Result::OK) 
