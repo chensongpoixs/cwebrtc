@@ -2584,6 +2584,7 @@ int32_t AudioDeviceWindowsCore::StartPlayout() {
   }
 
   {
+	  // 和其它线程冲突问题
     rtc::CritScope critScoped(&_critSect);
 
     // Create thread which will drive the rendering.
@@ -2594,7 +2595,7 @@ int32_t AudioDeviceWindowsCore::StartPlayout() {
       return -1;
     }
 
-    // Set thread priority to highest possible.
+    // Set thread priority to highest possible. 设置线程为高级别
     SetThreadPriority(_hPlayThread, THREAD_PRIORITY_TIME_CRITICAL);
   }  // critScoped
 
@@ -2745,17 +2746,18 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
   HANDLE hMmTask = NULL;
 
   // Initialize COM as MTA in this thread.
+  // COM 组件初始化
   ScopedCOMInitializer comInit(ScopedCOMInitializer::kMTA);
   if (!comInit.succeeded()) {
     RTC_LOG(LS_ERROR) << "failed to initialize COM in render thread";
     return 1;
   }
-
+  // 设置线程的名字
   rtc::SetCurrentThreadName("webrtc_core_audio_render_thread");
 
   // Use Multimedia Class Scheduler Service (MMCSS) to boost the thread
   // priority.
-  //
+  // 是否支持 AVRT 
   if (_winSupportAvrt) {
     DWORD taskIndex(0);
     hMmTask = _PAvSetMmThreadCharacteristicsA("Pro Audio", &taskIndex);
@@ -2782,6 +2784,7 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
   // session.
   //
   UINT32 bufferLength = 0;
+  // 获取扬声器的缓冲区的buffer的大小
   hr = _ptrClientOut->GetBufferSize(&bufferLength);
   EXIT_ON_ERROR(hr);
   RTC_LOG(LS_VERBOSE) << "[REND] size of buffer       : " << bufferLength;
@@ -2811,23 +2814,27 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
   //////////////////////////////////////////////////////////////////////////////////
   //   TODO@chensong 2022-07-24 获取音频引擎处理终端Buf的间隔时间
   //参数说明 ：
-  //    devPeriod :   默认处理周期
+  //    devPeriod :   默认处理周期 单位是 微妙 ns 
   // devPeriodMin :   最小处理周期
   REFERENCE_TIME devPeriod = 0;
   REFERENCE_TIME devPeriodMin = 0;
+  // 访问设备的周期
   _ptrClientOut->GetDevicePeriod(&devPeriod, &devPeriodMin);
   RTC_LOG(LS_VERBOSE) << "[REND] device period        : " << (DWORD)devPeriod
                       << " (" << (double)(devPeriod / 10000.0) << " ms)";
 
-  // Derive initial rendering delay.
+  // Derive initial rendering delay. 以毫秒为单位
   // Example: 10*(960/480) + 15 = 20 + 15 = 35ms
-  //
-  int playout_delay = 10 * (bufferLength / _playBlockSize) +
+  //  10ms的播放的延迟的时间
+  // 播放延迟时间公式  = 10毫秒  * (缓冲区大小 / 缓冲区的块大小） + 延迟的时间 + 设备周期的时间
+  int playout_delay = 10/*10ms */ * (bufferLength/*播放缓冲区的大小*/ / _playBlockSize/*播放块的大小*/) +
                       (int)((latency + devPeriod) / 10000);
+  //播放延迟时间给保存到成员变量中去
   _sndCardPlayDelay = playout_delay;
   _writtenSamples = 0;
   RTC_LOG(LS_VERBOSE) << "[REND] initial delay        : " << playout_delay;
 
+  //终端设备缓冲区的大小
   double endpointBufferSizeMS =
       10.0 * ((double)bufferLength / (double)_devicePlayBlockSize);
   RTC_LOG(LS_VERBOSE) << "[REND] endpointBufferSizeMS : "
@@ -2855,11 +2862,12 @@ AUDCLNT_BUFFERFLAGS_SILENT	= 0x2,   //静音数据
 AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
 } ;
 */
+  // 释放数据  默认声音静音
   hr = _ptrRenderClient->ReleaseBuffer(bufferLength, AUDCLNT_BUFFERFLAGS_SILENT);
   EXIT_ON_ERROR(hr);
-
+  // 写入数据的累加
   _writtenSamples += bufferLength;
-
+  //  获取时间
   hr = _ptrClientOut->GetService(__uuidof(IAudioClock), (void**)&clock);
   if (FAILED(hr)) {
     RTC_LOG(LS_WARNING)
@@ -2869,32 +2877,34 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
   // Start up the rendering audio stream.
   hr = _ptrClientOut->Start();
   EXIT_ON_ERROR(hr);
-
+  // 线程lock释放
   _UnLock();
 
   // Set event which will ensure that the calling thread modifies the playing
   // state to true.
-  //
+  // 事件通知   工作线程继续工作
   SetEvent(_hRenderStartedEvent);
 
   // >> ------------------ THREAD LOOP ------------------
 
   while (keepPlaying) {
     // Wait for a render notification event or a shutdown event
+	  // 等待信号 
     DWORD waitResult = WaitForMultipleObjects(2, waitArray, FALSE, 500);
     switch (waitResult) {
-      case WAIT_OBJECT_0 + 0:  // _hShutdownRenderEvent
+      case WAIT_OBJECT_0 + 0:  // _hShutdownRenderEvent  不播放声音 退出线程
         keepPlaying = false;
         break;
-      case WAIT_OBJECT_0 + 1:  // _hRenderSamplesReadyEvent
+      case WAIT_OBJECT_0 + 1:  // _hRenderSamplesReadyEvent 音频数据到了
         break;
-      case WAIT_TIMEOUT:  // timeout notification
+      case WAIT_TIMEOUT:  // timeout notification 超时就直接退出
         RTC_LOG(LS_WARNING) << "render event timed out after 0.5 seconds";
         goto Exit;
       default:  // unexpected error
         RTC_LOG(LS_WARNING) << "unknown wait termination on render side";
         goto Exit;
     }
+
 
     while (keepPlaying) {
       _Lock();
@@ -2919,9 +2929,11 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
       EXIT_ON_ERROR(hr);
 
       // Derive the amount of available space in the output buffer
+	  // buffer中还可以填充数据的大小，  
       uint32_t framesAvailable = bufferLength - padding;
 
       // Do we have 10 ms available in the render buffer?
+	  // 特殊情况  跳出从新开始
       if (framesAvailable < _playBlockSize) {
         // Not enough space in render buffer to store next render packet.
         _UnLock();
@@ -2929,19 +2941,21 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
       }
 
       // Write n*10ms buffers to the render buffer
+	  // 计算一个填充多少次
       const uint32_t n10msBuffers = (framesAvailable / _playBlockSize);
       for (uint32_t n = 0; n < n10msBuffers; n++) {
         // Get pointer (i.e., grab the buffer) to next space in the shared
         // render buffer.
+		  // 获取填充buffer的地址
         hr = _ptrRenderClient->GetBuffer(_playBlockSize, &pData);
         EXIT_ON_ERROR(hr);
 
-        if (_ptrAudioBuffer) {
+        if (_ptrAudioBuffer/*音频数据源*/) {
           // Request data to be played out (#bytes =
           // _playBlockSize*_audioFrameSize)
           _UnLock();
-          int32_t nSamples =
-              _ptrAudioBuffer->RequestPlayoutData(_playBlockSize);
+		  // 获取一个数据的大小
+          int32_t nSamples = _ptrAudioBuffer->RequestPlayoutData(_playBlockSize);
           _Lock();
 
           if (nSamples == -1) {
@@ -2959,6 +2973,7 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
                 << " period";
             goto Exit;
           }
+		  // 判断 大小是否对于blocksize的大小 说明出问题， 警告信息
           if (nSamples != static_cast<int32_t>(_playBlockSize)) {
             RTC_LOG(LS_WARNING)
                 << "nSamples(" << nSamples << ") != _playBlockSize"
@@ -2970,15 +2985,17 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
         }
 
         DWORD dwFlags(0);
+		// 减去计数
         hr = _ptrRenderClient->ReleaseBuffer(_playBlockSize, dwFlags);
         // See http://msdn.microsoft.com/en-us/library/dd316605(VS.85).aspx
         // for more details regarding AUDCLNT_E_DEVICE_INVALIDATED.
         EXIT_ON_ERROR(hr);
-
+		// 写入buffer的数据多少 累加数据
         _writtenSamples += _playBlockSize;
       }
 
       // Check the current delay on the playout side.
+	 
       if (clock) {
         UINT64 pos = 0;
         UINT64 freq = 1;
@@ -2997,6 +3014,7 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
         playout_delay = ROUND((double(_writtenSamples) / _devicePlaySampleRate -
                                double(pos) / freq) *
                               1000.0);
+		// 播放延迟的大小
         _sndCardPlayDelay = playout_delay;
       }
 
