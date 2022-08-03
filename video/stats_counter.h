@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -29,13 +29,13 @@ class StatsCounterObserver {
 
   virtual ~StatsCounterObserver() {}
 };
-//¾ÛºÏÍ³¼Æ
+//èšåˆç»Ÿè®¡
 struct AggregatedStats 
 {
   std::string ToString() const;
   std::string ToStringWithMultiplier(int multiplier) const;
 
-  int64_t num_samples = 0; // ´ÎÊıµş¼ÓÖµ
+  int64_t num_samples = 0; // æ¬¡æ•°å åŠ å€¼
   int min = -1;
   int max = -1;
   int average = -1;
@@ -84,39 +84,39 @@ class StatsCounter {
   virtual ~StatsCounter();
 
   // Gets metric within an interval. Returns true on success false otherwise.
-  // 1. »ñÈ¡¼ä¸ôÄÚµÄ¶ÈÁ¿¡£³É¹¦Ê±·µ»Øtrue£¬·ñÔò·µ»Øfalse¡£
+  // 1. è·å–é—´éš”å†…çš„åº¦é‡ã€‚æˆåŠŸæ—¶è¿”å›trueï¼Œå¦åˆ™è¿”å›falseã€‚
   virtual bool GetMetric(int* metric) const = 0;
 
   // Gets the value to use for an interval without samples.
-  // 2. »ñÈ¡ÓÃÓÚ²»´øÑù±¾µÄ¼ä¸ôµÄÖµ
+  // 2. è·å–ç”¨äºä¸å¸¦æ ·æœ¬çš„é—´éš”çš„å€¼
   virtual int GetValueForEmptyInterval() const = 0;
 
   // Gets aggregated stats (i.e. aggregate of periodically computed metrics).
-  // 3. »ñÈ¡¾ÛºÏµÄÍ³¼ÆĞÅÏ¢£¨¼´¶¨ÆÚ¼ÆËãµÄÖ¸±êµÄ¾ÛºÏ£© [min¡¢avg¡¢max]
+  // 3. è·å–èšåˆçš„ç»Ÿè®¡ä¿¡æ¯ï¼ˆå³å®šæœŸè®¡ç®—çš„æŒ‡æ ‡çš„èšåˆï¼‰ [minã€avgã€max]
   AggregatedStats GetStats();
 
   // Reports metrics for elapsed intervals to AggregatedCounter and GetStats.
-  // 4. ÏòAggregatedCounterºÍGetStats±¨¸æÒÑÓÃÊ±¼ä¼ä¸ôµÄÖ¸±ê
+  // 4. å‘AggregatedCounterå’ŒGetStatsæŠ¥å‘Šå·²ç”¨æ—¶é—´é—´éš”çš„æŒ‡æ ‡
   AggregatedStats ProcessAndGetStats();
 
   // Reports metrics for elapsed intervals to AggregatedCounter and pauses stats
   // (i.e. empty intervals will be discarded until next sample is added).
-  // 5. ÏòAggregatedCounter±¨¸æÒÑÓÃÊ±¼ä¼ä¸ôµÄÖ¸±ê£¬²¢ÔİÍ£Í³¼ÆÊı¾İ
-  // £¨¼´£¬ÔÚÌí¼ÓÏÂÒ»¸öÑù±¾Ö®Ç°£¬½«¶ªÆú¿Õ¼ä¸ô£©¡£
+  // 5. å‘AggregatedCounteræŠ¥å‘Šå·²ç”¨æ—¶é—´é—´éš”çš„æŒ‡æ ‡ï¼Œå¹¶æš‚åœç»Ÿè®¡æ•°æ®
+  // ï¼ˆå³ï¼Œåœ¨æ·»åŠ ä¸‹ä¸€ä¸ªæ ·æœ¬ä¹‹å‰ï¼Œå°†ä¸¢å¼ƒç©ºé—´éš”ï¼‰ã€‚
   void ProcessAndPause();
 
   // As above with a minimum pause time. Added samples within this interval will
   // not resume the stats (i.e. stop the pause).
-  // 6. ÈçÉÏËùÊö£¬ÔİÍ£Ê±¼ä×î¶Ì¡£ÔÚ´Ë¼ä¸ôÄÚÌí¼ÓµÄÑù±¾½«
-  // ²»»Ö¸´Í³¼Æ£¨¼´Í£Ö¹ÔİÍ££©¡£   ÔİÍ£ºÁÃëÊı
+  // 6. å¦‚ä¸Šæ‰€è¿°ï¼Œæš‚åœæ—¶é—´æœ€çŸ­ã€‚åœ¨æ­¤é—´éš”å†…æ·»åŠ çš„æ ·æœ¬å°†
+  // ä¸æ¢å¤ç»Ÿè®¡ï¼ˆå³åœæ­¢æš‚åœï¼‰ã€‚   æš‚åœæ¯«ç§’æ•°
   void ProcessAndPauseForDuration(int64_t min_pause_time_ms);
 
   // Reports metrics for elapsed intervals to AggregatedCounter and stops pause.
-  // 7. ÏòAggregatedCounter±¨¸æÒÑÓÃÊ±¼ä¼ä¸ôµÄÖ¸±ê£¬²¢Í£Ö¹ÔİÍ£¡£
+  // 7. å‘AggregatedCounteræŠ¥å‘Šå·²ç”¨æ—¶é—´é—´éš”çš„æŒ‡æ ‡ï¼Œå¹¶åœæ­¢æš‚åœã€‚
   void ProcessAndStopPause();
 
   // Checks if a sample has been added (i.e. Add or Set called).
-  // 8. ¼ì²éÊÇ·ñÒÑÌí¼ÓÑù±¾£¨¼´Ìí¼Ó»òÉèÖÃµ÷ÓÃ
+  // 8. æ£€æŸ¥æ˜¯å¦å·²æ·»åŠ æ ·æœ¬ï¼ˆå³æ·»åŠ æˆ–è®¾ç½®è°ƒç”¨
   bool HasSample() const;
 
  protected:
@@ -144,7 +144,7 @@ class StatsCounter {
 
   Clock* const clock_;
   const std::unique_ptr<StatsCounterObserver> observer_;
-  int64_t last_process_time_ms_; // ¼ÇÂ¼Êı¾İ - ºÁÃëÊı
+  int64_t last_process_time_ms_; // è®°å½•æ•°æ® - æ¯«ç§’æ•°
   bool paused_;
   int64_t pause_time_ms_;
   int64_t min_pause_time_ms_;
@@ -205,7 +205,7 @@ class MaxCounter : public StatsCounter {
 //           | *      *      *      | *           *       | ...
 //           | Add(T) Add(F) Add(T) | Add(F)      Add(T)  |
 // GetMetric | 100 * 2 / 3          | 100 * 1 / 2         |
-//  °Ù·Ö±È
+//  ç™¾åˆ†æ¯”
 class PercentCounter : public StatsCounter {
  public:
   PercentCounter(Clock* clock, StatsCounterObserver* observer);
@@ -225,7 +225,7 @@ class PercentCounter : public StatsCounter {
 //           | *      *      *      | *         *         | ...
 //           | Add(T) Add(F) Add(T) | Add(F)    Add(T)    |
 // GetMetric | 1000 *  2 / 3        | 1000 * 1 / 2        |
-// Ç§·Ö±È¼ÆÊıÆ÷
+// åƒåˆ†æ¯”è®¡æ•°å™¨
 class PermilleCounter : public StatsCounter {
  public:
   PermilleCounter(Clock* clock, StatsCounterObserver* observer);
@@ -240,7 +240,7 @@ class PermilleCounter : public StatsCounter {
   RTC_DISALLOW_COPY_AND_ASSIGN(PermilleCounter);
 };
 
-// RateCounter: units per second µ¥Î»/Ãë
+// RateCounter: units per second å•ä½/ç§’
 //
 //           | *      *      *      | *           *       | ...
 //           | Add(5) Add(1) Add(6) | Add(5)      Add(5)  |
@@ -250,9 +250,9 @@ class PermilleCounter : public StatsCounter {
 // |include_empty_intervals|: If set, intervals without samples will be included
 //                            in the stats. The value for an interval is
 //                            determined by GetValueForEmptyInterval().
-//include_empty_intervals: Èç¹ûÉèÖÃ£¬½«°üÀ¨Ã»ÓĞÑù±¾µÄ¼ä¸ô
-//ÔÚÍ³¼ÆÖĞ¡£¼ä¸ôµÄÖµÎª
-//ÓÉGetValueForEmptyInterval£¨£©È·¶¨¡£
+//include_empty_intervals: å¦‚æœè®¾ç½®ï¼Œå°†åŒ…æ‹¬æ²¡æœ‰æ ·æœ¬çš„é—´éš”
+//åœ¨ç»Ÿè®¡ä¸­ã€‚é—´éš”çš„å€¼ä¸º
+//ç”±GetValueForEmptyIntervalï¼ˆï¼‰ç¡®å®šã€‚
 class RateCounter : public StatsCounter {
  public:
   RateCounter(Clock* clock,
@@ -269,7 +269,7 @@ class RateCounter : public StatsCounter {
   RTC_DISALLOW_COPY_AND_ASSIGN(RateCounter);
 };
 
-// RateAccCounter: units per second (used for counters) Ã¿Ãëµ¥Î»Êı£¨ÓÃÓÚ¼ÆÊıÆ÷£©
+// RateAccCounter: units per second (used for counters) æ¯ç§’å•ä½æ•°ï¼ˆç”¨äºè®¡æ•°å™¨ï¼‰
 //
 //           | *      *      *      | *         *         | ...
 //           | Set(5) Set(6) Set(8) | Set(11)   Set(13)   |

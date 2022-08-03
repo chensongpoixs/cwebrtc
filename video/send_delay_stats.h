@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -80,7 +80,7 @@ class SendDelayStats : public SendPacketObserver {
 
   // Mapped by SSRC.
   std::map<uint32_t, std::unique_ptr<AvgCounter>> send_delay_counters_
-      RTC_GUARDED_BY(crit_);
+      RTC_GUARDED_BY(crit_);  // 统计延迟ssrc的数据 ms单位
 };
 
 }  // namespace webrtc
