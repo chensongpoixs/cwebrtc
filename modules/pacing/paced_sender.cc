@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -311,6 +311,7 @@ bool PacedSender::ShouldSendKeepalive(int64_t now_us) const {
   if (send_padding_if_silent_ || paused_ || Congested()) {
     // We send a padding packet every 500 ms to ensure we won't get stuck in
     // congested state due to no feedback being received.
+    //  没有feedback过来就处于congested状态，则每500ms就会有一个keepalive探测包
     int64_t elapsed_since_last_send_us = now_us - last_send_time_us_;
     if (elapsed_since_last_send_us >= kCongestedPacketIntervalMs * 1000) {
       // We can not send padding unless a normal packet has first been sent. If
@@ -324,21 +325,33 @@ bool PacedSender::ShouldSendKeepalive(int64_t now_us) const {
 }
 
 void PacedSender::Process() {
+  // TODO@chensong 20220803 版本有点老了
+  // 更新处理时间和发送流量budget
+  // mode_有两种:
+  // kPeriodic:使用IntervalBudget class
+  // 跟踪码率，期望Process以为固定速率(5ms)进行
+  // kDynamic:Process是以不定速率进行的
   rtc::CritScope cs(&critsect_);
   int64_t now_us = clock_->TimeInMicroseconds();
   int64_t elapsed_time_ms = UpdateTimeAndGetElapsedMs(now_us);
+  // TODO@chensong 20220803
+  // 检查是否需要发送keepalive包,
+  // 判定的依据如下，如果需要则构造一个1Bytes的包发送
   if (ShouldSendKeepalive(now_us)) {
     critsect_.Leave();
+    // // 生成一个1 Bytes的keepalive包
     size_t bytes_sent = packet_sender_->TimeToSendPadding(1, PacedPacketInfo());
     critsect_.Enter();
     OnPaddingSent(bytes_sent);
-    if (alr_detector_)
+    if (alr_detector_) {
       alr_detector_->OnBytesSent(bytes_sent, now_us / 1000);
+    }
   }
 
   if (paused_)
     return;
-
+  // 根据发送队列大小计算目标码率，使用目标码率更新
+  // 预算
   if (elapsed_time_ms > 0) {
     int target_bitrate_kbps = pacing_bitrate_kbps_;
     size_t queue_size_bytes = packets_.SizeInBytes();
@@ -350,6 +363,7 @@ void PacedSender::Process() {
       if (drain_large_queues_) {
         int64_t avg_time_left_ms = std::max<int64_t>(
             1, queue_time_limit - packets_.AverageQueueTimeMs());
+        // 根据队列大小计算最小目标码率
         int min_bitrate_needed_kbps =
             static_cast<int>(queue_size_bytes * 8 / avg_time_left_ms);
         if (min_bitrate_needed_kbps > target_bitrate_kbps) {
@@ -363,12 +377,13 @@ void PacedSender::Process() {
     media_budget_.set_target_rate_kbps(target_bitrate_kbps);
     UpdateBudgetWithElapsedTime(elapsed_time_ms);
   }
-
+  // 从prober_获取探测码率
   bool is_probing = prober_.IsProbing();
   PacedPacketInfo pacing_info;
   size_t bytes_sent = 0;
   size_t recommended_probe_size = 0;
   if (is_probing) {
+    // 从当前探测包簇中获取探测码率
     pacing_info = prober_.CurrentCluster();
     recommended_probe_size = prober_.RecommendedMinProbeSize();
   }
@@ -416,8 +431,11 @@ void PacedSender::Process() {
   }
   if (is_probing) {
     probing_send_failure_ = bytes_sent == 0;
-    if (!probing_send_failure_)
+    if (!probing_send_failure_) 
+	{
+      // prober更新已发送大小
       prober_.ProbeSent(TimeMilliseconds(), bytes_sent);
+    }
   }
   if (alr_detector_)
     alr_detector_->OnBytesSent(bytes_sent, now_us / 1000);
