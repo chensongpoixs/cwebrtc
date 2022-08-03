@@ -501,8 +501,7 @@ VideoStreamEncoder::VideoStreamEncoder(
       degradation_preference_(DegradationPreference::DISABLED),
       posted_frames_waiting_for_encode_(0),
       last_captured_timestamp_(0),
-      delta_ntp_internal_ms_(clock_->CurrentNtpInMilliseconds() -
-                             clock_->TimeInMilliseconds()),
+      delta_ntp_internal_ms_(clock_->CurrentNtpInMilliseconds() - clock_->TimeInMilliseconds()),
       last_frame_log_ms_(clock_->TimeInMilliseconds()),
       captured_frame_count_(0),
       dropped_frame_count_(0),
@@ -896,7 +895,8 @@ void VideoStreamEncoder::ConfigureQualityScaler(
       GetActiveCounts(kCpu), GetActiveCounts(kQuality));
 }
 // ---> encoder -> coding
-void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
+void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) 
+{
   RTC_DCHECK_RUNS_SERIALIZED(&incoming_frame_race_checker_);
   VideoFrame incoming_frame = video_frame;
 
@@ -908,31 +908,40 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
   // capture time to be less than present time, we should reset the capture
   // timestamps here. Otherwise there may be issues with RTP send stream.
   if (incoming_frame.timestamp_us() > current_time_us)
+  {
     incoming_frame.set_timestamp_us(current_time_us);
+  }
 
   // Capture time may come from clock with an offset and drift from clock_.
+  // 默认延迟时间 [delta_ntp_internal_ms_]为什么呢
   int64_t capture_ntp_time_ms;
-  if (video_frame.ntp_time_ms() > 0) {
+  if (video_frame.ntp_time_ms() > 0) 
+  {
     capture_ntp_time_ms = video_frame.ntp_time_ms();
-  } else if (video_frame.render_time_ms() != 0) {
+  }
+  else if (video_frame.render_time_ms() != 0) 
+  {
     capture_ntp_time_ms = video_frame.render_time_ms() + delta_ntp_internal_ms_;
-  } else {
+  }
+  else 
+  {
     capture_ntp_time_ms = current_time_ms + delta_ntp_internal_ms_;
   }
   incoming_frame.set_ntp_time_ms(capture_ntp_time_ms);
 
   // Convert NTP time, in ms, to RTP timestamp.
   const int kMsToRtpTimestamp = 90;
-  incoming_frame.set_timestamp(
-      kMsToRtpTimestamp * static_cast<uint32_t>(incoming_frame.ntp_time_ms()));
+  incoming_frame.set_timestamp( kMsToRtpTimestamp * static_cast<uint32_t>(incoming_frame.ntp_time_ms()));
 
-  if (incoming_frame.ntp_time_ms() <= last_captured_timestamp_) {
+  if (incoming_frame.ntp_time_ms() <= last_captured_timestamp_) 
+  {
     // We don't allow the same capture time for two frames, drop this one.
     RTC_LOG(LS_WARNING) << "Same/old NTP timestamp ("
                         << incoming_frame.ntp_time_ms()
                         << " <= " << last_captured_timestamp_
                         << ") for incoming frame. Dropping.";
-    encoder_queue_.PostTask([this, incoming_frame]() {
+    encoder_queue_.PostTask([this, incoming_frame]() 
+	{
       RTC_DCHECK_RUN_ON(&encoder_queue_);
       accumulated_update_rect_.Union(incoming_frame.update_rect());
     });
@@ -940,7 +949,8 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
   }
 
   bool log_stats = false;
-  if (current_time_ms - last_frame_log_ms_ > kFrameLogIntervalMs) {
+  if (current_time_ms - last_frame_log_ms_ > kFrameLogIntervalMs) 
+  {
     last_frame_log_ms_ = current_time_ms;
     log_stats = true;
   }
@@ -977,7 +987,8 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
               VideoStreamEncoderObserver::DropReason::kEncoderQueue);
           accumulated_update_rect_.Union(incoming_frame.update_rect());
         }
-        if (log_stats) {
+        if (log_stats) 
+		{
           RTC_LOG(LS_INFO) << "Number of frames: captured "
                            << captured_frame_count_
                            << ", dropped (due to encoder blocked) "
@@ -1153,9 +1164,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
     ReconfigureEncoder();
     last_parameters_update_ms_.emplace(now_ms);
   }
-  else if (!last_parameters_update_ms_ ||
-             now_ms - *last_parameters_update_ms_ >=
-                 vcm::VCMProcessTimer::kDefaultProcessIntervalMs) 
+  else if (!last_parameters_update_ms_ || now_ms - *last_parameters_update_ms_ >= vcm::VCMProcessTimer::kDefaultProcessIntervalMs) 
   {
     if (last_encoder_rate_settings_) 
     {
@@ -1165,8 +1174,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
       // encoder.
       EncoderRateSettings new_rate_settings = *last_encoder_rate_settings_;
       new_rate_settings.framerate_fps = static_cast<double>(framerate_fps);
-      SetEncoderRates(
-          UpdateBitrateAllocationAndNotifyObserver(new_rate_settings));
+      SetEncoderRates( UpdateBitrateAllocationAndNotifyObserver(new_rate_settings));
     }
     last_parameters_update_ms_.emplace(now_ms);
   }
@@ -1203,7 +1211,8 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   }
   initial_framedrop_ = kMaxInitialFramedrop;
 
-  if (EncoderPaused()) {
+  if (EncoderPaused()) 
+  {
     // Storing references to a native buffer risks blocking frame capture.
     if (video_frame.video_frame_buffer()->type() != VideoFrameBuffer::Type::kNative) 
     {
@@ -1213,7 +1222,9 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
         }
       pending_frame_ = video_frame;
       pending_frame_post_time_us_ = time_when_posted_us;
-    } else {
+    }
+	else 
+	{
       // Ensure that any previously stored frame is dropped.
       pending_frame_.reset();
       TraceFrameDropStart();
@@ -1227,11 +1238,10 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   frame_dropper_.Leak(framerate_fps);
   // Frame dropping is enabled iff frame dropping is not force-disabled, and
   // rate controller is not trusted.
-  const bool frame_dropping_enabled =
-      !force_disable_frame_dropper_ &&
-      !encoder_info_.has_trusted_rate_controller;
+  const bool frame_dropping_enabled = !force_disable_frame_dropper_ && !encoder_info_.has_trusted_rate_controller;
   frame_dropper_.Enable(frame_dropping_enabled);
-  if (frame_dropping_enabled && frame_dropper_.DropFrame()) {
+  if (frame_dropping_enabled && frame_dropper_.DropFrame()) 
+  {
     RTC_LOG(LS_VERBOSE)
         << "Drop Frame: "
         << "target bitrate "

@@ -265,8 +265,7 @@ bool SendStatisticsProxy::UmaSamplesContainer::InsertEncodedFrame(
   //          小于等于就退出取出队列
   //          2. 编码队列的数量是否大约默认队列的大小 [WebRTC = 150]
   //          大约就清空队列
-  //          3.
-  //          从队列头部取出一个数据的中时间戳和当前的时间戳比较是否大于默认值
+  //          3. 从队列头部取出一个数据的中时间戳和当前的时间戳比较是否大于默认值
   //          [WebRTC = 900000us] 大于就清空队列
   ////////////////////////////////////////////////////////////////
   // 检查encoded_frames_发送队列中是否有超时的数据
@@ -481,19 +480,24 @@ void SendStatisticsProxy::UmaSamplesContainer::UpdateHistograms(
     int qp_h264 = it.second.h264.Avg(kMinRequiredMetricsSamples);
     if (qp_h264 != -1) {
       int spatial_idx = it.first;
-      if (spatial_idx == -1) {
-        RTC_HISTOGRAMS_COUNTS_200(kIndex, uma_prefix_ + "Encoded.Qp.H264",
-                                  qp_h264);
-      } else if (spatial_idx == 0) {
-        RTC_HISTOGRAMS_COUNTS_200(kIndex, uma_prefix_ + "Encoded.Qp.H264.S0",
-                                  qp_h264);
-      } else if (spatial_idx == 1) {
-        RTC_HISTOGRAMS_COUNTS_200(kIndex, uma_prefix_ + "Encoded.Qp.H264.S1",
-                                  qp_h264);
-      } else if (spatial_idx == 2) {
-        RTC_HISTOGRAMS_COUNTS_200(kIndex, uma_prefix_ + "Encoded.Qp.H264.S2",
-                                  qp_h264);
-      } else {
+      if (spatial_idx == -1) 
+	  {
+        RTC_HISTOGRAMS_COUNTS_200(kIndex, uma_prefix_ + "Encoded.Qp.H264", qp_h264);
+      }
+	  else if (spatial_idx == 0) 
+	  {
+        RTC_HISTOGRAMS_COUNTS_200(kIndex, uma_prefix_ + "Encoded.Qp.H264.S0", qp_h264);
+      }
+	  else if (spatial_idx == 1) 
+	  {
+        RTC_HISTOGRAMS_COUNTS_200(kIndex, uma_prefix_ + "Encoded.Qp.H264.S1", qp_h264);
+      }
+	  else if (spatial_idx == 2) 
+	  {
+        RTC_HISTOGRAMS_COUNTS_200(kIndex, uma_prefix_ + "Encoded.Qp.H264.S2", qp_h264);
+      }
+	  else 
+	  {
         RTC_LOG(LS_WARNING)
             << "QP stats not recorded for H264 spatial idx " << spatial_idx;
       }
@@ -1008,6 +1012,7 @@ void SendStatisticsProxy::OnSendEncodedImage(
   // Initialize to current since |is_limited_in_resolution| is only updated
   // when an encoded frame is removed from the EncodedFrameMap.
   bool is_limited_in_resolution = stats_.bw_limited_resolution;
+  // TODO@chensong 2022-07-27 插入一帧数据 三种检查策略
   if (uma_container_->InsertEncodedFrame(encoded_image, simulcast_idx,
                                          &is_limited_in_resolution)) {
     encoded_frame_rate_tracker_.AddSamples(1);
