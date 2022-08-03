@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -462,8 +462,8 @@ void VideoSendStreamImpl::OnBitrateAllocationUpdated(
       // the previously sent allocation and the same streams are still enabled,
       // it is considered "similar". We do not want send similar allocations
       // more once per kMaxVbaThrottleTimeMs.
-      // Èç¹ûallocation´¦ÓÚpreviously allocation + kMaxVbaSizeDifferencePercent Çø¼ä
-      // Ôò±»µ±×÷similar£¬ÈÏÎªÒ»¸ökMaxVbaThrottleTimeMs²»¸üÐÂ
+      // å¦‚æžœallocationå¤„äºŽpreviously allocation + kMaxVbaSizeDifferencePercent åŒºé—´
+      // åˆ™è¢«å½“ä½œsimilarï¼Œè®¤ä¸ºä¸€ä¸ªkMaxVbaThrottleTimeMsä¸æ›´æ–°
       const VideoBitrateAllocation& last =
           video_bitrate_allocation_context_->last_sent_allocation;
       const bool is_similar =
@@ -488,10 +488,10 @@ void VideoSendStreamImpl::OnBitrateAllocationUpdated(
     video_bitrate_allocation_context_->last_send_time_ms = now_ms;
 
     // Send bitrate allocation metadata only if encoder is not paused.
-    // ¸æÖª¸øÏÂ²ãµÄ¹Û²ìÕß
-	//ÕâÀïÔÙ½øÒ»²½Ï¸ËµÒ»ÏÂ: VideoSendStreamImpl::OnBitrateAllocationUpdated()Õâ¸öº¯ÊýÓÐÁ½¸öµØ·½»áµ÷ÓÃ£¬
-	//Ò»¸öÊÇÔÚ±àÂëÆ÷ÉèÖÃ±àÂëÂëÂÊµÄÊ±ºòÍ¨ÖªVideoSendStreamImpl£¬¶øÁíÒ»¸öÔòÊÇ´Ë´¦µÄÊÕÖ¡º¯ÊýOnEncodedImage()£¬
-	//ÕâÀïÖ»ÊÇ½«»º´æµÄ¾ÉÖµ(throttled_allocation)´«Èë£¬
+    // å‘ŠçŸ¥ç»™ä¸‹å±‚çš„è§‚å¯Ÿè€…
+	//è¿™é‡Œå†è¿›ä¸€æ­¥ç»†è¯´ä¸€ä¸‹: VideoSendStreamImpl::OnBitrateAllocationUpdated()è¿™ä¸ªå‡½æ•°æœ‰ä¸¤ä¸ªåœ°æ–¹ä¼šè°ƒç”¨ï¼Œ
+	//ä¸€ä¸ªæ˜¯åœ¨ç¼–ç å™¨è®¾ç½®ç¼–ç ç çŽ‡çš„æ—¶å€™é€šçŸ¥VideoSendStreamImplï¼Œè€Œå¦ä¸€ä¸ªåˆ™æ˜¯æ­¤å¤„çš„æ”¶å¸§å‡½æ•°OnEncodedImage()ï¼Œ
+	//è¿™é‡Œåªæ˜¯å°†ç¼“å­˜çš„æ—§å€¼(throttled_allocation)ä¼ å…¥ï¼Œ
     rtp_video_sender_->OnBitrateAllocationUpdated(allocation);
   }
 }
@@ -586,11 +586,11 @@ void VideoSendStreamImpl::OnEncoderConfigurationChanged(
 
 /**
 *
-*¸Ãº¯ÊýÖ÷Òª×öÁËÈý¼þÊÂ:
+*è¯¥å‡½æ•°ä¸»è¦åšäº†ä¸‰ä»¶äº‹:
 
-ÆôÓÃenable_padding£¬Í¨Öª±àÂëÆ÷ÖÐµÄÂëÂÊ·ÖÅäÆ÷£¬ÈÃÆä×öÂëÂÊ·ÖÅäµÄÊ±ºò°ÑpaddingÒ²¿¼ÂÇÉÏ
-½«±àºÃµÄÖ¡ºÍÏà¹ØÐÅÏ¢×ªµ½RtpVideoSender´¦Àí
-¼ì²éÂëÂÊ·ÖÅäÊÇ·ñÒÑ¾­¸Ä±ä£¬Í¨ÖªÏÂ²ã
+å¯ç”¨enable_paddingï¼Œé€šçŸ¥ç¼–ç å™¨ä¸­çš„ç çŽ‡åˆ†é…å™¨ï¼Œè®©å…¶åšç çŽ‡åˆ†é…çš„æ—¶å€™æŠŠpaddingä¹Ÿè€ƒè™‘ä¸Š
+å°†ç¼–å¥½çš„å¸§å’Œç›¸å…³ä¿¡æ¯è½¬åˆ°RtpVideoSenderå¤„ç†
+æ£€æŸ¥ç çŽ‡åˆ†é…æ˜¯å¦å·²ç»æ”¹å˜ï¼Œé€šçŸ¥ä¸‹å±‚
 */
 EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
     const EncodedImage& encoded_image,
@@ -620,7 +620,7 @@ EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
   {
     enable_padding_task();
   }
-  // TODO@chensong 20220802 ½«image·¢ËÍ¸øRtpVideoSender
+  // TODO@chensong 20220802 å°†imageå‘é€ç»™RtpVideoSender
   EncodedImageCallback::Result result(EncodedImageCallback::Result::OK);
   if (media_transport_) {
     int64_t frame_id;
@@ -660,7 +660,7 @@ EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
       auto& context = send_stream->video_bitrate_allocation_context_;
       if (context && context->throttled_allocation) 
 	  {
-		  // TODO@chensong 20220802 ¸æÖªÏà¹Ø¹Û²ìÕß£¬·ÖÅäÂëÂÊµÄ±ä»¯
+		  // TODO@chensong 20220802 å‘ŠçŸ¥ç›¸å…³è§‚å¯Ÿè€…ï¼Œåˆ†é…ç çŽ‡çš„å˜åŒ–
         send_stream->OnBitrateAllocationUpdated(*context->throttled_allocation);
       }
     }
