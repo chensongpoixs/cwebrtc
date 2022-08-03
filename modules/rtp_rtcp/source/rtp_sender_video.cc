@@ -381,6 +381,7 @@ bool RTPSenderVideo::LogAndSendToNetwork(
                                   rtp_sender_->NackOverheadRate() / 1000,
                                   packet->Ssrc());
 #endif
+  //TODO@chensong  发送给RTPSender 对象了然后转发给PacedSender对象
   return rtp_sender_->SendToNetwork(std::move(packet), storage, priority);
 }
 
