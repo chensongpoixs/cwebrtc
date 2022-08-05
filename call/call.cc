@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -420,7 +420,7 @@ std::string Call::Stats::ToString(int64_t time_ms) const {
   ss << '}';
   return ss.str();
 }
-
+// TODO@chensong 20220803 网络发送信息包线程     PacerThread、ModuleProcessThread
 Call* Call::Create(const Call::Config& config) {
   return Create(config, Clock::GetRealTimeClock(),
                 ProcessThread::Create("PacerThread"),
