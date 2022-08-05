@@ -423,18 +423,20 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
     stream_index = encoded_image.SpatialIndex().value_or(0);
   }
   RTC_DCHECK_LT(stream_index, rtp_streams_.size());
-  RTPVideoHeader rtp_video_header = params_[stream_index].GetRtpVideoHeader(
-      encoded_image, codec_specific_info, shared_frame_id_);
+  // TODO@chensong 20220805  rtp_header
+  RTPVideoHeader rtp_video_header = params_[stream_index].GetRtpVideoHeader(encoded_image, codec_specific_info, shared_frame_id_);
 
-  uint32_t rtp_timestamp =
-      encoded_image.Timestamp() +
-      rtp_streams_[stream_index].rtp_rtcp->StartTimestamp();
+  uint32_t rtp_timestamp = encoded_image.Timestamp() + rtp_streams_[stream_index].rtp_rtcp->StartTimestamp();
 
   // RTCPSender has it's own copy of the timestamp offset, added in
   // RTCPSender::BuildSR, hence we must not add the in the offset for this call.
   // TODO(nisse): Delete RTCPSender:timestamp_offset_, and see if we can confine
   // knowledge of the offset to a single place.
-  // 发送 1. 编码时间戳、2. capture 一张图片的时间戳 3. 编码器id 4. 是否是关键帧
+  // 发送 
+  //   1. 编码时间戳
+  //   2. capture 一张图片的时间戳 
+  //   3. 编码器id 
+  //   4. 是否是关键帧
   //// 检测是否要给该stream发送rtcp report
   if (!rtp_streams_[stream_index].rtp_rtcp->OnSendingRtpFrame(
           encoded_image.Timestamp(), encoded_image.capture_time_ms_,
@@ -444,8 +446,7 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
     return Result(Result::ERROR_SEND_FAILED);
   }
   // RTCP 反馈信息 中RTT ms 
-  int64_t expected_retransmission_time_ms =
-      rtp_streams_[stream_index].rtp_rtcp->ExpectedRetransmissionTimeMs();
+  int64_t expected_retransmission_time_ms = rtp_streams_[stream_index].rtp_rtcp->ExpectedRetransmissionTimeMs();
 
   //TODO@chensong 20220802  发送视频帧
   // RtpStreamSender有三个成员变量:

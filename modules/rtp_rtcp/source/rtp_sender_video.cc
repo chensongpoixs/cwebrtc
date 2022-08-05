@@ -476,8 +476,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
         video_header->frame_marking.temporal_id != kNoTemporalIdx;
 
    // 根据video_header信息，更新播放延迟(current_playout_delay_)
-  const absl::optional<PlayoutDelay> playout_delay =
-      playout_delay_oracle_->PlayoutDelayToSend(video_header->playout_delay);
+  const absl::optional<PlayoutDelay> playout_delay = playout_delay_oracle_->PlayoutDelayToSend(video_header->playout_delay);
   {
     rtc::CritScope cs(&crit_);
     // According to
@@ -517,9 +516,13 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
         frame_type == VideoFrameType::kVideoFrameKey ? key_fec_params_
                                                      : delta_fec_params_;
     if (flexfec_enabled())
+    {
       flexfec_sender_->SetFecParameters(fec_params);
+	}
     if (ulpfec_enabled())
-      ulpfec_generator_.SetFecParameters(fec_params);
+    {
+       ulpfec_generator_.SetFecParameters(fec_params);
+	}
 
     fec_packet_overhead = CalculateFecPacketOverhead();
     red_enabled = this->red_enabled();
