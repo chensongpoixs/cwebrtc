@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -43,11 +43,11 @@ namespace webrtc {
 // VideoStreamEncoder represent a video encoder that accepts raw video frames as
 // input and produces an encoded bit stream.
 // Usage:
-//  Instantiate.
-//  Call SetSink.
-//  Call SetSource.
-//  Call ConfigureEncoder with the codec settings.
-//  Call Stop() when done.
+//  Instantiate.                                   对象实例化
+//  Call SetSink.                                  设置好外来的事件接收槽
+//  Call SetSource.                                设置好媒体源
+//  Call ConfigureEncoder with the codec settings. 设置编码器
+//  Call Stop() when done.                         结束的时候使用
 class VideoStreamEncoder : public VideoStreamEncoderInterface,
                            private EncodedImageCallback,
                            // Protected only to provide access to tests.

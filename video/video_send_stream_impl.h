@@ -172,6 +172,7 @@ class VideoSendStreamImpl : public webrtc::BitrateAllocatorObserver,
   double encoder_bitrate_priority_;
   bool has_packet_feedback_;
 
+  //是负责视频编码的类，其从媒体源获取视频帧然后进行编码
   VideoStreamEncoderInterface* const video_stream_encoder_;
   EncoderRtcpFeedback encoder_feedback_;
 

@@ -87,17 +87,15 @@ void PopulateRtpWithCodecSpecifics(const CodecSpecificInfo& info,
     }
     case kVideoCodecH264: {
       auto& h264_header = rtp->video_type_header.emplace<RTPVideoHeaderH264>();
-      h264_header.packetization_mode =
-          info.codecSpecific.H264.packetization_mode;
+      h264_header.packetization_mode = info.codecSpecific.H264.packetization_mode;
       rtp->simulcastIdx = spatial_index.value_or(0);
       rtp->frame_marking.temporal_id = kNoTemporalIdx;
-      if (info.codecSpecific.H264.temporal_idx != kNoTemporalIdx) {
+      if (info.codecSpecific.H264.temporal_idx != kNoTemporalIdx) 
+	  {
         rtp->frame_marking.temporal_id = info.codecSpecific.H264.temporal_idx;
         rtp->frame_marking.layer_id = 0;
-        rtp->frame_marking.independent_frame =
-            info.codecSpecific.H264.idr_frame;
-        rtp->frame_marking.base_layer_sync =
-            info.codecSpecific.H264.base_layer_sync;
+        rtp->frame_marking.independent_frame = info.codecSpecific.H264.idr_frame;
+        rtp->frame_marking.base_layer_sync = info.codecSpecific.H264.base_layer_sync;
       }
       return;
     }
@@ -118,10 +116,8 @@ void SetVideoTiming(const EncodedImage& image, VideoSendTiming* timing) {
     return;
   }
 
-  timing->encode_start_delta_ms = VideoSendTiming::GetDeltaCappedMs(
-      image.capture_time_ms_, image.timing_.encode_start_ms);
-  timing->encode_finish_delta_ms = VideoSendTiming::GetDeltaCappedMs(
-      image.capture_time_ms_, image.timing_.encode_finish_ms);
+  timing->encode_start_delta_ms = VideoSendTiming::GetDeltaCappedMs( image.capture_time_ms_, image.timing_.encode_start_ms);
+  timing->encode_finish_delta_ms = VideoSendTiming::GetDeltaCappedMs( image.capture_time_ms_, image.timing_.encode_finish_ms);
   timing->packetization_finish_delta_ms = 0;
   timing->pacer_exit_delta_ms = 0;
   timing->network_timestamp_delta_ms = 0;
@@ -157,9 +153,9 @@ RTPVideoHeader RtpPayloadParams::GetRtpVideoHeader(
     const CodecSpecificInfo* codec_specific_info,
     int64_t shared_frame_id) {
   RTPVideoHeader rtp_video_header;
-  if (codec_specific_info) {
-    PopulateRtpWithCodecSpecifics(*codec_specific_info, image.SpatialIndex(),
-                                  &rtp_video_header);
+  if (codec_specific_info) 
+  {
+    PopulateRtpWithCodecSpecifics(*codec_specific_info, image.SpatialIndex(),  &rtp_video_header);
   }
   rtp_video_header.rotation = image.rotation_;
   rtp_video_header.content_type = image.content_type_;
@@ -197,24 +193,27 @@ RtpPayloadState RtpPayloadParams::state() const {
 void RtpPayloadParams::SetCodecSpecific(RTPVideoHeader* rtp_video_header,
                                         bool first_frame_in_picture) {
   // Always set picture id. Set tl0_pic_idx iff temporal index is set.
-  if (first_frame_in_picture) {
+  if (first_frame_in_picture)
+  {
     state_.picture_id = (static_cast<uint16_t>(state_.picture_id) + 1) & 0x7FFF;
   }
-  if (rtp_video_header->codec == kVideoCodecVP8) {
-    auto& vp8_header =
-        absl::get<RTPVideoHeaderVP8>(rtp_video_header->video_type_header);
+  if (rtp_video_header->codec == kVideoCodecVP8) 
+  {
+    auto& vp8_header = absl::get<RTPVideoHeaderVP8>(rtp_video_header->video_type_header);
     vp8_header.pictureId = state_.picture_id;
 
-    if (vp8_header.temporalIdx != kNoTemporalIdx) {
-      if (vp8_header.temporalIdx == 0) {
+    if (vp8_header.temporalIdx != kNoTemporalIdx) 
+	{
+      if (vp8_header.temporalIdx == 0) 
+	  {
         ++state_.tl0_pic_idx;
       }
       vp8_header.tl0PicIdx = state_.tl0_pic_idx;
     }
   }
-  if (rtp_video_header->codec == kVideoCodecVP9) {
-    auto& vp9_header =
-        absl::get<RTPVideoHeaderVP9>(rtp_video_header->video_type_header);
+  if (rtp_video_header->codec == kVideoCodecVP9) 
+  {
+    auto& vp9_header = absl::get<RTPVideoHeaderVP9>(rtp_video_header->video_type_header);
     vp9_header.picture_id = state_.picture_id;
 
     // Note that in the case that we have no temporal layers but we do have
