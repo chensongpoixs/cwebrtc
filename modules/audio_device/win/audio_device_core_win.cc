@@ -2133,7 +2133,28 @@ int32_t AudioDeviceWindowsCore::InitRecordingDMO() {
     return -1;
   }
 
+  
+  /*   TODO@chensong 20220806 音频媒体数据结构的介绍                                                  
+  typedef struct _DMOMediaType
+	{
+	GUID majortype;                 // 流的主类型 GUID
+	GUID subtype;                   // 流的子类型 GUID
+	BOOL bFixedSizeSamples;         // 采样是否是固定大小、音频为TRUE
+	BOOL bTemporalCompression;      // 时域压缩 [音视频 分为时域和频域   视频==》【时域：时间顺序继续压缩 帧间压缩】【频域： 帧内压缩】]
+	ULONG lSampleSize;              // 以字节为单位的采样大小
+	GUID formattype;                // 数据格式类型， 音频为WAVEFORMATEX
+	IUnknown *pUnk;                 // 未使用
+	ULONG cbFormat;                 // 不同媒体类型格式块的大小
+	  [size_is]   BYTE *pbFormat; // 根据cbFormat决定该字段
+ } 	DMO_MEDIA_TYPE;
+  */
+   
   DMO_MEDIA_TYPE mt = {};
+  /*
+     函数功能 : 初始化DMO_MEDIA_TYPE变量
+	 参数1   : 需要初始化的DMO_MEDIA_TYPE对象指针
+	 参数2   : 分配的格式块占有字节数
+  */
   HRESULT hr = MoInitMediaType(&mt, sizeof(WAVEFORMATEX));
   if (FAILED(hr)) {
     MoFreeMediaType(&mt);
@@ -2165,6 +2186,10 @@ int32_t AudioDeviceWindowsCore::InitRecordingDMO() {
   _recChannels = ptrWav->nChannels;
 
   // Set the DMO output format parameters.
+  // TODO@chensong 20220806 音频DMO设备接口参数说明
+  // param 1 : 输出源索引值， 从0开始
+  // param 2 : DMO_MEDIA_TYPE 类型指针
+  // param 3 : 按位的组合标记，设置为0
   hr = _dmo->SetOutputType(kAecCaptureStreamIndex, &mt, 0);
   MoFreeMediaType(&mt);
   if (FAILED(hr)) {
