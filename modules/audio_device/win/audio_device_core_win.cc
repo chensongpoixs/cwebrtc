@@ -2161,8 +2161,11 @@ int32_t AudioDeviceWindowsCore::InitRecordingDMO() {
     _TraceCOMError(hr);
     return -1;
   }
+  // 指定音频数据
   mt.majortype = MEDIATYPE_Audio;
+  // 指定音频数据的格式
   mt.subtype = MEDIASUBTYPE_PCM;
+  // 指定音频数据格式
   mt.formattype = FORMAT_WaveFormatEx;
 
   // Supported formats
@@ -2235,10 +2238,12 @@ int32_t AudioDeviceWindowsCore::InitRecording() {
   if (_recIsInitialized) {
     return 0;
   }
-
+  // TODO@chensong 20220814 
+  // 1. 获取内部计时器的时钟频率、即每秒滴答数
   if (QueryPerformanceFrequency(&_perfCounterFreq) == 0) {
     return -1;
   }
+  // 2. 设置WebRTC中得时钟频率 与系统得时钟频率一致  【因子】
   _perfCounterFactor = 10000000.0 / (double)_perfCounterFreq.QuadPart;
 
   if (_ptrDeviceIn == NULL) {
@@ -2246,6 +2251,7 @@ int32_t AudioDeviceWindowsCore::InitRecording() {
   }
 
   // Initialize the microphone (devices might have been added or removed)
+  // 3. 录制设备得初始化
   if (InitMicrophone() == -1) {
     RTC_LOG(LS_WARNING) << "InitMicrophone() failed";
   }
@@ -2254,7 +2260,7 @@ int32_t AudioDeviceWindowsCore::InitRecording() {
   if (_ptrDeviceIn == NULL) {
     return -1;
   }
-
+  // 4. 是否使用硬件AEC
   if (_builtInAecEnabled) {
     // The DMO will configure the capture device.
     return InitRecordingDMO();
@@ -3171,6 +3177,15 @@ DWORD AudioDeviceWindowsCore::DoCaptureThreadPollDMO() {
 
       DWORD dwStatus = 0;
       {
+		  /*
+		  typedef struct _DMO_OUTPUT_DATA_BUFFER
+	{
+	IMediaBuffer *pBuffer;			// 指向由应用分配的支持IMediaBuffer接口的BUffer
+	DWORD dwStatus;					// 处理输出后， DMO修改该标记
+	REFERENCE_TIME rtTimestamp;		// 指明数据在该BUffer中的开始时间戳
+	REFERENCE_TIME rtTimelength;    // 指定BUffer中数据长度的参考时间
+	} 	DMO_OUTPUT_DATA_BUFFER;
+		  */
         DMO_OUTPUT_DATA_BUFFER dmoBuffer = {0};
         dmoBuffer.pBuffer = _mediaBuffer;
         dmoBuffer.pBuffer->AddRef();
@@ -3431,7 +3446,8 @@ DWORD AudioDeviceWindowsCore::DoCaptureThread() {
 
         _readSamples += framesAvailable;
         syncBufIndex += framesAvailable;
-
+		// TODO@chensong 20220814 
+		// 获得从计算机开启之后得滴答数
         QueryPerformanceCounter(&t1);
 
         // Get the current recording and playout delay.
@@ -3580,12 +3596,14 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
 
   // Set the AEC system mode.
   // SINGLE_CHANNEL_AEC - AEC processing only.
+  // 修改DMO得属性 使用AEC模式
   if (SetVtI4Property(ps, MFPKEY_WMAAECMA_SYSTEM_MODE, SINGLE_CHANNEL_AEC)) {
     return -1;
   }
 
   // Set the AEC source mode.
   // VARIANT_TRUE - Source mode (we poll the AEC for captured data).
+  // 工作模式得设置   使用filter模式
   if (SetBoolProperty(ps, MFPKEY_WMAAECMA_DMO_SOURCE_MODE, VARIANT_TRUE) ==
       -1) {
     return -1;
@@ -3593,11 +3611,13 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
 
   // Enable the feature mode.
   // This lets us override all the default processing settings below.
+  // 我们应用是否允许修改属性  可以修改得
   if (SetBoolProperty(ps, MFPKEY_WMAAECMA_FEATURE_MODE, VARIANT_TRUE) == -1) {
     return -1;
   }
 
   // Disable analog AGC (default enabled).
+  // 是否使用增益边界  WebRTC中使用增益
   if (SetBoolProperty(ps, MFPKEY_WMAAECMA_MIC_GAIN_BOUNDER, VARIANT_FALSE) ==
       -1) {
     return -1;
@@ -3605,6 +3625,7 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
 
   // Disable noise suppression (default enabled).
   // 0 - Disabled, 1 - Enabled
+  // 是否使用降燥   WebRTC中是使用自己得降燥模块得 
   if (SetVtI4Property(ps, MFPKEY_WMAAECMA_FEATR_NS, 0) == -1) {
     return -1;
   }
@@ -3622,6 +3643,7 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
 
   // Set the devices selected by VoE. If using a default device, we need to
   // search for the device index.
+  // 设置输入设备和输出设备的id
   int inDevIndex = _inputDeviceIndex;
   int outDevIndex = _outputDeviceIndex;
   if (!_usingInputDeviceIndex) {
@@ -3629,7 +3651,7 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
     if (_inputDevice == AudioDeviceModule::kDefaultDevice) {
       role = eConsole;
     }
-
+	// 获取设备id
     if (_GetDefaultDeviceIndex(eCapture, role, &inDevIndex) == -1) {
       return -1;
     }
@@ -3640,16 +3662,17 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
     if (_outputDevice == AudioDeviceModule::kDefaultDevice) {
       role = eConsole;
     }
-
+	// 获取设备id
     if (_GetDefaultDeviceIndex(eRender, role, &outDevIndex) == -1) {
       return -1;
     }
   }
-
+  // 把输入设备和输出设备放到devIndex中
   DWORD devIndex = static_cast<uint32_t>(outDevIndex << 16) +
                    static_cast<uint32_t>(0x0000ffff & inDevIndex);
   RTC_LOG(LS_VERBOSE) << "Capture device index: " << inDevIndex
                       << ", render device index: " << outDevIndex;
+  // 设置设备的值到DMO中去， DMO使用那个输入设备或者那个输出设备id
   if (SetVtI4Property(ps, MFPKEY_WMAAECMA_DEVICE_INDEXES, devIndex) == -1) {
     return -1;
   }
@@ -3889,7 +3912,7 @@ int32_t AudioDeviceWindowsCore::_GetDefaultDeviceID(EDataFlow dir,
   assert(dir == eRender || dir == eCapture);
   assert(role == eConsole || role == eCommunications);
   assert(_ptrEnumerator != NULL);
-
+  // 获取Device
   hr = _ptrEnumerator->GetDefaultAudioEndpoint(dir, role, &pDevice);
 
   if (FAILED(hr)) {
@@ -3932,6 +3955,7 @@ int32_t AudioDeviceWindowsCore::_GetDefaultDeviceIndex(EDataFlow dir,
   }
 
   UINT count = 0;
+  // 获取有多少设备
   hr = collection->GetCount(&count);
   if (FAILED(hr)) {
     _TraceCOMError(hr);
@@ -3956,7 +3980,7 @@ int32_t AudioDeviceWindowsCore::_GetDefaultDeviceIndex(EDataFlow dir,
     if (_GetDeviceID(device, szDeviceID, kDeviceIDLength) == -1) {
       return -1;
     }
-
+	// 找到设备id
     if (wcsncmp(szDefaultDeviceID, szDeviceID, kDeviceIDLength) == 0) {
       // Found a match.
       *index = i;
@@ -4055,6 +4079,7 @@ int32_t AudioDeviceWindowsCore::_GetDeviceID(IMMDevice* pDevice,
   assert(bufferLen > 0);
 
   if (pDevice != NULL) {
+	  // 获取设备id
     hr = pDevice->GetId(&pwszID);
   }
 
