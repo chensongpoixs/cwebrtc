@@ -100,9 +100,15 @@ void AudioState::AddSendingStream(webrtc::AudioSendStream* stream,
 
   // Make sure recording is initialized; start recording if enabled.
   auto* adm = config_.audio_device_module.get();
-  if (!adm->Recording()) {
-    if (adm->InitRecording() == 0) {
-      if (recording_enabled_) {
+  // TODO@chensong 判断音频设备是否在录制状态
+  if (!adm->Recording()) 
+  {
+	  // 初始化音频录制设备参数
+    if (adm->InitRecording() == 0) 
+	{
+      if (recording_enabled_) 
+	  {
+        //  这个里面才是真真的录制设备 ----》 win core 中代码StartRecording方法
         adm->StartRecording();
       }
     } else {

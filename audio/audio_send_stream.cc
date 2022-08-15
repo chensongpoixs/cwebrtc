@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -322,7 +322,7 @@ void AudioSendStream::Start() {
   if (sending_) {
     return;
   }
-
+  // TODO@chensong 20220816 音频设备开始录制初始化码流
   if (allocation_settings_.IncludeAudioInAllocationOnStart(
           config_.min_bitrate_bps, config_.max_bitrate_bps, config_.has_dscp,
           TransportSeqNumId(config_))) {
@@ -338,8 +338,10 @@ void AudioSendStream::Start() {
   } else {
     rtp_rtcp_module_->SetAsPartOfAllocation(false);
   }
+  // 开始发送通道
   channel_send_->StartSend();
   sending_ = true;
+  //     调用音频AudioState增加一个音频流
   audio_state()->AddSendingStream(this, encoder_sample_rate_hz_,
                                   encoder_num_channels_);
 }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -1743,6 +1743,7 @@ void WebRtcVoiceMediaChannel::SetSend(bool send) {
     engine()->ApplyOptions(options_);
 
     // InitRecording() may return an error if the ADM is already recording.
+	// TODO@chensong 20220816  音频录制设备的初始化
     if (!engine()->adm()->RecordingIsInitialized() &&
         !engine()->adm()->Recording()) {
       if (engine()->adm()->InitRecording() != 0) {
@@ -1752,8 +1753,12 @@ void WebRtcVoiceMediaChannel::SetSend(bool send) {
   }
 
   // Change the settings on each send channel.
-  for (auto& kv : send_streams_) {
-    kv.second->SetSend(send);
+  // TODO@chensong 20220816 是对所有的发送音频流的遍历
+  for (auto& kv : send_streams_) 
+  {
+    // 打开音频麦克风设备AudioSendStream方法中Start方法 即
+    // AudioState中AddSendingStream方法
+    kv.second->SetSend(send); 
   }
 
   send_ = send;

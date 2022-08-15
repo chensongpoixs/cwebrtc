@@ -2463,6 +2463,7 @@ int32_t AudioDeviceWindowsCore::StartRecording() {
 
     // Create thread which will drive the capturing
     LPTHREAD_START_ROUTINE lpStartAddress = WSAPICaptureThread;
+	// 是否开启 硬件AEC
     if (_builtInAecEnabled) {
       // Redirect to the DMO polling method.
       lpStartAddress = WSAPICaptureThreadPollDMO;
@@ -3179,12 +3180,12 @@ DWORD AudioDeviceWindowsCore::DoCaptureThreadPollDMO() {
       {
 		  /*
 		  typedef struct _DMO_OUTPUT_DATA_BUFFER
-	{
-	IMediaBuffer *pBuffer;			// 指向由应用分配的支持IMediaBuffer接口的BUffer
-	DWORD dwStatus;					// 处理输出后， DMO修改该标记
-	REFERENCE_TIME rtTimestamp;		// 指明数据在该BUffer中的开始时间戳
-	REFERENCE_TIME rtTimelength;    // 指定BUffer中数据长度的参考时间
-	} 	DMO_OUTPUT_DATA_BUFFER;
+			{
+			IMediaBuffer *pBuffer;			// 指向由应用分配的支持IMediaBuffer接口的BUffer
+			DWORD dwStatus;					// 处理输出后， DMO修改该标记
+			REFERENCE_TIME rtTimestamp;		// 指明数据在该BUffer中的开始时间戳
+			REFERENCE_TIME rtTimelength;    // 指定BUffer中数据长度的参考时间
+			} 	DMO_OUTPUT_DATA_BUFFER;
 		  */
         DMO_OUTPUT_DATA_BUFFER dmoBuffer = {0};
         dmoBuffer.pBuffer = _mediaBuffer;
