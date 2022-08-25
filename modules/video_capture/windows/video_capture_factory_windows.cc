@@ -18,6 +18,7 @@ namespace videocapturemodule {
 // static
 VideoCaptureModule::DeviceInfo* VideoCaptureImpl::CreateDeviceInfo() {
   // TODO(tommi): Use the Media Foundation version on Vista and up.
+  // TODO@chensong 20220824 capture  deviceinfos
   return DeviceInfoDS::Create();
 }
 

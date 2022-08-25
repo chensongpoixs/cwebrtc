@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -31,6 +31,10 @@ namespace webrtc {
 
 class RtcEventLog;
 
+/**
+*   TODO@chensong 20220825
+*      链路容量跟踪器
+*/
 class LinkCapacityTracker {
  public:
   LinkCapacityTracker();
@@ -42,11 +46,19 @@ class LinkCapacityTracker {
   DataRate estimate() const;
 
  private:
+	 // 跟踪率
   FieldTrialParameter<TimeDelta> tracking_rate;
+
+  // 容量估计bps
   double capacity_estimate_bps_ = 0;
+
+  // 最后链路容量更新
   Timestamp last_link_capacity_update_ = Timestamp::MinusInfinity();
 };
-
+/**
+*   TODO@chensong 20220825 
+*     基于Rtt的回退
+*/
 class RttBasedBackoff {
  public:
   RttBasedBackoff();
@@ -55,19 +67,38 @@ class RttBasedBackoff {
   void UpdatePropagationRtt(Timestamp at_time, TimeDelta propagation_rtt);
   TimeDelta CorrectedRtt(Timestamp at_time) const;
 
+  // rtt极限
   FieldTrialParameter<TimeDelta> rtt_limit_;
+
+  // 下降分数
   FieldTrialParameter<double> drop_fraction_;
+
+  // 下降间隔
   FieldTrialParameter<TimeDelta> drop_interval_;
+
+  // 坚持更改路线
   FieldTrialFlag persist_on_route_change_;
+
+  //安全超时 
   FieldTrialParameter<bool> safe_timeout_;
+
+  // 带宽下限
   FieldTrialParameter<DataRate> bandwidth_floor_;
 
  public:
+	 // 上次传播rtt更新
   Timestamp last_propagation_rtt_update_;
+
+  // rtt的最后传播
   TimeDelta last_propagation_rtt_;
+
+  // 最后发送的数据包
   Timestamp last_packet_sent_;
 };
-
+/**
+* TODO@chensong 20220825 
+*   发送侧带宽估计
+*/
 class SendSideBandwidthEstimation {
  public:
   SendSideBandwidthEstimation() = delete;
@@ -134,40 +165,86 @@ class SendSideBandwidthEstimation {
   RttBasedBackoff rtt_backoff_;
   LinkCapacityTracker link_capacity_;
 
+  // 最小比特率历史记录
   std::deque<std::pair<Timestamp, DataRate> > min_bitrate_history_;
 
   // incoming filters
+  // 自上次丢失更新以来丢失的数据包
   int lost_packets_since_last_loss_update_;
+  // 上次丢失更新后的预期数据包
   int expected_packets_since_last_loss_update_;
+  
 
+  // 确认率
   absl::optional<DataRate> acknowledged_rate_;
+
+  // 当前的比特率
   DataRate current_bitrate_;
+
+  // 最小比特率配置和最大比特率配置
   DataRate min_bitrate_configured_;
   DataRate max_bitrate_configured_;
+
+  // 最后一个低比特率日志
   Timestamp last_low_bitrate_log_;
 
+  // 自上次部分损失以来已减少
   bool has_decreased_since_last_fraction_loss_;
+
+  // 最后损失反馈
   Timestamp last_loss_feedback_;
+  // 上次丢失数据包报告
   Timestamp last_loss_packet_report_;
+
+  // 最后超时
   Timestamp last_timeout_;
+
+  // 最后一部分损失
   uint8_t last_fraction_loss_;
+
+  // 最后记录的分数损失
   uint8_t last_logged_fraction_loss_;
+
+  // 最后一次往返时间
   TimeDelta last_round_trip_time_;
 
+  // bwe传入
   DataRate bwe_incoming_;
+
+  // 基于延迟的比特率
   DataRate delay_based_bitrate_;
+
+  // 上次减少的时间
   Timestamp time_last_decrease_;
+
+  // 第一次报告时间
   Timestamp first_report_time_;
+
+  // 最初丢失的数据包
   int initially_lost_packets_;
+
+  // 2秒时的比特率
   DataRate bitrate_at_2_seconds_;
+
+  // uma更新状态
   UmaState uma_update_state_;
+
+  // uma rtt状态
   UmaState uma_rtt_state_;
+
+  // 升级uma统计数据
   std::vector<bool> rampup_uma_stats_updated_;
   RtcEventLog* event_log_;
+
+  // 上次rtc事件日志
   Timestamp last_rtc_event_log_;
+  // 超时实验
   bool in_timeout_experiment_;
+  // 低损耗阈值
   float low_loss_threshold_;
+  // 高损耗阈值
   float high_loss_threshold_;
+  // 比特率_阈值
   DataRate bitrate_threshold_;
   LossBasedBandwidthEstimation loss_based_bandwidth_estimation_;
 };
