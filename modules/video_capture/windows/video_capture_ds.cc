@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -247,7 +247,25 @@ int32_t VideoCaptureDS::SetCameraOutput(
 
   if (isDVCamera) {
     hr = ConnectDVCamera();
-  } else {
+  } else 
+  {
+	  // TODO@chensong 20220828  将CapturePin和 sinkPin连接起来的api
+	  // param1 : 前一个Filter的输出Pin
+	  // param2 : 后一个Filter的输入Pin
+	  // param3 : AM_MEDIA_TYPE等于DMO_MEDIA_TYPE
+	  /////////////////////////////////////////////////////////
+	  // typedef struct _AMMediaType
+	  //{
+		 // GUID majortype;          // 流的主类型GUID
+		 // GUID subtype;            // 流的子类型GUID
+		 // BOOL bFixedSizeSamples;     // 采样算法是固定大小，音频为TRUE
+		 // BOOL bTemporalCompression;   // 时域压缩
+		 // ULONG lSampleSize;        // 以字节为单位的采样大小
+		 // GUID formattype;         // 数据格式类型、音频为WAVEFORMATEX
+		 // IUnknown *pUnk;          // 未使用
+		 // ULONG cbFormat;           // 不同媒体类型格式块的大小
+		 // /* [size_is] */ BYTE *pbFormat; // 根据cbFormat决定该字段
+	  //} 	AM_MEDIA_TYPE;
     hr = _graphBuilder->ConnectDirect(_outputCapturePin, _inputSendPin, NULL);
   }
   if (hr != S_OK) {
@@ -301,6 +319,23 @@ HRESULT VideoCaptureDS::ConnectDVCamera() {
       return -1;
     }
   }
+  // TODO@chensong 20220828  将CapturePin和 sinkPin连接起来的api
+  // param1 : 前一个Filter的输出Pin
+  // param2 : 后一个Filter的输入Pin
+  // param3 : AM_MEDIA_TYPE等于DMO_MEDIA_TYPE
+  /////////////////////////////////////////////////////////
+  // typedef struct _AMMediaType
+  //{
+  // GUID majortype;          // 流的主类型GUID
+  // GUID subtype;            // 流的子类型GUID
+  // BOOL bFixedSizeSamples;     // 采样算法是固定大小，音频为TRUE
+  // BOOL bTemporalCompression;   // 时域压缩
+  // ULONG lSampleSize;        // 以字节为单位的采样大小
+  // GUID formattype;         // 数据格式类型、音频为WAVEFORMATEX
+  // IUnknown *pUnk;          // 未使用
+  // ULONG cbFormat;           // 不同媒体类型格式块的大小
+  // /* [size_is] */ BYTE *pbFormat; // 根据cbFormat决定该字段
+  //} 	AM_MEDIA_TYPE;
   hr = _graphBuilder->ConnectDirect(_outputCapturePin, _inputDvPin, NULL);
   if (hr != S_OK) {
     RTC_LOG(LS_INFO) << "Failed to connect capture device to the dv devoder: "

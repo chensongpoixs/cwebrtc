@@ -3,7 +3,7 @@
 
 结构图
 
-![bitrate_controller](https://github.com/chensongpoixs/cwebrtc/blob/chensong/modules/bitrate_controller/bitrate_controller.jpg?raw=true)
+![bitrate_controller](https://github.com/chensongpoixs/cwebrtc/blob/chensong/modules/bitrate_controller/img/bitrate_controller.jpg?raw=true)
 
 
  
