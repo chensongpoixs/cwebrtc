@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2011 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -103,6 +103,14 @@ class CaptureInputPin : public IMemInputPin, public IPin {
   std::atomic_bool runtime_error_{false};
   // Holds a referenceless pointer to the owning filter, the name and
   // direction of the pin. The filter pointer can be considered const.
+  /**
+  * typedef struct _PinInfo
+	{
+	IBaseFilter *pFilter; // Filter指针
+	PIN_DIRECTION dir; // Pin的方向
+	WCHAR achName[ 128 ]; // Pin的名子
+	} 	PIN_INFO;
+  */
   PIN_INFO info_ = {};
   AM_MEDIA_TYPE media_type_ RTC_GUARDED_BY(main_checker_) = {};
 };
