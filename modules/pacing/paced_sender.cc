@@ -73,7 +73,7 @@ PacedSender::PacedSender(Clock* clock,
       send_padding_if_silent_(
           IsEnabled(field_trials, "WebRTC-Pacer-PadInSilence")),
       pace_audio_(!IsDisabled(field_trials, "WebRTC-Pacer-BlockAudio")),
-      min_packet_limit_ms_("", kDefaultMinPacketLimitMs),
+      min_packet_limit_ms_("", kDefaultMinPacketLimitMs),// TODO@chensong 20220828 paced模块 是默认5毫秒检查要发送包
       last_timestamp_ms_(clock_->TimeInMilliseconds()),
       paused_(false),
       media_budget_(0),

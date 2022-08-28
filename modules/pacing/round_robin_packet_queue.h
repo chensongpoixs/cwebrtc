@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -24,6 +24,9 @@
 
 namespace webrtc {
 
+/************************************************************************/
+/* 循环包队列                                                                     */
+/************************************************************************/
 class RoundRobinPacketQueue {
  public:
   explicit RoundRobinPacketQueue(int64_t start_time_us);
