@@ -403,12 +403,10 @@ rtc::scoped_refptr<AudioRtpSender> AudioRtpSender::Create(
 AudioRtpSender::AudioRtpSender(rtc::Thread* worker_thread,
                                const std::string& id,
                                StatsCollector* stats)
-    : RtpSenderBase(worker_thread, id),
-      stats_(stats),
-      dtmf_sender_proxy_(DtmfSenderProxy::Create(
-          rtc::Thread::Current(),
-          DtmfSender::Create(rtc::Thread::Current(), this))),
-      sink_adapter_(new LocalAudioSinkAdapter()) {}
+    : RtpSenderBase(worker_thread, id)
+    , stats_(stats)
+    , dtmf_sender_proxy_(DtmfSenderProxy::Create( rtc::Thread::Current() , DtmfSender::Create(rtc::Thread::Current(), this)))
+	, sink_adapter_(new LocalAudioSinkAdapter()) {}
 
 AudioRtpSender::~AudioRtpSender() {
   // For DtmfSender.
