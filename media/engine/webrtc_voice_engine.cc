@@ -225,12 +225,14 @@ void WebRtcVoiceEngine::Init() {
 
   // Load our audio codec lists.
   RTC_LOG(LS_INFO) << "Supported send codecs in order of preference:";
+  // TODO@chensong 音频编码器信息 
   send_codecs_ = CollectCodecs(encoder_factory_->GetSupportedEncoders());
   for (const AudioCodec& codec : send_codecs_) {
     RTC_LOG(LS_INFO) << ToString(codec);
   }
 
   RTC_LOG(LS_INFO) << "Supported recv codecs in order of preference:";
+  // TODO@chensong 20220905 音频解码器信息
   recv_codecs_ = CollectCodecs(decoder_factory_->GetSupportedDecoders());
   for (const AudioCodec& codec : recv_codecs_) {
     RTC_LOG(LS_INFO) << ToString(codec);
@@ -625,9 +627,11 @@ AudioCodecs WebRtcVoiceEngine::CollectCodecs(
   AudioCodecs out;
 
   // Only generate CN payload types for these clockrates:
+  // TODO@chensong 20220905  产生噪声的设置
   std::map<int, bool, std::greater<int>> generate_cn = {
       {8000, false}, {16000, false}, {32000, false}};
   // Only generate telephone-event payload types for these clockrates:
+  // TODO@chensong 20220905 音频的设置
   std::map<int, bool, std::greater<int>> generate_dtmf = {
       {8000, false}, {16000, false}, {32000, false}, {48000, false}};
 
@@ -645,7 +649,8 @@ AudioCodecs WebRtcVoiceEngine::CollectCodecs(
 
     return opt_codec;
   };
-
+  //  TODO@chensong 20220905 
+  // 把音频格式数据换一个容器存储即[AudioCodecs]
   for (const auto& spec : specs) {
     // We need to do some extra stuff before adding the main codecs to out.
     absl::optional<AudioCodec> opt_codec = map_format(spec.format, nullptr);

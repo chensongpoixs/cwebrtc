@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -63,9 +63,9 @@ class FeedbackParams {
 };
 
 struct RTC_EXPORT Codec {
-  int id;
-  std::string name;
-  int clockrate;
+  int id; 
+  std::string name;					// 媒体数据格式
+  int clockrate;					// 采样率
   CodecParameterMap params;
   FeedbackParams feedback_params;
 
