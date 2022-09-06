@@ -86,6 +86,17 @@ extern const char CONNECTIONROLE_PASSIVE_STR[];
 extern const char CONNECTIONROLE_ACTPASS_STR[];
 extern const char CONNECTIONROLE_HOLDCONN_STR[];
 
+
+
+////////////////////////////////////////TODO@chensong 20220906 ICE-options 连接的属性////////////////////////////////////////////////////////////////////////
+// a=ice-options 用于描述 ICE 连接的属性信息，ice-options 的定义有很多种，WebRTC
+// 中常见的有： 
+///  1. a=ice-options:trickle client 一边收集 candidate 一边发送给对端并开始连通性检查，可以缩短 ICE 建立连接的时间。
+// 
+//   2. a=ice-options:renomination 允许 ICE controlling 一方动态重新提名新的
+// candidate ，默认情况 Offer 一方为controlling 角色，answer 一方为 controlled
+// 角色；同时 Lite 一方只能为 controlled 角色。
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 constexpr auto* ICE_OPTION_TRICKLE = "trickle";
 constexpr auto* ICE_OPTION_RENOMINATION = "renomination";
 
