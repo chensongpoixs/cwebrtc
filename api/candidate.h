@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -187,11 +187,12 @@ class RTC_EXPORT Candidate {
   uint32_t priority_;
   std::string username_;
   std::string password_;
-  std::string type_;
+  std::string type_; // [host, srflx, prflx, relay, priority ]
+  ////////////////////////// TODO@chensong 20220907 candidate /////////////////////////////////////////
   std::string network_name_;
-  rtc::AdapterType network_type_;
+  rtc::AdapterType network_type_; // 整个类型非常主要呢 [检查类型]
   uint32_t generation_;
-  std::string foundation_;
+  std::string foundation_;//  crc32[网络类型(host) +  后备协议地址[relay_protocol] ]
   rtc::SocketAddress related_address_;
   std::string tcptype_;
   std::string transport_name_;
