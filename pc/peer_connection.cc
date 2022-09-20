@@ -2427,36 +2427,41 @@ static absl::string_view GetDefaultMidForPlanB(cricket::MediaType media_type) {
   return "";
 }
 
-void PeerConnection::FillInMissingRemoteMids(
-    cricket::SessionDescription* new_remote_description) {
+void PeerConnection::FillInMissingRemoteMids( cricket::SessionDescription* new_remote_description) 
+{
   RTC_DCHECK(new_remote_description);
-  const cricket::ContentInfos& local_contents =
-      (local_description() ? local_description()->description()->contents()
-                           : cricket::ContentInfos());
-  const cricket::ContentInfos& remote_contents =
-      (remote_description() ? remote_description()->description()->contents()
-                            : cricket::ContentInfos());
-  for (size_t i = 0; i < new_remote_description->contents().size(); ++i) {
+  const cricket::ContentInfos& local_contents = (local_description() ? local_description()->description()->contents() : cricket::ContentInfos());
+  const cricket::ContentInfos& remote_contents = (remote_description() ? remote_description()->description()->contents() : cricket::ContentInfos());
+  for (size_t i = 0; i < new_remote_description->contents().size(); ++i) 
+  {
     cricket::ContentInfo& content = new_remote_description->contents()[i];
-    if (!content.name.empty()) {
+    if (!content.name.empty())
+	{
       continue;
     }
     std::string new_mid;
     absl::string_view source_explanation;
-    if (IsUnifiedPlan()) {
-      if (i < local_contents.size()) {
+    if (IsUnifiedPlan()) 
+	{
+      if (i < local_contents.size()) 
+	  {
         new_mid = local_contents[i].name;
         source_explanation = "from the matching local media section";
-      } else if (i < remote_contents.size()) {
+      }
+	  else if (i < remote_contents.size()) 
+	  {
         new_mid = remote_contents[i].name;
         source_explanation = "from the matching previous remote media section";
-      } else {
+      }
+	  else 
+	  {
         new_mid = mid_generator_();
         source_explanation = "generated just now";
       }
-    } else {
-      new_mid = std::string(
-          GetDefaultMidForPlanB(content.media_description()->type()));
+    } 
+	else 
+	{
+      new_mid = std::string( GetDefaultMidForPlanB(content.media_description()->type()));
       source_explanation = "to match pre-existing behavior";
     }
     RTC_DCHECK(!new_mid.empty());
@@ -2468,49 +2473,49 @@ void PeerConnection::FillInMissingRemoteMids(
   }
 }
 
-void PeerConnection::SetRemoteDescription(
-    SetSessionDescriptionObserver* observer,
-    SessionDescriptionInterface* desc) {
-  SetRemoteDescription(
-      std::unique_ptr<SessionDescriptionInterface>(desc),
-      rtc::scoped_refptr<SetRemoteDescriptionObserverInterface>(
-          new SetRemoteDescriptionObserverAdapter(this, observer)));
+void PeerConnection::SetRemoteDescription(SetSessionDescriptionObserver* observer, SessionDescriptionInterface* desc) 
+{
+	SetRemoteDescription( std::unique_ptr<SessionDescriptionInterface>(desc), rtc::scoped_refptr<SetRemoteDescriptionObserverInterface>( new SetRemoteDescriptionObserverAdapter(this, observer)));
 }
 
-void PeerConnection::SetRemoteDescription(
-    std::unique_ptr<SessionDescriptionInterface> desc,
-    rtc::scoped_refptr<SetRemoteDescriptionObserverInterface> observer) {
+void PeerConnection::SetRemoteDescription( std::unique_ptr<SessionDescriptionInterface> desc, rtc::scoped_refptr<SetRemoteDescriptionObserverInterface> observer) 
+{
   RTC_DCHECK_RUN_ON(signaling_thread());
   TRACE_EVENT0("webrtc", "PeerConnection::SetRemoteDescription");
 
-  if (!observer) {
+  if (!observer) 
+  {
     RTC_LOG(LS_ERROR) << "SetRemoteDescription - observer is NULL.";
     return;
   }
 
-  if (!desc) {
-    observer->OnSetRemoteDescriptionComplete(RTCError(
-        RTCErrorType::INVALID_PARAMETER, "SessionDescription is NULL."));
+  if (!desc) 
+  {
+    observer->OnSetRemoteDescriptionComplete(RTCError( RTCErrorType::INVALID_PARAMETER, "SessionDescription is NULL."));
     return;
   }
 
   // If a session error has occurred the PeerConnection is in a possibly
   // inconsistent state so fail right away.
-  if (session_error() != SessionError::kNone) {
+  /// session会话在两类情况会修改状态 
+  if (session_error() != SessionError::kNone) 
+  {
     std::string error_message = GetSessionErrorMsg();
     RTC_LOG(LS_ERROR) << "SetRemoteDescription: " << error_message;
-    observer->OnSetRemoteDescriptionComplete(
-        RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
+    observer->OnSetRemoteDescriptionComplete( RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
     return;
   }
 
-  if (desc->GetType() == SdpType::kOffer) {
+  if (desc->GetType() == SdpType::kOffer) 
+  {
     // Report to UMA the format of the received offer.
+	 // 向UMA报告收到的报价的格式
     ReportSdpFormatReceived(*desc);
   }
 
   // Handle remote descriptions missing a=mid lines for interop with legacy end
   // points.
+  // 处理与旧端点的互操作缺少a=中线的远程描述。
   FillInMissingRemoteMids(desc->description());
 
   RTCError error = ValidateSessionDescription(desc.get(), cricket::CS_REMOTE);
@@ -6707,35 +6712,46 @@ std::string PeerConnection::GetSessionErrorMsg() {
   desc << kSessionErrorDesc << session_error_desc() << ".";
   return desc.Release();
 }
-
-void PeerConnection::ReportSdpFormatReceived(
-    const SessionDescriptionInterface& remote_offer) {
+/**
+* 这个函数好像没有太多的意义
+*/
+void PeerConnection::ReportSdpFormatReceived( const SessionDescriptionInterface& remote_offer)
+{
   int num_audio_mlines = 0;
   int num_video_mlines = 0;
   int num_audio_tracks = 0;
   int num_video_tracks = 0;
-  for (const ContentInfo& content : remote_offer.description()->contents()) {
+  for (const ContentInfo& content : remote_offer.description()->contents()) 
+  {
     cricket::MediaType media_type = content.media_description()->type();
-    int num_tracks = std::max(
-        1, static_cast<int>(content.media_description()->streams().size()));
-    if (media_type == cricket::MEDIA_TYPE_AUDIO) {
+    int num_tracks = std::max( 1, static_cast<int>(content.media_description()->streams().size()));
+    if (media_type == cricket::MEDIA_TYPE_AUDIO) 
+	{
       num_audio_mlines += 1;
+	  // TODO@chensong 20220920
+	  // 这边是以一对多端 tranks计算的算法
       num_audio_tracks += num_tracks;
-    } else if (media_type == cricket::MEDIA_TYPE_VIDEO) {
+    } 
+	else if (media_type == cricket::MEDIA_TYPE_VIDEO) 
+	{
       num_video_mlines += 1;
       num_video_tracks += num_tracks;
     }
   }
   SdpFormatReceived format = kSdpFormatReceivedNoTracks;
-  if (num_audio_mlines > 1 || num_video_mlines > 1) {
+  if (num_audio_mlines > 1 || num_video_mlines > 1) 
+  {
     format = kSdpFormatReceivedComplexUnifiedPlan;
-  } else if (num_audio_tracks > 1 || num_video_tracks > 1) {
+  } 
+  else if (num_audio_tracks > 1 || num_video_tracks > 1) 
+  {
     format = kSdpFormatReceivedComplexPlanB;
-  } else if (num_audio_tracks > 0 || num_video_tracks > 0) {
+  }
+  else if (num_audio_tracks > 0 || num_video_tracks > 0) 
+  {
     format = kSdpFormatReceivedSimple;
   }
-  RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.SdpFormatReceived", format,
-                            kSdpFormatReceivedMax);
+  RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.SdpFormatReceived", format, kSdpFormatReceivedMax);
 }
 
 void PeerConnection::NoteUsageEvent(UsageEvent event) {
