@@ -2784,8 +2784,10 @@ bool ParseMediaDescription(
     bool content_rejected = false;
     // A port of 0 is not interpreted as a rejected m= section when it's
     // used along with a=bundle-only.
-    if (bundle_only) {
-      if (!port_rejected) {
+    if (bundle_only) 
+	{
+      if (!port_rejected) 
+	  {
         // Usage of bundle-only with a nonzero port is unspecified. So just
         // ignore bundle-only if we see this.
         bundle_only = false;
@@ -2825,8 +2827,7 @@ bool ParseMediaDescription(
     content->set_connection_address(address);
 
     desc->AddContent(content_name,
-                     IsDtlsSctp(protocol) ? MediaProtocolType::kSctp
-                                          : MediaProtocolType::kRtp,
+                     IsDtlsSctp(protocol) ? MediaProtocolType::kSctp  : MediaProtocolType::kRtp,
                      content_rejected, bundle_only, content.release());
     // Create TransportInfo with the media level "ice-pwd" and "ice-ufrag".
     desc->AddTransportInfo(TransportInfo(content_name, transport));

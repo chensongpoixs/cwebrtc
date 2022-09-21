@@ -452,7 +452,8 @@ void NoteKeyProtocolAndMedia(KeyExchangeProtocolType protocol_type,
   RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.KeyProtocol", protocol_type,
                             kEnumCounterKeyProtocolMax);
 
-  for (const auto& i : kEnumCounterKeyProtocolMediaMap) {
+  for (const auto& i : kEnumCounterKeyProtocolMediaMap) 
+  {
     if (i.protocol_type == protocol_type && i.media_type == media_type) {
       RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.KeyProtocolByMedia",
                                 i.protocol_media,
@@ -472,20 +473,22 @@ void NoteAddIceCandidateResult(int result) {
 // needs a ufrag and pwd. Mismatches, such as replying with a DTLS fingerprint
 // to SDES keys, will be caught in JsepTransport negotiation, and backstopped
 // by Channel's |srtp_required| check.
-RTCError VerifyCrypto(const SessionDescription* desc, bool dtls_enabled) {
-  const cricket::ContentGroup* bundle =
-      desc->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
-  for (const cricket::ContentInfo& content_info : desc->contents()) {
-    if (content_info.rejected) {
+RTCError VerifyCrypto(const SessionDescription* desc, bool dtls_enabled) 
+{
+  const cricket::ContentGroup* bundle =  desc->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
+  for (const cricket::ContentInfo& content_info : desc->contents())
+  {
+	  // 判断当前m行中端口是否为0 ， 如果为0就不处理负责就处理哈
+    if (content_info.rejected) 
+	{
       continue;
     }
     // Note what media is used with each crypto protocol, for all sections.
-    NoteKeyProtocolAndMedia(dtls_enabled ? webrtc::kEnumCounterKeyProtocolDtls
-                                         : webrtc::kEnumCounterKeyProtocolSdes,
+    NoteKeyProtocolAndMedia(dtls_enabled ? webrtc::kEnumCounterKeyProtocolDtls : webrtc::kEnumCounterKeyProtocolSdes,
                             content_info.media_description()->type());
     const std::string& mid = content_info.name;
-    if (bundle && bundle->HasContentName(mid) &&
-        mid != *(bundle->FirstContentName())) {
+    if (bundle && bundle->HasContentName(mid) && mid != *(bundle->FirstContentName())) 
+	{
       // This isn't the first media section in the BUNDLE group, so it's not
       // required to have crypto attributes, since only the crypto attributes
       // from the first section actually get used.
@@ -496,20 +499,26 @@ RTCError VerifyCrypto(const SessionDescription* desc, bool dtls_enabled) {
     // must be present.
     const MediaContentDescription* media = content_info.media_description();
     const TransportInfo* tinfo = desc->GetTransportInfoByName(mid);
-    if (!media || !tinfo) {
+    if (!media || !tinfo) 
+	{
       // Something is not right.
       LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER, kInvalidSdp);
     }
-    if (dtls_enabled) {
-      if (!tinfo->description.identity_fingerprint) {
+    if (dtls_enabled) 
+	{
+      if (!tinfo->description.identity_fingerprint) 
+	  {
         RTC_LOG(LS_WARNING)
             << "Session description must have DTLS fingerprint if "
                "DTLS enabled.";
         return RTCError(RTCErrorType::INVALID_PARAMETER,
                         kSdpWithoutDtlsFingerprint);
       }
-    } else {
-      if (media->cryptos().empty()) {
+    } 
+	else 
+	{
+      if (media->cryptos().empty()) 
+	  {
         RTC_LOG(LS_WARNING)
             << "Session description must have SDES when DTLS disabled.";
         return RTCError(RTCErrorType::INVALID_PARAMETER, kSdpWithoutSdesCrypto);
@@ -2520,11 +2529,9 @@ void PeerConnection::SetRemoteDescription( std::unique_ptr<SessionDescriptionInt
 
   RTCError error = ValidateSessionDescription(desc.get(), cricket::CS_REMOTE);
   if (!error.ok()) {
-    std::string error_message = GetSetDescriptionErrorMessage(
-        cricket::CS_REMOTE, desc->GetType(), error);
+    std::string error_message = GetSetDescriptionErrorMessage( cricket::CS_REMOTE, desc->GetType(), error);
     RTC_LOG(LS_ERROR) << error_message;
-    observer->OnSetRemoteDescriptionComplete(
-        RTCError(error.type(), std::move(error_message)));
+    observer->OnSetRemoteDescriptionComplete( RTCError(error.type(), std::move(error_message)));
     return;
   }
 
@@ -6560,20 +6567,22 @@ static RTCError ValidateMids(const cricket::SessionDescription& description) {
   return RTCError::OK();
 }
 
-RTCError PeerConnection::ValidateSessionDescription(
-    const SessionDescriptionInterface* sdesc,
-    cricket::ContentSource source) {
-  if (session_error() != SessionError::kNone) {
+RTCError PeerConnection::ValidateSessionDescription(const SessionDescriptionInterface* sdesc,  cricket::ContentSource source) 
+{
+  if (session_error() != SessionError::kNone) 
+  {
     LOG_AND_RETURN_ERROR(RTCErrorType::INTERNAL_ERROR, GetSessionErrorMsg());
   }
 
-  if (!sdesc || !sdesc->description()) {
+  if (!sdesc || !sdesc->description()) 
+  {
     LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER, kInvalidSdp);
   }
 
   SdpType type = sdesc->GetType();
   if ((source == cricket::CS_LOCAL && !ExpectSetLocalDescription(type)) ||
-      (source == cricket::CS_REMOTE && !ExpectSetRemoteDescription(type))) {
+      (source == cricket::CS_REMOTE && !ExpectSetRemoteDescription(type))) 
+  {
     LOG_AND_RETURN_ERROR(
         RTCErrorType::INVALID_STATE,
         "Called in wrong state: " + GetSignalingStateString(signaling_state()));
@@ -6584,12 +6593,13 @@ RTCError PeerConnection::ValidateSessionDescription(
     return error;
   }
 
-  // Verify crypto settings.
+  // Verify crypto settings.  是否加密
   std::string crypto_error;
-  if (webrtc_session_desc_factory_->SdesPolicy() == cricket::SEC_REQUIRED ||
-      dtls_enabled_) {
+  if (webrtc_session_desc_factory_->SdesPolicy() == cricket::SEC_REQUIRED ||  dtls_enabled_) 
+  {
     RTCError crypto_error = VerifyCrypto(sdesc->description(), dtls_enabled_);
-    if (!crypto_error.ok()) {
+    if (!crypto_error.ok()) 
+	{
       return crypto_error;
     }
   }
