@@ -1485,7 +1485,7 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
   // on. In the case of hardware encoders, there might be several encoders
   // running in parallel on different threads.
   encoder_stats_observer_->OnSendEncodedImage(image_copy, codec_specific_info);
-  // TODO@chensong ----->VideoSendStreamImpl  -->  -----> 真正视频 将帧传给VideoSendStreamImpl
+  // TODO@chensong ----->VideoSendStreamImpl  -->  -----> 真正视频 将帧传给video/VideoSendStreamImpl
   EncodedImageCallback::Result result = sink_->OnEncodedImage(image_copy, codec_specific_info, fragmentation);
 
   // We are only interested in propagating the meta-data about the image, not

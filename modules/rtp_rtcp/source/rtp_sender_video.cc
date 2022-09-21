@@ -678,47 +678,58 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
 
   uint16_t first_sequence_number;
   bool first_frame = first_frame_sent_();
-  for (size_t i = 0; i < num_packets; ++i) {
+  for (size_t i = 0; i < num_packets; ++i) 
+  {
     std::unique_ptr<RtpPacketToSend> packet;
     int expected_payload_capacity;
     // Choose right packet template:
-    if (num_packets == 1) {
+    if (num_packets == 1) 
+	{
       packet = std::move(single_packet);
-      expected_payload_capacity =
-          limits.max_payload_len - limits.single_packet_reduction_len;
-    } else if (i == 0) {
+      expected_payload_capacity = limits.max_payload_len - limits.single_packet_reduction_len;
+    } 
+	else if (i == 0) 
+	{
       packet = std::move(first_packet);
-      expected_payload_capacity =
-          limits.max_payload_len - limits.first_packet_reduction_len;
-    } else if (i == num_packets - 1) {
+      expected_payload_capacity = limits.max_payload_len - limits.first_packet_reduction_len;
+    }
+	else if (i == num_packets - 1) 
+	{
       packet = std::move(last_packet);
-      expected_payload_capacity =
-          limits.max_payload_len - limits.last_packet_reduction_len;
-    } else {
+      expected_payload_capacity = limits.max_payload_len - limits.last_packet_reduction_len;
+    } 
+	else 
+	{
       packet = absl::make_unique<RtpPacketToSend>(*middle_packet);
       expected_payload_capacity = limits.max_payload_len;
     }
 
-    if (!packetizer->NextPacket(packet.get()))
+	if (!packetizer->NextPacket(packet.get()))
+	{
       return false;
+	}
     RTC_DCHECK_LE(packet->payload_size(), expected_payload_capacity);
-    if (!rtp_sender_->AssignSequenceNumber(packet.get()))
+	if (!rtp_sender_->AssignSequenceNumber(packet.get()))
+	{
       return false;
+	}
     packetized_payload_size += packet->payload_size();
 
-    if (rtp_sequence_number_map_ && i == 0) {
+    if (rtp_sequence_number_map_ && i == 0) 
+	{
       first_sequence_number = packet->SequenceNumber();
     }
 
-    if (i == 0) {
-      playout_delay_oracle_->OnSentPacket(packet->SequenceNumber(),
-                                          playout_delay);
+    if (i == 0) 
+	{
+      playout_delay_oracle_->OnSentPacket(packet->SequenceNumber(),  playout_delay);
     }
     // No FEC protection for upper temporal layers, if used.
     bool protect_packet = temporal_id == 0 || temporal_id == kNoTemporalIdx;
 
     // Put packetization finish timestamp into extension.
-    if (packet->HasExtension<VideoTimingExtension>()) {
+    if (packet->HasExtension<VideoTimingExtension>()) 
+	{
       packet->set_packetization_finish_time_ms(clock_->TimeInMilliseconds());
       // TODO(ilnik): Due to webrtc:7859, packets with timing extensions are not
       // protected by FEC. It reduces FEC efficiency a bit. When FEC is moved
@@ -728,12 +739,16 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
       // FEC, otherwise recovered by FEC packets will be corrupted.
       protect_packet = false;
     }
-
-    if (flexfec_enabled()) {
+	//////////////////////////////////////////////////////////////////////////
+	//////TODO@chensong ulpfec  2022-09-13  RED %%%
+    if (flexfec_enabled()) 
+	{
       // TODO(brandtr): Remove the FlexFEC code path when FlexfecSender
       // is wired up to PacedSender instead.
       SendVideoPacketWithFlexfec(std::move(packet), storage, protect_packet);
-    } else if (red_enabled) {
+    } 
+	else if (red_enabled) 
+	{
       SendVideoPacketAsRedMaybeWithUlpfec(std::move(packet), storage,
                                           protect_packet);
     }
@@ -743,12 +758,15 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
       SendVideoPacket(std::move(packet), storage);
     }
 
-    if (first_frame) {
-      if (i == 0) {
+    if (first_frame) 
+	{
+      if (i == 0) 
+	  {
         RTC_LOG(LS_INFO)
             << "Sent first RTP packet of the first video frame (pre-pacer)";
       }
-      if (i == num_packets - 1) {
+      if (i == num_packets - 1) 
+	  {
         RTC_LOG(LS_INFO)
             << "Sent last RTP packet of the first video frame (pre-pacer)";
       }
