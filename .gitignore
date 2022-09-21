@@ -81,3 +81,6 @@ modules/desktop_capture/win/RCa11444
 rtc_base/httplib.cc
 rtc_base/httplib.h
 src/buildtools/win/gn.exe
+webrtc_openh264.md
+webrtc_openh264.bat
+
