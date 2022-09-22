@@ -1194,9 +1194,12 @@ class PeerConnection : public PeerConnectionInternal,
   // MIDs will be generated using this generator which will keep track of
   // all the MIDs that have been seen over the life of the PeerConnection.
   rtc::UniqueStringGenerator mid_generator_ RTC_GUARDED_BY(signaling_thread());
-
-  SessionError session_error_ RTC_GUARDED_BY(signaling_thread()) =
-      SessionError::kNone;
+  // TODO@chensong 20220920
+  // 这个变量 是三种情况下会修改状态
+  // 1. 在设置本地的SDP的 ApplyLocalDescription函数失败会修改会话的控制错误状态 
+  // 2. 第二中和第一种类似 是在设置SDP对端的函数ApplyRemoteDescription函数失败 会修改会话的控制错误状态 KContent
+  // 3. 是在ICE中DTLS-SRTP 的密钥验证错误的时候会报KTransport状态
+  SessionError session_error_ RTC_GUARDED_BY(signaling_thread()) = SessionError::kNone;
   std::string session_error_desc_ RTC_GUARDED_BY(signaling_thread());
 
   std::string session_id_ RTC_GUARDED_BY(signaling_thread());

@@ -362,8 +362,8 @@ struct ContentInfo {
   // TODO(bugs.webrtc.org/8620): Rename this to mid.
   std::string name;
   MediaProtocolType type; // 媒体协议rtp or rtcp 
-  bool rejected = false;
-  bool bundle_only = false;
+  bool rejected = false;  // m=<media> <port> <proto> <fmt>  中port字段为0时rejected为true 否在为false
+  bool bundle_only = false; // a=bundle_only  是否有该字段
   // TODO(bugs.webrtc.org/8620): Switch to the getter and setter, and make this
   // private.
   MediaContentDescription* description = nullptr;

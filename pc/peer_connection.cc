@@ -452,7 +452,8 @@ void NoteKeyProtocolAndMedia(KeyExchangeProtocolType protocol_type,
   RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.KeyProtocol", protocol_type,
                             kEnumCounterKeyProtocolMax);
 
-  for (const auto& i : kEnumCounterKeyProtocolMediaMap) {
+  for (const auto& i : kEnumCounterKeyProtocolMediaMap) 
+  {
     if (i.protocol_type == protocol_type && i.media_type == media_type) {
       RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.KeyProtocolByMedia",
                                 i.protocol_media,
@@ -472,20 +473,22 @@ void NoteAddIceCandidateResult(int result) {
 // needs a ufrag and pwd. Mismatches, such as replying with a DTLS fingerprint
 // to SDES keys, will be caught in JsepTransport negotiation, and backstopped
 // by Channel's |srtp_required| check.
-RTCError VerifyCrypto(const SessionDescription* desc, bool dtls_enabled) {
-  const cricket::ContentGroup* bundle =
-      desc->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
-  for (const cricket::ContentInfo& content_info : desc->contents()) {
-    if (content_info.rejected) {
+RTCError VerifyCrypto(const SessionDescription* desc, bool dtls_enabled) 
+{
+  const cricket::ContentGroup* bundle =  desc->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
+  for (const cricket::ContentInfo& content_info : desc->contents())
+  {
+	  // 判断当前m行中端口是否为0 ， 如果为0就不处理负责就处理哈
+    if (content_info.rejected) 
+	{
       continue;
     }
     // Note what media is used with each crypto protocol, for all sections.
-    NoteKeyProtocolAndMedia(dtls_enabled ? webrtc::kEnumCounterKeyProtocolDtls
-                                         : webrtc::kEnumCounterKeyProtocolSdes,
+    NoteKeyProtocolAndMedia(dtls_enabled ? webrtc::kEnumCounterKeyProtocolDtls : webrtc::kEnumCounterKeyProtocolSdes,
                             content_info.media_description()->type());
     const std::string& mid = content_info.name;
-    if (bundle && bundle->HasContentName(mid) &&
-        mid != *(bundle->FirstContentName())) {
+    if (bundle && bundle->HasContentName(mid) && mid != *(bundle->FirstContentName())) 
+	{
       // This isn't the first media section in the BUNDLE group, so it's not
       // required to have crypto attributes, since only the crypto attributes
       // from the first section actually get used.
@@ -496,20 +499,26 @@ RTCError VerifyCrypto(const SessionDescription* desc, bool dtls_enabled) {
     // must be present.
     const MediaContentDescription* media = content_info.media_description();
     const TransportInfo* tinfo = desc->GetTransportInfoByName(mid);
-    if (!media || !tinfo) {
+    if (!media || !tinfo) 
+	{
       // Something is not right.
       LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER, kInvalidSdp);
     }
-    if (dtls_enabled) {
-      if (!tinfo->description.identity_fingerprint) {
+    if (dtls_enabled) 
+	{
+      if (!tinfo->description.identity_fingerprint) 
+	  {
         RTC_LOG(LS_WARNING)
             << "Session description must have DTLS fingerprint if "
                "DTLS enabled.";
         return RTCError(RTCErrorType::INVALID_PARAMETER,
                         kSdpWithoutDtlsFingerprint);
       }
-    } else {
-      if (media->cryptos().empty()) {
+    } 
+	else 
+	{
+      if (media->cryptos().empty()) 
+	  {
         RTC_LOG(LS_WARNING)
             << "Session description must have SDES when DTLS disabled.";
         return RTCError(RTCErrorType::INVALID_PARAMETER, kSdpWithoutSdesCrypto);
@@ -2427,36 +2436,41 @@ static absl::string_view GetDefaultMidForPlanB(cricket::MediaType media_type) {
   return "";
 }
 
-void PeerConnection::FillInMissingRemoteMids(
-    cricket::SessionDescription* new_remote_description) {
+void PeerConnection::FillInMissingRemoteMids( cricket::SessionDescription* new_remote_description) 
+{
   RTC_DCHECK(new_remote_description);
-  const cricket::ContentInfos& local_contents =
-      (local_description() ? local_description()->description()->contents()
-                           : cricket::ContentInfos());
-  const cricket::ContentInfos& remote_contents =
-      (remote_description() ? remote_description()->description()->contents()
-                            : cricket::ContentInfos());
-  for (size_t i = 0; i < new_remote_description->contents().size(); ++i) {
+  const cricket::ContentInfos& local_contents = (local_description() ? local_description()->description()->contents() : cricket::ContentInfos());
+  const cricket::ContentInfos& remote_contents = (remote_description() ? remote_description()->description()->contents() : cricket::ContentInfos());
+  for (size_t i = 0; i < new_remote_description->contents().size(); ++i) 
+  {
     cricket::ContentInfo& content = new_remote_description->contents()[i];
-    if (!content.name.empty()) {
+    if (!content.name.empty())
+	{
       continue;
     }
     std::string new_mid;
     absl::string_view source_explanation;
-    if (IsUnifiedPlan()) {
-      if (i < local_contents.size()) {
+    if (IsUnifiedPlan()) 
+	{
+      if (i < local_contents.size()) 
+	  {
         new_mid = local_contents[i].name;
         source_explanation = "from the matching local media section";
-      } else if (i < remote_contents.size()) {
+      }
+	  else if (i < remote_contents.size()) 
+	  {
         new_mid = remote_contents[i].name;
         source_explanation = "from the matching previous remote media section";
-      } else {
+      }
+	  else 
+	  {
         new_mid = mid_generator_();
         source_explanation = "generated just now";
       }
-    } else {
-      new_mid = std::string(
-          GetDefaultMidForPlanB(content.media_description()->type()));
+    } 
+	else 
+	{
+      new_mid = std::string( GetDefaultMidForPlanB(content.media_description()->type()));
       source_explanation = "to match pre-existing behavior";
     }
     RTC_DCHECK(!new_mid.empty());
@@ -2468,58 +2482,56 @@ void PeerConnection::FillInMissingRemoteMids(
   }
 }
 
-void PeerConnection::SetRemoteDescription(
-    SetSessionDescriptionObserver* observer,
-    SessionDescriptionInterface* desc) {
-  SetRemoteDescription(
-      std::unique_ptr<SessionDescriptionInterface>(desc),
-      rtc::scoped_refptr<SetRemoteDescriptionObserverInterface>(
-          new SetRemoteDescriptionObserverAdapter(this, observer)));
+void PeerConnection::SetRemoteDescription(SetSessionDescriptionObserver* observer, SessionDescriptionInterface* desc) 
+{
+	SetRemoteDescription( std::unique_ptr<SessionDescriptionInterface>(desc), rtc::scoped_refptr<SetRemoteDescriptionObserverInterface>( new SetRemoteDescriptionObserverAdapter(this, observer)));
 }
 
-void PeerConnection::SetRemoteDescription(
-    std::unique_ptr<SessionDescriptionInterface> desc,
-    rtc::scoped_refptr<SetRemoteDescriptionObserverInterface> observer) {
+void PeerConnection::SetRemoteDescription( std::unique_ptr<SessionDescriptionInterface> desc, rtc::scoped_refptr<SetRemoteDescriptionObserverInterface> observer) 
+{
   RTC_DCHECK_RUN_ON(signaling_thread());
   TRACE_EVENT0("webrtc", "PeerConnection::SetRemoteDescription");
 
-  if (!observer) {
+  if (!observer) 
+  {
     RTC_LOG(LS_ERROR) << "SetRemoteDescription - observer is NULL.";
     return;
   }
 
-  if (!desc) {
-    observer->OnSetRemoteDescriptionComplete(RTCError(
-        RTCErrorType::INVALID_PARAMETER, "SessionDescription is NULL."));
+  if (!desc) 
+  {
+    observer->OnSetRemoteDescriptionComplete(RTCError( RTCErrorType::INVALID_PARAMETER, "SessionDescription is NULL."));
     return;
   }
 
   // If a session error has occurred the PeerConnection is in a possibly
   // inconsistent state so fail right away.
-  if (session_error() != SessionError::kNone) {
+  /// session会话在两类情况会修改状态 
+  if (session_error() != SessionError::kNone) 
+  {
     std::string error_message = GetSessionErrorMsg();
     RTC_LOG(LS_ERROR) << "SetRemoteDescription: " << error_message;
-    observer->OnSetRemoteDescriptionComplete(
-        RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
+    observer->OnSetRemoteDescriptionComplete( RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
     return;
   }
 
-  if (desc->GetType() == SdpType::kOffer) {
+  if (desc->GetType() == SdpType::kOffer) 
+  {
     // Report to UMA the format of the received offer.
+	 // 向UMA报告收到的报价的格式
     ReportSdpFormatReceived(*desc);
   }
 
   // Handle remote descriptions missing a=mid lines for interop with legacy end
   // points.
+  // 处理与旧端点的互操作缺少a=中线的远程描述。
   FillInMissingRemoteMids(desc->description());
 
   RTCError error = ValidateSessionDescription(desc.get(), cricket::CS_REMOTE);
   if (!error.ok()) {
-    std::string error_message = GetSetDescriptionErrorMessage(
-        cricket::CS_REMOTE, desc->GetType(), error);
+    std::string error_message = GetSetDescriptionErrorMessage( cricket::CS_REMOTE, desc->GetType(), error);
     RTC_LOG(LS_ERROR) << error_message;
-    observer->OnSetRemoteDescriptionComplete(
-        RTCError(error.type(), std::move(error_message)));
+    observer->OnSetRemoteDescriptionComplete( RTCError(error.type(), std::move(error_message)));
     return;
   }
 
@@ -6558,13 +6570,17 @@ static RTCError ValidateMids(const cricket::SessionDescription& description) {
   return RTCError::OK();
 }
 
-RTCError PeerConnection::ValidateSessionDescription( const SessionDescriptionInterface* sdesc, cricket::ContentSource source) {
+ 
+RTCError PeerConnection::ValidateSessionDescription(const SessionDescriptionInterface* sdesc,  cricket::ContentSource source) 
+{
+//>>>>>>> c3d1e23557c5ed2ba070cb313dc37b5976bb5793
   if (session_error() != SessionError::kNone) 
   {
     LOG_AND_RETURN_ERROR(RTCErrorType::INTERNAL_ERROR, GetSessionErrorMsg());
   }
 
-  if (!sdesc || !sdesc->description()) {
+  if (!sdesc || !sdesc->description()) 
+  {
     LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER, kInvalidSdp);
   }
 
@@ -6584,9 +6600,9 @@ RTCError PeerConnection::ValidateSessionDescription( const SessionDescriptionInt
     return error;
   }
 
-  // Verify crypto settings.
+  // Verify crypto settings.  是否加密
   std::string crypto_error;
-  if (webrtc_session_desc_factory_->SdesPolicy() == cricket::SEC_REQUIRED || dtls_enabled_) 
+  if (webrtc_session_desc_factory_->SdesPolicy() == cricket::SEC_REQUIRED ||  dtls_enabled_) 
   {
     RTCError crypto_error = VerifyCrypto(sdesc->description(), dtls_enabled_);
     if (!crypto_error.ok()) 
@@ -6716,35 +6732,46 @@ std::string PeerConnection::GetSessionErrorMsg() {
   desc << kSessionErrorDesc << session_error_desc() << ".";
   return desc.Release();
 }
-
-void PeerConnection::ReportSdpFormatReceived(
-    const SessionDescriptionInterface& remote_offer) {
+/**
+* 这个函数好像没有太多的意义
+*/
+void PeerConnection::ReportSdpFormatReceived( const SessionDescriptionInterface& remote_offer)
+{
   int num_audio_mlines = 0;
   int num_video_mlines = 0;
   int num_audio_tracks = 0;
   int num_video_tracks = 0;
-  for (const ContentInfo& content : remote_offer.description()->contents()) {
+  for (const ContentInfo& content : remote_offer.description()->contents()) 
+  {
     cricket::MediaType media_type = content.media_description()->type();
-    int num_tracks = std::max(
-        1, static_cast<int>(content.media_description()->streams().size()));
-    if (media_type == cricket::MEDIA_TYPE_AUDIO) {
+    int num_tracks = std::max( 1, static_cast<int>(content.media_description()->streams().size()));
+    if (media_type == cricket::MEDIA_TYPE_AUDIO) 
+	{
       num_audio_mlines += 1;
+	  // TODO@chensong 20220920
+	  // 这边是以一对多端 tranks计算的算法
       num_audio_tracks += num_tracks;
-    } else if (media_type == cricket::MEDIA_TYPE_VIDEO) {
+    } 
+	else if (media_type == cricket::MEDIA_TYPE_VIDEO) 
+	{
       num_video_mlines += 1;
       num_video_tracks += num_tracks;
     }
   }
   SdpFormatReceived format = kSdpFormatReceivedNoTracks;
-  if (num_audio_mlines > 1 || num_video_mlines > 1) {
+  if (num_audio_mlines > 1 || num_video_mlines > 1) 
+  {
     format = kSdpFormatReceivedComplexUnifiedPlan;
-  } else if (num_audio_tracks > 1 || num_video_tracks > 1) {
+  } 
+  else if (num_audio_tracks > 1 || num_video_tracks > 1) 
+  {
     format = kSdpFormatReceivedComplexPlanB;
-  } else if (num_audio_tracks > 0 || num_video_tracks > 0) {
+  }
+  else if (num_audio_tracks > 0 || num_video_tracks > 0) 
+  {
     format = kSdpFormatReceivedSimple;
   }
-  RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.SdpFormatReceived", format,
-                            kSdpFormatReceivedMax);
+  RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.SdpFormatReceived", format, kSdpFormatReceivedMax);
 }
 
 void PeerConnection::NoteUsageEvent(UsageEvent event) {
