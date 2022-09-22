@@ -604,7 +604,8 @@ void Conductor::OnSuccess(webrtc::SessionDescriptionInterface* desc)
   desc->ToString(&sdp);
 
   // For loopback test. To save some connecting delay.
-  if (loopback_) {
+  if (loopback_)
+  {
     // Replace message type from "offer" to "answer"
     std::unique_ptr<webrtc::SessionDescriptionInterface> session_description =
         webrtc::CreateSessionDescription(webrtc::SdpType::kAnswer, sdp);

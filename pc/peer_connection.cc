@@ -6542,12 +6542,15 @@ bool PeerConnection::HasRtcpMuxEnabled(const cricket::ContentInfo* content) {
 
 static RTCError ValidateMids(const cricket::SessionDescription& description) {
   std::set<std::string> mids;
-  for (const cricket::ContentInfo& content : description.contents()) {
-    if (content.name.empty()) {
+  for (const cricket::ContentInfo& content : description.contents()) 
+  {
+    if (content.name.empty()) 
+	{
       LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER,
                            "A media section is missing a MID attribute.");
     }
-    if (!mids.insert(content.name).second) {
+    if (!mids.insert(content.name).second) 
+	{
       LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER,
                            "Duplicate a=mid value '" + content.name + "'.");
     }
@@ -6555,10 +6558,9 @@ static RTCError ValidateMids(const cricket::SessionDescription& description) {
   return RTCError::OK();
 }
 
-RTCError PeerConnection::ValidateSessionDescription(
-    const SessionDescriptionInterface* sdesc,
-    cricket::ContentSource source) {
-  if (session_error() != SessionError::kNone) {
+RTCError PeerConnection::ValidateSessionDescription( const SessionDescriptionInterface* sdesc, cricket::ContentSource source) {
+  if (session_error() != SessionError::kNone) 
+  {
     LOG_AND_RETURN_ERROR(RTCErrorType::INTERNAL_ERROR, GetSessionErrorMsg());
   }
 
@@ -6567,24 +6569,28 @@ RTCError PeerConnection::ValidateSessionDescription(
   }
 
   SdpType type = sdesc->GetType();
+  // 判断本地 SDP　　检查连接状态是否正确　[状态转换图]
   if ((source == cricket::CS_LOCAL && !ExpectSetLocalDescription(type)) ||
-      (source == cricket::CS_REMOTE && !ExpectSetRemoteDescription(type))) {
+      (source == cricket::CS_REMOTE && !ExpectSetRemoteDescription(type))) 
+  {
     LOG_AND_RETURN_ERROR(
         RTCErrorType::INVALID_STATE,
         "Called in wrong state: " + GetSignalingStateString(signaling_state()));
   }
-
+  // 检查mid是否为空或者重复问题
   RTCError error = ValidateMids(*sdesc->description());
-  if (!error.ok()) {
+  if (!error.ok()) 
+  {
     return error;
   }
 
   // Verify crypto settings.
   std::string crypto_error;
-  if (webrtc_session_desc_factory_->SdesPolicy() == cricket::SEC_REQUIRED ||
-      dtls_enabled_) {
+  if (webrtc_session_desc_factory_->SdesPolicy() == cricket::SEC_REQUIRED || dtls_enabled_) 
+  {
     RTCError crypto_error = VerifyCrypto(sdesc->description(), dtls_enabled_);
-    if (!crypto_error.ok()) {
+    if (!crypto_error.ok()) 
+	{
       return crypto_error;
     }
   }
@@ -6666,10 +6672,13 @@ RTCError PeerConnection::ValidateSessionDescription(
 
 bool PeerConnection::ExpectSetLocalDescription(SdpType type) {
   PeerConnectionInterface::SignalingState state = signaling_state();
-  if (type == SdpType::kOffer) {
+  if (type == SdpType::kOffer) 
+  {
     return (state == PeerConnectionInterface::kStable) ||
            (state == PeerConnectionInterface::kHaveLocalOffer);
-  } else {
+  } 
+  else 
+  {
     RTC_DCHECK(type == SdpType::kPrAnswer || type == SdpType::kAnswer);
     return (state == PeerConnectionInterface::kHaveRemoteOffer) ||
            (state == PeerConnectionInterface::kHaveLocalPrAnswer);

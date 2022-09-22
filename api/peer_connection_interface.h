@@ -163,12 +163,12 @@ class RTC_EXPORT PeerConnectionInterface : public rtc::RefCountInterface {
  public:
   // See https://w3c.github.io/webrtc-pc/#dom-rtcsignalingstate
   enum SignalingState {
-    kStable,
-    kHaveLocalOffer,
-    kHaveLocalPrAnswer,
-    kHaveRemoteOffer,
-    kHaveRemotePrAnswer,
-    kClosed,
+    kStable,			// 没有正在进行的报价/答案交换。这也是初始状态，在这种情况下，本地和远程描述为空。
+    kHaveLocalOffer,    // 本地描述，类型为”offer "，已成功应用。
+    kHaveLocalPrAnswer, // 远程描述，类型为”offer"，已成功应用。
+    kHaveRemoteOffer,   // 类型的远程描述”offer"已成功应用，并且类型为”pranswer"已成功申请。
+    kHaveRemotePrAnswer,// 类型的本地描述”offer"已成功应用，并且类型为”pranswer"已成功申请。
+    kClosed,			// 	这RTCPeerConnection已关闭;其[[IsClosed]]插槽是 。true
   };
 
   // See https://w3c.github.io/webrtc-pc/#dom-rtcicegatheringstate
