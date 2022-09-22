@@ -531,16 +531,18 @@ RTCError VerifyCrypto(const SessionDescription* desc, bool dtls_enabled)
 // Checks that each non-rejected content has ice-ufrag and ice-pwd set, unless
 // it's in a BUNDLE group, in which case only the BUNDLE-tag section (first
 // media section/description in the BUNDLE group) needs a ufrag and pwd.
-bool VerifyIceUfragPwdPresent(const SessionDescription* desc) {
-  const cricket::ContentGroup* bundle =
-      desc->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
-  for (const cricket::ContentInfo& content_info : desc->contents()) {
-    if (content_info.rejected) {
+bool VerifyIceUfragPwdPresent(const SessionDescription* desc) 
+{
+  const cricket::ContentGroup* bundle = desc->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
+  for (const cricket::ContentInfo& content_info : desc->contents()) 
+  {
+    if (content_info.rejected) 
+	{
       continue;
     }
     const std::string& mid = content_info.name;
-    if (bundle && bundle->HasContentName(mid) &&
-        mid != *(bundle->FirstContentName())) {
+    if (bundle && bundle->HasContentName(mid) &&   mid != *(bundle->FirstContentName())) 
+	{
       // This isn't the first media section in the BUNDLE group, so it's not
       // required to have ufrag/password, since only the ufrag/password from
       // the first section actually get used.
@@ -550,13 +552,14 @@ bool VerifyIceUfragPwdPresent(const SessionDescription* desc) {
     // If the content isn't rejected or bundled into another m= section,
     // ice-ufrag and ice-pwd must be present.
     const TransportInfo* tinfo = desc->GetTransportInfoByName(mid);
-    if (!tinfo) {
+    if (!tinfo) 
+	{
       // Something is not right.
       RTC_LOG(LS_ERROR) << kInvalidSdp;
       return false;
     }
-    if (tinfo->description.ice_ufrag.empty() ||
-        tinfo->description.ice_pwd.empty()) {
+    if (tinfo->description.ice_ufrag.empty() ||   tinfo->description.ice_pwd.empty()) 
+	{
       RTC_LOG(LS_ERROR) << "Session description must have ice ufrag and pwd.";
       return false;
     }
@@ -2528,7 +2531,8 @@ void PeerConnection::SetRemoteDescription( std::unique_ptr<SessionDescriptionInt
   FillInMissingRemoteMids(desc->description());
 
   RTCError error = ValidateSessionDescription(desc.get(), cricket::CS_REMOTE);
-  if (!error.ok()) {
+  if (!error.ok()) 
+  {
     std::string error_message = GetSetDescriptionErrorMessage( cricket::CS_REMOTE, desc->GetType(), error);
     RTC_LOG(LS_ERROR) << error_message;
     observer->OnSetRemoteDescriptionComplete( RTCError(error.type(), std::move(error_message)));
@@ -2542,26 +2546,24 @@ void PeerConnection::SetRemoteDescription( std::unique_ptr<SessionDescriptionInt
   error = ApplyRemoteDescription(std::move(desc));
   // |desc| may be destroyed at this point.
 
-  if (!error.ok()) {
+  if (!error.ok()) 
+  {
     // If ApplyRemoteDescription fails, the PeerConnection could be in an
     // inconsistent state, so act conservatively here and set the session error
     // so that future calls to SetLocalDescription/SetRemoteDescription fail.
     SetSessionError(SessionError::kContent, error.message());
-    std::string error_message =
-        GetSetDescriptionErrorMessage(cricket::CS_REMOTE, type, error);
+    std::string error_message = GetSetDescriptionErrorMessage(cricket::CS_REMOTE, type, error);
     RTC_LOG(LS_ERROR) << error_message;
-    observer->OnSetRemoteDescriptionComplete(
-        RTCError(error.type(), std::move(error_message)));
+    observer->OnSetRemoteDescriptionComplete( RTCError(error.type(), std::move(error_message)));
     return;
   }
   RTC_DCHECK(remote_description());
 
-  if (type == SdpType::kAnswer) {
+  if (type == SdpType::kAnswer) 
+  {
     // TODO(deadbeef): We already had to hop to the network thread for
     // MaybeStartGathering...
-    network_thread()->Invoke<void>(
-        RTC_FROM_HERE, rtc::Bind(&cricket::PortAllocator::DiscardCandidatePool,
-                                 port_allocator_.get()));
+    network_thread()->Invoke<void>( RTC_FROM_HERE, rtc::Bind(&cricket::PortAllocator::DiscardCandidatePool,  port_allocator_.get()));
     // Make UMA notes about what was agreed to.
     ReportNegotiatedSdpSemantics(*remote_description());
   }
@@ -6612,14 +6614,14 @@ RTCError PeerConnection::ValidateSessionDescription(const SessionDescriptionInte
   }
 
   // Verify ice-ufrag and ice-pwd.
-  if (!VerifyIceUfragPwdPresent(sdesc->description())) {
-    LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER,
-                         kSdpWithoutIceUfragPwd);
+  if (!VerifyIceUfragPwdPresent(sdesc->description())) 
+  {
+    LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER,  kSdpWithoutIceUfragPwd);
   }
 
-  if (!ValidateBundleSettings(sdesc->description())) {
-    LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER,
-                         kBundleWithoutRtcpMux);
+  if (!ValidateBundleSettings(sdesc->description())) 
+  {
+    LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER,  kBundleWithoutRtcpMux);
   }
 
   // TODO(skvlad): When the local rtcp-mux policy is Require, reject any
