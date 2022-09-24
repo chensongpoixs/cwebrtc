@@ -102,7 +102,7 @@ constexpr auto* ICE_OPTION_RENOMINATION = "renomination";
 
 bool StringToConnectionRole(const std::string& role_str, ConnectionRole* role);
 bool ConnectionRoleToString(const ConnectionRole& role, std::string* role_str);
-
+//// 网络安全和ICE策略
 struct TransportDescription {
   TransportDescription();
   TransportDescription(const std::vector<std::string>& transport_options,
@@ -142,9 +142,13 @@ struct TransportDescription {
   // These are actually ICE options (appearing in the ice-options attribute in
   // SDP).
   // TODO(deadbeef): Rename to ice_options.
+  //a=ice-options 用于描述 ICE 连接的属性信息，ice-options 的定义有很多种，WebRTC 中常见的有：
+  //a=ice-options:trickle client 一边收集 candidate 一边发送给对端并开始连通性检查，可以缩短 ICE 建立连接的时间。
+  //a=ice-options:renomination 允许 ICE controlling 一方动态重新提名新的 candidate ，默认情况 Offer 一方为controlling 角色，answer 一方为 controlled 角色；同时 Lite 一方只能为 controlled 角色。
+
   std::vector<std::string> transport_options;
-  std::string ice_ufrag;
-  std::string ice_pwd;
+  std::string ice_ufrag; // 用户名
+  std::string ice_pwd; // 密码
   IceMode ice_mode;  // 连接服务器时服务器是否进行校验 ， 是否双方都要进行校验
   ConnectionRole connection_role; // 是服务器、客户端， 还是即可以是服务器又可以客户端
 

@@ -222,10 +222,10 @@ class MediaContentDescription {
  protected:
   bool rtcp_mux_ = false; // rtp与rtcp是否共有一个通道
   bool rtcp_reduced_size_ = false; // 接受信息的大小数据收集
-  int bandwidth_ = kAutoBandwidth;
+  int bandwidth_ = kAutoBandwidth; // #带宽信息
   std::string protocol_;
   std::vector<CryptoParams> cryptos_;
-  std::vector<webrtc::RtpExtension> rtp_header_extensions_;
+  std::vector<webrtc::RtpExtension> rtp_header_extensions_;   // RTP 扩展头
   bool rtp_header_extensions_set_ = false;
   StreamParamsVec send_streams_;
   bool conference_mode_ = false;
@@ -235,7 +235,7 @@ class MediaContentDescription {
   // Mixed one- and two-byte header not included in offer on media level or
   // session level, but we will respond that we support it. The plan is to add
   // it to our offer on session level. See todo in SessionDescription.
-  ExtmapAllowMixed extmap_allow_mixed_enum_ = kNo;
+  ExtmapAllowMixed extmap_allow_mixed_enum_ = kNo; // a=extmap-allow-mixed
 
   SimulcastDescription simulcast_;
 };
@@ -393,8 +393,10 @@ class ContentGroup {
   bool RemoveContentName(const std::string& content_name);
 
  private:
-  std::string semantics_;
-  ContentNames content_names_;
+	 // RFC 5888 and draft-holmberg-mmusic-sdp-bundle-negotiation-00
+	 // a=group:BUNDLE video voice
+  std::string semantics_;  // BUNDLE
+  ContentNames content_names_; //[video, vocie] index m行的mid的值数组
 };
 
 typedef std::vector<ContentInfo> ContentInfos;
@@ -522,7 +524,8 @@ class SessionDescription {
   void AddMediaTransportSetting(const std::string& media_transport_name,
                                 const std::string& media_transport_setting) {
     RTC_DCHECK(!media_transport_name.empty());
-    for (const auto& setting : media_transport_settings_) {
+    for (const auto& setting : media_transport_settings_) 
+	{
       RTC_DCHECK(media_transport_name != setting.transport_name)
           << "MediaTransportSetting was already registered, transport_name="
           << setting.transport_name;
@@ -556,9 +559,9 @@ class SessionDescription {
   // because clients prior to https://bugs.webrtc.org/9712 cannot parse this
   // correctly. If it's included in offer to us we will respond that we support
   // it.
-  bool extmap_allow_mixed_ = false;
+  bool extmap_allow_mixed_ = false; // a=extmap-allow-mixed
 
-  std::vector<MediaTransportSetting> media_transport_settings_;
+  std::vector<MediaTransportSetting> media_transport_settings_; // a=x-mt name set 
 };
 
 // Indicates whether a session description was sent by the local client or

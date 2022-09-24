@@ -75,9 +75,12 @@ class JsepSessionDescription : public SessionDescriptionInterface {
   static const char kDefaultVideoCodecName[];
 
  private:
+	 //// RFC 4566
+  // o=<username> <sess-id> <sess-version> <nettype> <addrtype>
+  // <unicast-address>
   std::unique_ptr<cricket::SessionDescription> description_;
-  std::string session_id_;
-  std::string session_version_;
+  std::string session_id_;  //  sess-id
+  std::string session_version_; // sess-version
   SdpType type_;
   std::vector<JsepCandidateCollection> candidate_collection_;
 
