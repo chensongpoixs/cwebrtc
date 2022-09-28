@@ -87,17 +87,18 @@ void ChannelManager::GetSupportedAudioRtpHeaderExtensions(
   *ext = media_engine_->voice().GetCapabilities().header_extensions;
 }
 
-void ChannelManager::GetSupportedVideoCodecs(
-    std::vector<VideoCodec>* codecs) const {
+void ChannelManager::GetSupportedVideoCodecs( std::vector<VideoCodec>* codecs) const 
+{
   if (!media_engine_) {
     return;
   }
   codecs->clear();
-
+  // TODO@chensong 20220927 获取视频的编解码器的信息
   std::vector<VideoCodec> video_codecs = media_engine_->video().codecs();
-  for (const auto& video_codec : video_codecs) {
-    if (!enable_rtx_ &&
-        absl::EqualsIgnoreCase(kRtxCodecName, video_codec.name)) {
+  for (const auto& video_codec : video_codecs) 
+  {
+    if (!enable_rtx_ && absl::EqualsIgnoreCase(kRtxCodecName, video_codec.name)) 
+	{
       continue;
     }
     codecs->push_back(video_codec);
@@ -121,24 +122,29 @@ void ChannelManager::GetSupportedDataCodecs(
 /************************************************************************/
 bool ChannelManager::Init() {
   RTC_DCHECK(!initialized_);
-  if (initialized_) {
+  if (initialized_) 
+  {
     return false;
   }
   RTC_DCHECK(network_thread_);
   RTC_DCHECK(worker_thread_);
   // 正常情况信号线程与网络线程 所以是会设置线程
-  if (!network_thread_->IsCurrent()) {
+  if (!network_thread_->IsCurrent()) 
+  {
     // Do not allow invoking calls to other threads on the network thread.
 	 // 不允许调用网络线程上的其他线程。
     network_thread_->Invoke<void>(
         RTC_FROM_HERE, [&] { network_thread_->DisallowBlockingCalls(); });
   }
   // 媒体信息初始化 非常重要的哈 ^_^
-  if (media_engine_) {
+  if (media_engine_)
+  {
     initialized_ = worker_thread_->Invoke<bool>(
         RTC_FROM_HERE, [&] { return media_engine_->Init(); });
     RTC_DCHECK(initialized_);
-  } else {
+  } 
+  else 
+  {
     initialized_ = true;
   }
   return initialized_;
