@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -1341,7 +1341,9 @@ MediaSessionDescriptionFactory::MediaSessionDescriptionFactory(
     ChannelManager* channel_manager,
     const TransportDescriptionFactory* transport_desc_factory,
     rtc::UniqueRandomIdGenerator* ssrc_generator)
-    : MediaSessionDescriptionFactory(transport_desc_factory, ssrc_generator) {
+    : MediaSessionDescriptionFactory(transport_desc_factory, ssrc_generator) 
+{
+	//TODO@chensong 20220927 获取channel_mananger中获得音视频的编码器
   channel_manager->GetSupportedAudioSendCodecs(&audio_send_codecs_);
   channel_manager->GetSupportedAudioReceiveCodecs(&audio_recv_codecs_);
   channel_manager->GetSupportedAudioRtpHeaderExtensions(&audio_rtp_extensions_);

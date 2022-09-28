@@ -164,13 +164,14 @@ bool PeerConnectionFactory::Initialize() {
   rtc::InitRandom(rtc::Time32());
   // 1. 网络管理类初始化
   default_network_manager_.reset(new rtc::BasicNetworkManager());
-  if (!default_network_manager_) {
+  if (!default_network_manager_) 
+  {
     return false;
   }
   // 2. 设置网络线程
-  default_socket_factory_.reset(
-      new rtc::BasicPacketSocketFactory(network_thread_));
-  if (!default_socket_factory_) {
+  default_socket_factory_.reset( new rtc::BasicPacketSocketFactory(network_thread_));
+  if (!default_socket_factory_) 
+  {
     return false;
   }
   // 3. 网络通道 和设置网络线程和工作线程

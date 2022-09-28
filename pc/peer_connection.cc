@@ -977,32 +977,34 @@ bool PeerConnection::Initialize(
   cricket::ServerAddresses stun_servers;
   std::vector<cricket::RelayServerConfig> turn_servers;
 
-  RTCErrorType parse_error =
-      ParseIceServers(configuration.servers, &stun_servers, &turn_servers);
-  if (parse_error != RTCErrorType::NONE) {
+  RTCErrorType parse_error = ParseIceServers(configuration.servers, &stun_servers, &turn_servers);
+  if (parse_error != RTCErrorType::NONE) 
+  {
     return false;
   }
 
   // The port allocator lives on the network thread and should be initialized
   // there.
-  const auto pa_result =
-      network_thread()->Invoke<InitializePortAllocatorResult>(
+  const auto pa_result = network_thread()->Invoke<InitializePortAllocatorResult>(
           RTC_FROM_HERE,
           rtc::Bind(&PeerConnection::InitializePortAllocator_n, this,
                     stun_servers, turn_servers, configuration));
 
   // If initialization was successful, note if STUN or TURN servers
   // were supplied.
-  if (!stun_servers.empty()) {
+  if (!stun_servers.empty()) 
+  {
     NoteUsageEvent(UsageEvent::STUN_SERVER_ADDED);
   }
-  if (!turn_servers.empty()) {
+  if (!turn_servers.empty()) 
+  {
     NoteUsageEvent(UsageEvent::TURN_SERVER_ADDED);
   }
 
   // Send information about IPv4/IPv6 status.
   PeerConnectionAddressFamilyCounter address_family;
-  if (pa_result.enable_ipv6) {
+  if (pa_result.enable_ipv6) 
+  {
     address_family = kPeerConnection_IPv6;
   } else {
     address_family = kPeerConnection_IPv4;
@@ -1151,22 +1153,16 @@ bool PeerConnection::Initialize(
     }
   }
 
-  video_options_.screencast_min_bitrate_kbps =
-      configuration.screencast_min_bitrate;
-  audio_options_.combined_audio_video_bwe =
-      configuration.combined_audio_video_bwe;
+  video_options_.screencast_min_bitrate_kbps = configuration.screencast_min_bitrate;
+  audio_options_.combined_audio_video_bwe =  configuration.combined_audio_video_bwe;
 
-  audio_options_.audio_jitter_buffer_max_packets =
-      configuration.audio_jitter_buffer_max_packets;
+  audio_options_.audio_jitter_buffer_max_packets = configuration.audio_jitter_buffer_max_packets;
 
-  audio_options_.audio_jitter_buffer_fast_accelerate =
-      configuration.audio_jitter_buffer_fast_accelerate;
+  audio_options_.audio_jitter_buffer_fast_accelerate =  configuration.audio_jitter_buffer_fast_accelerate;
 
-  audio_options_.audio_jitter_buffer_min_delay_ms =
-      configuration.audio_jitter_buffer_min_delay_ms;
+  audio_options_.audio_jitter_buffer_min_delay_ms =  configuration.audio_jitter_buffer_min_delay_ms;
 
-  audio_options_.audio_jitter_buffer_enable_rtx_handling =
-      configuration.audio_jitter_buffer_enable_rtx_handling;
+  audio_options_.audio_jitter_buffer_enable_rtx_handling =  configuration.audio_jitter_buffer_enable_rtx_handling;
 
   // Whether the certificate generator/certificate is null or not determines
   // what PeerConnectionDescriptionFactory will do, so make sure that we give it
@@ -1197,7 +1193,8 @@ bool PeerConnection::Initialize(
   webrtc_session_desc_factory_->set_is_unified_plan(IsUnifiedPlan());
 
   // Add default audio/video transceivers for Plan B SDP.
-  if (!IsUnifiedPlan()) {
+  if (!IsUnifiedPlan()) 
+  {
     transceivers_.push_back(
         RtpTransceiverProxyWithInternal<RtpTransceiver>::Create(
             signaling_thread(), new RtpTransceiver(cricket::MEDIA_TYPE_AUDIO)));
@@ -6074,13 +6071,13 @@ void PeerConnection::OnTransportControllerCandidatesGathered(
         << transport_name << " not found";
     return;
   }
-
-  for (cricket::Candidates::const_iterator citer = candidates.begin();
-       citer != candidates.end(); ++citer) {
+  // TODO@chensong 20220927 收集ip地址
+  for (cricket::Candidates::const_iterator citer = candidates.begin(); citer != candidates.end(); ++citer) 
+  {
     // Use transport_name as the candidate media id.
-    std::unique_ptr<JsepIceCandidate> candidate(
-        new JsepIceCandidate(transport_name, sdp_mline_index, *citer));
-    if (local_description()) {
+    std::unique_ptr<JsepIceCandidate> candidate( new JsepIceCandidate(transport_name, sdp_mline_index, *citer));
+    if (local_description()) 
+	{
       mutable_local_description()->AddCandidate(candidate.get());
     }
     OnIceCandidate(std::move(candidate));

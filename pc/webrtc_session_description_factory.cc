@@ -129,10 +129,9 @@ WebRtcSessionDescriptionFactory::WebRtcSessionDescriptionFactory(
     std::unique_ptr<rtc::RTCCertificateGeneratorInterface> cert_generator,
     const rtc::scoped_refptr<rtc::RTCCertificate>& certificate,
     UniqueRandomIdGenerator* ssrc_generator)
-    : signaling_thread_(signaling_thread),
-      session_desc_factory_(channel_manager,
-                            &transport_desc_factory_,
-                            ssrc_generator),
+    : signaling_thread_(signaling_thread)
+	// TODO@chensong 2020927 收集音视频编码器的信息 关键mediaSessionDestcrtptionFactory创建
+	, session_desc_factory_(channel_manager, &transport_desc_factory_, ssrc_generator),
       // RFC 4566 suggested a Network Time Protocol (NTP) format timestamp
       // as the session id and session version. To simplify, it should be fine
       // to just use a random number as session id and start version from
@@ -147,14 +146,16 @@ WebRtcSessionDescriptionFactory::WebRtcSessionDescriptionFactory(
   bool dtls_enabled = cert_generator_ || certificate;
   // SRTP-SDES is disabled if DTLS is on.
   SetSdesPolicy(dtls_enabled ? cricket::SEC_DISABLED : cricket::SEC_REQUIRED);
-  if (!dtls_enabled) {
+  if (!dtls_enabled)
+  {
     RTC_LOG(LS_VERBOSE) << "DTLS-SRTP disabled.";
     return;
   }
   // TODO@chensong 2022-03-25 
   // 1. 如果本地有了 certificate 的就 直接回到创建offer后的回调函数 发送 [MSG_USE_CONSTRUCTOR_CERTIFICATE]信号 
   // 2. 本地没有WebRTC的SDP的信息 正常走创建的过程 后走回调函数 哈  ^_^ 
-  if (certificate) {
+  if (certificate)
+  {
     // Use |certificate|.
     certificate_request_state_ = CERTIFICATE_WAITING;
 
@@ -165,7 +166,9 @@ WebRtcSessionDescriptionFactory::WebRtcSessionDescriptionFactory(
     signaling_thread_->Post(
         RTC_FROM_HERE, this, MSG_USE_CONSTRUCTOR_CERTIFICATE,
         new rtc::ScopedRefMessageData<rtc::RTCCertificate>(certificate));
-  } else {
+  }
+  else 
+  {
     // Generate certificate.
     certificate_request_state_ = CERTIFICATE_WAITING;
 
