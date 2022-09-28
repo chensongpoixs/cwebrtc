@@ -550,6 +550,9 @@ class SessionDescription {
   ContentInfos contents_;
   TransportInfos transport_infos_;
   ContentGroups content_groups_;
+//  a=msid-semantic: WMS（a=msid-semantic: WMS live/123）
+//  msid：media stream id
+//  WMS：WebRTC Media Stream
   bool msid_supported_ = true;
   // Default to what Plan B would do.
   // TODO(bugs.webrtc.org/8530): Change default to kMsidSignalingMediaSection.
@@ -559,6 +562,9 @@ class SessionDescription {
   // because clients prior to https://bugs.webrtc.org/9712 cannot parse this
   // correctly. If it's included in offer to us we will respond that we support
   // it.
+  // TODO@chensong 20220926  || a=extmap-allow-mixed
+  // Chrome自从M71版本就开始支持SDP协议属性extmap-allow-mixed，但是如果提供了extmap-allow-mixed，
+  // M71之前版本Chrome的SDP协商将会失败。从Chrome M89版本开始，extmap-allow-mixed 将被默认提供。
   bool extmap_allow_mixed_ = false; // a=extmap-allow-mixed
 
   std::vector<MediaTransportSetting> media_transport_settings_; // a=x-mt name set 

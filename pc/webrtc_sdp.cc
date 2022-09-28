@@ -2307,6 +2307,12 @@ bool ParseSessionDescription(const std::string& message,
     } 
 	else if (HasAttribute(line, kAttributeMsidSemantics)) //a=msid-semantic: WMS *
 	{
+
+	/*
+	a=msid-semantic: WMS（a=msid-semantic: WMS live/123）
+		msid：media stream id
+		WMS：WebRTC Media Stream
+	*/
       std::string semantics;
       if (!GetValue(line, kAttributeMsidSemantics, &semantics, error)) {
         return false;
@@ -2315,6 +2321,8 @@ bool ParseSessionDescription(const std::string& message,
     }
 	else if (HasAttribute(line, kAttributeExtmapAllowMixed)) 
 	{
+	// Chrome自从M71版本就开始支持SDP协议属性extmap-allow-mixed，但是如果提供了extmap-allow-mixed，
+	// M71之前版本Chrome的SDP协商将会失败。从Chrome M89版本开始，extmap-allow-mixed 将被默认提供。
       desc->set_extmap_allow_mixed(true);
     }
 	else if (HasAttribute(line, kAttributeExtmap))//a=extmap:xxx url 
