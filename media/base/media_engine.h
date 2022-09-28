@@ -136,7 +136,7 @@ class CompositeMediaEngine : public MediaEngineInterface {
 
  private:
   std::unique_ptr<VoiceEngineInterface> voice_engine_;
-  std::unique_ptr<VideoEngineInterface> video_engine_;
+  std::unique_ptr<VideoEngineInterface> video_engine_; // WebRtcVideoEngine
 };
 
 enum DataChannelType {

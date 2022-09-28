@@ -96,8 +96,7 @@ CreateModularPeerConnectionFactory(
   // Call Initialize synchronously but make sure it is executed on
   // |signaling_thread|.
   // WebRtc 中SDK中封装 用户接口线程同步技术 -> MethodCallXXX 如果不在同一个线程中这边会卡着这边一直等到 （线程之间的通知的  notify -> wait的玩法 ） 
-  MethodCall0<PeerConnectionFactory, bool> call(
-      pc_factory.get(), &PeerConnectionFactory::Initialize/*看到吧 使用线程同步初始化 音频和视频的通道 */);
+  MethodCall0<PeerConnectionFactory, bool> call( pc_factory.get(), &PeerConnectionFactory::Initialize/*看到吧 使用线程同步初始化 音频和视频的通道 */);
   bool result = call.Marshal(RTC_FROM_HERE, pc_factory->signaling_thread());
 
   if (!result) {
@@ -181,7 +180,8 @@ bool PeerConnectionFactory::Initialize() {
 
   channel_manager_->SetVideoRtxEnabled(true);
   // 4. 通道信息初始化  其实只是对音频数据支持情况 检查与音频的初始化， 视频通道没有操作哈
-  if (!channel_manager_->Init()) {
+  if (!channel_manager_->Init()) 
+  {
     return false;
   }
 

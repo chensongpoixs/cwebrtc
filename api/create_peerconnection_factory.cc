@@ -57,8 +57,7 @@ rtc::scoped_refptr<PeerConnectionFactoryInterface> CreatePeerConnectionFactory(
 
   std::unique_ptr<CallFactoryInterface> call_factory = CreateCallFactory();
 
-  std::unique_ptr<RtcEventLogFactoryInterface> event_log_factory =
-      CreateRtcEventLogFactory();
+  std::unique_ptr<RtcEventLogFactoryInterface> event_log_factory = CreateRtcEventLogFactory();
   PeerConnectionFactoryDependencies dependencies;
   dependencies.network_thread = network_thread;
   dependencies.worker_thread = worker_thread;

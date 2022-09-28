@@ -169,7 +169,7 @@ class ChannelManager final {
   std::vector<std::unique_ptr<VideoChannel>> video_channels_;
   std::vector<std::unique_ptr<RtpDataChannel>> data_channels_;
 
-  bool enable_rtx_ = false;
+  bool enable_rtx_ = false; // rtx¶ª°üÖØ´«
   bool capturing_ = false;
 };
 

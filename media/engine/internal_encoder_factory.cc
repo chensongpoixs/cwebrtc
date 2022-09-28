@@ -23,42 +23,51 @@
 
 namespace webrtc {
 
-std::vector<SdpVideoFormat> InternalEncoderFactory::GetSupportedFormats()
-    const {
+std::vector<SdpVideoFormat> InternalEncoderFactory::GetSupportedFormats() const 
+{
+  // TODO@chensong 20220928 支持视频编解码器 VP8、VP9、H264
   std::vector<SdpVideoFormat> supported_codecs;
-  for (const webrtc::SdpVideoFormat& format : webrtc::SupportedH264Codecs())
+  for (const webrtc::SdpVideoFormat& format : webrtc::SupportedH264Codecs()) 
   {
-	  //cricket::VideoCodec codec(kH264CodecName);
-	  //// TODO(magjed): Move setting these parameters into webrtc::H264Encoder
-	  //// instead.
-	  //codec.SetParam(kH264FmtpProfileLevelId, kH264ProfileLevelConstrainedBaseline);
-	  //codec.SetParam(kH264FmtpLevelAsymmetryAllowed, "1");
+    // cricket::VideoCodec codec(kH264CodecName);
+    //// TODO(magjed): Move setting these parameters into webrtc::H264Encoder
+    //// instead.
+    // codec.SetParam(kH264FmtpProfileLevelId,
+    // kH264ProfileLevelConstrainedBaseline);
+    // codec.SetParam(kH264FmtpLevelAsymmetryAllowed, "1");
 
-	  supported_codecs.push_back(format);
+    supported_codecs.push_back(format);
   }
   supported_codecs.push_back(SdpVideoFormat(cricket::kVp8CodecName));
   for (const webrtc::SdpVideoFormat& format : webrtc::SupportedVP9Codecs())
+  {
     supported_codecs.push_back(format);
- 
+  }
+
   return supported_codecs;
 }
 
-VideoEncoderFactory::CodecInfo InternalEncoderFactory::QueryVideoEncoder(
-    const SdpVideoFormat& format) const {
+VideoEncoderFactory::CodecInfo InternalEncoderFactory::QueryVideoEncoder( const SdpVideoFormat& format) const 
+{
   CodecInfo info;
   info.is_hardware_accelerated = false;
   info.has_internal_source = false;
   return info;
 }
-// ´´½¨h264±àÒëÆ÷
-std::unique_ptr<VideoEncoder> InternalEncoderFactory::CreateVideoEncoder(
-    const SdpVideoFormat& format) {
-  if (absl::EqualsIgnoreCase(format.name, cricket::kVp8CodecName))
+// TODO@chensong 20211020   根据类型 创建VP8、VP9、H264编码器
+std::unique_ptr<VideoEncoder> InternalEncoderFactory::CreateVideoEncoder( const SdpVideoFormat& format) 
+{
+  if (absl::EqualsIgnoreCase(format.name, cricket::kVp8CodecName)) {
     return VP8Encoder::Create();
-  if (absl::EqualsIgnoreCase(format.name, cricket::kVp9CodecName))
+  }
+  if (absl::EqualsIgnoreCase(format.name, cricket::kVp9CodecName)) 
+  {
     return VP9Encoder::Create(cricket::VideoCodec(format));
+  }
   if (absl::EqualsIgnoreCase(format.name, cricket::kH264CodecName))
+  {
     return H264Encoder::Create(cricket::VideoCodec(format));
+  }
   RTC_LOG(LS_ERROR) << "Trying to created encoder of unsupported format "
                     << format.name;
   return nullptr;
