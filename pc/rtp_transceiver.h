@@ -103,9 +103,8 @@ class RtpTransceiver final
   bool RemoveReceiver(RtpReceiverInterface* receiver);
 
   // Returns a vector of the receivers owned by this transceiver.
-  std::vector<
-      rtc::scoped_refptr<RtpReceiverProxyWithInternal<RtpReceiverInternal>>>
-  receivers() const {
+  std::vector<rtc::scoped_refptr<RtpReceiverProxyWithInternal<RtpReceiverInternal>>> receivers() const 
+  {
     return receivers_;
   }
 

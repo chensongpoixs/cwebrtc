@@ -977,34 +977,32 @@ bool PeerConnection::Initialize(
   cricket::ServerAddresses stun_servers;
   std::vector<cricket::RelayServerConfig> turn_servers;
 
-  RTCErrorType parse_error = ParseIceServers(configuration.servers, &stun_servers, &turn_servers);
-  if (parse_error != RTCErrorType::NONE) 
-  {
+  RTCErrorType parse_error =
+      ParseIceServers(configuration.servers, &stun_servers, &turn_servers);
+  if (parse_error != RTCErrorType::NONE) {
     return false;
   }
 
   // The port allocator lives on the network thread and should be initialized
   // there.
-  const auto pa_result = network_thread()->Invoke<InitializePortAllocatorResult>(
+  const auto pa_result =
+      network_thread()->Invoke<InitializePortAllocatorResult>(
           RTC_FROM_HERE,
           rtc::Bind(&PeerConnection::InitializePortAllocator_n, this,
                     stun_servers, turn_servers, configuration));
 
   // If initialization was successful, note if STUN or TURN servers
   // were supplied.
-  if (!stun_servers.empty()) 
-  {
+  if (!stun_servers.empty()) {
     NoteUsageEvent(UsageEvent::STUN_SERVER_ADDED);
   }
-  if (!turn_servers.empty()) 
-  {
+  if (!turn_servers.empty()) {
     NoteUsageEvent(UsageEvent::TURN_SERVER_ADDED);
   }
 
   // Send information about IPv4/IPv6 status.
   PeerConnectionAddressFamilyCounter address_family;
-  if (pa_result.enable_ipv6) 
-  {
+  if (pa_result.enable_ipv6) {
     address_family = kPeerConnection_IPv6;
   } else {
     address_family = kPeerConnection_IPv4;
@@ -1083,18 +1081,23 @@ bool PeerConnection::Initialize(
   transport_controller_.reset(new JsepTransportController(
       signaling_thread(), network_thread(), port_allocator_.get(),
       async_resolver_factory_.get(), config));
+
   transport_controller_->SignalIceConnectionState.connect(
       this, &PeerConnection::OnTransportControllerConnectionState);
+
   transport_controller_->SignalStandardizedIceConnectionState.connect(
       this, &PeerConnection::SetStandardizedIceConnectionState);
+
   transport_controller_->SignalConnectionState.connect(
       this, &PeerConnection::SetConnectionState);
+
   transport_controller_->SignalIceGatheringState.connect(
       this, &PeerConnection::OnTransportControllerGatheringState);
 
   // TODO@chensong 2022-03-24  这边获取strun server candidate info 哈  ^_^
   transport_controller_->SignalIceCandidatesGathered.connect(
       this, &PeerConnection::OnTransportControllerCandidatesGathered);
+
   transport_controller_->SignalIceCandidatesRemoved.connect(
       this, &PeerConnection::OnTransportControllerCandidatesRemoved);
   transport_controller_->SignalDtlsHandshakeError.connect(
@@ -1153,16 +1156,22 @@ bool PeerConnection::Initialize(
     }
   }
 
-  video_options_.screencast_min_bitrate_kbps = configuration.screencast_min_bitrate;
-  audio_options_.combined_audio_video_bwe =  configuration.combined_audio_video_bwe;
+  video_options_.screencast_min_bitrate_kbps =
+      configuration.screencast_min_bitrate;
+  audio_options_.combined_audio_video_bwe =
+      configuration.combined_audio_video_bwe;
 
-  audio_options_.audio_jitter_buffer_max_packets = configuration.audio_jitter_buffer_max_packets;
+  audio_options_.audio_jitter_buffer_max_packets =
+      configuration.audio_jitter_buffer_max_packets;
 
-  audio_options_.audio_jitter_buffer_fast_accelerate =  configuration.audio_jitter_buffer_fast_accelerate;
+  audio_options_.audio_jitter_buffer_fast_accelerate =
+      configuration.audio_jitter_buffer_fast_accelerate;
 
-  audio_options_.audio_jitter_buffer_min_delay_ms =  configuration.audio_jitter_buffer_min_delay_ms;
+  audio_options_.audio_jitter_buffer_min_delay_ms =
+      configuration.audio_jitter_buffer_min_delay_ms;
 
-  audio_options_.audio_jitter_buffer_enable_rtx_handling =  configuration.audio_jitter_buffer_enable_rtx_handling;
+  audio_options_.audio_jitter_buffer_enable_rtx_handling =
+      configuration.audio_jitter_buffer_enable_rtx_handling;
 
   // Whether the certificate generator/certificate is null or not determines
   // what PeerConnectionDescriptionFactory will do, so make sure that we give it
@@ -1193,8 +1202,7 @@ bool PeerConnection::Initialize(
   webrtc_session_desc_factory_->set_is_unified_plan(IsUnifiedPlan());
 
   // Add default audio/video transceivers for Plan B SDP.
-  if (!IsUnifiedPlan()) 
-  {
+  if (!IsUnifiedPlan()) {
     transceivers_.push_back(
         RtpTransceiverProxyWithInternal<RtpTransceiver>::Create(
             signaling_thread(), new RtpTransceiver(cricket::MEDIA_TYPE_AUDIO)));
@@ -2223,6 +2231,10 @@ void PeerConnection::SetLocalDescription(
   NoteUsageEvent(UsageEvent::SET_LOCAL_DESCRIPTION_CALLED);
 }
 
+/**
+ * 创建媒体数据传输的通道channel
+ *
+ */
 RTCError PeerConnection::ApplyLocalDescription(
     std::unique_ptr<SessionDescriptionInterface> desc) {
   RTC_DCHECK_RUN_ON(signaling_thread());
@@ -2257,6 +2269,7 @@ RTCError PeerConnection::ApplyLocalDescription(
   RTC_DCHECK(local_description());
 
   // Report statistics about any use of simulcast.
+  // TODO@chensong 20220928 WebRTC中对simulcat的模块数据统计
   ReportSimulcastApiVersion(kSimulcastVersionApplyLocalDescription,
                             *local_description()->description());
 
@@ -2336,6 +2349,7 @@ RTCError PeerConnection::ApplyLocalDescription(
     if (type == SdpType::kOffer) {
       // TODO(bugs.webrtc.org/4676) - Handle CreateChannel failure, as new local
       // description is applied. Restore back to old description.
+      // TODO@chensong 20220928    的 创建媒体通道channel鸭 非常关键的步骤
       RTCError error = CreateChannels(*local_description()->description());
       if (!error.ok()) {
         return error;
@@ -2639,6 +2653,7 @@ RTCError PeerConnection::ApplyRemoteDescription(
     if (type == SdpType::kOffer) {
       // TODO(mallinath) - Handle CreateChannel failure, as new local
       // description is applied. Restore back to old description.
+      // TODO@chensong 20220928      创建媒体通道channel鸭 非常关键的步骤
       RTCError error = CreateChannels(*remote_description()->description());
       if (!error.ok()) {
         return error;
@@ -3063,7 +3078,7 @@ RTCError PeerConnection::UpdateTransceiverChannel(
         channel = CreateVoiceChannel(content.name);
       } else {
         RTC_DCHECK_EQ(cricket::MEDIA_TYPE_VIDEO, transceiver->media_type());
-        // TODO@chensong 创建视频通道
+        // TODO@chensong 20220928 创建视频通道
         channel = CreateVideoChannel(content.name);
       }
       if (!channel) {
@@ -5516,7 +5531,7 @@ bool PeerConnection::GetSctpSslRole(rtc::SSLRole* role) {
                         "SSL Role of the SCTP transport.";
     return false;
   }
-
+  // TODO@chensong 20220928  ice中连接a=setup:xxx 作为客户端还是服务器的参数
   absl::optional<rtc::SSLRole> dtls_role;
   if (sctp_mid_) {
     dtls_role = transport_controller_->GetDtlsRole(*sctp_mid_);
@@ -6016,38 +6031,42 @@ void PeerConnection::OnDtlsSrtpSetupFailure(cricket::BaseChannel*, bool rtcp) {
                   rtcp ? kDtlsSrtpSetupFailureRtcp : kDtlsSrtpSetupFailureRtp);
 }
 
-void PeerConnection::OnTransportControllerConnectionState(
-    cricket::IceConnectionState state) {
+void PeerConnection::OnTransportControllerConnectionState(cricket::IceConnectionState state) 
+{
   switch (state) {
-    case cricket::kIceConnectionConnecting:
+    case cricket::kIceConnectionConnecting: {
       // If the current state is Connected or Completed, then there were
       // writable channels but now there are not, so the next state must
       // be Disconnected.
       // kIceConnectionConnecting is currently used as the default,
       // un-connected state by the TransportController, so its only use is
       // detecting disconnections.
-      if (ice_connection_state_ ==
-              PeerConnectionInterface::kIceConnectionConnected ||
-          ice_connection_state_ ==
-              PeerConnectionInterface::kIceConnectionCompleted) {
-        SetIceConnectionState(
-            PeerConnectionInterface::kIceConnectionDisconnected);
+      if (ice_connection_state_ == PeerConnectionInterface::kIceConnectionConnected ||
+          ice_connection_state_ == PeerConnectionInterface::kIceConnectionCompleted) 
+	  {
+        SetIceConnectionState( PeerConnectionInterface::kIceConnectionDisconnected);
       }
       break;
-    case cricket::kIceConnectionFailed:
+    }
+    case cricket::kIceConnectionFailed: 
+	{
       SetIceConnectionState(PeerConnectionInterface::kIceConnectionFailed);
       break;
-    case cricket::kIceConnectionConnected:
-      RTC_LOG(LS_INFO) << "Changing to ICE connected state because "
-                          "all transports are writable.";
+    }
+    case cricket::kIceConnectionConnected: 
+	{
+      RTC_LOG(LS_INFO) << "Changing to ICE connected state because  all transports are writable.";
       SetIceConnectionState(PeerConnectionInterface::kIceConnectionConnected);
       NoteUsageEvent(UsageEvent::ICE_STATE_CONNECTED);
       break;
-    case cricket::kIceConnectionCompleted:
+    }
+    case cricket::kIceConnectionCompleted: 
+	{
       RTC_LOG(LS_INFO) << "Changing to ICE completed state because "
                           "all transports are complete.";
       if (ice_connection_state_ !=
-          PeerConnectionInterface::kIceConnectionConnected) {
+          PeerConnectionInterface::kIceConnectionConnected) 
+	  {
         // If jumping directly from "checking" to "connected",
         // signal "connected" first.
         SetIceConnectionState(PeerConnectionInterface::kIceConnectionConnected);
@@ -6056,6 +6075,7 @@ void PeerConnection::OnTransportControllerConnectionState(
       NoteUsageEvent(UsageEvent::ICE_STATE_CONNECTED);
       ReportTransportStats();
       break;
+    }
     default:
       RTC_NOTREACHED();
   }
@@ -6072,12 +6092,12 @@ void PeerConnection::OnTransportControllerCandidatesGathered(
     return;
   }
   // TODO@chensong 20220927 收集ip地址
-  for (cricket::Candidates::const_iterator citer = candidates.begin(); citer != candidates.end(); ++citer) 
-  {
+  for (cricket::Candidates::const_iterator citer = candidates.begin();
+       citer != candidates.end(); ++citer) {
     // Use transport_name as the candidate media id.
-    std::unique_ptr<JsepIceCandidate> candidate( new JsepIceCandidate(transport_name, sdp_mline_index, *citer));
-    if (local_description()) 
-	{
+    std::unique_ptr<JsepIceCandidate> candidate(
+        new JsepIceCandidate(transport_name, sdp_mline_index, *citer));
+    if (local_description()) {
       mutable_local_description()->AddCandidate(candidate.get());
     }
     OnIceCandidate(std::move(candidate));
@@ -6260,6 +6280,7 @@ RTCError PeerConnection::CreateChannels(const SessionDescription& desc) {
   const cricket::ContentInfo* video = cricket::GetFirstVideoContent(&desc);
   if (video && !video->rejected &&
       !GetVideoTransceiver()->internal()->channel()) {
+    // TODO@chensong 20220928  创建视频通道
     cricket::VideoChannel* video_channel = CreateVideoChannel(video->name);
     if (!video_channel) {
       LOG_AND_RETURN_ERROR(RTCErrorType::INTERNAL_ERROR,
@@ -6314,6 +6335,7 @@ cricket::VideoChannel* PeerConnection::CreateVideoChannel(
     media_transport = GetMediaTransport(mid);
   }
 
+  // TODO@chensong 20220928 创建视频通道 VideoChannel
   cricket::VideoChannel* video_channel = channel_manager()->CreateVideoChannel(
       call_ptr_, configuration_.media_config, rtp_transport, media_transport,
       signaling_thread(), mid, SrtpRequired(), GetCryptoOptions(),
@@ -6549,14 +6571,13 @@ bool PeerConnection::ValidateBundleSettings(const SessionDescription* desc) {
   RTC_DCHECK(bundle_group != NULL);
 
   const cricket::ContentInfos& contents = desc->contents();
-  for (cricket::ContentInfos::const_iterator citer = contents.begin();  citer != contents.end(); ++citer) 
-  {
+  for (cricket::ContentInfos::const_iterator citer = contents.begin();
+       citer != contents.end(); ++citer) {
     const cricket::ContentInfo* content = (&*citer);
     RTC_DCHECK(content != NULL);
-    if (bundle_group->HasContentName(content->name) && !content->rejected && content->type == MediaProtocolType::kRtp) 
-	{
-      if (!HasRtcpMuxEnabled(content)) 
-	  {
+    if (bundle_group->HasContentName(content->name) && !content->rejected &&
+        content->type == MediaProtocolType::kRtp) {
+      if (!HasRtcpMuxEnabled(content)) {
         return false;
       }
     }

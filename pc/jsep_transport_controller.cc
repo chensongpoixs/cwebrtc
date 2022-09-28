@@ -98,19 +98,24 @@ JsepTransportController::~JsepTransportController() {
       rtc::Bind(&JsepTransportController::DestroyAllJsepTransports_n, this));
 }
 
-RTCError JsepTransportController::SetLocalDescription(
-    SdpType type,
-    const cricket::SessionDescription* description) {
-  if (!network_thread_->IsCurrent()) {
+RTCError JsepTransportController::SetLocalDescription( SdpType type,
+    const cricket::SessionDescription* description) 
+{
+  if (!network_thread_->IsCurrent()) 
+  {
     return network_thread_->Invoke<RTCError>(
         RTC_FROM_HERE, [=] { return SetLocalDescription(type, description); });
   }
 
-  if (!initial_offerer_.has_value()) {
+  if (!initial_offerer_.has_value()) 
+  {
     initial_offerer_.emplace(type == SdpType::kOffer);
-    if (*initial_offerer_) {
+    if (*initial_offerer_) 
+	{
       SetIceRole_n(cricket::ICEROLE_CONTROLLING);
-    } else {
+    }
+	else 
+	{
       SetIceRole_n(cricket::ICEROLE_CONTROLLED);
     }
   }
@@ -173,10 +178,11 @@ JsepTransportController::GetRtcpDtlsTransport(const std::string& mid) const {
   return jsep_transport->rtcp_dtls_transport();
 }
 
-rtc::scoped_refptr<webrtc::DtlsTransport>
-JsepTransportController::LookupDtlsTransportByMid(const std::string& mid) {
+rtc::scoped_refptr<webrtc::DtlsTransport> JsepTransportController::LookupDtlsTransportByMid(const std::string& mid) 
+{
   auto jsep_transport = GetJsepTransportForMid(mid);
-  if (!jsep_transport) {
+  if (!jsep_transport)
+  {
     return nullptr;
   }
   return jsep_transport->RtpDtlsTransport();
@@ -1030,56 +1036,61 @@ JsepTransportController::MaybeCreateMediaTransport(
 RTCError JsepTransportController::MaybeCreateJsepTransport(
     bool local,
     const cricket::ContentInfo& content_info,
-    const cricket::SessionDescription& description) {
+    const cricket::SessionDescription& description) 
+{
   RTC_DCHECK(network_thread_->IsCurrent());
   cricket::JsepTransport* transport = GetJsepTransportByName(content_info.name);
-  if (transport) {
+  if (transport) 
+  {
     return RTCError::OK();
   }
 
   const cricket::MediaContentDescription* content_desc =
       static_cast<const cricket::MediaContentDescription*>(
           content_info.description);
-  if (certificate_ && !content_desc->cryptos().empty()) {
+  if (certificate_ && !content_desc->cryptos().empty()) 
+  {
     return RTCError(RTCErrorType::INVALID_PARAMETER,
                     "SDES and DTLS-SRTP cannot be enabled at the same time.");
   }
 
-  std::unique_ptr<cricket::IceTransportInternal> ice =
-      CreateIceTransport(content_info.name, /*rtcp=*/false);
+  std::unique_ptr<cricket::IceTransportInternal> ice =    CreateIceTransport(content_info.name, /*rtcp=*/false);
 
-  std::unique_ptr<MediaTransportInterface> media_transport =
-      MaybeCreateMediaTransport(content_info, description, local);
-  if (media_transport) {
+  std::unique_ptr<MediaTransportInterface> media_transport =  MaybeCreateMediaTransport(content_info, description, local);
+  if (media_transport) 
+  {
     media_transport_created_once_ = true;
     media_transport->Connect(ice.get());
   }
 
-  std::unique_ptr<cricket::DtlsTransportInternal> rtp_dtls_transport =
-      CreateDtlsTransport(std::move(ice));
+  std::unique_ptr<cricket::DtlsTransportInternal> rtp_dtls_transport = CreateDtlsTransport(std::move(ice));
 
   std::unique_ptr<cricket::DtlsTransportInternal> rtcp_dtls_transport;
   std::unique_ptr<RtpTransport> unencrypted_rtp_transport;
   std::unique_ptr<SrtpTransport> sdes_transport;
   std::unique_ptr<DtlsSrtpTransport> dtls_srtp_transport;
 
-  if (config_.rtcp_mux_policy !=
-          PeerConnectionInterface::kRtcpMuxPolicyRequire &&
-      content_info.type == cricket::MediaProtocolType::kRtp) {
+  if (config_.rtcp_mux_policy != PeerConnectionInterface::kRtcpMuxPolicyRequire &&
+      content_info.type == cricket::MediaProtocolType::kRtp) 
+  {
     RTC_DCHECK(media_transport == nullptr);
-    rtcp_dtls_transport = CreateDtlsTransport(
-        CreateIceTransport(content_info.name, /*rtcp=*/true));
+    rtcp_dtls_transport = CreateDtlsTransport( CreateIceTransport(content_info.name, /*rtcp=*/true));
   }
 
   // TODO(sukhanov): Do not create RTP/RTCP transports if media transport is
   // used, and remove the no-op dtls transport when that's done.
-  if (config_.disable_encryption) {
+  if (config_.disable_encryption)
+  {
     unencrypted_rtp_transport = CreateUnencryptedRtpTransport(
         content_info.name, rtp_dtls_transport.get(), rtcp_dtls_transport.get());
-  } else if (!content_desc->cryptos().empty()) {
+  } 
+  else if (!content_desc->cryptos().empty()) 
+  {
     sdes_transport = CreateSdesTransport(
         content_info.name, rtp_dtls_transport.get(), rtcp_dtls_transport.get());
-  } else {
+  }
+  else 
+  {
     dtls_srtp_transport = CreateDtlsSrtpTransport(
         content_info.name, rtp_dtls_transport.get(), rtcp_dtls_transport.get());
   }
@@ -1090,10 +1101,12 @@ RTCError JsepTransportController::MaybeCreateJsepTransport(
           std::move(sdes_transport), std::move(dtls_srtp_transport),
           std::move(rtp_dtls_transport), std::move(rtcp_dtls_transport),
           std::move(media_transport));
-  jsep_transport->SignalRtcpMuxActive.connect(
-      this, &JsepTransportController::UpdateAggregateStates_n);
-  jsep_transport->SignalMediaTransportStateChanged.connect(
-      this, &JsepTransportController::OnMediaTransportStateChanged_n);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  jsep_transport->SignalRtcpMuxActive.connect( this, &JsepTransportController::UpdateAggregateStates_n);
+  jsep_transport->SignalMediaTransportStateChanged.connect( this, &JsepTransportController::OnMediaTransportStateChanged_n);
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
   SetTransportForMid(content_info.name, jsep_transport.get());
 
   jsep_transports_by_name_[content_info.name] = std::move(jsep_transport);
@@ -1135,7 +1148,8 @@ void JsepTransportController::SetIceRole_n(cricket::IceRole ice_role) {
   RTC_DCHECK(network_thread_->IsCurrent());
 
   ice_role_ = ice_role;
-  for (auto& dtls : GetDtlsTransports()) {
+  for (auto& dtls : GetDtlsTransports()) 
+  {
     dtls->ice_transport()->SetIceRole(ice_role_);
   }
 }
@@ -1288,16 +1302,14 @@ void JsepTransportController::OnMediaTransportStateChanged_n() {
   UpdateAggregateStates_n();
 }
 
-void JsepTransportController::UpdateAggregateStates_n() {
+void JsepTransportController::UpdateAggregateStates_n()
+{
   RTC_DCHECK(network_thread_->IsCurrent());
 
   auto dtls_transports = GetDtlsTransports();
-  cricket::IceConnectionState new_connection_state =
-      cricket::kIceConnectionConnecting;
-  PeerConnectionInterface::IceConnectionState new_ice_connection_state =
-      PeerConnectionInterface::IceConnectionState::kIceConnectionNew;
-  PeerConnectionInterface::PeerConnectionState new_combined_state =
-      PeerConnectionInterface::PeerConnectionState::kNew;
+  cricket::IceConnectionState new_connection_state = cricket::kIceConnectionConnecting;
+  PeerConnectionInterface::IceConnectionState new_ice_connection_state = PeerConnectionInterface::IceConnectionState::kIceConnectionNew;
+  PeerConnectionInterface::PeerConnectionState new_combined_state = PeerConnectionInterface::PeerConnectionState::kNew;
   cricket::IceGatheringState new_gathering_state = cricket::kIceGatheringNew;
   bool any_failed = false;
 
@@ -1312,31 +1324,26 @@ void JsepTransportController::UpdateAggregateStates_n() {
   std::map<IceTransportState, int> ice_state_counts;
   std::map<cricket::DtlsTransportState, int> dtls_state_counts;
 
-  for (const auto& dtls : dtls_transports) {
-    any_failed = any_failed || dtls->ice_transport()->GetState() ==
-                                   cricket::IceTransportState::STATE_FAILED;
+  for (const auto& dtls : dtls_transports) 
+  {
+    any_failed = any_failed || dtls->ice_transport()->GetState() == cricket::IceTransportState::STATE_FAILED;
     all_connected = all_connected && dtls->writable();
-    all_completed =
-        all_completed && dtls->writable() &&
-        dtls->ice_transport()->GetState() ==
+    all_completed = all_completed && dtls->writable() && dtls->ice_transport()->GetState() ==
             cricket::IceTransportState::STATE_COMPLETED &&
         dtls->ice_transport()->GetIceRole() == cricket::ICEROLE_CONTROLLING &&
-        dtls->ice_transport()->gathering_state() ==
-            cricket::kIceGatheringComplete;
-    any_gathering = any_gathering || dtls->ice_transport()->gathering_state() !=
-                                         cricket::kIceGatheringNew;
-    all_done_gathering =
-        all_done_gathering && dtls->ice_transport()->gathering_state() ==
-                                  cricket::kIceGatheringComplete;
+        dtls->ice_transport()->gathering_state() ==   cricket::kIceGatheringComplete;
+    any_gathering = any_gathering || dtls->ice_transport()->gathering_state() != cricket::kIceGatheringNew;
+    all_done_gathering = all_done_gathering && dtls->ice_transport()->gathering_state() ==   cricket::kIceGatheringComplete;
 
     dtls_state_counts[dtls->dtls_state()]++;
     ice_state_counts[dtls->ice_transport()->GetIceTransportState()]++;
   }
 
-  for (auto it = jsep_transports_by_name_.begin();
-       it != jsep_transports_by_name_.end(); ++it) {
+  for (auto it = jsep_transports_by_name_.begin(); it != jsep_transports_by_name_.end(); ++it) 
+  {
     auto jsep_transport = it->second.get();
-    if (!jsep_transport->media_transport()) {
+    if (!jsep_transport->media_transport())
+	{
       continue;
     }
 
@@ -1349,22 +1356,25 @@ void JsepTransportController::UpdateAggregateStates_n() {
     // and the contract of jsep transport controller doesn't quite expect that.
     // When this happens, we would go from connected to connecting state, but
     // this may change in future.
-    any_failed |= jsep_transport->media_transport_state() ==
-                  webrtc::MediaTransportState::kClosed;
-    all_completed &= jsep_transport->media_transport_state() ==
-                     webrtc::MediaTransportState::kWritable;
-    all_connected &= jsep_transport->media_transport_state() ==
-                     webrtc::MediaTransportState::kWritable;
+    any_failed |= jsep_transport->media_transport_state() ==  webrtc::MediaTransportState::kClosed;
+    all_completed &= jsep_transport->media_transport_state() ==  webrtc::MediaTransportState::kWritable;
+    all_connected &= jsep_transport->media_transport_state() ==  webrtc::MediaTransportState::kWritable;
   }
 
-  if (any_failed) {
+  if (any_failed) 
+  {
     new_connection_state = cricket::kIceConnectionFailed;
-  } else if (all_completed) {
+  } 
+  else if (all_completed) 
+  {
     new_connection_state = cricket::kIceConnectionCompleted;
-  } else if (all_connected) {
+  } 
+  else if (all_connected) 
+  {
     new_connection_state = cricket::kIceConnectionConnected;
   }
-  if (ice_connection_state_ != new_connection_state) {
+  if (ice_connection_state_ != new_connection_state) 
+  {
     ice_connection_state_ = new_connection_state;
     invoker_.AsyncInvoke<void>(RTC_FROM_HERE, signaling_thread_,
                                [this, new_connection_state] {

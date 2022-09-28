@@ -260,8 +260,10 @@ VideoChannel* ChannelManager::CreateVideoChannel(
     bool srtp_required,
     const webrtc::CryptoOptions& crypto_options,
     rtc::UniqueRandomIdGenerator* ssrc_generator,
-    const VideoOptions& options) {
-  if (!worker_thread_->IsCurrent()) {
+    const VideoOptions& options) 
+{
+  if (!worker_thread_->IsCurrent()) 
+  {
     return worker_thread_->Invoke<VideoChannel*>(RTC_FROM_HERE, [&] {
       return CreateVideoChannel(
           call, media_config, rtp_transport, media_transport, signaling_thread,

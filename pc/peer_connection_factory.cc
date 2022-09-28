@@ -90,16 +90,15 @@ CreateModularPeerConnectionFactory(
 rtc::scoped_refptr<PeerConnectionFactoryInterface>
 CreateModularPeerConnectionFactory(
     PeerConnectionFactoryDependencies dependencies) {
-  rtc::scoped_refptr<PeerConnectionFactory> pc_factory(
-      new rtc::RefCountedObject<PeerConnectionFactory>(
-          std::move(dependencies)));
+  rtc::scoped_refptr<PeerConnectionFactory> pc_factory(new rtc::RefCountedObject<PeerConnectionFactory>(std::move(dependencies)));
   // Call Initialize synchronously but make sure it is executed on
   // |signaling_thread|.
   // WebRtc 中SDK中封装 用户接口线程同步技术 -> MethodCallXXX 如果不在同一个线程中这边会卡着这边一直等到 （线程之间的通知的  notify -> wait的玩法 ） 
   MethodCall0<PeerConnectionFactory, bool> call( pc_factory.get(), &PeerConnectionFactory::Initialize/*看到吧 使用线程同步初始化 音频和视频的通道 */);
   bool result = call.Marshal(RTC_FROM_HERE, pc_factory->signaling_thread());
 
-  if (!result) {
+  if (!result) 
+  {
     return nullptr;
   }
   return PeerConnectionFactoryProxy::Create(pc_factory->signaling_thread(),
@@ -175,8 +174,7 @@ bool PeerConnectionFactory::Initialize() {
   }
   // 3. 网络通道 和设置网络线程和工作线程
   channel_manager_ = absl::make_unique<cricket::ChannelManager>(
-      std::move(media_engine_), absl::make_unique<cricket::RtpDataEngine>(),
-      worker_thread_, network_thread_);
+      std::move(media_engine_), absl::make_unique<cricket::RtpDataEngine>(), worker_thread_, network_thread_);
 
   channel_manager_->SetVideoRtxEnabled(true);
   // 4. 通道信息初始化  其实只是对音频数据支持情况 检查与音频的初始化， 视频通道没有操作哈

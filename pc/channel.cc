@@ -130,14 +130,14 @@ BaseChannel::BaseChannel(rtc::Thread* worker_thread,
                          bool srtp_required,
                          webrtc::CryptoOptions crypto_options,
                          UniqueRandomIdGenerator* ssrc_generator)
-    : worker_thread_(worker_thread),
-      network_thread_(network_thread),
-      signaling_thread_(signaling_thread),
-      content_name_(content_name),
-      srtp_required_(srtp_required),
-      crypto_options_(crypto_options),
-      media_channel_(std::move(media_channel)),
-      ssrc_generator_(ssrc_generator) {
+    : worker_thread_(worker_thread)
+	, network_thread_(network_thread)
+	, signaling_thread_(signaling_thread)
+	, content_name_(content_name)
+	, srtp_required_(srtp_required)
+	, crypto_options_(crypto_options)
+	, media_channel_(std::move(media_channel))
+	, ssrc_generator_(ssrc_generator) {
   RTC_DCHECK_RUN_ON(worker_thread_);
   RTC_DCHECK(ssrc_generator_);
   demuxer_criteria_.mid = content_name;

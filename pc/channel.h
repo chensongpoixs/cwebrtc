@@ -107,7 +107,8 @@ class BaseChannel : public ChannelInterface,
   bool enabled() const override { return enabled_; }
 
   // This function returns true if using SRTP (DTLS-based keying or SDES).
-  bool srtp_active() const {
+  bool srtp_active() const 
+  {
     return rtp_transport_ && rtp_transport_->IsSrtpActive();
   }
 
@@ -278,22 +279,21 @@ class BaseChannel : public ChannelInterface,
   // Return a list of RTP header extensions with the non-encrypted extensions
   // removed depending on the current crypto_options_ and only if both the
   // non-encrypted and encrypted extension is present for the same URI.
-  RtpHeaderExtensions GetFilteredRtpHeaderExtensions(
-      const RtpHeaderExtensions& extensions);
+  RtpHeaderExtensions GetFilteredRtpHeaderExtensions(const RtpHeaderExtensions& extensions);
 
   // From MessageHandler
   void OnMessage(rtc::Message* pmsg) override;
 
   // Helper function template for invoking methods on the worker thread.
   template <class T, class FunctorT>
-  T InvokeOnWorker(const rtc::Location& posted_from, const FunctorT& functor) {
+  T InvokeOnWorker(const rtc::Location& posted_from, const FunctorT& functor) 
+  {
     return worker_thread_->Invoke<T>(posted_from, functor);
   }
 
   void AddHandledPayloadType(int payload_type);
 
-  void UpdateRtpHeaderExtensionMap(
-      const RtpHeaderExtensions& header_extensions);
+  void UpdateRtpHeaderExtensionMap(const RtpHeaderExtensions& header_extensions);
 
   bool RegisterRtpDemuxerSink();
 
@@ -343,10 +343,8 @@ class BaseChannel : public ChannelInterface,
   bool enabled_ = false;
   std::vector<StreamParams> local_streams_;
   std::vector<StreamParams> remote_streams_;
-  webrtc::RtpTransceiverDirection local_content_direction_ =
-      webrtc::RtpTransceiverDirection::kInactive;
-  webrtc::RtpTransceiverDirection remote_content_direction_ =
-      webrtc::RtpTransceiverDirection::kInactive;
+  webrtc::RtpTransceiverDirection local_content_direction_ = webrtc::RtpTransceiverDirection::kInactive;
+  webrtc::RtpTransceiverDirection remote_content_direction_ = webrtc::RtpTransceiverDirection::kInactive;
 
   webrtc::RtpDemuxerCriteria demuxer_criteria_;
   // This generator is used to generate SSRCs for local streams.

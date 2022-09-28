@@ -1086,8 +1086,7 @@ class PeerConnection : public PeerConnectionInternal,
     return media_transport;
   }
 
-  sigslot::signal1<DataChannel*> SignalDataChannelCreated_
-      RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal1<DataChannel*> SignalDataChannelCreated_  RTC_GUARDED_BY(signaling_thread());
 
   // Storing the factory as a scoped reference pointer ensures that the memory
   // in the PeerConnectionFactoryImpl remains available as long as the
@@ -1096,8 +1095,7 @@ class PeerConnection : public PeerConnectionInternal,
   // PeerConnectionFactoryInterface all instances created using the raw pointer
   // will refer to the same reference count.
   const rtc::scoped_refptr<PeerConnectionFactory> factory_;
-  PeerConnectionObserver* observer_ RTC_GUARDED_BY(signaling_thread()) =
-      nullptr;
+  PeerConnectionObserver* observer_ RTC_GUARDED_BY(signaling_thread()) = nullptr;
 
   // The EventLog needs to outlive |call_| (and any other object that uses it).
   std::unique_ptr<RtcEventLog> event_log_ RTC_GUARDED_BY(worker_thread());
@@ -1107,32 +1105,24 @@ class PeerConnection : public PeerConnectionInternal,
   RtcEventLog* const event_log_ptr_ RTC_PT_GUARDED_BY(worker_thread());
 
   SignalingState signaling_state_ RTC_GUARDED_BY(signaling_thread()) = kStable;
-  IceConnectionState ice_connection_state_ RTC_GUARDED_BY(signaling_thread()) =
-      kIceConnectionNew;
-  PeerConnectionInterface::IceConnectionState standardized_ice_connection_state_
-      RTC_GUARDED_BY(signaling_thread()) = kIceConnectionNew;
-  PeerConnectionInterface::PeerConnectionState connection_state_
-      RTC_GUARDED_BY(signaling_thread()) = PeerConnectionState::kNew;
+  IceConnectionState ice_connection_state_ RTC_GUARDED_BY(signaling_thread()) =   kIceConnectionNew;
+  PeerConnectionInterface::IceConnectionState standardized_ice_connection_state_  RTC_GUARDED_BY(signaling_thread()) = kIceConnectionNew;
+  PeerConnectionInterface::PeerConnectionState connection_state_ RTC_GUARDED_BY(signaling_thread()) = PeerConnectionState::kNew;
 
-  IceGatheringState ice_gathering_state_ RTC_GUARDED_BY(signaling_thread()) =
-      kIceGatheringNew;
-  PeerConnectionInterface::RTCConfiguration configuration_
-      RTC_GUARDED_BY(signaling_thread());
+  IceGatheringState ice_gathering_state_ RTC_GUARDED_BY(signaling_thread()) = kIceGatheringNew;
+  PeerConnectionInterface::RTCConfiguration configuration_ RTC_GUARDED_BY(signaling_thread());
 
   // Cache configuration_.use_media_transport so that we can access it from
   // other threads.
   // TODO(bugs.webrtc.org/9987): Caching just this bool and allowing the data
   // it's derived from to change is not necessarily sound. Stop doing it.
   rtc::RaceChecker use_media_transport_race_checker_;
-  bool use_media_transport_ RTC_GUARDED_BY(use_media_transport_race_checker_) =
-      configuration_.use_media_transport;
+  bool use_media_transport_ RTC_GUARDED_BY(use_media_transport_race_checker_) = configuration_.use_media_transport;
 
   // TODO(zstein): |async_resolver_factory_| can currently be nullptr if it
   // is not injected. It should be required once chromium supplies it.
-  std::unique_ptr<AsyncResolverFactory> async_resolver_factory_
-      RTC_GUARDED_BY(signaling_thread());
-  std::unique_ptr<cricket::PortAllocator>
-      port_allocator_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  std::unique_ptr<AsyncResolverFactory> async_resolver_factory_  RTC_GUARDED_BY(signaling_thread());
+  std::unique_ptr<cricket::PortAllocator>  port_allocator_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                         // signaling and network thread.
   std::unique_ptr<rtc::SSLCertificateVerifier>
       tls_cert_verifier_;  // TODO(bugs.webrtc.org/9987): Accessed on both
@@ -1195,8 +1185,7 @@ class PeerConnection : public PeerConnectionInternal,
 
   std::string session_id_ RTC_GUARDED_BY(signaling_thread());
 
-  std::unique_ptr<JsepTransportController>
-      transport_controller_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  std::unique_ptr<JsepTransportController> transport_controller_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                               // signaling and network thread.
   std::unique_ptr<cricket::SctpTransportInternalFactory> sctp_factory_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                       // signaling and network thread.
@@ -1235,6 +1224,7 @@ class PeerConnection : public PeerConnectionInternal,
   sigslot::signal1<int> SignalSctpClosingProcedureComplete RTC_GUARDED_BY(signaling_thread());
 
   // Whether this peer is the caller. Set when the local description is applied.
+  // TODO@chensong 20220928 ice 中作为客户端与服务端 参数 a=setup:xxx 关联参数
   absl::optional<bool> is_caller_ RTC_GUARDED_BY(signaling_thread());
 
   // Content name (MID) for media transport data channels in SDP.

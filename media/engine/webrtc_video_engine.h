@@ -546,8 +546,7 @@ class WebRtcVideoChannel : public VideoMediaChannel, public webrtc::Transport {
   const webrtc::CryptoOptions crypto_options_ RTC_GUARDED_BY(thread_checker_);
 
   // Buffer for unhandled packets.
-  std::unique_ptr<UnhandledPacketsBuffer> unknown_ssrc_packet_buffer_
-      RTC_GUARDED_BY(thread_checker_);
+  std::unique_ptr<UnhandledPacketsBuffer> unknown_ssrc_packet_buffer_ RTC_GUARDED_BY(thread_checker_);
 };
 
 class EncoderStreamFactory
