@@ -324,7 +324,8 @@ bool PacedSender::ShouldSendKeepalive(int64_t now_us) const {
   return false;
 }
 
-void PacedSender::Process() {
+void PacedSender::Process() 
+{
   // TODO@chensong 20220803 版本有点老了
   // 更新处理时间和发送流量budget
   // mode_有两种:
@@ -337,25 +338,31 @@ void PacedSender::Process() {
   // TODO@chensong 20220803
   // 检查是否需要发送keepalive包,
   // 判定的依据如下，如果需要则构造一个1Bytes的包发送
-  if (ShouldSendKeepalive(now_us)) {
+  if (ShouldSendKeepalive(now_us)) 
+  {
     critsect_.Leave();
     // // 生成一个1 Bytes的keepalive包
     size_t bytes_sent = packet_sender_->TimeToSendPadding(1, PacedPacketInfo());
     critsect_.Enter();
     OnPaddingSent(bytes_sent);
-    if (alr_detector_) {
+    if (alr_detector_) 
+	{
       alr_detector_->OnBytesSent(bytes_sent, now_us / 1000);
     }
   }
 
   if (paused_)
+  {
     return;
+  }
   // 根据发送队列大小计算目标码率，使用目标码率更新
   // 预算
-  if (elapsed_time_ms > 0) {
+  if (elapsed_time_ms > 0) 
+  {
     int target_bitrate_kbps = pacing_bitrate_kbps_;
     size_t queue_size_bytes = packets_.SizeInBytes();
-    if (queue_size_bytes > 0) {
+    if (queue_size_bytes > 0) 
+	{
       // Assuming equal size packets and input/output rate, the average packet
       // has avg_time_left_ms left to get queue_size_bytes out of the queue, if
       // time constraint shall be met. Determine bitrate needed for that.

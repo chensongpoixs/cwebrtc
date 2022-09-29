@@ -67,8 +67,8 @@ bool ChannelManager::SetVideoRtxEnabled(bool enable)
   }
 }
 
-void ChannelManager::GetSupportedAudioSendCodecs(
-    std::vector<AudioCodec>* codecs) const {
+void ChannelManager::GetSupportedAudioSendCodecs(std::vector<AudioCodec>* codecs) const 
+{
   if (!media_engine_) 
   {
     return;
@@ -85,7 +85,8 @@ void ChannelManager::GetSupportedAudioReceiveCodecs( std::vector<AudioCodec>* co
   *codecs = media_engine_->voice().recv_codecs();
 }
 
-void ChannelManager::GetSupportedAudioRtpHeaderExtensions(RtpHeaderExtensions* ext) const {
+void ChannelManager::GetSupportedAudioRtpHeaderExtensions(RtpHeaderExtensions* ext) const 
+{
   if (!media_engine_) 
   {
     return;
@@ -137,7 +138,7 @@ bool ChannelManager::Init()
   }
   RTC_DCHECK(network_thread_);
   RTC_DCHECK(worker_thread_);
-  // 正常情况信号线程与网络线程 所以是会设置线程
+  //TODO@chensong 20220321 正常情况工作线程与网络线程 所以是会设置线程
   if (!network_thread_->IsCurrent()) 
   {
     // Do not allow invoking calls to other threads on the network thread.
@@ -159,7 +160,8 @@ bool ChannelManager::Init()
   return initialized_;
 }
 
-void ChannelManager::Terminate() {
+void ChannelManager::Terminate() 
+{
   RTC_DCHECK(initialized_);
   if (!initialized_) {
     return;

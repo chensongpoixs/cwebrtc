@@ -1415,9 +1415,11 @@ MediaSessionDescriptionFactory::video_rtp_header_extensions() const {
 
 std::unique_ptr<SessionDescription> MediaSessionDescriptionFactory::CreateOffer(
     const MediaSessionOptions& session_options,
-    const SessionDescription* current_description) const {
+    const SessionDescription* current_description) const 
+{
   // Must have options for each existing section.
-  if (current_description) {
+  if (current_description) 
+  {
     RTC_DCHECK_LE(current_description->contents().size(),
                   session_options.media_description_options.size());
   }
@@ -1426,21 +1428,21 @@ std::unique_ptr<SessionDescription> MediaSessionDescriptionFactory::CreateOffer(
       session_options.pooled_ice_credentials);
 
   std::vector<const ContentInfo*> current_active_contents;
-  if (current_description) {
+  if (current_description) 
+  {
     current_active_contents =
         GetActiveContents(*current_description, session_options);
   }
 
-  StreamParamsVec current_streams =
-      GetCurrentStreamParams(current_active_contents);
+  StreamParamsVec current_streams = GetCurrentStreamParams(current_active_contents);
 
   AudioCodecs offer_audio_codecs;
   VideoCodecs offer_video_codecs;
   DataCodecs offer_data_codecs;
-  GetCodecsForOffer(current_active_contents, &offer_audio_codecs,
-                    &offer_video_codecs, &offer_data_codecs);
+  GetCodecsForOffer(current_active_contents, &offer_audio_codecs, &offer_video_codecs, &offer_data_codecs);
 
-  if (!session_options.vad_enabled) {
+  if (!session_options.vad_enabled) 
+  {
     // If application doesn't want CN codecs in offer.
     StripCNCodecs(&offer_audio_codecs);
   }

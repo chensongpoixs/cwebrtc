@@ -111,13 +111,15 @@ rtc::scoped_refptr<AudioDeviceModuleForTest> AudioDeviceModule::CreateForTest(
 
   // Create the platform-dependent implementation.
   // TODO@chensong 20220816 对应平台的类 win => AudioDeviceWindowsCore 构造函数
-  if (audioDevice->CreatePlatformSpecificObjects() == -1) {
+  if (audioDevice->CreatePlatformSpecificObjects() == -1) 
+  {
     return nullptr;
   }
 
   // Ensure that the generic audio buffer can communicate with the platform
   // specific parts.
-  if (audioDevice->AttachAudioBuffer() == -1) {
+  if (audioDevice->AttachAudioBuffer() == -1) 
+  {
     return nullptr;
   }
 

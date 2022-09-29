@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -552,8 +552,10 @@ bool Thread::WrapCurrentWithThreadManager(ThreadManager* thread_manager,
   if (need_synchronize_access) {
     // We explicitly ask for no rights other than synchronization.
     // This gives us the best chance of succeeding.
+	// OpenThread是Windows API(应用程序接口) 中的一个常用函数，用于打开一个现有线程对象。
     thread_ = OpenThread(SYNCHRONIZE, FALSE, GetCurrentThreadId());
-    if (!thread_) {
+    if (!thread_) 
+	{
       RTC_LOG_GLE(LS_ERROR) << "Unable to get handle to thread.";
       return false;
     }

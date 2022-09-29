@@ -25,8 +25,10 @@ rtc::scoped_refptr<LocalAudioSource> LocalAudioSource::Create(
 }
 
 void LocalAudioSource::Initialize(const cricket::AudioOptions* audio_options) {
-  if (!audio_options)
+  if (!audio_options) 
+  {
     return;
+  }
 
   options_ = *audio_options;
 }

@@ -100,8 +100,7 @@ class WebRtcVoiceEngine final : public VoiceEngineInterface {
   webrtc::AudioProcessing* apm() const;
   webrtc::AudioState* audio_state();
 
-  AudioCodecs CollectCodecs(
-      const std::vector<webrtc::AudioCodecSpec>& specs) const;
+  AudioCodecs CollectCodecs(const std::vector<webrtc::AudioCodecSpec>& specs) const;
 
   rtc::ThreadChecker signal_thread_checker_;
   rtc::ThreadChecker worker_thread_checker_;

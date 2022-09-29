@@ -87,9 +87,8 @@ CreateModularPeerConnectionFactory(
   return CreateModularPeerConnectionFactory(std::move(dependencies));
 }
 
-rtc::scoped_refptr<PeerConnectionFactoryInterface>
-CreateModularPeerConnectionFactory(
-    PeerConnectionFactoryDependencies dependencies) {
+rtc::scoped_refptr<PeerConnectionFactoryInterface> CreateModularPeerConnectionFactory( PeerConnectionFactoryDependencies dependencies) 
+{
   rtc::scoped_refptr<PeerConnectionFactory> pc_factory(new rtc::RefCountedObject<PeerConnectionFactory>(std::move(dependencies)));
   // Call Initialize synchronously but make sure it is executed on
   // |signaling_thread|.
@@ -186,7 +185,8 @@ bool PeerConnectionFactory::Initialize() {
   return true;
 }
 
-void PeerConnectionFactory::SetOptions(const Options& options) {
+void PeerConnectionFactory::SetOptions(const Options& options) 
+{
   options_ = options;
 }
 
@@ -245,10 +245,10 @@ RtpCapabilities PeerConnectionFactory::GetRtpReceiverCapabilities(
 }
 
 rtc::scoped_refptr<AudioSourceInterface>
-PeerConnectionFactory::CreateAudioSource(const cricket::AudioOptions& options) {
+PeerConnectionFactory::CreateAudioSource(const cricket::AudioOptions& options) 
+{
   RTC_DCHECK(signaling_thread_->IsCurrent());
-  rtc::scoped_refptr<LocalAudioSource> source(
-      LocalAudioSource::Create(&options));
+  rtc::scoped_refptr<LocalAudioSource> source(LocalAudioSource::Create(&options));
   return source;
 }
 
@@ -267,9 +267,10 @@ void PeerConnectionFactory::StopAecDump() {
 rtc::scoped_refptr<PeerConnectionInterface>
 PeerConnectionFactory::CreatePeerConnection(
     const PeerConnectionInterface::RTCConfiguration& configuration,
-    std::unique_ptr<cricket::PortAllocator> allocator,
-    std::unique_ptr<rtc::RTCCertificateGeneratorInterface> cert_generator,
-    PeerConnectionObserver* observer) {
+    std::unique_ptr<cricket::PortAllocator> allocator /*default NULL */,
+    std::unique_ptr<rtc::RTCCertificateGeneratorInterface>  cert_generator /*default NULL */,
+    PeerConnectionObserver* observer) 
+{
   // Convert the legacy API into the new depnedency structure.
   PeerConnectionDependencies dependencies(observer);
   dependencies.allocator = std::move(allocator);
@@ -281,19 +282,19 @@ PeerConnectionFactory::CreatePeerConnection(
 }
 
 rtc::scoped_refptr<PeerConnectionInterface>
-PeerConnectionFactory::CreatePeerConnection(
-    const PeerConnectionInterface::RTCConfiguration& configuration,
-    PeerConnectionDependencies dependencies) {
+PeerConnectionFactory::CreatePeerConnection(const PeerConnectionInterface::RTCConfiguration& configuration,
+    PeerConnectionDependencies dependencies) 
+{
   RTC_DCHECK(signaling_thread_->IsCurrent());
 
   // Set internal defaults if optional dependencies are not set.
-  if (!dependencies.cert_generator) {
-	  // 证书的生成
-    dependencies.cert_generator =
-        absl::make_unique<rtc::RTCCertificateGenerator>(signaling_thread_,
-                                                        network_thread_);
+  if (!dependencies.cert_generator) 
+  {
+	  //TODO@chensong 20220929  创建负责证书的生成的转发类
+    dependencies.cert_generator = absl::make_unique<rtc::RTCCertificateGenerator>(signaling_thread_, network_thread_);
   }
-  if (!dependencies.allocator) {
+  if (!dependencies.allocator)
+  {
     network_thread_->Invoke<void>(RTC_FROM_HERE, [this, &configuration,
                                                   &dependencies]() {
       dependencies.allocator = absl::make_unique<cricket::BasicPortAllocator>(
@@ -311,23 +312,24 @@ PeerConnectionFactory::CreatePeerConnection(
       rtc::Bind(&cricket::PortAllocator::SetNetworkIgnoreMask,
                 dependencies.allocator.get(), options_.network_ignore_mask));
 
-  std::unique_ptr<RtcEventLog> event_log =
-      worker_thread_->Invoke<std::unique_ptr<RtcEventLog>>(
+  std::unique_ptr<RtcEventLog> event_log = worker_thread_->Invoke<std::unique_ptr<RtcEventLog>>(
           RTC_FROM_HERE,
           rtc::Bind(&PeerConnectionFactory::CreateRtcEventLog_w, this));
 
+  // TODO@chensong 2022-09-29 中call有两个线程 pacer_thread , moudler_thread
   std::unique_ptr<Call> call = worker_thread_->Invoke<std::unique_ptr<Call>>(
       RTC_FROM_HERE,
       rtc::Bind(&PeerConnectionFactory::CreateCall_w, this, event_log.get()));
 
-  rtc::scoped_refptr<PeerConnection> pc(
-      new rtc::RefCountedObject<PeerConnection>(this, std::move(event_log),
-                                                std::move(call)));
+  rtc::scoped_refptr<PeerConnection> pc(new rtc::RefCountedObject<PeerConnection>(this, std::move(event_log), std::move(call)));
+
+ // TODO@chensong  20220929 应用层预处理回调函数
   ActionsBeforeInitializeForTesting(pc);
  // printf("[%s] =====================sdp = %d\n", __FUNCTION__, configuration.sdp_semantics);
   //fflush(stdout);
   // 这边peerconnection的初始化哈  这边我们需要关注一下
-  if (!pc->Initialize(configuration, std::move(dependencies))) {
+  if (!pc->Initialize(configuration, std::move(dependencies))) 
+  {
     return nullptr;
   }
   return PeerConnectionProxy::Create(signaling_thread(), pc);
@@ -342,18 +344,20 @@ PeerConnectionFactory::CreateLocalMediaStream(const std::string& stream_id) {
 
 rtc::scoped_refptr<VideoTrackInterface> PeerConnectionFactory::CreateVideoTrack(
     const std::string& id,
-    VideoTrackSourceInterface* source) {
+    VideoTrackSourceInterface* source) 
+{
   RTC_DCHECK(signaling_thread_->IsCurrent());
-  rtc::scoped_refptr<VideoTrackInterface> track(
-      VideoTrack::Create(id, source, worker_thread_));
+  // TODO@chensong 2022-09-29   pc/video_track.h
+  rtc::scoped_refptr<VideoTrackInterface> track(VideoTrack::Create(id, source, worker_thread_));
+  // TODO@chensong 2022-09-29 video_track对象托管到videoTrackProxy类中去代理类中去代理玩
   return VideoTrackProxy::Create(signaling_thread_, worker_thread_, track);
 }
 
-rtc::scoped_refptr<AudioTrackInterface> PeerConnectionFactory::CreateAudioTrack(
-    const std::string& id,
-    AudioSourceInterface* source) {
+rtc::scoped_refptr<AudioTrackInterface> PeerConnectionFactory::CreateAudioTrack( const std::string& id, AudioSourceInterface* source)
+{
   RTC_DCHECK(signaling_thread_->IsCurrent());
   rtc::scoped_refptr<AudioTrackInterface> track(AudioTrack::Create(id, source));
+  //TODO@chensong 2022-09-29  pc/audio_track.h   代理类中信号线程 驱动流程
   return AudioTrackProxy::Create(signaling_thread_, track);
 }
 
@@ -381,8 +385,8 @@ std::unique_ptr<RtcEventLog> PeerConnectionFactory::CreateRtcEventLog_w() {
              : absl::make_unique<RtcEventLogNullImpl>();
 }
 
-std::unique_ptr<Call> PeerConnectionFactory::CreateCall_w(
-    RtcEventLog* event_log) {
+std::unique_ptr<Call> PeerConnectionFactory::CreateCall_w(RtcEventLog* event_log) 
+{
   RTC_DCHECK_RUN_ON(worker_thread_);
 
   const int kMinBandwidthBps = 30000;
@@ -390,7 +394,8 @@ std::unique_ptr<Call> PeerConnectionFactory::CreateCall_w(
   const int kMaxBandwidthBps = 2000000;
 
   webrtc::Call::Config call_config(event_log);
-  if (!channel_manager_->media_engine() || !call_factory_) {
+  if (!channel_manager_->media_engine() || !call_factory_) 
+  {
     return nullptr;
   }
   call_config.audio_state = channel_manager_->media_engine()->voice().GetAudioState();
@@ -402,14 +407,18 @@ std::unique_ptr<Call> PeerConnectionFactory::CreateCall_w(
   call_config.task_queue_factory = task_queue_factory_.get();
   call_config.network_state_predictor_factory = network_state_predictor_factory_.get();
 
-  if (field_trial::IsEnabled("WebRTC-Bwe-InjectedCongestionController")) {
+  if (field_trial::IsEnabled("WebRTC-Bwe-InjectedCongestionController")) 
+  {
     RTC_LOG(LS_INFO) << "Using injected network controller factory";
-    call_config.network_controller_factory =
-        injected_network_controller_factory_.get();
-  } else {
+    call_config.network_controller_factory = injected_network_controller_factory_.get();
+  }
+  else 
+  {
     RTC_LOG(LS_INFO) << "Using default network controller factory";
   }
-
+  // TODO@chensong 2022-09-29 Call 中两个线程需要注意
+  //       1. pacer_thread
+  //       2. moudler_thread   
   return std::unique_ptr<Call>(call_factory_->CreateCall(call_config));
 }
 

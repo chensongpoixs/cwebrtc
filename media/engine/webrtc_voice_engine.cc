@@ -227,22 +227,24 @@ void WebRtcVoiceEngine::Init() {
   RTC_LOG(LS_INFO) << "Supported send codecs in order of preference:";
   // TODO@chensong 音频编码器信息 
   send_codecs_ = CollectCodecs(encoder_factory_->GetSupportedEncoders());
-  for (const AudioCodec& codec : send_codecs_) {
+  for (const AudioCodec& codec : send_codecs_) 
+  {
     RTC_LOG(LS_INFO) << ToString(codec);
   }
 
   RTC_LOG(LS_INFO) << "Supported recv codecs in order of preference:";
   // TODO@chensong 20220905 音频解码器信息
   recv_codecs_ = CollectCodecs(decoder_factory_->GetSupportedDecoders());
-  for (const AudioCodec& codec : recv_codecs_) {
+  for (const AudioCodec& codec : recv_codecs_) 
+  {
     RTC_LOG(LS_INFO) << ToString(codec);
   }
 
 #if defined(WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE)
   // No ADM supplied? Create a default one.
-  if (!adm_) {
-    adm_ = webrtc::AudioDeviceModule::Create(
-        webrtc::AudioDeviceModule::kPlatformDefaultAudio, task_queue_factory_);
+  if (!adm_)
+  {
+    adm_ = webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::kPlatformDefaultAudio, task_queue_factory_);
   }
 #endif  // WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE
   RTC_CHECK(adm());

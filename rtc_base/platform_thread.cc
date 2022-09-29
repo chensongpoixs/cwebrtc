@@ -35,7 +35,7 @@ struct ThreadAttributes {
   pthread_attr_t attr;
 };
 #endif  // defined(WEBRTC_WIN)
-}
+}  // namespace
 
 PlatformThread::PlatformThread(ThreadRunFunctionDeprecated func,
                                void* obj,
@@ -184,16 +184,21 @@ void PlatformThread::Run() {
   int64_t sequence_nr = 0;
 #endif
 
-  do {
+  do 
+  {
     // The interface contract of Start/Stop is that for a successful call to
     // Start, there should be at least one call to the run function.  So we
     // call the function before checking |stop_|.
-    if (!run_function_deprecated_(obj_))
+	// TODO@chensong 2022-09-29 在创建线程类中默认回调函数已经注册好了 
+    if (!run_function_deprecated_(obj_)) 
+	{
       break;
+    }
 #if RTC_DCHECK_IS_ON
     auto id = sequence_nr % kMaxLoopCount;
     loop_stamps[id] = rtc::TimeMillis();
-    if (sequence_nr > kMaxLoopCount) {
+    if (sequence_nr > kMaxLoopCount) 
+	{
       auto compare_id = (id + 1) % kMaxLoopCount;
       auto diff = loop_stamps[id] - loop_stamps[compare_id];
       RTC_DCHECK_GE(diff, 0);
@@ -241,44 +246,44 @@ bool PlatformThread::SetPriority(ThreadPriority priority) {
   // Setting thread priorities is not supported in NaCl or Fuchsia.
   return true;
 #elif defined(WEBRTC_CHROMIUM_BUILD) && defined(WEBRTC_LINUX)
-  // TODO(tommi): Switch to the same mechanism as Chromium uses for changing
-  // thread priorities.
-  return true;
+    // TODO(tommi): Switch to the same mechanism as Chromium uses for changing
+    // thread priorities.
+    return true;
 #else
-  const int policy = SCHED_FIFO;
-  const int min_prio = sched_get_priority_min(policy);
-  const int max_prio = sched_get_priority_max(policy);
-  if (min_prio == -1 || max_prio == -1) {
-    return false;
-  }
+    const int policy = SCHED_FIFO;
+    const int min_prio = sched_get_priority_min(policy);
+    const int max_prio = sched_get_priority_max(policy);
+    if (min_prio == -1 || max_prio == -1) {
+      return false;
+    }
 
-  if (max_prio - min_prio <= 2)
-    return false;
+    if (max_prio - min_prio <= 2)
+      return false;
 
-  // Convert webrtc priority to system priorities:
-  sched_param param;
-  const int top_prio = max_prio - 1;
-  const int low_prio = min_prio + 1;
-  switch (priority) {
-    case kLowPriority:
-      param.sched_priority = low_prio;
-      break;
-    case kNormalPriority:
-      // The -1 ensures that the kHighPriority is always greater or equal to
-      // kNormalPriority.
-      param.sched_priority = (low_prio + top_prio - 1) / 2;
-      break;
-    case kHighPriority:
-      param.sched_priority = std::max(top_prio - 2, low_prio);
-      break;
-    case kHighestPriority:
-      param.sched_priority = std::max(top_prio - 1, low_prio);
-      break;
-    case kRealtimePriority:
-      param.sched_priority = top_prio;
-      break;
-  }
-  return pthread_setschedparam(thread_, policy, &param) == 0;
+    // Convert webrtc priority to system priorities:
+    sched_param param;
+    const int top_prio = max_prio - 1;
+    const int low_prio = min_prio + 1;
+    switch (priority) {
+      case kLowPriority:
+        param.sched_priority = low_prio;
+        break;
+      case kNormalPriority:
+        // The -1 ensures that the kHighPriority is always greater or equal to
+        // kNormalPriority.
+        param.sched_priority = (low_prio + top_prio - 1) / 2;
+        break;
+      case kHighPriority:
+        param.sched_priority = std::max(top_prio - 2, low_prio);
+        break;
+      case kHighestPriority:
+        param.sched_priority = std::max(top_prio - 1, low_prio);
+        break;
+      case kRealtimePriority:
+        param.sched_priority = top_prio;
+        break;
+    }
+    return pthread_setschedparam(thread_, policy, &param) == 0;
 #endif  // defined(WEBRTC_WIN)
 }
 

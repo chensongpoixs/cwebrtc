@@ -123,12 +123,9 @@ class PeerConnection : public PeerConnectionInternal,
       const std::string& kind,
       const std::string& stream_id) override;
 
-  std::vector<rtc::scoped_refptr<RtpSenderInterface>> GetSenders()
-      const override;
-  std::vector<rtc::scoped_refptr<RtpReceiverInterface>> GetReceivers()
-      const override;
-  std::vector<rtc::scoped_refptr<RtpTransceiverInterface>> GetTransceivers()
-      const override;
+  std::vector<rtc::scoped_refptr<RtpSenderInterface>> GetSenders() const override;
+  std::vector<rtc::scoped_refptr<RtpReceiverInterface>> GetReceivers()  const override;
+  std::vector<rtc::scoped_refptr<RtpTransceiverInterface>> GetTransceivers()  const override;
 
   rtc::scoped_refptr<DataChannelInterface> CreateDataChannel(
       const std::string& label,
@@ -164,6 +161,10 @@ class PeerConnection : public PeerConnectionInternal,
       const override;
 
   // JSEP01
+  /**
+  * TODO@chensong 2022-09-29 
+  *真正要生成SDP信息的api的接口
+  */
   void CreateOffer(CreateSessionDescriptionObserver* observer,
                    const RTCOfferAnswerOptions& options) override;
   void CreateAnswer(CreateSessionDescriptionObserver* observer,

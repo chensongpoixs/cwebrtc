@@ -440,8 +440,7 @@ class RTC_EXPORT PeerConnectionInterface : public rtc::RefCountInterface {
     // if a lower cost one exists. For example, if both Wi-Fi and cellular
     // interfaces are available, this could be used to avoid using the cellular
     // interface.
-    CandidateNetworkPolicy candidate_network_policy =
-        kCandidateNetworkPolicyAll;
+    CandidateNetworkPolicy candidate_network_policy = kCandidateNetworkPolicyAll;
 
     // The maximum number of packets that can be stored in the NetEq audio
     // jitter buffer. Can be reduced to lower tolerated audio latency.
@@ -1198,6 +1197,13 @@ class PeerConnectionObserver {
   // log function.
   // The heuristics for defining what constitutes "interesting" are
   // implementation-defined.
+  // TODO@chensong 2022-09-29 
+  //当WebRTC检测到有趣的用法时调用。 
+  //适当的操作是添加有关 
+  // PeerConnect并将事件写入某种“有趣的事件” 
+  // log函数。 
+  //定义什么构成“有趣”的启发是 
+  //定义了实现。
   virtual void OnInterestingUsage(int usage_pattern) {}
 };
 

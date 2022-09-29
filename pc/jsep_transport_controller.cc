@@ -188,14 +188,19 @@ rtc::scoped_refptr<webrtc::DtlsTransport> JsepTransportController::LookupDtlsTra
   return jsep_transport->RtpDtlsTransport();
 }
 
-void JsepTransportController::SetIceConfig(const cricket::IceConfig& config) {
-  if (!network_thread_->IsCurrent()) {
+void JsepTransportController::SetIceConfig(const cricket::IceConfig& config) 
+{
+	// TODO@chensong 2022-09-29 ICE是在网络线程中操作的 配置ICE的信息
+  if (!network_thread_->IsCurrent()) 
+  {
     network_thread_->Invoke<void>(RTC_FROM_HERE, [&] { SetIceConfig(config); });
     return;
   }
 
   ice_config_ = config;
-  for (auto& dtls : GetDtlsTransports()) {
+  // TODO@chensong 2022-09-29    DtlsTransport中设置ICE的信息  
+  for (auto& dtls : GetDtlsTransports()) 
+  {
     dtls->ice_transport()->SetIceConfig(ice_config_);
   }
 }
@@ -1521,8 +1526,10 @@ void JsepTransportController::OnDtlsHandshakeError(
 }
 
 absl::optional<cricket::SessionDescription::MediaTransportSetting>
-JsepTransportController::GenerateOrGetLastMediaTransportOffer() {
-  if (media_transport_created_once_) {
+JsepTransportController::GenerateOrGetLastMediaTransportOffer() 
+{
+  if (media_transport_created_once_)
+  {
     RTC_LOG(LS_INFO) << "Not regenerating media transport for the new offer in "
                         "existing session.";
     return media_transport_offer_settings_;
@@ -1531,7 +1538,8 @@ JsepTransportController::GenerateOrGetLastMediaTransportOffer() {
   RTC_LOG(LS_INFO) << "Generating media transport offer!";
   // Check that media transport is supposed to be used.
   if (config_.use_media_transport_for_media ||
-      config_.use_media_transport_for_data_channels) {
+      config_.use_media_transport_for_data_channels) 
+  {
     RTC_DCHECK(config_.media_transport_factory != nullptr);
     // ICE is not available when media transport is created. It will only be
     // available in 'Connect'. This may be a potential server config, if we
@@ -1540,26 +1548,29 @@ JsepTransportController::GenerateOrGetLastMediaTransportOffer() {
     settings.is_caller = true;
     settings.pre_shared_key = rtc::CreateRandomString(32);
     settings.event_log = config_.event_log;
-    auto media_transport_or_error =
-        config_.media_transport_factory->CreateMediaTransport(network_thread_,
+    auto media_transport_or_error = config_.media_transport_factory->CreateMediaTransport(network_thread_,
                                                               settings);
 
-    if (media_transport_or_error.ok()) {
+    if (media_transport_or_error.ok()) 
+	{
       offer_media_transport_ = std::move(media_transport_or_error.value());
-    } else {
+    }
+	else 
+	{
       RTC_LOG(LS_INFO) << "Unable to create media transport, error="
                        << media_transport_or_error.error().message();
     }
   }
 
-  if (!offer_media_transport_) {
+  if (!offer_media_transport_) 
+  {
     RTC_LOG(LS_INFO) << "Media transport doesn't exist";
     return absl::nullopt;
   }
 
-  absl::optional<std::string> transport_parameters =
-      offer_media_transport_->GetTransportParametersOffer();
-  if (!transport_parameters) {
+  absl::optional<std::string> transport_parameters = offer_media_transport_->GetTransportParametersOffer();
+  if (!transport_parameters) 
+  {
     RTC_LOG(LS_INFO) << "Media transport didn't generate the offer";
     // Media transport didn't generate the offer, and is not supposed to be
     // used. Destroy the temporary media transport.

@@ -185,7 +185,8 @@ bool Conductor::InitializePeerConnection() {
     return false;
   }
   // 设置SDP  ->马流是否加密哈DTLS
-  if (!CreatePeerConnection(/*dtls=*/true)) {
+  if (!CreatePeerConnection(/*dtls=*/true)) 
+  {
     main_wnd_->MessageBox("Error", "CreatePeerConnection failed", true);
     DeletePeerConnection();
   }
@@ -223,8 +224,7 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   server.uri = GetPeerConnectionString();
   config.servers.push_back(server);
 
-  peer_connection_ = peer_connection_factory_->CreatePeerConnection(
-      config, nullptr, nullptr, this);
+  peer_connection_ = peer_connection_factory_->CreatePeerConnection(config, nullptr, nullptr, this);
   return peer_connection_ != nullptr;
 }
 
@@ -468,10 +468,10 @@ void Conductor::ConnectToPeer(int peer_id) {
     return;
   }
 
-  if (InitializePeerConnection()) {
+  if (InitializePeerConnection()) 
+  {
     peer_id_ = peer_id;
-    peer_connection_->CreateOffer(
-        this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
+    peer_connection_->CreateOffer(this, webrtc::PeerConnectionInterface::RTCOfferAnswerOptions());
   } else {
     main_wnd_->MessageBox("Error", "Failed to initialize PeerConnection", true);
   }
@@ -479,29 +479,35 @@ void Conductor::ConnectToPeer(int peer_id) {
 
 void Conductor::AddTracks() {
 	RTC_LOG(LS_INFO) << __FUNCTION__;
-  if (!peer_connection_->GetSenders().empty()) {
+  if (!peer_connection_->GetSenders().empty()) 
+  {
     return;  // Already added tracks.
   }
+  ///////////////////////////////////////////////AUDIO///////////////////////////////////////////////////////////
+  rtc::scoped_refptr<webrtc::AudioSourceInterface> audio_source_ptr =
+      peer_connection_factory_->CreateAudioSource(cricket::AudioOptions());
 
-  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track(
-      peer_connection_factory_->CreateAudioTrack(
-          kAudioLabel, peer_connection_factory_->CreateAudioSource(
-                           cricket::AudioOptions())));
-  auto result_or_error = peer_connection_->AddTrack(audio_track, {kStreamId});
-  if (!result_or_error.ok()) {
+  rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track_ptr =
+      peer_connection_factory_->CreateAudioTrack(kAudioLabel, audio_source_ptr);
+   
+  auto result_or_error =  peer_connection_->AddTrack(audio_track_ptr, {kStreamId});
+  if (!result_or_error.ok()) 
+  {
     RTC_LOG(LS_ERROR) << "Failed to add audio track to PeerConnection: "
                       << result_or_error.error().message();
   }
+  //////////////////////////////////////////VIDEO////////////////////////////////////////////////////////////////
+  rtc::scoped_refptr<CapturerTrackSource> video_device =  CapturerTrackSource::Create();
+  if (video_device) 
+  {
+    rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track_ptr =
+        peer_connection_factory_->CreateVideoTrack(kVideoLabel, video_device);
+	 
+    main_wnd_->StartLocalRenderer(video_track_ptr);
 
-  rtc::scoped_refptr<CapturerTrackSource> video_device =
-      CapturerTrackSource::Create();
-  if (video_device) {
-    rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track_(
-        peer_connection_factory_->CreateVideoTrack(kVideoLabel, video_device));
-    main_wnd_->StartLocalRenderer(video_track_);
-
-    result_or_error = peer_connection_->AddTrack(video_track_, {kStreamId});
-    if (!result_or_error.ok()) {
+    result_or_error = peer_connection_->AddTrack(video_track_ptr, {kStreamId});
+    if (!result_or_error.ok()) 
+	{
       RTC_LOG(LS_ERROR) << "Failed to add video track to PeerConnection: "
                         << result_or_error.error().message();
     }
@@ -509,7 +515,7 @@ void Conductor::AddTracks() {
   } else {
     RTC_LOG(LS_ERROR) << "OpenVideoCaptureDevice failed";
   }
-
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
   main_wnd_->SwitchToStreamingUI();
 }
 

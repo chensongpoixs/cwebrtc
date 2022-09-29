@@ -57,10 +57,11 @@ bool UnimplementedRtpEncodingParameterHasValue(
 // parameters are set at any index other than 0 of RtpParameters.encodings,
 // because they are currently unimplemented to be used for a specific encoding
 // layer.
-bool PerSenderRtpEncodingParameterHasValue(
-    const RtpEncodingParameters& encoding_params) {
+bool PerSenderRtpEncodingParameterHasValue(const RtpEncodingParameters& encoding_params) 
+{
   if (encoding_params.bitrate_priority != kDefaultBitratePriority ||
-      encoding_params.network_priority != kDefaultBitratePriority) {
+      encoding_params.network_priority != kDefaultBitratePriority) 
+  {
     return true;
   }
   return false;
@@ -100,18 +101,22 @@ RtpParameters RestoreEncodingLayers(
 
 // Returns true if any RtpParameters member that isn't implemented contains a
 // value.
-bool UnimplementedRtpParameterHasValue(const RtpParameters& parameters) {
-  if (!parameters.mid.empty()) {
+bool UnimplementedRtpParameterHasValue(const RtpParameters& parameters) 
+{
+  if (!parameters.mid.empty()) 
+  {
     return true;
   }
-  for (size_t i = 0; i < parameters.encodings.size(); ++i) {
-    if (UnimplementedRtpEncodingParameterHasValue(parameters.encodings[i])) {
+  for (size_t i = 0; i < parameters.encodings.size(); ++i) 
+  {
+    if (UnimplementedRtpEncodingParameterHasValue(parameters.encodings[i])) 
+	{
       return true;
     }
     // Encoding parameters that are per-sender should only contain value at
     // index 0.
-    if (i != 0 &&
-        PerSenderRtpEncodingParameterHasValue(parameters.encodings[i])) {
+    if (i != 0 && PerSenderRtpEncodingParameterHasValue(parameters.encodings[i])) 
+	{
       return true;
     }
   }

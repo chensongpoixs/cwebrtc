@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -89,6 +89,7 @@ class WebRtcVideoEngine : public VideoEngineInterface {
 
   ~WebRtcVideoEngine() override;
 
+  // TODO@chensong 20220929  channel_manager 中CreateVideoChannel方法调用该方法 创建视频通道
   VideoMediaChannel* CreateMediaChannel(
       webrtc::Call* call,
       const MediaConfig& config,

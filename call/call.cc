@@ -430,12 +430,17 @@ Call* Call::Create(const Call::Config& config) {
 Call* Call::Create(const Call::Config& config,
                    Clock* clock,
                    std::unique_ptr<ProcessThread> call_thread,
-                   std::unique_ptr<ProcessThread> pacer_thread) {
+                   std::unique_ptr<ProcessThread> pacer_thread) 
+{
   // TODO(bugs.webrtc.org/10284): DCHECK task_queue_factory dependency is
   // always provided in the config.
   TaskQueueFactory* task_queue_factory = config.task_queue_factory
                                              ? config.task_queue_factory
                                              : &GlobalTaskQueueFactory();
+
+  // TODO@chensong 2022-09-29 
+  //		1. RtpTransportControllerSend中有个线程pacer专门发送网络包反馈网络情况
+  //		2. Call : 
   return new internal::Call(
       clock, config,
       absl::make_unique<RtpTransportControllerSend>(

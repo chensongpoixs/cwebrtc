@@ -44,7 +44,8 @@ static const uint64_t kInitSessionVersion = 2;
 
 // Check that each sender has a unique ID.
 static bool ValidMediaSessionOptions(
-    const cricket::MediaSessionOptions& session_options) {
+    const cricket::MediaSessionOptions& session_options)
+{
   std::vector<cricket::SenderOptions> sorted_senders;
   for (const cricket::MediaDescriptionOptions& media_description_options :
        session_options.media_description_options) {
@@ -177,9 +178,9 @@ WebRtcSessionDescriptionFactory::WebRtcSessionDescriptionFactory(
         new rtc::RefCountedObject<WebRtcCertificateGeneratorCallback>());
     callback->SignalRequestFailed.connect(
         this, &WebRtcSessionDescriptionFactory::OnCertificateRequestFailed);
+
 	// TODO@chensong 这边注册创建offer的SDP的信息的 回调函数哈 ^_^
-    callback->SignalCertificateReady.connect(
-        this, &WebRtcSessionDescriptionFactory::SetCertificate);
+    callback->SignalCertificateReady.connect( this, &WebRtcSessionDescriptionFactory::SetCertificate);
 
     rtc::KeyParams key_params = rtc::KeyParams();
     RTC_LOG(LS_VERBOSE)
@@ -188,8 +189,8 @@ WebRtcSessionDescriptionFactory::WebRtcSessionDescriptionFactory(
 
     // Request certificate. This happens asynchronously, so that the caller gets
     // a chance to connect to |SignalCertificateReady|.
-    cert_generator_->GenerateCertificateAsync(key_params, absl::nullopt,
-                                              callback);
+	// TODO@chensong 2022-09-29 驱动certificate信息的收集调用
+    cert_generator_->GenerateCertificateAsync(key_params, absl::nullopt, callback);
   }
 }
 
@@ -221,27 +222,33 @@ WebRtcSessionDescriptionFactory::~WebRtcSessionDescriptionFactory() {
 void WebRtcSessionDescriptionFactory::CreateOffer(
     CreateSessionDescriptionObserver* observer,
     const PeerConnectionInterface::RTCOfferAnswerOptions& options,
-    const cricket::MediaSessionOptions& session_options) {
+    const cricket::MediaSessionOptions& session_options)
+{
   std::string error = "CreateOffer";
-  if (certificate_request_state_ == CERTIFICATE_FAILED) {
+  if (certificate_request_state_ == CERTIFICATE_FAILED) 
+  {
     error += kFailedDueToIdentityFailed;
     RTC_LOG(LS_ERROR) << error;
     PostCreateSessionDescriptionFailed(observer, error);
     return;
   }
 
-  if (!ValidMediaSessionOptions(session_options)) {
+  if (!ValidMediaSessionOptions(session_options)) 
+  {
     error += " called with invalid session options";
     RTC_LOG(LS_ERROR) << error;
     PostCreateSessionDescriptionFailed(observer, error);
     return;
   }
 
-  CreateSessionDescriptionRequest request(
-      CreateSessionDescriptionRequest::kOffer, observer, session_options);
-  if (certificate_request_state_ == CERTIFICATE_WAITING) {
+  CreateSessionDescriptionRequest request(CreateSessionDescriptionRequest::kOffer, observer, session_options);
+  // TODO@chensong 2022-09-29 一般情况下是 CERTIFICATE_SUCCEEDED状态 证书是在用户创建peerconnection 后切换工作线程生成证书 修改了状态为CERTIFICATE_SUCCEEDED
+  if (certificate_request_state_ == CERTIFICATE_WAITING) 
+  {
     create_session_description_requests_.push(request);
-  } else {
+  } 
+  else 
+  {
     RTC_DCHECK(certificate_request_state_ == CERTIFICATE_SUCCEEDED ||
                certificate_request_state_ == CERTIFICATE_NOT_NEEDED);
     InternalCreateOffer(request);
@@ -289,8 +296,8 @@ void WebRtcSessionDescriptionFactory::CreateAnswer(
   }
 }
 
-void WebRtcSessionDescriptionFactory::SetSdesPolicy(
-    cricket::SecurePolicy secure_policy) {
+void WebRtcSessionDescriptionFactory::SetSdesPolicy( cricket::SecurePolicy secure_policy) 
+{
   session_desc_factory_.set_secure(secure_policy);
 }
 
@@ -331,25 +338,28 @@ void WebRtcSessionDescriptionFactory::OnMessage(rtc::Message* msg) {
 }
 
 void WebRtcSessionDescriptionFactory::InternalCreateOffer(
-    CreateSessionDescriptionRequest request) {
-	// 这边local_description 是没有值的 只有本地设置过了就会有哈
-  if (pc_->local_description()) {
+    CreateSessionDescriptionRequest request) 
+{
+	// TODO@chensong 2022-03-25 这边local_description 是没有值的 只有本地设置过了就会有哈
+  if (pc_->local_description()) 
+  {
     // If the needs-ice-restart flag is set as described by JSEP, we should
     // generate an offer with a new ufrag/password to trigger an ICE restart.
-    for (cricket::MediaDescriptionOptions& options :
-         request.options.media_description_options) {
-      if (pc_->NeedsIceRestart(options.mid)) {
+    for (cricket::MediaDescriptionOptions& options : request.options.media_description_options)
+	{
+      if (pc_->NeedsIceRestart(options.mid)) 
+	  {
         options.transport_options.ice_restart = true;
       }
     }
   }
   // TODO@chensong 2022-03-25 这里面就是 获取本地SDP的信息的结构 哈 ^_^
   std::unique_ptr<cricket::SessionDescription> desc =
-      session_desc_factory_.CreateOffer(
-          request.options, pc_->local_description()
+      session_desc_factory_.CreateOffer( request.options, pc_->local_description()
                                ? pc_->local_description()->description()
                                : nullptr);
-  if (!desc) {
+  if (!desc) 
+  {
     PostCreateSessionDescriptionFailed(request.observer,
                                        "Failed to initialize the offer.");
     return;
@@ -365,15 +375,15 @@ void WebRtcSessionDescriptionFactory::InternalCreateOffer(
   // is created regardless if it's identical to the previous one or not.
   // The |session_version_| is a uint64_t, the wrap around should not happen.
   RTC_DCHECK(session_version_ + 1 > session_version_);
-  auto offer = absl::make_unique<JsepSessionDescription>(
-      SdpType::kOffer, std::move(desc), session_id_,
+  auto offer = absl::make_unique<JsepSessionDescription>( SdpType::kOffer, std::move(desc), session_id_,
       rtc::ToString(session_version_++));
-  if (pc_->local_description()) {
-    for (const cricket::MediaDescriptionOptions& options :
-         request.options.media_description_options) {
-      if (!options.transport_options.ice_restart) {
-        CopyCandidatesFromSessionDescription(pc_->local_description(),
-                                             options.mid, offer.get());
+  if (pc_->local_description()) 
+  {
+    for (const cricket::MediaDescriptionOptions& options : request.options.media_description_options) 
+	{
+      if (!options.transport_options.ice_restart) 
+	  {
+        CopyCandidatesFromSessionDescription(pc_->local_description(), options.mid, offer.get());
       }
     }
   }
@@ -484,8 +494,8 @@ void WebRtcSessionDescriptionFactory::OnCertificateRequestFailed() {
   FailPendingRequests(kFailedDueToIdentityFailed);
 }
 
-void WebRtcSessionDescriptionFactory::SetCertificate(
-    const rtc::scoped_refptr<rtc::RTCCertificate>& certificate) {
+void WebRtcSessionDescriptionFactory::SetCertificate(const rtc::scoped_refptr<rtc::RTCCertificate>& certificate) 
+{
   RTC_DCHECK(certificate);
   RTC_LOG(LS_VERBOSE) << "Setting new certificate.";
   // TODO@chensong 2022-03-25  创建本地的WebRTC的证书 的信息
@@ -496,12 +506,16 @@ void WebRtcSessionDescriptionFactory::SetCertificate(
 
   transport_desc_factory_.set_certificate(certificate);
   transport_desc_factory_.set_secure(cricket::SEC_ENABLED);
-
-  while (!create_session_description_requests_.empty()) {
-    if (create_session_description_requests_.front().type ==
-        CreateSessionDescriptionRequest::kOffer) {
+  // TODO@chensong 202209-29 一般情况下是没有数据的， 原因是只有的在应用层在生成证书之前调用创建Offer或者创建Answer的接口，
+  //  create_session_description_requests_队列中才有数据，
+  while (!create_session_description_requests_.empty()) 
+  {
+    if (create_session_description_requests_.front().type == CreateSessionDescriptionRequest::kOffer) 
+	{
       InternalCreateOffer(create_session_description_requests_.front());
-    } else {
+    }
+	else 
+	{
       InternalCreateAnswer(create_session_description_requests_.front());
     }
     create_session_description_requests_.pop();

@@ -90,7 +90,7 @@ RtpTransportControllerSend::RtpTransportControllerSend(
   RTC_DCHECK(bitrate_config.start_bitrate_bps > 0);
 
   pacer_.SetPacingRates(bitrate_config.start_bitrate_bps, 0);
-
+  // TODO@chensong 2022-09-29 注册网络发送包  会不停调用 pacer_中方法Process
   process_thread_->RegisterModule(&pacer_, RTC_FROM_HERE);
   process_thread_->Start();
 }

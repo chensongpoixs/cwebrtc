@@ -141,11 +141,9 @@ class WebRtcSessionDescriptionFactory : public rtc::MessageHandler,
       std::unique_ptr<SessionDescriptionInterface> description);
 
   void OnCertificateRequestFailed();
-  void SetCertificate(
-      const rtc::scoped_refptr<rtc::RTCCertificate>& certificate);
+  void SetCertificate(const rtc::scoped_refptr<rtc::RTCCertificate>& certificate);
 
-  std::queue<CreateSessionDescriptionRequest>
-      create_session_description_requests_;
+  std::queue<CreateSessionDescriptionRequest> create_session_description_requests_;
   rtc::Thread* const signaling_thread_;
   cricket::TransportDescriptionFactory transport_desc_factory_;
   cricket::MediaSessionDescriptionFactory session_desc_factory_;
