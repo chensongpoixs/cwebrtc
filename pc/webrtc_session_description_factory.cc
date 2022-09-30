@@ -336,9 +336,14 @@ void WebRtcSessionDescriptionFactory::OnMessage(rtc::Message* msg) {
       break;
   }
 }
-
-void WebRtcSessionDescriptionFactory::InternalCreateOffer(
-    CreateSessionDescriptionRequest request) 
+/**
+* TODO@chensong 2022-09-30
+*   这个函数有两种机制触发
+*			1. 在工作线程生成certifidate信息后 ，回调用 SetCertificate 方法 检查队列中是否有数据 ，如果有的话就根据类型调用InternalCreateOffer或者InternalCreateAnswer
+*			2. 在应用层调用创建CreateOffer， PeerConnection中证书已经生成了（certificate_request_state_ = CERTIFICATE_SUCCEEDED），  就调用InternalCreateOffer
+*			
+*/
+void WebRtcSessionDescriptionFactory::InternalCreateOffer( CreateSessionDescriptionRequest request) 
 {
 	// TODO@chensong 2022-03-25 这边local_description 是没有值的 只有本地设置过了就会有哈
   if (pc_->local_description()) 
@@ -354,14 +359,12 @@ void WebRtcSessionDescriptionFactory::InternalCreateOffer(
     }
   }
   // TODO@chensong 2022-03-25 这里面就是 获取本地SDP的信息的结构 哈 ^_^
-  std::unique_ptr<cricket::SessionDescription> desc =
-      session_desc_factory_.CreateOffer( request.options, pc_->local_description()
+  std::unique_ptr<cricket::SessionDescription> desc = session_desc_factory_.CreateOffer( request.options, pc_->local_description()
                                ? pc_->local_description()->description()
                                : nullptr);
   if (!desc) 
   {
-    PostCreateSessionDescriptionFailed(request.observer,
-                                       "Failed to initialize the offer.");
+    PostCreateSessionDescriptionFailed(request.observer, "Failed to initialize the offer.");
     return;
   }
 
