@@ -308,9 +308,8 @@ cricket::SecurePolicy WebRtcSessionDescriptionFactory::SdesPolicy() const {
 void WebRtcSessionDescriptionFactory::OnMessage(rtc::Message* msg) {
   switch (msg->message_id) {
     case MSG_CREATE_SESSIONDESCRIPTION_SUCCESS: {
-	//TODO@chensong  给用户态的的SDP的信息哈  
-      CreateSessionDescriptionMsg* param =
-          static_cast<CreateSessionDescriptionMsg*>(msg->pdata);
+	//TODO@chensong 2022-10-04  给用户态的的certificate的信息哈  
+      CreateSessionDescriptionMsg* param = static_cast<CreateSessionDescriptionMsg*>(msg->pdata);
       param->observer->OnSuccess(param->description.release());
       delete param;
       break;
@@ -322,7 +321,9 @@ void WebRtcSessionDescriptionFactory::OnMessage(rtc::Message* msg) {
       delete param;
       break;
     }
-    case MSG_USE_CONSTRUCTOR_CERTIFICATE: {
+    case MSG_USE_CONSTRUCTOR_CERTIFICATE: 
+	{
+		// 默认证书就之间回调函数哈
       rtc::ScopedRefMessageData<rtc::RTCCertificate>* param =
           static_cast<rtc::ScopedRefMessageData<rtc::RTCCertificate>*>(
               msg->pdata);
