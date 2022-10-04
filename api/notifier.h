@@ -20,6 +20,7 @@ namespace webrtc {
 
 // Implements a template version of a notifier.
 // TODO(deadbeef): This is an implementation detail; move out of api/.
+// TODO@chensong 2022-10-05 桥接模式
 template <class T>
 class Notifier : public T 
 {

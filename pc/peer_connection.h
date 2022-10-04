@@ -1123,8 +1123,7 @@ class PeerConnection : public PeerConnectionInternal,
   std::unique_ptr<AsyncResolverFactory> async_resolver_factory_  RTC_GUARDED_BY(signaling_thread());
   std::unique_ptr<cricket::PortAllocator>  port_allocator_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                         // signaling and network thread.
-  std::unique_ptr<rtc::SSLCertificateVerifier>
-      tls_cert_verifier_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  std::unique_ptr<rtc::SSLCertificateVerifier> tls_cert_verifier_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                            // signaling and network thread.
 
   // One PeerConnection has only one RTCP CNAME.

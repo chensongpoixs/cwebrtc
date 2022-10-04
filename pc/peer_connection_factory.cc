@@ -349,7 +349,7 @@ rtc::scoped_refptr<VideoTrackInterface> PeerConnectionFactory::CreateVideoTrack(
   RTC_DCHECK(signaling_thread_->IsCurrent());
   // TODO@chensong 2022-09-29   pc/video_track.h
   rtc::scoped_refptr<VideoTrackInterface> track(VideoTrack::Create(id, source, worker_thread_));
-  // TODO@chensong 2022-09-29 video_track对象托管到videoTrackProxy类中去代理类中去代理玩
+  // TODO@chensong 2022-09-29 video_track对象托管到videoTrackProxy类中去代理类中去代理玩 [信号线程、工作线程]
   return VideoTrackProxy::Create(signaling_thread_, worker_thread_, track);
 }
 
