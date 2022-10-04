@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2011 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -21,26 +21,31 @@ namespace webrtc {
 // Implements a template version of a notifier.
 // TODO(deadbeef): This is an implementation detail; move out of api/.
 template <class T>
-class Notifier : public T {
+class Notifier : public T 
+{
  public:
   Notifier() {}
 
-  virtual void RegisterObserver(ObserverInterface* observer) {
+  virtual void RegisterObserver(ObserverInterface* observer) 
+  {
     RTC_DCHECK(observer != nullptr);
     observers_.push_back(observer);
   }
 
-  virtual void UnregisterObserver(ObserverInterface* observer) {
-    for (std::list<ObserverInterface*>::iterator it = observers_.begin();
-         it != observers_.end(); it++) {
-      if (*it == observer) {
+  virtual void UnregisterObserver(ObserverInterface* observer)
+  {
+    for (std::list<ObserverInterface*>::iterator it = observers_.begin(); it != observers_.end(); it++) 
+	{
+      if (*it == observer)
+	  {
         observers_.erase(it);
         break;
       }
     }
   }
 
-  void FireOnChanged() {
+  void FireOnChanged() 
+  {
     // Copy the list of observers to avoid a crash if the observer object
     // unregisters as a result of the OnChanged() call. If the same list is used
     // UnregisterObserver will affect the list make the iterator invalid.

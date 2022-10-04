@@ -26,11 +26,13 @@ class MediaStreamTrack : public Notifier<T> {
   typedef typename T::TrackState TypedTrackState;
 
   std::string id() const override { return id_; }
-  MediaStreamTrackInterface::TrackState state() const override {
+  MediaStreamTrackInterface::TrackState state() const override 
+  {
     return state_;
   }
   bool enabled() const override { return enabled_; }
-  bool set_enabled(bool enable) override {
+  bool set_enabled(bool enable) override 
+  {
     bool fire_on_change = (enable != enabled_);
     enabled_ = enable;
     if (fire_on_change) {

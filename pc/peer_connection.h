@@ -330,9 +330,7 @@ class PeerConnection : public PeerConnectionInternal,
   rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>
   GetFirstAudioTransceiver() const RTC_RUN_ON(signaling_thread());
 
-  void CreateAudioReceiver(MediaStreamInterface* stream,
-                           const RtpSenderInfo& remote_sender_info)
-      RTC_RUN_ON(signaling_thread());
+  void CreateAudioReceiver(MediaStreamInterface* stream, const RtpSenderInfo& remote_sender_info) RTC_RUN_ON(signaling_thread());
 
   void CreateVideoReceiver(MediaStreamInterface* stream,
                            const RtpSenderInfo& remote_sender_info)
