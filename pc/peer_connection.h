@@ -1165,7 +1165,8 @@ class PeerConnection : public PeerConnectionInternal,
   std::unique_ptr<StatsCollector> stats_ RTC_GUARDED_BY(signaling_thread());  // A pointer is passed to senders_
   rtc::scoped_refptr<RTCStatsCollector> stats_collector_ RTC_GUARDED_BY(signaling_thread());
   // 通道个数 接受和发送通道
-  std::vector< rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>> transceivers_;  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
+  std::vector< rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>> transceivers_;  
+  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
                       // and network thread.
 
   // In Unified Plan, if we encounter remote SDP that does not contain an a=msid
