@@ -2301,8 +2301,8 @@ void PeerConnection::SetLocalDescription(
  *TODO@chensong  20220928 创建媒体数据传输的通道channel
  *
  */
-RTCError PeerConnection::ApplyLocalDescription(
-    std::unique_ptr<SessionDescriptionInterface> desc) {
+RTCError PeerConnection::ApplyLocalDescription( std::unique_ptr<SessionDescriptionInterface> desc) 
+{
   RTC_DCHECK_RUN_ON(signaling_thread());
   RTC_DCHECK(desc);
 
@@ -2315,18 +2315,20 @@ RTCError PeerConnection::ApplyLocalDescription(
   // description, grab ownership of the replaced session description in case it
   // is the same as |old_local_description|, to keep it alive for the duration
   // of the method.
-  const SessionDescriptionInterface* old_local_description =
-      local_description();
-  std::unique_ptr<SessionDescriptionInterface> replaced_local_description;
+  const SessionDescriptionInterface* old_local_description =   local_description();
+  std::unique_ptr<SessionDescriptionInterface> replaced_local_description; 
   SdpType type = desc->GetType();
-  if (type == SdpType::kAnswer) {
+  if (type == SdpType::kAnswer) 
+  {
     replaced_local_description = pending_local_description_
                                      ? std::move(pending_local_description_)
                                      : std::move(current_local_description_);
     current_local_description_ = std::move(desc);
     pending_local_description_ = nullptr;
     current_remote_description_ = std::move(pending_remote_description_);
-  } else {
+  } 
+  else 
+  {
     replaced_local_description = std::move(pending_local_description_);
     pending_local_description_ = std::move(desc);
   }
@@ -2678,18 +2680,25 @@ RTCError PeerConnection::ApplyRemoteDescription(
   // description, grab ownership of the replaced session description in case it
   // is the same as |old_remote_description|, to keep it alive for the duration
   // of the method.
-  const SessionDescriptionInterface* old_remote_description =
-      remote_description();
+  const SessionDescriptionInterface* old_remote_description = remote_description();
   std::unique_ptr<SessionDescriptionInterface> replaced_remote_description;
+  // TODO@chensong 2022-10-04 这个type类型很关键 什么会Kanswer呢？？
+  // 两种情况： Offer或者Answer
+  //         1. 主动呼叫对方时, 调用SetRemoteDescription函数时的type类型是KAnswer
+  //         2. 对端呼叫时， 调用函数SetRemoteDescription函数时的Type类型是KOffer
   SdpType type = desc->GetType();
-  if (type == SdpType::kAnswer) {
+  if (type == SdpType::kAnswer)
+  {
     replaced_remote_description = pending_remote_description_
                                       ? std::move(pending_remote_description_)
                                       : std::move(current_remote_description_);
     current_remote_description_ = std::move(desc);
     pending_remote_description_ = nullptr;
     current_local_description_ = std::move(pending_local_description_);
-  } else {
+  }
+  else 
+  {
+	  //TODO@chensong 2022-10-04 设置对端的SDP
     replaced_remote_description = std::move(pending_remote_description_);
     pending_remote_description_ = std::move(desc);
   }

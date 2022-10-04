@@ -1249,6 +1249,8 @@ class PeerConnection : public PeerConnectionInternal,
   sigslot::signal1<int> SignalMediaTransportChannelClosed_s  RTC_GUARDED_BY(signaling_thread());
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// TODO@chensong 2022-10-04 在调用SetLocalDesctioption和SetRemoveDesctioption函数设置这些值
+  //  做四个值主要来区分主动呼叫和对端呼叫时设置对端的Offer或者Answer
   std::unique_ptr<SessionDescriptionInterface> current_local_description_ RTC_GUARDED_BY(signaling_thread());
   std::unique_ptr<SessionDescriptionInterface> pending_local_description_ RTC_GUARDED_BY(signaling_thread());
   std::unique_ptr<SessionDescriptionInterface> current_remote_description_ RTC_GUARDED_BY(signaling_thread());

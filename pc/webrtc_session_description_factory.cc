@@ -395,11 +395,12 @@ void WebRtcSessionDescriptionFactory::InternalCreateOffer( CreateSessionDescript
   PostCreateSessionDescriptionSucceeded(request.observer, std::move(offer));
 }
 
-void WebRtcSessionDescriptionFactory::InternalCreateAnswer(
-    CreateSessionDescriptionRequest request) {
-  if (pc_->remote_description()) {
-    for (cricket::MediaDescriptionOptions& options :
-         request.options.media_description_options) {
+void WebRtcSessionDescriptionFactory::InternalCreateAnswer(  CreateSessionDescriptionRequest request) 
+{
+  if (pc_->remote_description()) 
+  {
+    for (cricket::MediaDescriptionOptions& options : request.options.media_description_options) 
+	{
       // According to http://tools.ietf.org/html/rfc5245#section-9.2.1.1
       // an answer should also contain new ICE ufrag and password if an offer
       // has been received with new ufrag and password.
@@ -408,9 +409,9 @@ void WebRtcSessionDescriptionFactory::InternalCreateAnswer(
       // We should pass the current SSL role to the transport description
       // factory, if there is already an existing ongoing session.
       rtc::SSLRole ssl_role;
-      if (pc_->GetSslRole(options.mid, &ssl_role)) {
-        options.transport_options.prefer_passive_role =
-            (rtc::SSL_SERVER == ssl_role);
+      if (pc_->GetSslRole(options.mid, &ssl_role)) 
+	  {
+        options.transport_options.prefer_passive_role = (rtc::SSL_SERVER == ssl_role);
       }
     }
   }
