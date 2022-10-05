@@ -504,8 +504,7 @@ static bool AddStreamParams(
   for (const SenderOptions& sender : sender_options) {
     // groupid is empty for StreamParams generated using
     // MediaSessionDescriptionFactory.
-    StreamParams* param =
-        GetStreamByIds(*current_streams, "" /*group_id*/, sender.track_id);
+    StreamParams* param = GetStreamByIds(*current_streams, "" /*group_id*/, sender.track_id);
     if (!param) {
       // This is a new sender.
       StreamParams stream_param =

@@ -226,18 +226,20 @@ class MediaContentDescription {
   std::string protocol_;
   std::vector<CryptoParams> cryptos_;
   std::vector<webrtc::RtpExtension> rtp_header_extensions_;   // RTP 扩展头
-  bool rtp_header_extensions_set_ = false;
-  StreamParamsVec send_streams_;
+  bool rtp_header_extensions_set_ = false; // TODO@chensong 2022-10-05 是否有RTP的扩展头 就是上面那个rtp_header_extensinons中有没有数据
+  StreamParamsVec send_streams_; // ???
   bool conference_mode_ = false;
-  webrtc::RtpTransceiverDirection direction_ =
-      webrtc::RtpTransceiverDirection::kSendRecv;
+  webrtc::RtpTransceiverDirection direction_ = webrtc::RtpTransceiverDirection::kSendRecv;
   rtc::SocketAddress connection_address_;
   // Mixed one- and two-byte header not included in offer on media level or
   // session level, but we will respond that we support it. The plan is to add
   // it to our offer on session level. See todo in SessionDescription.
+  // Chrome自从M71版本就开始支持SDP协议属性extmap-allow-mixed，
+  // 但是如果提供了extmap-allow-mixed，M71之前版本Chrome的SDP协商将会失败。
+  //  从Chrome M89版本开始，extmap-allow-mixed 将被默认提供。
   ExtmapAllowMixed extmap_allow_mixed_enum_ = kNo; // a=extmap-allow-mixed
 
-  SimulcastDescription simulcast_;
+  SimulcastDescription simulcast_; // ???
 };
 
 // TODO(bugs.webrtc.org/8620): Remove this alias once downstream projects have

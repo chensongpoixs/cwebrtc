@@ -201,10 +201,12 @@ webrtc::BitrateConstraints GetBitrateConfigForCodec(const Codec& codec) {
   config.start_bitrate_bps = 1000  *1000;
   return config;*/
   int bitrate_kbps = 0;
-  if (codec.GetParam(kCodecParamMinBitrate, &bitrate_kbps) &&
-      bitrate_kbps > 0) {
+  if (codec.GetParam(kCodecParamMinBitrate, &bitrate_kbps) && bitrate_kbps > 0) 
+  {
     config.min_bitrate_bps = bitrate_kbps * 1000;
-  } else {
+  }
+  else 
+  {
     config.min_bitrate_bps = 0;
   }
   if (codec.GetParam(kCodecParamStartBitrate, &bitrate_kbps) &&

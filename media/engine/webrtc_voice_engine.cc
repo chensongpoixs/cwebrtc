@@ -233,7 +233,7 @@ void WebRtcVoiceEngine::Init() {
   }
 
   RTC_LOG(LS_INFO) << "Supported recv codecs in order of preference:";
-  // TODO@chensong 20220905 音频解码器信息
+  // TODO@chensong 2022-09-05 音频解码器信息
   recv_codecs_ = CollectCodecs(decoder_factory_->GetSupportedDecoders());
   for (const AudioCodec& codec : recv_codecs_) 
   {
