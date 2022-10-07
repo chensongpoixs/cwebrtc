@@ -855,7 +855,8 @@ static bool IsValidPort(int port) {
   return port >= 0 && port <= 65535;
 }
 
-std::string SdpSerialize(const JsepSessionDescription& jdesc) {
+std::string SdpSerialize(const JsepSessionDescription& jdesc) 
+{
   const cricket::SessionDescription* desc = jdesc.description();
   if (!desc) {
     return "";
@@ -885,18 +886,19 @@ std::string SdpSerialize(const JsepSessionDescription& jdesc) {
   // Time Description.
   AddLine(kTimeDescription, &message);
 
-  for (const cricket::SessionDescription::MediaTransportSetting& settings :
-       desc->MediaTransportSettings()) {
+  for (const cricket::SessionDescription::MediaTransportSetting& settings : desc->MediaTransportSettings()) 
+  {
     AddMediaTransportLine(settings, &message);
   }
 
   // Group
-  if (desc->HasGroup(cricket::GROUP_TYPE_BUNDLE)) {
+  if (desc->HasGroup(cricket::GROUP_TYPE_BUNDLE)) 
+  {
     std::string group_line = kAttrGroup;
-    const cricket::ContentGroup* group =
-        desc->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
+    const cricket::ContentGroup* group = desc->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
     RTC_DCHECK(group != NULL);
-    for (const std::string& content_name : group->content_names()) {
+    for (const std::string& content_name : group->content_names()) 
+	{
       group_line.append(" ");
       group_line.append(content_name);
     }
@@ -904,7 +906,8 @@ std::string SdpSerialize(const JsepSessionDescription& jdesc) {
   }
 
   // Mixed one- and two-byte header extension.
-  if (desc->extmap_allow_mixed()) {
+  if (desc->extmap_allow_mixed())
+  {
     InitAttrLine(kAttributeExtmapAllowMixed, &os);
     AddLine(os.str(), &message);
   }
@@ -916,11 +919,15 @@ std::string SdpSerialize(const JsepSessionDescription& jdesc) {
   std::set<std::string> media_stream_ids;
   const ContentInfo* audio_content = GetFirstAudioContent(desc);
   if (audio_content)
-    GetMediaStreamIds(audio_content, &media_stream_ids);
+  {
+	  GetMediaStreamIds(audio_content, &media_stream_ids);
+  }
 
   const ContentInfo* video_content = GetFirstVideoContent(desc);
   if (video_content)
-    GetMediaStreamIds(video_content, &media_stream_ids);
+  {
+	  GetMediaStreamIds(video_content, &media_stream_ids);
+  }
 
   for (const std::string& id : media_stream_ids) {
     os << " " << id;
@@ -942,7 +949,9 @@ std::string SdpSerialize(const JsepSessionDescription& jdesc) {
 
   // Preserve the order of the media contents.
   int mline_index = -1;
-  for (const ContentInfo& content : desc->contents()) {
+  // TODO@chensong 2022-10-07 非常关键的m行
+  for (const ContentInfo& content : desc->contents())
+  {
     std::vector<Candidate> candidates;
     GetCandidatesByMindex(jdesc, ++mline_index, &candidates);
     BuildMediaDescription(&content, desc->GetTransportInfoByName(content.name),
@@ -1327,9 +1336,11 @@ void BuildMediaDescription(const ContentInfo* content_info,
                            const cricket::MediaType media_type,
                            const std::vector<Candidate>& candidates,
                            int msid_signaling,
-                           std::string* message) {
+                           std::string* message) 
+{
   RTC_DCHECK(message != NULL);
-  if (content_info == NULL || message == NULL) {
+  if (content_info == NULL || message == NULL) 
+  {
     return;
   }
   rtc::StringBuilder os;
@@ -1343,16 +1354,25 @@ void BuildMediaDescription(const ContentInfo* content_info,
   // fmt is a list of payload type numbers that MAY be used in the session.
   const char* type = NULL;
   if (media_type == cricket::MEDIA_TYPE_AUDIO)
-    type = kMediaTypeAudio;
+  {
+	  type = kMediaTypeAudio;
+  }
   else if (media_type == cricket::MEDIA_TYPE_VIDEO)
-    type = kMediaTypeVideo;
+  {
+	  type = kMediaTypeVideo;
+  }
   else if (media_type == cricket::MEDIA_TYPE_DATA)
-    type = kMediaTypeData;
+  {
+	  type = kMediaTypeData;
+  }
   else
-    RTC_NOTREACHED();
+  {
+	  RTC_NOTREACHED();
+  }
 
   std::string fmt;
-  if (media_type == cricket::MEDIA_TYPE_VIDEO) {
+  if (media_type == cricket::MEDIA_TYPE_VIDEO)
+  {
     const VideoContentDescription* video_desc = media_desc->as_video();
     for (const cricket::VideoCodec& codec : video_desc->codecs()) {
       fmt.append(" ");
@@ -1391,7 +1411,8 @@ void BuildMediaDescription(const ContentInfo* content_info,
   }
   // The fmt must never be empty. If no codecs are found, set the fmt attribute
   // to 0.
-  if (fmt.empty()) {
+  if (fmt.empty()) 
+  {
     fmt = " 0";
   }
 
@@ -1406,15 +1427,17 @@ void BuildMediaDescription(const ContentInfo* content_info,
   // However, the BUNDLE draft adds a new meaning to port zero, when used along
   // with a=bundle-only.
   std::string port = kDummyPort;
-  if (content_info->rejected || content_info->bundle_only) {
+  if (content_info->rejected || content_info->bundle_only) 
+  {
     port = kMediaPortRejected;
-  } else if (!media_desc->connection_address().IsNil()) {
+  } 
+  else if (!media_desc->connection_address().IsNil()) 
+  {
     port = rtc::ToString(media_desc->connection_address().port());
   }
 
   rtc::SSLFingerprint* fp =
-      (transport_info) ? transport_info->description.identity_fingerprint.get()
-                       : NULL;
+      (transport_info) ? transport_info->description.identity_fingerprint.get()  : NULL;
 
   // Add the m and c lines.
   InitLine(kLineTypeMedia, type, &os);
@@ -1422,41 +1445,51 @@ void BuildMediaDescription(const ContentInfo* content_info,
   AddLine(os.str(), message);
 
   InitLine(kLineTypeConnection, kConnectionNettype, &os);
-  if (media_desc->connection_address().IsNil()) {
+  if (media_desc->connection_address().IsNil())
+  {
     os << " " << kConnectionIpv4Addrtype << " " << kDummyAddress;
-  } else if (media_desc->connection_address().family() == AF_INET) {
-    os << " " << kConnectionIpv4Addrtype << " "
-       << media_desc->connection_address().ipaddr().ToString();
-  } else if (media_desc->connection_address().family() == AF_INET6) {
-    os << " " << kConnectionIpv6Addrtype << " "
-       << media_desc->connection_address().ipaddr().ToString();
-  } else if (!media_desc->connection_address().hostname().empty()) {
+  }
+  else if (media_desc->connection_address().family() == AF_INET) 
+  {
+    os << " " << kConnectionIpv4Addrtype << " " << media_desc->connection_address().ipaddr().ToString();
+  } 
+  else if (media_desc->connection_address().family() == AF_INET6) 
+  {
+    os << " " << kConnectionIpv6Addrtype << " " << media_desc->connection_address().ipaddr().ToString();
+  }
+  else if (!media_desc->connection_address().hostname().empty()) 
+  {
     // For hostname candidates, we use c=IN IP4 <hostname>.
-    os << " " << kConnectionIpv4Addrtype << " "
-       << media_desc->connection_address().hostname();
-  } else {
+    os << " " << kConnectionIpv4Addrtype << " " << media_desc->connection_address().hostname();
+  }
+  else 
+  {
     os << " " << kConnectionIpv4Addrtype << " " << kDummyAddress;
   }
   AddLine(os.str(), message);
 
   // RFC 4566
   // b=AS:<bandwidth>
-  if (media_desc->bandwidth() >= 1000) {
+  if (media_desc->bandwidth() >= 1000) 
+  {
     InitLine(kLineTypeSessionBandwidth, kApplicationSpecificMaximum, &os);
     os << kSdpDelimiterColon << (media_desc->bandwidth() / 1000);
     AddLine(os.str(), message);
   }
 
   // Add the a=bundle-only line.
-  if (content_info->bundle_only) {
+  if (content_info->bundle_only) 
+  {
     InitAttrLine(kAttributeBundleOnly, &os);
     AddLine(os.str(), message);
   }
 
   // Add the a=rtcp line.
-  if (IsRtp(media_desc->protocol())) {
+  if (IsRtp(media_desc->protocol()))
+  {
     std::string rtcp_line = GetRtcpLine(candidates);
-    if (!rtcp_line.empty()) {
+    if (!rtcp_line.empty()) 
+	{
       AddLine(rtcp_line, message);
     }
   }
@@ -1466,12 +1499,14 @@ void BuildMediaDescription(const ContentInfo* content_info,
   BuildCandidate(candidates, false, message);
 
   // Use the transport_info to build the media level ice-ufrag and ice-pwd.
-  if (transport_info) {
+  if (transport_info) 
+  {
     // RFC 5245
     // ice-pwd-att           = "ice-pwd" ":" password
     // ice-ufrag-att         = "ice-ufrag" ":" ufrag
     // ice-ufrag
-    if (!transport_info->description.ice_ufrag.empty()) {
+    if (!transport_info->description.ice_ufrag.empty())
+	{
       InitAttrLine(kAttributeIceUfrag, &os);
       os << kSdpDelimiterColon << transport_info->description.ice_ufrag;
       AddLine(os.str(), message);
