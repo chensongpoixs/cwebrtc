@@ -220,8 +220,7 @@ WebRtcSessionDescriptionFactory::~WebRtcSessionDescriptionFactory() {
 }
 
 void WebRtcSessionDescriptionFactory::CreateOffer(
-    CreateSessionDescriptionObserver* observer,
-    const PeerConnectionInterface::RTCOfferAnswerOptions& options,
+    CreateSessionDescriptionObserver* observer, const PeerConnectionInterface::RTCOfferAnswerOptions& options,
     const cricket::MediaSessionOptions& session_options)
 {
   std::string error = "CreateOffer";

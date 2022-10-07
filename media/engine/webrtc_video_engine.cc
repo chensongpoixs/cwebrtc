@@ -405,8 +405,7 @@ WebRtcVideoChannel::WebRtcVideoSendStream::ConfigureVideoEncoderSettings(
     // Ensure frame dropping is always enabled.
     RTC_DCHECK(vp9_settings.frameDroppingOn);
     if (!is_screencast) {
-      const std::string group =
-          webrtc::field_trial::FindFullName("WebRTC-Vp9InterLayerPred");
+      const std::string group = webrtc::field_trial::FindFullName("WebRTC-Vp9InterLayerPred");
       int mode;
       if (!group.empty() && sscanf(group.c_str(), "%d", &mode) == 1 &&
           (mode == static_cast<int>(webrtc::InterLayerPredMode::kOn) ||

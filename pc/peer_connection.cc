@@ -941,8 +941,7 @@ void PeerConnection::DestroyAllChannels() {
   DestroyDataChannel();
 }
 
-bool PeerConnection::Initialize(
-    const PeerConnectionInterface::RTCConfiguration& configuration,
+bool PeerConnection::Initialize(const PeerConnectionInterface::RTCConfiguration& configuration,
     PeerConnectionDependencies dependencies) 
 {
   RTC_DCHECK_RUN_ON(signaling_thread());
@@ -990,18 +989,18 @@ bool PeerConnection::Initialize(
 
   // The port allocator lives on the network thread and should be initialized
   // there.
-  const auto pa_result =
-      network_thread()->Invoke<InitializePortAllocatorResult>(
-          RTC_FROM_HERE,
-          rtc::Bind(&PeerConnection::InitializePortAllocator_n, this,
+  const auto pa_result = network_thread()->Invoke<InitializePortAllocatorResult>(
+          RTC_FROM_HERE, rtc::Bind(&PeerConnection::InitializePortAllocator_n, this,
                     stun_servers, turn_servers, configuration));
 
   // If initialization was successful, note if STUN or TURN servers
   // were supplied.
-  if (!stun_servers.empty()) {
+  if (!stun_servers.empty()) 
+  {
     NoteUsageEvent(UsageEvent::STUN_SERVER_ADDED);
   }
-  if (!turn_servers.empty()) {
+  if (!turn_servers.empty()) 
+  {
     NoteUsageEvent(UsageEvent::TURN_SERVER_ADDED);
   }
 
@@ -1013,8 +1012,7 @@ bool PeerConnection::Initialize(
   } else {
     address_family = kPeerConnection_IPv4;
   }
-  RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.IPMetrics", address_family,
-                            kPeerConnectionAddressFamilyCounter_Max);
+  RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.IPMetrics", address_family, kPeerConnectionAddressFamilyCounter_Max);
 
   const PeerConnectionFactoryInterface::Options& options = factory_->options();
 
@@ -1024,14 +1022,11 @@ bool PeerConnection::Initialize(
   // LLONG_MAX.
   session_id_ = rtc::ToString(rtc::CreateRandomId64() & LLONG_MAX);
   JsepTransportController::Config config;
-  config.redetermine_role_on_ice_restart =
-      configuration.redetermine_role_on_ice_restart;
+  config.redetermine_role_on_ice_restart = configuration.redetermine_role_on_ice_restart;
   config.ssl_max_version = factory_->options().ssl_max_version;
   config.disable_encryption = options.disable_encryption;
   config.bundle_policy = configuration.bundle_policy;
-  config.rtcp_mux_policy =
-      configuration
-          .rtcp_mux_policy;  // rtcp-mux 将 RTP 和 RTCP
+  config.rtcp_mux_policy = configuration .rtcp_mux_policy;  // rtcp-mux 将 RTP 和 RTCP
                              // 复用到单一的端口进行传输，这简化了 NAT
                              // traversal，而 BUNDLE
                              // 又将多路媒体流复用到同一端口进行传输，这不仅使
@@ -1039,9 +1034,7 @@ bool PeerConnection::Initialize(
                              // 属性变得简单，而且又进一步简化了 NAT traversal。
   // TODO(bugs.webrtc.org/9891) - Remove options.crypto_options then remove this
   // stub.
-  config.crypto_options = configuration.crypto_options.has_value()
-                              ? *configuration.crypto_options
-                              : options.crypto_options;
+  config.crypto_options = configuration.crypto_options.has_value() ? *configuration.crypto_options  : options.crypto_options;
   config.transport_observer = this;
   config.event_log = event_log_ptr_;
 #if defined(ENABLE_EXTERNAL_AUTH)
@@ -1049,9 +1042,10 @@ bool PeerConnection::Initialize(
 #endif
   config.active_reset_srtp_params = configuration.active_reset_srtp_params;
 
-  if (configuration.use_media_transport ||
-      configuration.use_media_transport_for_data_channels) {
-    if (!factory_->media_transport_factory()) {
+  if (configuration.use_media_transport || configuration.use_media_transport_for_data_channels) 
+  {
+    if (!factory_->media_transport_factory()) 
+	{
       RTC_DCHECK(false)
           << "PeerConnecton is initialized with use_media_transport = true or "
           << "use_media_transport_for_data_channels = true "
@@ -1059,13 +1053,13 @@ bool PeerConnection::Initialize(
       return false;
     }
 
-    if (configuration.use_media_transport ||
-        configuration.use_media_transport_for_data_channels) {
+    if (configuration.use_media_transport || configuration.use_media_transport_for_data_channels) 
+	{
       // TODO(bugs.webrtc.org/9719): This check will eventually go away, when
       // RTP media transport is introduced. But until then, we require SDES to
       // be enabled.
-      if (configuration.enable_dtls_srtp.has_value() &&
-          configuration.enable_dtls_srtp.value()) {
+      if (configuration.enable_dtls_srtp.has_value() && configuration.enable_dtls_srtp.value()) 
+	  {
         RTC_LOG(LS_WARNING)
             << "When media transport is used, SDES must be enabled. Set "
                "configuration.enable_dtls_srtp to false. use_media_transport="
@@ -1077,15 +1071,13 @@ bool PeerConnection::Initialize(
     }
 
     config.use_media_transport_for_media = configuration.use_media_transport;
-    config.use_media_transport_for_data_channels =
-        configuration.use_media_transport_for_data_channels;
+    config.use_media_transport_for_data_channels = configuration.use_media_transport_for_data_channels;
     config.media_transport_factory = factory_->media_transport_factory();
   }
   ///////////////////////////////////传输模块的控制 通知 ^_^ ///////////////////////////////////////////////////////////////
 
   transport_controller_.reset(new JsepTransportController(
-      signaling_thread(), network_thread(), port_allocator_.get(),
-      async_resolver_factory_.get(), config));
+      signaling_thread(), network_thread(), port_allocator_.get(), async_resolver_factory_.get(), config));
 
   transport_controller_->SignalIceConnectionState.connect(
       this, &PeerConnection::OnTransportControllerConnectionState);
@@ -1181,22 +1173,16 @@ bool PeerConnection::Initialize(
     }
   }
 
-  video_options_.screencast_min_bitrate_kbps =
-      configuration.screencast_min_bitrate;
-  audio_options_.combined_audio_video_bwe =
-      configuration.combined_audio_video_bwe;
+  video_options_.screencast_min_bitrate_kbps = configuration.screencast_min_bitrate;
+  audio_options_.combined_audio_video_bwe = configuration.combined_audio_video_bwe;
 
-  audio_options_.audio_jitter_buffer_max_packets =
-      configuration.audio_jitter_buffer_max_packets;
+  audio_options_.audio_jitter_buffer_max_packets = configuration.audio_jitter_buffer_max_packets;
 
-  audio_options_.audio_jitter_buffer_fast_accelerate =
-      configuration.audio_jitter_buffer_fast_accelerate;
+  audio_options_.audio_jitter_buffer_fast_accelerate = configuration.audio_jitter_buffer_fast_accelerate;
 
-  audio_options_.audio_jitter_buffer_min_delay_ms =
-      configuration.audio_jitter_buffer_min_delay_ms;
+  audio_options_.audio_jitter_buffer_min_delay_ms = configuration.audio_jitter_buffer_min_delay_ms;
 
-  audio_options_.audio_jitter_buffer_enable_rtx_handling =
-      configuration.audio_jitter_buffer_enable_rtx_handling;
+  audio_options_.audio_jitter_buffer_enable_rtx_handling = configuration.audio_jitter_buffer_enable_rtx_handling;
 
   // Whether the certificate generator/certificate is null or not determines
   // what PeerConnectionDescriptionFactory will do, so make sure that we give it
@@ -1220,16 +1206,14 @@ bool PeerConnection::Initialize(
   ///////////////////////////////////////////////////////////////////////////////////////////
   //TODO@chensong 2022-09-29  createoffer 会用这个回调函数哈 ^_^ 真正等待ready回调函数触发 ->>   回复应用层SDP信息哈 的回调函数
   //    
-  webrtc_session_desc_factory_->SignalCertificateReady.connect(
-      this, &PeerConnection::OnCertificateReady);
+  webrtc_session_desc_factory_->SignalCertificateReady.connect(this, &PeerConnection::OnCertificateReady);
   /////////////////////////////////////////////////////////////////////////////////////////////
   if (options.disable_encryption) 
   {
     webrtc_session_desc_factory_->SetSdesPolicy(cricket::SEC_DISABLED);
   }
 
-  webrtc_session_desc_factory_->set_enable_encrypted_rtp_header_extensions(
-      GetCryptoOptions().srtp.enable_encrypted_rtp_header_extensions);
+  webrtc_session_desc_factory_->set_enable_encrypted_rtp_header_extensions(GetCryptoOptions().srtp.enable_encrypted_rtp_header_extensions);
   webrtc_session_desc_factory_->set_is_unified_plan(IsUnifiedPlan());
 
   // Add default audio/video transceivers for Plan B SDP.
@@ -2212,9 +2196,8 @@ void PeerConnection::CreateAnswer(CreateSessionDescriptionObserver* observer,
   webrtc_session_desc_factory_->CreateAnswer(observer, session_options);
 }
 
-void PeerConnection::SetLocalDescription(
-    SetSessionDescriptionObserver* observer,
-    SessionDescriptionInterface* desc_ptr) {
+void PeerConnection::SetLocalDescription(SetSessionDescriptionObserver* observer, SessionDescriptionInterface* desc_ptr) 
+{
   RTC_DCHECK_RUN_ON(signaling_thread());
   TRACE_EVENT0("webrtc", "PeerConnection::SetLocalDescription");
 
@@ -2224,26 +2207,25 @@ void PeerConnection::SetLocalDescription(
   // description as a unique_ptr argument to formalize this agreement.
   std::unique_ptr<SessionDescriptionInterface> desc(desc_ptr);
 
-  if (!observer) {
+  if (!observer) 
+  {
     RTC_LOG(LS_ERROR) << "SetLocalDescription - observer is NULL.";
     return;
   }
 
-  if (!desc) {
-    PostSetSessionDescriptionFailure(
-        observer,
-        RTCError(RTCErrorType::INTERNAL_ERROR, "SessionDescription is NULL."));
+  if (!desc) 
+  {
+    PostSetSessionDescriptionFailure(observer, RTCError(RTCErrorType::INTERNAL_ERROR, "SessionDescription is NULL."));
     return;
   }
 
   // If a session error has occurred the PeerConnection is in a possibly
   // inconsistent state so fail right away.
-  if (session_error() != SessionError::kNone) {
+  if (session_error() != SessionError::kNone) 
+  {
     std::string error_message = GetSessionErrorMsg();
     RTC_LOG(LS_ERROR) << "SetLocalDescription: " << error_message;
-    PostSetSessionDescriptionFailure(
-        observer,
-        RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
+    PostSetSessionDescriptionFailure(observer, RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
     return;
   }
 
@@ -2252,9 +2234,7 @@ void PeerConnection::SetLocalDescription(
     std::string error_message = GetSetDescriptionErrorMessage(
         cricket::CS_LOCAL, desc->GetType(), error);
     RTC_LOG(LS_ERROR) << error_message;
-    PostSetSessionDescriptionFailure(
-        observer,
-        RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
+    PostSetSessionDescriptionFailure(observer, RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
     return;
   }
 
@@ -2265,17 +2245,15 @@ void PeerConnection::SetLocalDescription(
   error = ApplyLocalDescription(std::move(desc));
   // |desc| may be destroyed at this point.
 
-  if (!error.ok()) {
+  if (!error.ok()) 
+  {
     // If ApplyLocalDescription fails, the PeerConnection could be in an
     // inconsistent state, so act conservatively here and set the session error
     // so that future calls to SetLocalDescription/SetRemoteDescription fail.
     SetSessionError(SessionError::kContent, error.message());
-    std::string error_message =
-        GetSetDescriptionErrorMessage(cricket::CS_LOCAL, type, error);
+    std::string error_message = GetSetDescriptionErrorMessage(cricket::CS_LOCAL, type, error);
     RTC_LOG(LS_ERROR) << error_message;
-    PostSetSessionDescriptionFailure(
-        observer,
-        RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
+    PostSetSessionDescriptionFailure(observer, RTCError(RTCErrorType::INTERNAL_ERROR, std::move(error_message)));
     return;
   }
   RTC_DCHECK(local_description());
@@ -2285,15 +2263,16 @@ void PeerConnection::SetLocalDescription(
   // MaybeStartGathering needs to be called after posting
   // MSG_SET_SESSIONDESCRIPTION_SUCCESS, so that we don't signal any candidates
   // before signaling that SetLocalDescription completed.
-  // TODO@chensong 2022-03-24 start -> candidate -> s
+  // TODO@chensong 2022-03-24 start -> candidate -> 
+  // TODO@chensong 2022-10-07  启动收集candidate信息 
   transport_controller_->MaybeStartGathering();
 
-  if (local_description()->GetType() == SdpType::kAnswer) {
+  if (local_description()->GetType() == SdpType::kAnswer) 
+  {
     // TODO(deadbeef): We already had to hop to the network thread for
     // MaybeStartGathering...
     network_thread()->Invoke<void>(
-        RTC_FROM_HERE, rtc::Bind(&cricket::PortAllocator::DiscardCandidatePool,
-                                 port_allocator_.get()));
+        RTC_FROM_HERE, rtc::Bind(&cricket::PortAllocator::DiscardCandidatePool, port_allocator_.get()));
     // Make UMA notes about what was agreed to.
     ReportNegotiatedSdpSemantics(*local_description());
   }
@@ -4333,8 +4312,7 @@ void PeerConnection::OnVideoTrackRemoved(VideoTrackInterface* track,
 void PeerConnection::PostSetSessionDescriptionSuccess(
     SetSessionDescriptionObserver* observer) {
   SetSessionDescriptionMsg* msg = new SetSessionDescriptionMsg(observer);
-  signaling_thread()->Post(RTC_FROM_HERE, this,
-                           MSG_SET_SESSIONDESCRIPTION_SUCCESS, msg);
+  signaling_thread()->Post(RTC_FROM_HERE, this,  MSG_SET_SESSIONDESCRIPTION_SUCCESS, msg);
 }
 
 void PeerConnection::PostSetSessionDescriptionFailure(
@@ -4390,19 +4368,14 @@ void PeerConnection::GetOptionsForOffer(
 
   session_options->rtcp_cname = rtcp_cname_;
   session_options->crypto_options = GetCryptoOptions();
-  session_options->pooled_ice_credentials =
-      network_thread()->Invoke<std::vector<cricket::IceParameters>>(
-          RTC_FROM_HERE,
-          rtc::Bind(&cricket::PortAllocator::GetPooledIceCredentials, port_allocator_.get()));
+  session_options->pooled_ice_credentials = network_thread()->Invoke<std::vector<cricket::IceParameters>>(
+          RTC_FROM_HERE, rtc::Bind(&cricket::PortAllocator::GetPooledIceCredentials, port_allocator_.get()));
 
-  session_options->offer_extmap_allow_mixed =
-      configuration_.offer_extmap_allow_mixed;
+  session_options->offer_extmap_allow_mixed = configuration_.offer_extmap_allow_mixed;
 
-  if (configuration_.enable_dtls_srtp &&
-      !configuration_.enable_dtls_srtp.value()) 
+  if (configuration_.enable_dtls_srtp && !configuration_.enable_dtls_srtp.value()) 
   {
-    session_options->media_transport_settings =
-        transport_controller_->GenerateOrGetLastMediaTransportOffer();
+    session_options->media_transport_settings = transport_controller_->GenerateOrGetLastMediaTransportOffer();
   }
 }
 
@@ -4558,16 +4531,13 @@ static const ContentInfo* GetContentByIndex(
 }
 
 void PeerConnection::GetOptionsForUnifiedPlanOffer(
-    const RTCOfferAnswerOptions& offer_answer_options,
-    cricket::MediaSessionOptions* session_options) 
+    const RTCOfferAnswerOptions& offer_answer_options, cricket::MediaSessionOptions* session_options) 
 {
   // Rules for generating an offer are dictated by JSEP sections 5.2.1 (Initial
   // Offers) and 5.2.2 (Subsequent Offers).
   RTC_DCHECK_EQ(session_options->media_description_options.size(), 0);
-  const ContentInfos& local_contents =
-      (local_description() ? local_description()->description()->contents() : ContentInfos());
-  const ContentInfos& remote_contents =
-      (remote_description() ? remote_description()->description()->contents() : ContentInfos());
+  const ContentInfos& local_contents = (local_description() ? local_description()->description()->contents() : ContentInfos());
+  const ContentInfos& remote_contents = (remote_description() ? remote_description()->description()->contents() : ContentInfos());
   // The mline indices that can be recycled. New transceivers should reuse these
   // slots first.
   std::queue<size_t> recycleable_mline_indices;
@@ -4582,16 +4552,12 @@ void PeerConnection::GetOptionsForUnifiedPlanOffer(
     const ContentInfo* current_local_content = GetContentByIndex(current_local_description(), i);
     const ContentInfo* remote_content = (i < remote_contents.size() ? &remote_contents[i] : nullptr);
     const ContentInfo* current_remote_content = GetContentByIndex(current_remote_description(), i);
-    bool had_been_rejected =
-        (current_local_content && current_local_content->rejected) ||
-        (current_remote_content && current_remote_content->rejected);
-    const std::string& mid =
-        (local_content ? local_content->name : remote_content->name);
+    bool had_been_rejected = (current_local_content && current_local_content->rejected) || (current_remote_content && current_remote_content->rejected);
+    const std::string& mid = (local_content ? local_content->name : remote_content->name);
     cricket::MediaType media_type =
         (local_content ? local_content->media_description()->type()
                        : remote_content->media_description()->type());
-    if (media_type == cricket::MEDIA_TYPE_AUDIO ||
-        media_type == cricket::MEDIA_TYPE_VIDEO) 
+    if (media_type == cricket::MEDIA_TYPE_AUDIO ||  media_type == cricket::MEDIA_TYPE_VIDEO) 
 	{
       auto transceiver = GetAssociatedTransceiver(mid);
       RTC_CHECK(transceiver);
@@ -4600,9 +4566,7 @@ void PeerConnection::GetOptionsForUnifiedPlanOffer(
       if (had_been_rejected && transceiver->stopped()) 
 	  {
         session_options->media_description_options.push_back(
-            cricket::MediaDescriptionOptions(transceiver->media_type(), mid,
-                                             RtpTransceiverDirection::kInactive,
-                                             /*stopped=*/true));
+            cricket::MediaDescriptionOptions(transceiver->media_type(), mid, RtpTransceiverDirection::kInactive, /*stopped=*/true));
         recycleable_mline_indices.push(i);
       } 
 	  else 
@@ -4623,13 +4587,11 @@ void PeerConnection::GetOptionsForUnifiedPlanOffer(
       RTC_CHECK(GetDataMid());
       if (had_been_rejected || mid != *GetDataMid()) 
 	  {
-        session_options->media_description_options.push_back(
-            GetMediaDescriptionOptionsForRejectedData(mid));
+        session_options->media_description_options.push_back(GetMediaDescriptionOptionsForRejectedData(mid));
       }
 	  else 
 	  {
-        session_options->media_description_options.push_back(
-            GetMediaDescriptionOptionsForActiveData(mid));
+        session_options->media_description_options.push_back(GetMediaDescriptionOptionsForActiveData(mid));
       }
     }
   }
@@ -4669,8 +4631,7 @@ void PeerConnection::GetOptionsForUnifiedPlanOffer(
   // TODO@chensong 2022-09-29  DataChannel Setting 
   if (!GetDataMid() && HasDataChannels()) 
   {
-    session_options->media_description_options.push_back(
-        GetMediaDescriptionOptionsForActiveData(mid_generator_()));
+    session_options->media_description_options.push_back(GetMediaDescriptionOptionsForActiveData(mid_generator_()));
   }
 }
 

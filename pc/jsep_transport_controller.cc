@@ -299,14 +299,16 @@ JsepTransportController::GetRemoteSSLCertChain(
   return dtls->GetRemoteSSLCertChain();
 }
 
-void JsepTransportController::MaybeStartGathering() {
-  if (!network_thread_->IsCurrent()) {
-    network_thread_->Invoke<void>(RTC_FROM_HERE,
-                                  [&] { MaybeStartGathering(); });
+void JsepTransportController::MaybeStartGathering() 
+{
+  if (!network_thread_->IsCurrent())
+  {
+    network_thread_->Invoke<void>(RTC_FROM_HERE, [&] { MaybeStartGathering(); });
     return;
   }
 
-  for (auto& dtls : GetDtlsTransports()) {
+  for (auto& dtls : GetDtlsTransports()) 
+  {
     dtls->ice_transport()->MaybeStartGathering();
   }
 }
@@ -560,116 +562,124 @@ JsepTransportController::CreateDtlsSrtpTransport(
   return dtls_srtp_transport;
 }
 
-std::vector<cricket::DtlsTransportInternal*>
-JsepTransportController::GetDtlsTransports() {
+std::vector<cricket::DtlsTransportInternal*> JsepTransportController::GetDtlsTransports() 
+{
   std::vector<cricket::DtlsTransportInternal*> dtls_transports;
-  for (auto it = jsep_transports_by_name_.begin();
-       it != jsep_transports_by_name_.end(); ++it) {
+  for (auto it = jsep_transports_by_name_.begin(); it != jsep_transports_by_name_.end(); ++it) 
+  {
     auto jsep_transport = it->second.get();
     RTC_DCHECK(jsep_transport);
-    if (jsep_transport->rtp_dtls_transport()) {
+    if (jsep_transport->rtp_dtls_transport()) 
+	{
       dtls_transports.push_back(jsep_transport->rtp_dtls_transport());
     }
 
-    if (jsep_transport->rtcp_dtls_transport()) {
+    if (jsep_transport->rtcp_dtls_transport()) 
+	{
       dtls_transports.push_back(jsep_transport->rtcp_dtls_transport());
     }
   }
   return dtls_transports;
 }
 
-RTCError JsepTransportController::ApplyDescription_n(
-    bool local,
-    SdpType type,
-    const cricket::SessionDescription* description) {
+RTCError JsepTransportController::ApplyDescription_n(bool local, SdpType type, const cricket::SessionDescription* description) 
+{
   RTC_DCHECK(network_thread_->IsCurrent());
   RTC_DCHECK(description);
 
-  if (local) {
+  if (local) 
+  {
     local_desc_ = description;
-  } else {
+  } 
+  else 
+  {
     remote_desc_ = description;
   }
 
   RTCError error;
   error = ValidateAndMaybeUpdateBundleGroup(local, type, description);
-  if (!error.ok()) {
+  if (!error.ok()) 
+  {
     return error;
   }
 
   std::vector<int> merged_encrypted_extension_ids;
-  if (bundle_group_) {
-    merged_encrypted_extension_ids =
-        MergeEncryptedHeaderExtensionIdsForBundle(description);
+  if (bundle_group_) 
+  {
+    merged_encrypted_extension_ids = MergeEncryptedHeaderExtensionIdsForBundle(description);
   }
 
-  for (const cricket::ContentInfo& content_info : description->contents()) {
+  for (const cricket::ContentInfo& content_info : description->contents())
+  {
     // Don't create transports for rejected m-lines and bundled m-lines."
-    if (content_info.rejected ||
-        (IsBundled(content_info.name) && content_info.name != *bundled_mid())) {
+    if (content_info.rejected || (IsBundled(content_info.name) && content_info.name != *bundled_mid())) 
+	{
       continue;
     }
     error = MaybeCreateJsepTransport(local, content_info, *description);
-    if (!error.ok()) {
+    if (!error.ok()) 
+	{
       return error;
     }
   }
 
-  RTC_DCHECK(description->contents().size() ==
-             description->transport_infos().size());
-  for (size_t i = 0; i < description->contents().size(); ++i) {
+  RTC_DCHECK(description->contents().size() == description->transport_infos().size());
+  for (size_t i = 0; i < description->contents().size(); ++i) 
+  {
     const cricket::ContentInfo& content_info = description->contents()[i];
-    const cricket::TransportInfo& transport_info =
-        description->transport_infos()[i];
-    if (content_info.rejected) {
+    const cricket::TransportInfo& transport_info = description->transport_infos()[i];
+    if (content_info.rejected)
+	{
       HandleRejectedContent(content_info, description);
       continue;
     }
 
-    if (IsBundled(content_info.name) && content_info.name != *bundled_mid()) {
-      if (!HandleBundledContent(content_info)) {
-        return RTCError(RTCErrorType::INVALID_PARAMETER,
-                        "Failed to process the bundled m= section.");
+    if (IsBundled(content_info.name) && content_info.name != *bundled_mid()) 
+	{
+      if (!HandleBundledContent(content_info))
+	  {
+        return RTCError(RTCErrorType::INVALID_PARAMETER, "Failed to process the bundled m= section.");
       }
       continue;
     }
 
     error = ValidateContent(content_info);
-    if (!error.ok()) {
+    if (!error.ok())
+	{
       return error;
     }
 
     std::vector<int> extension_ids;
-    if (bundled_mid() && content_info.name == *bundled_mid()) {
+    if (bundled_mid() && content_info.name == *bundled_mid()) 
+	{
       extension_ids = merged_encrypted_extension_ids;
-    } else {
+    } 
+	else 
+	{
       extension_ids = GetEncryptedHeaderExtensionIds(content_info);
     }
 
-    int rtp_abs_sendtime_extn_id =
-        GetRtpAbsSendTimeHeaderExtensionId(content_info);
+    int rtp_abs_sendtime_extn_id = GetRtpAbsSendTimeHeaderExtensionId(content_info);
 
-    cricket::JsepTransport* transport =
-        GetJsepTransportForMid(content_info.name);
+    cricket::JsepTransport* transport = GetJsepTransportForMid(content_info.name);
     RTC_DCHECK(transport);
 
     SetIceRole_n(DetermineIceRole(transport, transport_info, type, local));
 
-    cricket::JsepTransportDescription jsep_description =
-        CreateJsepTransportDescription(content_info, transport_info,
+    cricket::JsepTransportDescription jsep_description = CreateJsepTransportDescription(content_info, transport_info,
                                        extension_ids, rtp_abs_sendtime_extn_id);
-    if (local) {
-      error =
-          transport->SetLocalJsepTransportDescription(jsep_description, type);
-    } else {
-      error =
-          transport->SetRemoteJsepTransportDescription(jsep_description, type);
+    if (local)
+	{
+      error = transport->SetLocalJsepTransportDescription(jsep_description, type);
+    } 
+	else
+	{
+      error = transport->SetRemoteJsepTransportDescription(jsep_description, type);
     }
 
-    if (!error.ok()) {
-      LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER,
-                           "Failed to apply the description for " +
-                               content_info.name + ": " + error.message());
+    if (!error.ok()) 
+	{
+      LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_PARAMETER, "Failed to apply the description for " + content_info.name + ": " + error.message());
     }
   }
   return RTCError::OK();

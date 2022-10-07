@@ -30,6 +30,15 @@ namespace cricket {
 //               or unsupported crypto.
 // TODO(deadbeef): Remove this or rename it to something more appropriate, like
 // SdesPolicy.
+//TODO@chensong 2022-10-06 只有在会话
+//通过TLS进行协商，以保护内联加密材料
+//交换。
+//SEC_DISABLED：传出报价中没有加密，忽略提供的任何加密。
+//SEC_ENABLED：发出报价和应答中的加密（如果报价中提供）。
+//SEC_REQUIRED：发出要约和回复时加密。因缺席而未通过任何提议
+//或不受支持的加密。
+//TODO（死牛肉）：删除此项或将其重命名为更合适的名称，如
+//SdesPolicy公司。
 enum SecurePolicy { SEC_DISABLED, SEC_ENABLED, SEC_REQUIRED };
 
 // Whether our side of the call is driving the negotiation, or the other side.
