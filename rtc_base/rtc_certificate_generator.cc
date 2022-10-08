@@ -28,7 +28,7 @@ namespace {
 
 // A certificates' subject and issuer name.
 const char kIdentityName[] = "WebRTC";
-const uint64_t kYearInSeconds = 365 * 24 * 60 * 60;
+const uint64_t kYearInSeconds = 365 * 24 * 60 * 60; // 一年的时间
 
 enum {
   MSG_GENERATE,
@@ -77,7 +77,7 @@ class RTCCertificateGenerationTask : public RefCountInterface,
 	  {
         RTC_DCHECK(signaling_thread_->IsCurrent());
         // Perform callback with result here on the signaling thread.
-        // TODO@chensong 2022-03-25 这边开始创建好本地WebRTC的SDP的信息
+        // TODO@chensong 2022-03-25 这边开始创建好本地WebRTC的证书的信息
         // 进行回调webrtc_session_destion_factory中信息哈 ^_^
         if (certificate_) 
 		{
@@ -99,12 +99,12 @@ class RTCCertificateGenerationTask : public RefCountInterface,
   }
 
  private:
-  Thread* const signaling_thread_;
-  Thread* const worker_thread_;
+  Thread* const signaling_thread_; // 信号线程
+  Thread* const worker_thread_; // 工作线程
   const KeyParams key_params_;
-  const absl::optional<uint64_t> expires_ms_;
-  const scoped_refptr<RTCCertificateGeneratorCallback> callback_;
-  scoped_refptr<RTCCertificate> certificate_;
+  const absl::optional<uint64_t> expires_ms_; // 证书的过期时间
+  const scoped_refptr<RTCCertificateGeneratorCallback> callback_; //工作线程生成证书后， 信号线程调用该回调传给上层应用的证书
+  scoped_refptr<RTCCertificate> certificate_; // 证书
 };
 
 }  // namespace

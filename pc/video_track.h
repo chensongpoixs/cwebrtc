@@ -26,9 +26,8 @@
 
 namespace webrtc {
 
-class VideoTrack : public MediaStreamTrack<VideoTrackInterface>,
-                   public rtc::VideoSourceBase,
-                   public ObserverInterface {
+class VideoTrack : public MediaStreamTrack<VideoTrackInterface>, public rtc::VideoSourceBase, public ObserverInterface 
+{
  public:
   static rtc::scoped_refptr<VideoTrack> Create(
       const std::string& label,

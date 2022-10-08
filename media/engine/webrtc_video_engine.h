@@ -89,13 +89,13 @@ class WebRtcVideoEngine : public VideoEngineInterface {
 
   ~WebRtcVideoEngine() override;
 
-  // TODO@chensong 20220929  channel_manager 中CreateVideoChannel方法调用该方法 创建视频通道
+  // TODO@chensong 2022-09-29  channel_manager 中CreateVideoChannel方法调用该方法 创建视频通道
   VideoMediaChannel* CreateMediaChannel(
       webrtc::Call* call,
       const MediaConfig& config,
       const VideoOptions& options,
       const webrtc::CryptoOptions& crypto_options) override;
-
+  // TODO@chensong 2022-10-06 获取视频编码器信息方法
   std::vector<VideoCodec> codecs() const override;
   RtpCapabilities GetCapabilities() const override;
 
@@ -270,8 +270,8 @@ class WebRtcVideoChannel : public VideoMediaChannel, public webrtc::Transport {
       const std::vector<VideoCodecSettings>& codecs);
 
   // Wrapper for the sender part.
-  class WebRtcVideoSendStream
-      : public rtc::VideoSourceInterface<webrtc::VideoFrame> {
+  class WebRtcVideoSendStream  : public rtc::VideoSourceInterface<webrtc::VideoFrame> 
+  {
    public:
     WebRtcVideoSendStream(
         webrtc::Call* call,

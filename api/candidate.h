@@ -180,13 +180,13 @@ class RTC_EXPORT Candidate {
   std::string ToStringInternal(bool sensitive) const;
 
   std::string id_;
-  int component_;
-  std::string protocol_;
+  int component_; // TODO@chensong 2022-10-07 对应就是SDP中M行的名子 例如: audio => [0] video => [1]
+  std::string protocol_; // TCP or UDP
   std::string relay_protocol_;
   rtc::SocketAddress address_;
-  uint32_t priority_;
-  std::string username_;
-  std::string password_;
+  uint32_t priority_; // 优先级， 优先级高的会优先使用
+  std::string username_; // 用户名
+  std::string password_; // 密码
   std::string type_; // [host, srflx, prflx, relay, priority ]
   ////////////////////////// TODO@chensong 20220907 candidate /////////////////////////////////////////
   std::string network_name_;

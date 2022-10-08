@@ -315,24 +315,29 @@ class UsedIds {
   // in a session description to make sure no duplicate ids exists.
   // Note that typename Id must be a type of IdStruct.
   template <typename Id>
-  void FindAndSetIdUsed(std::vector<Id>* ids) {
-    for (const Id& id : *ids) {
+  void FindAndSetIdUsed(std::vector<Id>* ids) 
+  {
+    for (const Id& id : *ids) 
+	{
       FindAndSetIdUsed(&id);
     }
   }
 
   // Finds and sets an unused id if the |idstruct| id is already in use.
-  void FindAndSetIdUsed(IdStruct* idstruct) {
+  void FindAndSetIdUsed(IdStruct* idstruct)
+  {
     const int original_id = idstruct->id;
     int new_id = idstruct->id;
 
-    if (original_id > max_allowed_id_ || original_id < min_allowed_id_) {
+    if (original_id > max_allowed_id_ || original_id < min_allowed_id_) 
+	{
       // If the original id is not in range - this is an id that can't be
       // dynamically changed.
       return;
     }
 
-    if (IsIdUsed(original_id)) {
+    if (IsIdUsed(original_id))
+	{
       new_id = FindUnusedId();
       RTC_LOG(LS_WARNING) << "Duplicate id found. Reassigning from "
                           << original_id << " to " << new_id;
@@ -345,8 +350,10 @@ class UsedIds {
   // Returns the first unused id in reverse order.
   // This hopefully reduce the risk of more collisions. We want to change the
   // default ids as little as possible.
-  int FindUnusedId() {
-    while (IsIdUsed(next_id_) && next_id_ >= min_allowed_id_) {
+  int FindUnusedId() 
+  {
+    while (IsIdUsed(next_id_) && next_id_ >= min_allowed_id_) 
+	{
       --next_id_;
     }
     RTC_DCHECK(next_id_ >= min_allowed_id_);
@@ -504,8 +511,7 @@ static bool AddStreamParams(
   for (const SenderOptions& sender : sender_options) {
     // groupid is empty for StreamParams generated using
     // MediaSessionDescriptionFactory.
-    StreamParams* param =
-        GetStreamByIds(*current_streams, "" /*group_id*/, sender.track_id);
+    StreamParams* param = GetStreamByIds(*current_streams, "" /*group_id*/, sender.track_id);
     if (!param) {
       // This is a new sender.
       StreamParams stream_param =
@@ -845,33 +851,38 @@ static void NegotiateCodecs(const std::vector<C>& local_codecs,
 // a member of |codecs1|. If |codec_to_match| is an RTX codec, both
 // the codecs themselves and their associated codecs must match.
 template <class C>
-static bool FindMatchingCodec(const std::vector<C>& codecs1,
-                              const std::vector<C>& codecs2,
-                              const C& codec_to_match,
-                              C* found_codec) {
+static bool FindMatchingCodec(const std::vector<C>& codecs1, const std::vector<C>& codecs2, const C& codec_to_match, C* found_codec) 
+{
   // |codec_to_match| should be a member of |codecs1|, in order to look up RTX
   // codecs' associated codecs correctly. If not, that's a programming error.
-  RTC_DCHECK(absl::c_any_of(codecs1, [&codec_to_match](const C& codec) {
+  RTC_DCHECK(absl::c_any_of(codecs1, [&codec_to_match](const C& codec) 
+  {
     return &codec == &codec_to_match;
   }));
-  for (const C& potential_match : codecs2) {
-    if (potential_match.Matches(codec_to_match)) {
-      if (IsRtxCodec(codec_to_match)) {
+  for (const C& potential_match : codecs2)
+  {
+	// TODO@chensong 2022-10-06 Matches函数其实是编码的格式匹配 例如：H264的Profile和mode 
+    if (potential_match.Matches(codec_to_match)) 
+	{
+	//TODO@chensong 2022-10-06 RTX是否支持
+      if (IsRtxCodec(codec_to_match))
+	  {
         int apt_value_1 = 0;
         int apt_value_2 = 0;
-        if (!codec_to_match.GetParam(kCodecParamAssociatedPayloadType,
-                                     &apt_value_1) ||
-            !potential_match.GetParam(kCodecParamAssociatedPayloadType,
-                                      &apt_value_2)) {
+        if (!codec_to_match.GetParam(kCodecParamAssociatedPayloadType, &apt_value_1) ||
+            !potential_match.GetParam(kCodecParamAssociatedPayloadType, &apt_value_2)) 
+		{
           RTC_LOG(LS_WARNING) << "RTX missing associated payload type.";
           continue;
         }
-        if (!ReferencedCodecsMatch(codecs1, apt_value_1, codecs2,
-                                   apt_value_2)) {
+		// TODO@chensong 2022-10-06 这个查看是否有apt相同的机制RTX
+        if (!ReferencedCodecsMatch(codecs1, apt_value_1, codecs2, apt_value_2)) 
+		{
           continue;
         }
       }
-      if (found_codec) {
+      if (found_codec) 
+	  {
         *found_codec = potential_match;
       }
       return true;
@@ -918,10 +929,10 @@ static void MergeCodecs(const std::vector<C>& reference_codecs,
                         std::vector<C>* offered_codecs,
                         UsedPayloadTypes* used_pltypes) {
   // Add all new codecs that are not RTX codecs.
-  for (const C& reference_codec : reference_codecs) {
-    if (!IsRtxCodec(reference_codec) &&
-        !FindMatchingCodec<C>(reference_codecs, *offered_codecs,
-                              reference_codec, nullptr)) {
+  for (const C& reference_codec : reference_codecs) 
+  {
+    if (!IsRtxCodec(reference_codec) && !FindMatchingCodec<C>(reference_codecs, *offered_codecs, reference_codec, nullptr)) 
+	{
       C codec = reference_codec;
       used_pltypes->FindAndSetIdUsed(&codec);
       offered_codecs->push_back(codec);
@@ -929,28 +940,27 @@ static void MergeCodecs(const std::vector<C>& reference_codecs,
   }
 
   // Add all new RTX codecs.
-  for (const C& reference_codec : reference_codecs) {
-    if (IsRtxCodec(reference_codec) &&
-        !FindMatchingCodec<C>(reference_codecs, *offered_codecs,
-                              reference_codec, nullptr)) {
+  for (const C& reference_codec : reference_codecs)
+  {
+    if (IsRtxCodec(reference_codec) && !FindMatchingCodec<C>(reference_codecs, *offered_codecs,
+                              reference_codec, nullptr)) 
+	{
       C rtx_codec = reference_codec;
-      const C* associated_codec =
-          GetAssociatedCodec(reference_codecs, rtx_codec);
-      if (!associated_codec) {
+      const C* associated_codec = GetAssociatedCodec(reference_codecs, rtx_codec);
+      if (!associated_codec) 
+	  {
         continue;
       }
       // Find a codec in the offered list that matches the reference codec.
       // Its payload type may be different than the reference codec.
       C matching_codec;
-      if (!FindMatchingCodec<C>(reference_codecs, *offered_codecs,
-                                *associated_codec, &matching_codec)) {
-        RTC_LOG(LS_WARNING)
-            << "Couldn't find matching " << associated_codec->name << " codec.";
+      if (!FindMatchingCodec<C>(reference_codecs, *offered_codecs, *associated_codec, &matching_codec)) 
+	  {
+        RTC_LOG(LS_WARNING) << "Couldn't find matching " << associated_codec->name << " codec.";
         continue;
       }
-
-      rtx_codec.params[kCodecParamAssociatedPayloadType] =
-          rtc::ToString(matching_codec.id);
+	  // TODO@chensong 2022-10-06 RTC中服务质量Qos的 <-----> 添加apt参数 <-----> RTX中标志性的apt
+      rtx_codec.params[kCodecParamAssociatedPayloadType] =  rtc::ToString(matching_codec.id);
       used_pltypes->FindAndSetIdUsed(&rtx_codec);
       offered_codecs->push_back(rtx_codec);
     }
@@ -1355,7 +1365,7 @@ MediaSessionDescriptionFactory::MediaSessionDescriptionFactory(
     rtc::UniqueRandomIdGenerator* ssrc_generator)
     : MediaSessionDescriptionFactory(transport_desc_factory, ssrc_generator) 
 {
-	//TODO@chensong 20220927 获取channel_mananger中获得音视频的编码器
+	//TODO@chensong 2022-09-27 获取channel_mananger中获得音视频的编码器
   channel_manager->GetSupportedAudioSendCodecs(&audio_send_codecs_);
   channel_manager->GetSupportedAudioReceiveCodecs(&audio_recv_codecs_);
   channel_manager->GetSupportedAudioRtpHeaderExtensions(&audio_rtp_extensions_);
@@ -1792,7 +1802,8 @@ void MergeCodecsFromDescription(
     AudioCodecs* audio_codecs,
     VideoCodecs* video_codecs,
     DataCodecs* data_codecs,
-    UsedPayloadTypes* used_pltypes) {
+    UsedPayloadTypes* used_pltypes) 
+{
   for (const ContentInfo* content : current_active_contents) {
     if (IsMediaContentOfType(content, MEDIA_TYPE_AUDIO)) {
       const AudioContentDescription* audio =
@@ -1818,15 +1829,13 @@ void MergeCodecsFromDescription(
 //    on the directional attribute (happens in another method).
 void MediaSessionDescriptionFactory::GetCodecsForOffer(
     const std::vector<const ContentInfo*>& current_active_contents,
-    AudioCodecs* audio_codecs,
-    VideoCodecs* video_codecs,
-    DataCodecs* data_codecs) const {
+    AudioCodecs* audio_codecs, VideoCodecs* video_codecs, DataCodecs* data_codecs) const 
+{
   // First - get all codecs from the current description if the media type
   // is used. Add them to |used_pltypes| so the payload type is not reused if a
   // new media type is added.
   UsedPayloadTypes used_pltypes;
-  MergeCodecsFromDescription(current_active_contents, audio_codecs,
-                             video_codecs, data_codecs, &used_pltypes);
+  MergeCodecsFromDescription(current_active_contents, audio_codecs,  video_codecs, data_codecs, &used_pltypes);
 
   // Add our codecs that are not in the current description.
   MergeCodecs<AudioCodec>(all_audio_codecs_, audio_codecs, &used_pltypes);

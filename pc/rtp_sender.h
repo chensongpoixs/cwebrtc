@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -72,7 +72,8 @@ class RtpSenderInternal : public RtpSenderInterface {
 };
 
 // Shared implementation for RtpSenderInternal interface.
-class RtpSenderBase : public RtpSenderInternal, public ObserverInterface {
+class RtpSenderBase : public RtpSenderInternal, public ObserverInterface 
+{
  public:
   // Sets the underlying MediaEngine channel associated with this RtpSender.
   // A VoiceMediaChannel should be used for audio RtpSenders and
@@ -270,7 +271,8 @@ class AudioRtpSender : public DtmfProviderInterface, public RtpSenderBase {
   std::unique_ptr<LocalAudioSinkAdapter> sink_adapter_;
 };
 
-class VideoRtpSender : public RtpSenderBase {
+class VideoRtpSender : public RtpSenderBase 
+{
  public:
   // Construct an RtpSender for video with the given sender ID.
   // The sender is initialized with no track to send and no associated streams.
@@ -308,8 +310,7 @@ class VideoRtpSender : public RtpSenderBase {
         static_cast<VideoTrackInterface*>(track_.get()));
   }
 
-  VideoTrackInterface::ContentHint cached_track_content_hint_ =
-      VideoTrackInterface::ContentHint::kNone;
+  VideoTrackInterface::ContentHint cached_track_content_hint_ = VideoTrackInterface::ContentHint::kNone;
 };
 
 }  // namespace webrtc

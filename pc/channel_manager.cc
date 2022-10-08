@@ -101,7 +101,7 @@ void ChannelManager::GetSupportedVideoCodecs( std::vector<VideoCodec>* codecs) c
     return;
   }
   codecs->clear();
-  // TODO@chensong 20220927 获取视频的编解码器的信息
+  // TODO@chensong 2022-09-27 获取视频的编解码器的信息
   std::vector<VideoCodec> video_codecs = media_engine_->video().codecs();
   for (const auto& video_codec : video_codecs) 
   {
@@ -127,7 +127,7 @@ void ChannelManager::GetSupportedDataCodecs( std::vector<DataCodec>* codecs) con
   *codecs = data_engine_->data_codecs();
 }
 /************************************************************************/
-/* 信号线程执行的                                                                */
+/*TODO@chensong 2022-10-06  工作线程执行的 媒体引擎的初始化的接口Init                                                               */
 /************************************************************************/
 bool ChannelManager::Init() 
 {
@@ -143,14 +143,12 @@ bool ChannelManager::Init()
   {
     // Do not allow invoking calls to other threads on the network thread.
 	 // 不允许调用网络线程上的其他线程。
-    network_thread_->Invoke<void>(
-        RTC_FROM_HERE, [&] { network_thread_->DisallowBlockingCalls(); });
+    network_thread_->Invoke<void>(RTC_FROM_HERE, [&] { network_thread_->DisallowBlockingCalls(); });
   }
   // 媒体信息初始化 非常重要的哈 ^_^
   if (media_engine_)
   {
-    initialized_ = worker_thread_->Invoke<bool>(
-        RTC_FROM_HERE, [&] { return media_engine_->Init(); });
+    initialized_ = worker_thread_->Invoke<bool>(RTC_FROM_HERE, [&] { return media_engine_->Init(); });
     RTC_DCHECK(initialized_);
   } 
   else 

@@ -43,7 +43,10 @@ const int kMinLayerSize = 16;
 
 // If this field trial is enabled, we will enable sending FlexFEC and disable
 // sending ULPFEC whenever the former has been negotiated in the SDPs.
-bool IsFlexfecFieldTrialEnabled() {
+bool IsFlexfecFieldTrialEnabled() 
+{
+	//TODO@chensong 2022-10-06  开启FlexFEC功能 constexpr char kVideoFlexfecFieldTrial[] = "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/";
+	// field_trial::InitFieldTrialsFromString(kVideoFlexfecFieldTrial);
   return webrtc::field_trial::IsEnabled("WebRTC-FlexFEC-03");
 }
 
@@ -57,16 +60,22 @@ bool IsFlexfecAdvertisedFieldTrialEnabled() {
   return webrtc::field_trial::IsEnabled("WebRTC-FlexFEC-03-Advertised");
 }
 
-void AddDefaultFeedbackParams(VideoCodec* codec) {
+void AddDefaultFeedbackParams(VideoCodec* codec) 
+{
   // Don't add any feedback params for RED and ULPFEC.
-  if (codec->name == kRedCodecName || codec->name == kUlpfecCodecName) {
+  if (codec->name == kRedCodecName || codec->name == kUlpfecCodecName)
+  {
     return;
   }
+	// TODO@chensong 2022-10-06 添加remb和transportcc网络带宽评估的模块的算法支持
+  // REMB			发送端的带宽评估算法
+  // transportcc	接受端的带宽评估算法
   codec->AddFeedbackParam(FeedbackParam(kRtcpFbParamRemb, kParamValueEmpty));
-  codec->AddFeedbackParam(
-      FeedbackParam(kRtcpFbParamTransportCc, kParamValueEmpty));
+  codec->AddFeedbackParam(FeedbackParam(kRtcpFbParamTransportCc, kParamValueEmpty));
   // Don't add any more feedback params for FLEXFEC.
-  if (codec->name == kFlexfecCodecName) {
+  // TODO@chensong 2022-10-06 在FLEXFEC中不添加ccm、fir、nack、pli
+  if (codec->name == kFlexfecCodecName) 
+  {
     return;
   }
   codec->AddFeedbackParam(FeedbackParam(kRtcpFbParamCcm, kRtcpFbCcmParamFir));
@@ -92,7 +101,9 @@ std::vector<VideoCodec> AssignPayloadTypesAndDefaultCodecs( std::vector<webrtc::
   input_formats.push_back(webrtc::SdpVideoFormat(kRedCodecName));
   input_formats.push_back(webrtc::SdpVideoFormat(kUlpfecCodecName));
 
-  if (IsFlexfecAdvertisedFieldTrialEnabled()) {
+  // TODO@chensong 2022-10-06  flex 对H264 支持不是太好的？？？ 优化工作
+  if (IsFlexfecAdvertisedFieldTrialEnabled()) 
+  {
     webrtc::SdpVideoFormat flexfec_format(kFlexfecCodecName);
     // This value is currently arbitrarily set to 10 seconds. (The unit
     // is microseconds.) This parameter MUST be present in the SDP, but
@@ -103,7 +114,8 @@ std::vector<VideoCodec> AssignPayloadTypesAndDefaultCodecs( std::vector<webrtc::
   }
 
   std::vector<VideoCodec> output_codecs;
-  for (const webrtc::SdpVideoFormat& format : input_formats) {
+  for (const webrtc::SdpVideoFormat& format : input_formats) 
+  {
     VideoCodec codec(format);
     codec.id = payload_type;
     AddDefaultFeedbackParams(&codec);
@@ -111,20 +123,22 @@ std::vector<VideoCodec> AssignPayloadTypesAndDefaultCodecs( std::vector<webrtc::
 
     // Increment payload type.
     ++payload_type;
-    if (payload_type > kLastDynamicPayloadType) {
+    if (payload_type > kLastDynamicPayloadType) 
+	{
       RTC_LOG(LS_ERROR) << "Out of dynamic payload types, skipping the rest.";
       break;
     }
 
     // Add associated RTX codec for non-FEC codecs.
-    if (!absl::EqualsIgnoreCase(codec.name, kUlpfecCodecName) &&
-        !absl::EqualsIgnoreCase(codec.name, kFlexfecCodecName)) {
-      output_codecs.push_back(
-          VideoCodec::CreateRtxCodec(payload_type, codec.id));
+	// TODO@chensong 2022-10-26 没有FEC前向纠错技术就使用RTX技术来掉包重传
+    if (!absl::EqualsIgnoreCase(codec.name, kUlpfecCodecName) && !absl::EqualsIgnoreCase(codec.name, kFlexfecCodecName)) 
+	{
+      output_codecs.push_back(VideoCodec::CreateRtxCodec(payload_type, codec.id));
 
       // Increment payload type.
       ++payload_type;
-      if (payload_type > kLastDynamicPayloadType) {
+      if (payload_type > kLastDynamicPayloadType) 
+	  {
         RTC_LOG(LS_ERROR) << "Out of dynamic payload types, skipping the rest.";
         break;
       }
@@ -133,11 +147,10 @@ std::vector<VideoCodec> AssignPayloadTypesAndDefaultCodecs( std::vector<webrtc::
   return output_codecs;
 }
 
-std::vector<VideoCodec> AssignPayloadTypesAndDefaultCodecs(
-    const webrtc::VideoEncoderFactory* encoder_factory) {
-  return encoder_factory ? AssignPayloadTypesAndDefaultCodecs(
-                               encoder_factory->GetSupportedFormats())
-                         : std::vector<VideoCodec>();
+std::vector<VideoCodec> AssignPayloadTypesAndDefaultCodecs(const webrtc::VideoEncoderFactory* encoder_factory)
+{
+	//  // TODO@chensong  2022-10-06   webrtc_video_engine ->   src/media/engine/internal_encoder_factory.h
+  return encoder_factory ? AssignPayloadTypesAndDefaultCodecs(encoder_factory->GetSupportedFormats()):std::vector<VideoCodec>();
 }
 
 int GetMaxFramerate(const webrtc::VideoEncoderConfig& encoder_config,
@@ -392,8 +405,7 @@ WebRtcVideoChannel::WebRtcVideoSendStream::ConfigureVideoEncoderSettings(
     // Ensure frame dropping is always enabled.
     RTC_DCHECK(vp9_settings.frameDroppingOn);
     if (!is_screencast) {
-      const std::string group =
-          webrtc::field_trial::FindFullName("WebRTC-Vp9InterLayerPred");
+      const std::string group = webrtc::field_trial::FindFullName("WebRTC-Vp9InterLayerPred");
       int mode;
       if (!group.empty() && sscanf(group.c_str(), "%d", &mode) == 1 &&
           (mode == static_cast<int>(webrtc::InterLayerPredMode::kOn) ||

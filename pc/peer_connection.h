@@ -330,9 +330,7 @@ class PeerConnection : public PeerConnectionInternal,
   rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>
   GetFirstAudioTransceiver() const RTC_RUN_ON(signaling_thread());
 
-  void CreateAudioReceiver(MediaStreamInterface* stream,
-                           const RtpSenderInfo& remote_sender_info)
-      RTC_RUN_ON(signaling_thread());
+  void CreateAudioReceiver(MediaStreamInterface* stream, const RtpSenderInfo& remote_sender_info) RTC_RUN_ON(signaling_thread());
 
   void CreateVideoReceiver(MediaStreamInterface* stream,
                            const RtpSenderInfo& remote_sender_info)
@@ -1125,8 +1123,7 @@ class PeerConnection : public PeerConnectionInternal,
   std::unique_ptr<AsyncResolverFactory> async_resolver_factory_  RTC_GUARDED_BY(signaling_thread());
   std::unique_ptr<cricket::PortAllocator>  port_allocator_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                         // signaling and network thread.
-  std::unique_ptr<rtc::SSLCertificateVerifier>
-      tls_cert_verifier_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  std::unique_ptr<rtc::SSLCertificateVerifier> tls_cert_verifier_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                            // signaling and network thread.
 
   // One PeerConnection has only one RTCP CNAME.
@@ -1165,7 +1162,8 @@ class PeerConnection : public PeerConnectionInternal,
   std::unique_ptr<StatsCollector> stats_ RTC_GUARDED_BY(signaling_thread());  // A pointer is passed to senders_
   rtc::scoped_refptr<RTCStatsCollector> stats_collector_ RTC_GUARDED_BY(signaling_thread());
   // 通道个数 接受和发送通道
-  std::vector< rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>> transceivers_;  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
+  std::vector< rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>> transceivers_;  
+  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
                       // and network thread.
 
   // In Unified Plan, if we encounter remote SDP that does not contain an a=msid
@@ -1249,6 +1247,8 @@ class PeerConnection : public PeerConnectionInternal,
   sigslot::signal1<int> SignalMediaTransportChannelClosed_s  RTC_GUARDED_BY(signaling_thread());
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// TODO@chensong 2022-10-04 在调用SetLocalDesctioption和SetRemoveDesctioption函数设置这些值
+  //  做四个值主要来区分主动呼叫和对端呼叫时设置对端的Offer或者Answer
   std::unique_ptr<SessionDescriptionInterface> current_local_description_ RTC_GUARDED_BY(signaling_thread());
   std::unique_ptr<SessionDescriptionInterface> pending_local_description_ RTC_GUARDED_BY(signaling_thread());
   std::unique_ptr<SessionDescriptionInterface> current_remote_description_ RTC_GUARDED_BY(signaling_thread());

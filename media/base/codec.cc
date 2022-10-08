@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -94,9 +94,7 @@ bool Codec::Matches(const Codec& codec) const {
   // Match the codec id/name based on the typical static/dynamic name rules.
   // Matching is case-insensitive.
   const int kMaxStaticPayloadId = 95;
-  return (id <= kMaxStaticPayloadId || codec.id <= kMaxStaticPayloadId)
-             ? (id == codec.id)
-             : (absl::EqualsIgnoreCase(name, codec.name));
+  return (id <= kMaxStaticPayloadId || codec.id <= kMaxStaticPayloadId) ? (id == codec.id) : (absl::EqualsIgnoreCase(name, codec.name));
 }
 
 bool Codec::GetParam(const std::string& name, std::string* out) const {
@@ -264,14 +262,21 @@ static bool IsSameH264PacketizationMode(const CodecParameterMap& ours,
   return our_packetization_mode == their_packetization_mode;
 }
 
-bool VideoCodec::Matches(const VideoCodec& other) const {
-  if (!Codec::Matches(other))
-    return false;
-  if (absl::EqualsIgnoreCase(name, kH264CodecName))
-    return webrtc::H264::IsSameH264Profile(params, other.params) &&
-           IsSameH264PacketizationMode(params, other.params);
-  if (absl::EqualsIgnoreCase(name, kVp9CodecName))
-    return webrtc::IsSameVP9Profile(params, other.params);
+bool VideoCodec::Matches(const VideoCodec& other) const
+{
+	if (!Codec::Matches(other))
+	{
+		return false;
+	}
+	if (absl::EqualsIgnoreCase(name, kH264CodecName))
+	{
+		// TODO@chensong 2022-10-06 H264的Profile和Mode匹配
+		return webrtc::H264::IsSameH264Profile(params, other.params) && IsSameH264PacketizationMode(params, other.params);
+	}
+	if (absl::EqualsIgnoreCase(name, kVp9CodecName))
+	{
+		return webrtc::IsSameVP9Profile(params, other.params);
+	}
   return true;
 }
 

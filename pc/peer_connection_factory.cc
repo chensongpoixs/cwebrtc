@@ -118,21 +118,24 @@ PeerConnectionFactory::PeerConnectionFactory(
       network_state_predictor_factory_(std::move(dependencies.network_state_predictor_factory)),
       injected_network_controller_factory_(std::move(dependencies.network_controller_factory)),
       media_transport_factory_(std::move(dependencies.media_transport_factory)) {
-  if (!network_thread_) {
+  if (!network_thread_) 
+  {
     owned_network_thread_ = rtc::Thread::CreateWithSocketServer();
     owned_network_thread_->SetName("pc_network_thread", nullptr);
     owned_network_thread_->Start();
     network_thread_ = owned_network_thread_.get();
   }
 
-  if (!worker_thread_) {
+  if (!worker_thread_) 
+  {
     owned_worker_thread_ = rtc::Thread::Create();
     owned_worker_thread_->SetName("pc_worker_thread", nullptr);
     owned_worker_thread_->Start();
     worker_thread_ = owned_worker_thread_.get();
   }
 
-  if (!signaling_thread_) {
+  if (!signaling_thread_) 
+  {
     signaling_thread_ = rtc::Thread::Current();
     if (!signaling_thread_) {
       // If this thread isn't already wrapped by an rtc::Thread, create a
@@ -290,16 +293,15 @@ PeerConnectionFactory::CreatePeerConnection(const PeerConnectionInterface::RTCCo
   // Set internal defaults if optional dependencies are not set.
   if (!dependencies.cert_generator) 
   {
-	  //TODO@chensong 20220929  创建负责证书的生成的转发类
+	  //TODO@chensong 2022-09-29  创建负责证书的生成的转发类
     dependencies.cert_generator = absl::make_unique<rtc::RTCCertificateGenerator>(signaling_thread_, network_thread_);
   }
   if (!dependencies.allocator)
   {
-    network_thread_->Invoke<void>(RTC_FROM_HERE, [this, &configuration,
-                                                  &dependencies]() {
+    network_thread_->Invoke<void>(RTC_FROM_HERE, [this, &configuration, &dependencies]() 
+	{
       dependencies.allocator = absl::make_unique<cricket::BasicPortAllocator>(
-          default_network_manager_.get(), default_socket_factory_.get(),
-          configuration.turn_customizer);
+          default_network_manager_.get(), default_socket_factory_.get(), configuration.turn_customizer);
     });
   }
 
@@ -308,18 +310,14 @@ PeerConnectionFactory::CreatePeerConnection(const PeerConnectionInterface::RTCCo
   // |rtc::BasicAsyncResolverFactory| if no factory is provided.
 
   network_thread_->Invoke<void>(
-      RTC_FROM_HERE,
-      rtc::Bind(&cricket::PortAllocator::SetNetworkIgnoreMask,
-                dependencies.allocator.get(), options_.network_ignore_mask));
+      RTC_FROM_HERE, rtc::Bind(&cricket::PortAllocator::SetNetworkIgnoreMask, dependencies.allocator.get(), options_.network_ignore_mask));
 
   std::unique_ptr<RtcEventLog> event_log = worker_thread_->Invoke<std::unique_ptr<RtcEventLog>>(
-          RTC_FROM_HERE,
-          rtc::Bind(&PeerConnectionFactory::CreateRtcEventLog_w, this));
+          RTC_FROM_HERE, rtc::Bind(&PeerConnectionFactory::CreateRtcEventLog_w, this));
 
   // TODO@chensong 2022-09-29 中call有两个线程 pacer_thread , moudler_thread
   std::unique_ptr<Call> call = worker_thread_->Invoke<std::unique_ptr<Call>>(
-      RTC_FROM_HERE,
-      rtc::Bind(&PeerConnectionFactory::CreateCall_w, this, event_log.get()));
+      RTC_FROM_HERE, rtc::Bind(&PeerConnectionFactory::CreateCall_w, this, event_log.get()));
 
   rtc::scoped_refptr<PeerConnection> pc(new rtc::RefCountedObject<PeerConnection>(this, std::move(event_log), std::move(call)));
 
@@ -349,7 +347,7 @@ rtc::scoped_refptr<VideoTrackInterface> PeerConnectionFactory::CreateVideoTrack(
   RTC_DCHECK(signaling_thread_->IsCurrent());
   // TODO@chensong 2022-09-29   pc/video_track.h
   rtc::scoped_refptr<VideoTrackInterface> track(VideoTrack::Create(id, source, worker_thread_));
-  // TODO@chensong 2022-09-29 video_track对象托管到videoTrackProxy类中去代理类中去代理玩
+  // TODO@chensong 2022-09-29 video_track对象托管到videoTrackProxy类中去代理类中去代理玩 [信号线程、工作线程]
   return VideoTrackProxy::Create(signaling_thread_, worker_thread_, track);
 }
 

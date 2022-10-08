@@ -75,12 +75,14 @@ std::unique_ptr<MediaEngineInterface> WebRtcMediaEngineFactory::Create(
     rtc::scoped_refptr<webrtc::AudioMixer> audio_mixer,
     rtc::scoped_refptr<webrtc::AudioProcessing> audio_processing) {
 #ifdef HAVE_WEBRTC_VIDEO
+	// TODO@chensong 2022-10-06 创建视频引擎
   auto video_engine = absl::make_unique<WebRtcVideoEngine>(
       std::move(video_encoder_factory), std::move(video_decoder_factory),
       std::move(video_bitrate_allocator_factory));
 #else
   auto video_engine = absl::make_unique<NullWebRtcVideoEngine>();
 #endif
+  // TODO@chensong 2022-10-06 创建音频和视频引擎的合并类
   return std::unique_ptr<MediaEngineInterface>(new CompositeMediaEngine(
       absl::make_unique<WebRtcVoiceEngine>(
           &webrtc::GlobalTaskQueueFactory(), adm, audio_encoder_factory,
@@ -201,10 +203,12 @@ webrtc::BitrateConstraints GetBitrateConfigForCodec(const Codec& codec) {
   config.start_bitrate_bps = 1000  *1000;
   return config;*/
   int bitrate_kbps = 0;
-  if (codec.GetParam(kCodecParamMinBitrate, &bitrate_kbps) &&
-      bitrate_kbps > 0) {
+  if (codec.GetParam(kCodecParamMinBitrate, &bitrate_kbps) && bitrate_kbps > 0) 
+  {
     config.min_bitrate_bps = bitrate_kbps * 1000;
-  } else {
+  }
+  else 
+  {
     config.min_bitrate_bps = 0;
   }
   if (codec.GetParam(kCodecParamStartBitrate, &bitrate_kbps) &&

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -96,7 +96,7 @@ struct LevelConstraint {
   const webrtc::H264::Level level;
 };
 
-// This is from ITU-T H.264 (02/2016) Table A-1 – Level limits.
+// This is from ITU-T H.264 (02/2016) Table A-1 â€“ Level limits.
 static constexpr LevelConstraint kLevelConstraints[] = {
     {1485, 99, webrtc::H264::kLevel1},
     {1485, 99, webrtc::H264::kLevel1_b},
@@ -119,28 +119,33 @@ static constexpr LevelConstraint kLevelConstraints[] = {
 
 }  // anonymous namespace
 
-absl::optional<ProfileLevelId> ParseProfileLevelId(const char* str) {
+absl::optional<ProfileLevelId> ParseProfileLevelId(const char* str) 
+{
+	//TODO@chensong 2022-10-06 解析H264 ProfileLevel的格式
   // The string should consist of 3 bytes in hexadecimal format.
-  if (strlen(str) != 6u)
-    return absl::nullopt;
+	if (strlen(str) != 6u)
+	{
+		return absl::nullopt;
+	}
   const uint32_t profile_level_id_numeric = strtol(str, nullptr, 16);
   if (profile_level_id_numeric == 0)
-    return absl::nullopt;
+  {
+	  return absl::nullopt;
+  }
 
   // Separate into three bytes.
-  const uint8_t level_idc =
-      static_cast<uint8_t>(profile_level_id_numeric & 0xFF);
-  const uint8_t profile_iop =
-      static_cast<uint8_t>((profile_level_id_numeric >> 8) & 0xFF);
-  const uint8_t profile_idc =
-      static_cast<uint8_t>((profile_level_id_numeric >> 16) & 0xFF);
+  const uint8_t level_idc = static_cast<uint8_t>(profile_level_id_numeric & 0xFF);
+  const uint8_t profile_iop = static_cast<uint8_t>((profile_level_id_numeric >> 8) & 0xFF);
+  const uint8_t profile_idc = static_cast<uint8_t>((profile_level_id_numeric >> 16) & 0xFF);
 
   // Parse level based on level_idc and constraint set 3 flag.
   Level level;
   switch (level_idc) {
     case kLevel1_1:
-      level = (profile_iop & kConstraintSet3Flag) != 0 ? kLevel1_b : kLevel1_1;
-      break;
+	{
+		level = (profile_iop & kConstraintSet3Flag) != 0 ? kLevel1_b : kLevel1_1;
+		break;
+	}
     case kLevel1:
     case kLevel1_2:
     case kLevel1_3:
@@ -156,17 +161,20 @@ absl::optional<ProfileLevelId> ParseProfileLevelId(const char* str) {
     case kLevel5:
     case kLevel5_1:
     case kLevel5_2:
-      level = static_cast<Level>(level_idc);
-      break;
+	{
+		level = static_cast<Level>(level_idc);
+		break;
+	}
     default:
       // Unrecognized level_idc.
       return absl::nullopt;
   }
 
   // Parse profile_idc/profile_iop into a Profile enum.
-  for (const ProfilePattern& pattern : kProfilePatterns) {
-    if (profile_idc == pattern.profile_idc &&
-        pattern.profile_iop.IsMatch(profile_iop)) {
+  for (const ProfilePattern& pattern : kProfilePatterns) 
+  {
+    if (profile_idc == pattern.profile_idc && pattern.profile_iop.IsMatch(profile_iop)) 
+	{
       return ProfileLevelId(pattern.profile, level);
     }
   }
@@ -192,8 +200,8 @@ absl::optional<Level> SupportedLevel(int max_frame_pixel_count, float max_fps) {
   return absl::nullopt;
 }
 
-absl::optional<ProfileLevelId> ParseSdpProfileLevelId(
-    const CodecParameterMap& params) {
+absl::optional<ProfileLevelId> ParseSdpProfileLevelId(const CodecParameterMap& params) 
+{
   // TODO(magjed): The default should really be kProfileBaseline and kLevel1
   // according to the spec: https://tools.ietf.org/html/rfc6184#section-8.1. In
   // order to not break backwards compatibility with older versions of WebRTC
@@ -201,13 +209,10 @@ absl::optional<ProfileLevelId> ParseSdpProfileLevelId(
   // kProfileConstrainedBaseline kLevel3_1 instead. This workaround will only be
   // done in an interim period to allow external clients to update their code.
   // http://crbug/webrtc/6337.
-  static const ProfileLevelId kDefaultProfileLevelId(
-      kProfileConstrainedBaseline, kLevel3_1);
+  static const ProfileLevelId kDefaultProfileLevelId( kProfileConstrainedBaseline, kLevel3_1);
 
   const auto profile_level_id_it = params.find(kProfileLevelId);
-  return (profile_level_id_it == params.end())
-             ? kDefaultProfileLevelId
-             : ParseProfileLevelId(profile_level_id_it->second.c_str());
+  return (profile_level_id_it == params.end()) ? kDefaultProfileLevelId : ParseProfileLevelId(profile_level_id_it->second.c_str());
 }
 
 absl::optional<std::string> ProfileLevelIdToString(
@@ -295,16 +300,15 @@ void GenerateProfileLevelIdForAnswer(
   (*answer_params)[kProfileLevelId] = *ProfileLevelIdToString(
       ProfileLevelId(local_profile_level_id->profile, answer_level));
 }
-
-bool IsSameH264Profile(const CodecParameterMap& params1,
-                       const CodecParameterMap& params2) {
-  const absl::optional<webrtc::H264::ProfileLevelId> profile_level_id =
-      webrtc::H264::ParseSdpProfileLevelId(params1);
-  const absl::optional<webrtc::H264::ProfileLevelId> other_profile_level_id =
-      webrtc::H264::ParseSdpProfileLevelId(params2);
+/************************************************************************/
+/* TODO@chensong 2022-10-06 H264 的Profile的格式匹配*/
+/************************************************************************/
+bool IsSameH264Profile(const CodecParameterMap& params1, const CodecParameterMap& params2) 
+{
+  const absl::optional<webrtc::H264::ProfileLevelId> profile_level_id = webrtc::H264::ParseSdpProfileLevelId(params1);
+  const absl::optional<webrtc::H264::ProfileLevelId> other_profile_level_id =  webrtc::H264::ParseSdpProfileLevelId(params2);
   // Compare H264 profiles, but not levels.
-  return profile_level_id && other_profile_level_id &&
-         profile_level_id->profile == other_profile_level_id->profile;
+  return profile_level_id && other_profile_level_id && profile_level_id->profile == other_profile_level_id->profile;
 }
 
 }  // namespace H264

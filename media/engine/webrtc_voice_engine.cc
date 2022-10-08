@@ -214,7 +214,8 @@ WebRtcVoiceEngine::~WebRtcVoiceEngine() {
   }
 }
 
-void WebRtcVoiceEngine::Init() {
+void WebRtcVoiceEngine::Init() 
+{
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   RTC_LOG(LS_INFO) << "WebRtcVoiceEngine::Init";
   //?????????????
@@ -225,7 +226,7 @@ void WebRtcVoiceEngine::Init() {
 
   // Load our audio codec lists.
   RTC_LOG(LS_INFO) << "Supported send codecs in order of preference:";
-  // TODO@chensong 音频编码器信息 
+  // TODO@chensong 2022-03-25  音频编码器信息 
   send_codecs_ = CollectCodecs(encoder_factory_->GetSupportedEncoders());
   for (const AudioCodec& codec : send_codecs_) 
   {
@@ -233,7 +234,7 @@ void WebRtcVoiceEngine::Init() {
   }
 
   RTC_LOG(LS_INFO) << "Supported recv codecs in order of preference:";
-  // TODO@chensong 20220905 音频解码器信息
+  // TODO@chensong 2022-09-05 音频解码器信息
   recv_codecs_ = CollectCodecs(decoder_factory_->GetSupportedDecoders());
   for (const AudioCodec& codec : recv_codecs_) 
   {
@@ -244,6 +245,7 @@ void WebRtcVoiceEngine::Init() {
   // No ADM supplied? Create a default one.
   if (!adm_)
   {
+	 // TODO@chensong 2022-10-06 创建音频设备(ADM)
     adm_ = webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::kPlatformDefaultAudio, task_queue_factory_);
   }
 #endif  // WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE
@@ -254,13 +256,17 @@ void WebRtcVoiceEngine::Init() {
   // Set up AudioState.
   {
     webrtc::AudioState::Config config;
-    if (audio_mixer_) {
+    if (audio_mixer_) 
+	{
       config.audio_mixer = audio_mixer_;
-    } else {
+    }
+	else 
+	{
       config.audio_mixer = webrtc::AudioMixerImpl::Create();
     }
     config.audio_processing = apm_;
     config.audio_device_module = adm_;
+	// TODO@chensong 2022-10-06 音频状态管理音频模块
     audio_state_ = webrtc::AudioState::Create(config);
   }
 
@@ -623,8 +629,8 @@ webrtc::AudioState* WebRtcVoiceEngine::audio_state() {
   return audio_state_.get();
 }
 
-AudioCodecs WebRtcVoiceEngine::CollectCodecs(
-    const std::vector<webrtc::AudioCodecSpec>& specs) const {
+AudioCodecs WebRtcVoiceEngine::CollectCodecs(const std::vector<webrtc::AudioCodecSpec>& specs) const 
+{
   PayloadTypeMapper mapper;
   AudioCodecs out;
 
@@ -637,44 +643,51 @@ AudioCodecs WebRtcVoiceEngine::CollectCodecs(
   std::map<int, bool, std::greater<int>> generate_dtmf = {
       {8000, false}, {16000, false}, {32000, false}, {48000, false}};
 
-  auto map_format = [&mapper](const webrtc::SdpAudioFormat& format,
-                              AudioCodecs* out) {
+  auto map_format = [&mapper](const webrtc::SdpAudioFormat& format, AudioCodecs* out) {
     absl::optional<AudioCodec> opt_codec = mapper.ToAudioCodec(format);
-    if (opt_codec) {
-      if (out) {
+    if (opt_codec) 
+	{
+      if (out)
+	  {
         out->push_back(*opt_codec);
       }
-    } else {
-      RTC_LOG(LS_ERROR) << "Unable to assign payload type to format: "
-                        << rtc::ToString(format);
+    } 
+	else 
+	{
+      RTC_LOG(LS_ERROR) << "Unable to assign payload type to format: " << rtc::ToString(format);
     }
 
     return opt_codec;
   };
-  //  TODO@chensong 20220905 
+  //  TODO@chensong 2022-09-05 
   // 把音频格式数据换一个容器存储即[AudioCodecs]
-  for (const auto& spec : specs) {
+  for (const auto& spec : specs) 
+  {
     // We need to do some extra stuff before adding the main codecs to out.
     absl::optional<AudioCodec> opt_codec = map_format(spec.format, nullptr);
-    if (opt_codec) {
+    if (opt_codec) 
+	{
       AudioCodec& codec = *opt_codec;
-      if (spec.info.supports_network_adaption) {
-        codec.AddFeedbackParam(
-            FeedbackParam(kRtcpFbParamTransportCc, kParamValueEmpty));
+      if (spec.info.supports_network_adaption) 
+	  {
+        codec.AddFeedbackParam(FeedbackParam(kRtcpFbParamTransportCc, kParamValueEmpty));
       }
 
-      if (spec.info.allow_comfort_noise) {
+      if (spec.info.allow_comfort_noise) 
+	  {
         // Generate a CN entry if the decoder allows it and we support the
         // clockrate.
         auto cn = generate_cn.find(spec.format.clockrate_hz);
-        if (cn != generate_cn.end()) {
+        if (cn != generate_cn.end()) 
+		{
           cn->second = true;
         }
       }
 
       // Generate a telephone-event entry if we support the clockrate.
       auto dtmf = generate_dtmf.find(spec.format.clockrate_hz);
-      if (dtmf != generate_dtmf.end()) {
+      if (dtmf != generate_dtmf.end()) 
+	  {
         dtmf->second = true;
       }
 
@@ -683,15 +696,19 @@ AudioCodecs WebRtcVoiceEngine::CollectCodecs(
   }
 
   // Add CN codecs after "proper" audio codecs.
-  for (const auto& cn : generate_cn) {
-    if (cn.second) {
+  for (const auto& cn : generate_cn) 
+  {
+    if (cn.second) 
+	{
       map_format({kCnCodecName, cn.first, 1}, &out);
     }
   }
 
   // Add telephone-event codecs last.
-  for (const auto& dtmf : generate_dtmf) {
-    if (dtmf.second) {
+  for (const auto& dtmf : generate_dtmf) 
+  {
+    if (dtmf.second) 
+	{
       map_format({kDtmfCodecName, dtmf.first, 1}, &out);
     }
   }
