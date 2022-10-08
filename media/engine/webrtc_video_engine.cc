@@ -89,17 +89,39 @@ void AddDefaultFeedbackParams(VideoCodec* codec)
 // default feedback params to the codecs.
 std::vector<VideoCodec> AssignPayloadTypesAndDefaultCodecs( std::vector<webrtc::SdpVideoFormat> input_formats) 
 {
+ /* static FILE* out_sdp_video_format_file_ptr = fopen("./sdp/video_format.log", "wb+");
+  static bool write = false;
+  */
   // TODO@chensong 20220928  视频编解码器收集中非常有意思的代码
   if (input_formats.empty()) 
   {
     return std::vector<VideoCodec>();
   }
+  
   static const int kFirstDynamicPayloadType = 96;
   static const int kLastDynamicPayloadType = 127;
   int payload_type = kFirstDynamicPayloadType;
 
   input_formats.push_back(webrtc::SdpVideoFormat(kRedCodecName));
   input_formats.push_back(webrtc::SdpVideoFormat(kUlpfecCodecName));
+  /**
+  TODO@chensong 2022-10-08
+[sdp_video_name = H264][key = level-asymmetry-allowed][value = 1][key = packetization-mode][value = 1][key = profile-level-id][value = 42001f]
+[sdp_video_name = H264][key = level-asymmetry-allowed][value = 1][key = packetization-mode][value = 0][key = profile-level-id][value = 42001f]
+[sdp_video_name = H264][key = level-asymmetry-allowed][value = 1][key = packetization-mode][value = 1][key = profile-level-id][value = 42e01f]
+[sdp_video_name = H264][key = level-asymmetry-allowed][value = 1][key = packetization-mode][value = 0][key = profile-level-id][value = 42e01f]
+[sdp_video_name = VP8]
+[sdp_video_name = VP9][key = profile-id][value = 0]
+[sdp_video_name = VP9][key = profile-id][value = 2]
+[sdp_video_name = red]
+[sdp_video_name = ulpfec]
+
+	[F:\Work\20220803_webrtc\src/media/engine/internal_encoder_factory.cc中GetSupportedFormats方法中获取]
+	获取视频编码格式
+
+  */
+
+
 
   // TODO@chensong 2022-10-06  flex 对H264 支持不是太好的？？？ 优化工作
   if (IsFlexfecAdvertisedFieldTrialEnabled()) 
@@ -144,6 +166,43 @@ std::vector<VideoCodec> AssignPayloadTypesAndDefaultCodecs( std::vector<webrtc::
       }
     }
   }
+  /** 
+  VideoCodec[96:H264]
+VideoCodec[97:rtx]
+VideoCodec[98:H264]
+VideoCodec[99:rtx]
+VideoCodec[100:H264]
+VideoCodec[101:rtx]
+VideoCodec[102:H264]
+VideoCodec[103:rtx]
+VideoCodec[104:VP8]
+VideoCodec[105:rtx]
+VideoCodec[106:VP9]
+VideoCodec[107:rtx]
+VideoCodec[108:VP9]
+VideoCodec[109:rtx]                                                             
+VideoCodec[110:red]
+VideoCodec[111:rtx]
+VideoCodec[112:ulpfec]
+  */
+ /* if (!write && out_sdp_video_format_file_ptr) 
+  {
+    write = true;
+    ::fprintf(out_sdp_video_format_file_ptr, "|video codec ------------------------|\n");
+	for (const webrtc::SdpVideoFormat& sdp : input_formats) 
+	{
+      ::fprintf(out_sdp_video_format_file_ptr, "%s\n", sdp.ToString().c_str());
+      ::fflush(out_sdp_video_format_file_ptr);
+    }
+
+	 ::fprintf(out_sdp_video_format_file_ptr, "|video RTX codec ------------------------|\n");
+    for (const VideoCodec& codec : output_codecs)
+	 {
+           ::fprintf(out_sdp_video_format_file_ptr, "%s\n",
+                codec.ToString().c_str());
+           ::fflush(out_sdp_video_format_file_ptr);
+	}
+  }*/
   return output_codecs;
 }
 
@@ -529,11 +588,11 @@ RtpCapabilities WebRtcVideoEngine::GetCapabilities() const {
       webrtc::RtpExtension(webrtc::RtpExtension::kFrameMarkingUri, id++));
   capabilities.header_extensions.push_back(
       webrtc::RtpExtension(webrtc::RtpExtension::kColorSpaceUri, id++));
-  if (webrtc::field_trial::IsEnabled("WebRTC-GenericDescriptorAdvertised")) {
-    capabilities.header_extensions.push_back(webrtc::RtpExtension(
-        webrtc::RtpExtension::kGenericFrameDescriptorUri00, id++));
-    capabilities.header_extensions.push_back(webrtc::RtpExtension(
-        webrtc::RtpExtension::kGenericFrameDescriptorUri01, id++));
+  // TODO@chensong 2022-10-08 视频无关描述信息
+  if (webrtc::field_trial::IsEnabled("WebRTC-GenericDescriptorAdvertised"))
+  {
+    capabilities.header_extensions.push_back(webrtc::RtpExtension(webrtc::RtpExtension::kGenericFrameDescriptorUri00, id++));
+    capabilities.header_extensions.push_back(webrtc::RtpExtension(webrtc::RtpExtension::kGenericFrameDescriptorUri01, id++));
   }
 
   return capabilities;

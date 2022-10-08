@@ -36,14 +36,15 @@ const char kDefaultRtcpCname[] = "DefaultRtcpCname";
 
 // Options for an RtpSender contained with an media description/"m=" section.
 // Note: Spec-compliant Simulcast and legacy simulcast are mutually exclusive.
-struct SenderOptions {
+struct SenderOptions 
+{
   std::string track_id;
   std::vector<std::string> stream_ids;
   // Use RIDs and Simulcast Layers to indicate spec-compliant Simulcast.
   std::vector<RidDescription> rids;
   SimulcastLayerList simulcast_layers;
   // Use |num_sim_layers| to indicate legacy simulcast.
-  int num_sim_layers;
+  int num_sim_layers; // TODO@chensong 2022-10-08   判断simulcast的标志多路流
 };
 
 // Options for an individual media description/"m=" section.

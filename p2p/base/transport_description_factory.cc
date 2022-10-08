@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2012 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -27,30 +27,38 @@ TransportDescriptionFactory::TransportDescriptionFactory()
 TransportDescriptionFactory::~TransportDescriptionFactory() = default;
 
 std::unique_ptr<TransportDescription> TransportDescriptionFactory::CreateOffer(
-    const TransportOptions& options,
-    const TransportDescription* current_description,
-    IceCredentialsIterator* ice_credentials) const {
+    const TransportOptions& options, const TransportDescription* current_description, IceCredentialsIterator* ice_credentials) const 
+{
   auto desc = absl::make_unique<TransportDescription>();
 
   // Generate the ICE credentials if we don't already have them.
-  if (!current_description || options.ice_restart) {
+  if (!current_description || options.ice_restart) 
+  {
     IceParameters credentials = ice_credentials->GetIceCredentials();
     desc->ice_ufrag = credentials.ufrag;
     desc->ice_pwd = credentials.pwd;
-  } else {
+  } 
+  else 
+  {
     desc->ice_ufrag = current_description->ice_ufrag;
     desc->ice_pwd = current_description->ice_pwd;
   }
+
   desc->AddOption(ICE_OPTION_TRICKLE);
-  if (options.enable_ice_renomination) {
+  // TODO@chensong 2022-10-08 不动态获取candidate的信息 
+  if (options.enable_ice_renomination) 
+  {
     desc->AddOption(ICE_OPTION_RENOMINATION);
   }
 
   // If we are trying to establish a secure transport, add a fingerprint.
-  if (secure_ == SEC_ENABLED || secure_ == SEC_REQUIRED) {
+  //TODO@chensong 2022-10-08  如果我们试图建立安全传输，请添加指纹。
+  if (secure_ == SEC_ENABLED || secure_ == SEC_REQUIRED) 
+  {
     // Fail if we can't create the fingerprint.
     // If we are the initiator set role to "actpass".
-    if (!SetSecurityInfo(desc.get(), CONNECTIONROLE_ACTPASS)) {
+    if (!SetSecurityInfo(desc.get(), CONNECTIONROLE_ACTPASS)) 
+	{
       return NULL;
     }
   }
@@ -111,9 +119,10 @@ std::unique_ptr<TransportDescription> TransportDescriptionFactory::CreateAnswer(
   return desc;
 }
 
-bool TransportDescriptionFactory::SetSecurityInfo(TransportDescription* desc,
-                                                  ConnectionRole role) const {
-  if (!certificate_) {
+bool TransportDescriptionFactory::SetSecurityInfo(TransportDescription* desc, ConnectionRole role) const 
+{
+  if (!certificate_) 
+  {
     RTC_LOG(LS_ERROR) << "Cannot create identity digest with no certificate";
     return false;
   }
@@ -121,9 +130,9 @@ bool TransportDescriptionFactory::SetSecurityInfo(TransportDescription* desc,
   // This digest algorithm is used to produce the a=fingerprint lines in SDP.
   // RFC 4572 Section 5 requires that those lines use the same hash function as
   // the certificate's signature, which is what CreateFromCertificate does.
-  desc->identity_fingerprint =
-      rtc::SSLFingerprint::CreateFromCertificate(*certificate_);
-  if (!desc->identity_fingerprint) {
+  desc->identity_fingerprint = rtc::SSLFingerprint::CreateFromCertificate(*certificate_);
+  if (!desc->identity_fingerprint)
+  {
     return false;
   }
 

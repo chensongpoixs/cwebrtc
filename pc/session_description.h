@@ -277,9 +277,11 @@ class MediaContentDescriptionImpl : public MediaContentDescription {
     }
     AddCodec(codec);
   }
-  void AddCodecs(const std::vector<C>& codecs) {
+  void AddCodecs(const std::vector<C>& codecs) 
+  {
     typename std::vector<C>::const_iterator codec;
-    for (codec = codecs.begin(); codec != codecs.end(); ++codec) {
+    for (codec = codecs.begin(); codec != codecs.end(); ++codec) 
+	{
       AddCodec(*codec);
     }
   }

@@ -9,7 +9,8 @@
  */
 
 #include "api/video_codecs/sdp_video_format.h"
-
+#include <sstream>
+#include <string>
 namespace webrtc {
 
 SdpVideoFormat::SdpVideoFormat(const std::string& name) : name(name) {}
@@ -27,6 +28,17 @@ SdpVideoFormat::~SdpVideoFormat() = default;
 
 bool operator==(const SdpVideoFormat& a, const SdpVideoFormat& b) {
   return a.name == b.name && a.parameters == b.parameters;
+}
+
+std::string SdpVideoFormat::ToString() const 
+{
+  std::ostringstream cmd;
+  cmd << "[sdp_video_name = " << name << "]";
+  for (const std::pair<std::string, std::string> & p : parameters)
+  {
+    cmd << "[key = " << p.first << "][value = " << p.second << "]";
+  }
+  return cmd.str();
 }
 
 }  // namespace webrtc

@@ -182,6 +182,9 @@ class RtpTransceiver final
   const bool unified_plan_;
   const cricket::MediaType media_type_;
   // 媒体数据的接受与发送  地方  
+  // TODO@chensong 2022-10-08   保持RtpSender对象， 然后 RtpSender对象注册到VideoTrack(MediaStreamTrack)对象中去， VideoTrack对象注册VideoTrackSource对象中有趣
+  // 形成关系    VideoTrackSource  ---> VideoTrack[MediaStreamTrack] ---> VideoRtpSender
+  // 这边怎么管理呢？？？		    
   std::vector<rtc::scoped_refptr<RtpSenderProxyWithInternal<RtpSenderInternal>>> senders_;
   std::vector< rtc::scoped_refptr<RtpReceiverProxyWithInternal<RtpReceiverInternal>>> receivers_;
 

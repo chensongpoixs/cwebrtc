@@ -161,7 +161,8 @@ void SessionDescription::AddContent(const std::string& name,
 void SessionDescription::AddContent(const std::string& name,
                                     MediaProtocolType type,
                                     bool rejected,
-                                    MediaContentDescription* description) {
+                                    MediaContentDescription* description) 
+{
   ContentInfo content(type);
   content.name = name;
   content.rejected = rejected;
@@ -173,7 +174,8 @@ void SessionDescription::AddContent(const std::string& name,
                                     MediaProtocolType type,
                                     bool rejected,
                                     bool bundle_only,
-                                    MediaContentDescription* description) {
+                                    MediaContentDescription* description) 
+{
   ContentInfo content(type);
   content.name = name;
   content.rejected = rejected;
@@ -182,11 +184,12 @@ void SessionDescription::AddContent(const std::string& name,
   AddContent(&content);
 }
 
-void SessionDescription::AddContent(ContentInfo* content) {
-  if (extmap_allow_mixed()) {
+void SessionDescription::AddContent(ContentInfo* content) 
+{
+  if (extmap_allow_mixed()) 
+  {
     // Mixed support on session level overrides setting on media level.
-    content->description->set_extmap_allow_mixed_enum(
-        MediaContentDescription::kSession);
+    content->description->set_extmap_allow_mixed_enum(MediaContentDescription::kSession);
   }
   contents_.push_back(std::move(*content));
 }
@@ -219,11 +222,12 @@ bool SessionDescription::RemoveTransportInfoByName(const std::string& name) {
   return false;
 }
 
-const TransportInfo* SessionDescription::GetTransportInfoByName(
-    const std::string& name) const {
-  for (TransportInfos::const_iterator iter = transport_infos_.begin();
-       iter != transport_infos_.end(); ++iter) {
-    if (iter->content_name == name) {
+const TransportInfo* SessionDescription::GetTransportInfoByName(const std::string& name) const 
+{
+  for (TransportInfos::const_iterator iter = transport_infos_.begin(); iter != transport_infos_.end(); ++iter) 
+  {
+    if (iter->content_name == name) 
+	{
       return &(*iter);
     }
   }

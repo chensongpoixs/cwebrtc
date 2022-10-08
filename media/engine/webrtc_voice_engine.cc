@@ -550,7 +550,9 @@ bool WebRtcVoiceEngine::ApplyOptions(const AudioOptions& options_in) {
   return true;
 }
 
-const std::vector<AudioCodec>& WebRtcVoiceEngine::send_codecs() const {
+const std::vector<AudioCodec>& WebRtcVoiceEngine::send_codecs() const
+{
+	// TODO@chensong 2022-10-08 音频引擎是在初始化时候获取所有编解码信息的
   RTC_DCHECK(signal_thread_checker_.IsCurrent());
   return send_codecs_;
 }

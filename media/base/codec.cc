@@ -59,6 +59,16 @@ void FeedbackParams::Intersect(const FeedbackParams& from) {
     }
   }
 }
+std::string FeedbackParams::ToString() const {
+  std::ostringstream cmd;
+
+  cmd << "| FeedbackParams |\n";
+  for (const FeedbackParam& f : params_) {
+    cmd << "[id = " << f.id() << "][ param = " << f.param() << "]";
+  }
+  // cmd << "--------------------------\n";
+  return cmd.str();
+}
 
 bool FeedbackParams::HasDuplicateEntries() const {
   for (std::vector<FeedbackParam>::const_iterator iter = params_.begin();
@@ -94,7 +104,9 @@ bool Codec::Matches(const Codec& codec) const {
   // Match the codec id/name based on the typical static/dynamic name rules.
   // Matching is case-insensitive.
   const int kMaxStaticPayloadId = 95;
-  return (id <= kMaxStaticPayloadId || codec.id <= kMaxStaticPayloadId) ? (id == codec.id) : (absl::EqualsIgnoreCase(name, codec.name));
+  return (id <= kMaxStaticPayloadId || codec.id <= kMaxStaticPayloadId)
+             ? (id == codec.id)
+             : (absl::EqualsIgnoreCase(name, codec.name));
 }
 
 bool Codec::GetParam(const std::string& name, std::string* out) const {
@@ -130,6 +142,23 @@ void Codec::AddFeedbackParam(const FeedbackParam& param) {
 
 bool Codec::HasFeedbackParam(const FeedbackParam& param) const {
   return feedback_params.Has(param);
+}
+
+std::string Codec::ToString() const 
+{
+  std::ostringstream cmd;
+  cmd << "|Codec|\n";
+  cmd << "[id = " << id << "][" << name << "][clockrate =" << clockrate << "]";
+  cmd << "|CodecParameterMap|\n";
+  for (const std::pair<std::string, std::string> &p : params)
+  {
+    cmd << "[key = " << p.first << "][ value = " << p.second << "]";
+  }
+
+  cmd << "|FeedbackParams|\n";
+  cmd << feedback_params.ToString();
+
+  return cmd.str();
 }
 
 void Codec::IntersectFeedbackParams(const Codec& other) {
@@ -262,21 +291,19 @@ static bool IsSameH264PacketizationMode(const CodecParameterMap& ours,
   return our_packetization_mode == their_packetization_mode;
 }
 
-bool VideoCodec::Matches(const VideoCodec& other) const
-{
-	if (!Codec::Matches(other))
-	{
-		return false;
-	}
-	if (absl::EqualsIgnoreCase(name, kH264CodecName))
-	{
-		// TODO@chensong 2022-10-06 H264的Profile和Mode匹配
-		return webrtc::H264::IsSameH264Profile(params, other.params) && IsSameH264PacketizationMode(params, other.params);
-	}
-	if (absl::EqualsIgnoreCase(name, kVp9CodecName))
-	{
-		return webrtc::IsSameVP9Profile(params, other.params);
-	}
+bool VideoCodec::Matches(const VideoCodec& other) const {
+  if (!Codec::Matches(other)) {
+    return false;
+  }
+  if (absl::EqualsIgnoreCase(name, kH264CodecName)) 
+  {
+    // TODO@chensong 2022-10-06 H264的Profile和Mode匹配
+    return webrtc::H264::IsSameH264Profile(params, other.params) &&
+           IsSameH264PacketizationMode(params, other.params);
+  }
+  if (absl::EqualsIgnoreCase(name, kVp9CodecName)) {
+    return webrtc::IsSameVP9Profile(params, other.params);
+  }
   return true;
 }
 

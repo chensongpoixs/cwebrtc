@@ -1088,6 +1088,7 @@ bool PeerConnection::Initialize(const PeerConnectionInterface::RTCConfiguration&
   transport_controller_->SignalConnectionState.connect(
       this, &PeerConnection::SetConnectionState);
 
+  // TODO@chensong 2022-10-08 这个注册函数没有看懂什么意思
   transport_controller_->SignalIceGatheringState.connect(
       this, &PeerConnection::OnTransportControllerGatheringState);
 
@@ -1205,7 +1206,7 @@ bool PeerConnection::Initialize(const PeerConnectionInterface::RTCConfiguration&
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   //TODO@chensong 2022-09-29  createoffer 会用这个回调函数哈 ^_^ 真正等待ready回调函数触发 ->>   回复应用层SDP信息哈 的回调函数
-  //    
+  //    TODO@chensong 2022-10-08 工作线程生成证书后通知信号线程后信号回调该ready函数
   webrtc_session_desc_factory_->SignalCertificateReady.connect(this, &PeerConnection::OnCertificateReady);
   /////////////////////////////////////////////////////////////////////////////////////////////
   if (options.disable_encryption) 
@@ -4338,6 +4339,7 @@ void PeerConnection::PostCreateSessionDescriptionFailure(
 void PeerConnection::GetOptionsForOffer(
     const PeerConnectionInterface::RTCOfferAnswerOptions& offer_answer_options, cricket::MediaSessionOptions* session_options) 
 {
+	// TODO@chensong 2022-10-08 音频是否开启vad模块、rtp是否共用一个通道 rtp_mux
   ExtractSharedMediaSessionOptions(offer_answer_options, session_options);
 
   if (IsUnifiedPlan())
@@ -4368,6 +4370,7 @@ void PeerConnection::GetOptionsForOffer(
 
   session_options->rtcp_cname = rtcp_cname_;
   session_options->crypto_options = GetCryptoOptions();
+  // TODO@chensong 2022-10-08 ice 的密码异步获取
   session_options->pooled_ice_credentials = network_thread()->Invoke<std::vector<cricket::IceParameters>>(
           RTC_FROM_HERE, rtc::Bind(&cricket::PortAllocator::GetPooledIceCredentials, port_allocator_.get()));
 

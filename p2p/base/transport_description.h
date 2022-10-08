@@ -39,7 +39,12 @@ namespace cricket {
 //或不受支持的加密。
 //TODO（死牛肉）：删除此项或将其重命名为更合适的名称，如
 //SdesPolicy公司。
-enum SecurePolicy { SEC_DISABLED, SEC_ENABLED, SEC_REQUIRED };
+enum SecurePolicy 
+{
+  SEC_DISABLED /*TODO@chensong 2022-10-08 不启动安全传输*/,
+  SEC_ENABLED /*TODO@chensong 2022-10-08  启动安全传输*/,
+  SEC_REQUIRED /*TODO@chensong 2022-10-08  启动安全传输*/
+};
 
 // Whether our side of the call is driving the negotiation, or the other side.
 enum IceRole { ICEROLE_CONTROLLING = 0, ICEROLE_CONTROLLED, ICEROLE_UNKNOWN };
