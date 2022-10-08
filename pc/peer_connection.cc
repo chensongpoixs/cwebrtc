@@ -2321,8 +2321,7 @@ RTCError PeerConnection::ApplyLocalDescription( std::unique_ptr<SessionDescripti
 
   // Report statistics about any use of simulcast.
   // TODO@chensong 20220928 WebRTC中对simulcat的模块数据统计
-  ReportSimulcastApiVersion(kSimulcastVersionApplyLocalDescription,
-                            *local_description()->description());
+  ReportSimulcastApiVersion(kSimulcastVersionApplyLocalDescription, *local_description()->description());
 
   if (!is_caller_) {
     if (remote_description()) {
@@ -2333,7 +2332,7 @@ RTCError PeerConnection::ApplyLocalDescription( std::unique_ptr<SessionDescripti
       is_caller_ = true;
     }
   }
-
+  // TODO@chensong 2022-10-08 非常关键一步
   RTCError error = PushdownTransportDescription(cricket::CS_LOCAL, type);
   if (!error.ok()) {
     return error;
@@ -5767,17 +5766,18 @@ bool PeerConnection::PushdownSctpParameters_n(cricket::ContentSource source,
   return cricket_sctp_transport()->Start(local_sctp_port, remote_sctp_port);
 }
 
-RTCError PeerConnection::PushdownTransportDescription(
-    cricket::ContentSource source,
-    SdpType type) {
+RTCError PeerConnection::PushdownTransportDescription(cricket::ContentSource source, SdpType type) 
+{
   RTC_DCHECK_RUN_ON(signaling_thread());
 
-  if (source == cricket::CS_LOCAL) {
+  if (source == cricket::CS_LOCAL) 
+  {
     const SessionDescriptionInterface* sdesc = local_description();
     RTC_DCHECK(sdesc);
-    return transport_controller_->SetLocalDescription(type,
-                                                      sdesc->description());
-  } else {
+    return transport_controller_->SetLocalDescription(type, sdesc->description());
+  }
+  else 
+  {
     const SessionDescriptionInterface* sdesc = remote_description();
     RTC_DCHECK(sdesc);
     return transport_controller_->SetRemoteDescription(type,

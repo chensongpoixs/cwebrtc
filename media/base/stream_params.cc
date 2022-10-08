@@ -188,8 +188,7 @@ void StreamParams::GetPrimarySsrcs(std::vector<uint32_t>* ssrcs) const {
   if (sim_group == NULL) {
     ssrcs->push_back(first_ssrc());
   } else {
-    ssrcs->insert(ssrcs->end(), sim_group->ssrcs.begin(),
-                  sim_group->ssrcs.end());
+    ssrcs->insert(ssrcs->end(), sim_group->ssrcs.begin(), sim_group->ssrcs.end());
   }
 }
 

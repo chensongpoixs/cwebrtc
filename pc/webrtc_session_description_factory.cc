@@ -93,30 +93,30 @@ void WebRtcCertificateGeneratorCallback::OnSuccess(
 
 // static
 void WebRtcSessionDescriptionFactory::CopyCandidatesFromSessionDescription(
-    const SessionDescriptionInterface* source_desc,
-    const std::string& content_name,
-    SessionDescriptionInterface* dest_desc) {
-  if (!source_desc) {
+    const SessionDescriptionInterface* source_desc, const std::string& content_name, SessionDescriptionInterface* dest_desc) 
+{
+  if (!source_desc) 
+  {
     return;
   }
-  const cricket::ContentInfos& contents =
-      source_desc->description()->contents();
-  const cricket::ContentInfo* cinfo =
-      source_desc->description()->GetContentByName(content_name);
-  if (!cinfo) {
+  const cricket::ContentInfos& contents = source_desc->description()->contents();
+  const cricket::ContentInfo* cinfo = source_desc->description()->GetContentByName(content_name);
+  if (!cinfo) 
+  {
     return;
   }
   size_t mediasection_index = static_cast<int>(cinfo - &contents[0]);
-  const IceCandidateCollection* source_candidates =
-      source_desc->candidates(mediasection_index);
-  const IceCandidateCollection* dest_candidates =
-      dest_desc->candidates(mediasection_index);
-  if (!source_candidates || !dest_candidates) {
+  const IceCandidateCollection* source_candidates = source_desc->candidates(mediasection_index);
+  const IceCandidateCollection* dest_candidates = dest_desc->candidates(mediasection_index);
+  if (!source_candidates || !dest_candidates) 
+  {
     return;
   }
-  for (size_t n = 0; n < source_candidates->count(); ++n) {
+  for (size_t n = 0; n < source_candidates->count(); ++n) 
+  {
     const IceCandidateInterface* new_candidate = source_candidates->at(n);
-    if (!dest_candidates->HasCandidate(new_candidate)) {
+    if (!dest_candidates->HasCandidate(new_candidate)) 
+	{
       dest_desc->AddCandidate(source_candidates->at(n));
     }
   }

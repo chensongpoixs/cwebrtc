@@ -82,11 +82,12 @@ int CompareCandidatePairsByNetworkPreference(
   return a_and_b_equal;
 }
 
-uint32_t GetWeakPingIntervalInFieldTrial() {
-  uint32_t weak_ping_interval = ::strtoul(
-      webrtc::field_trial::FindFullName("WebRTC-StunInterPacketDelay").c_str(),
+uint32_t GetWeakPingIntervalInFieldTrial() 
+{
+  uint32_t weak_ping_interval = ::strtoul( webrtc::field_trial::FindFullName("WebRTC-StunInterPacketDelay").c_str(),
       nullptr, 10);
-  if (weak_ping_interval) {
+  if (weak_ping_interval)
+  {
     return static_cast<int>(weak_ping_interval);
   }
   return cricket::WEAK_PING_INTERVAL;
@@ -660,17 +661,19 @@ const IceConfig& P2PTransportChannel::config() const {
 
 // TODO(qingsi): Add tests for the config validation starting from
 // PeerConnection::SetConfiguration.
-RTCError P2PTransportChannel::ValidateIceConfig(const IceConfig& config) {
+RTCError P2PTransportChannel::ValidateIceConfig(const IceConfig& config) 
+{
   if (config.regather_all_networks_interval_range &&
-      config.continual_gathering_policy == GATHER_ONCE) {
+      config.continual_gathering_policy == GATHER_ONCE) 
+  {
     return RTCError(RTCErrorType::INVALID_PARAMETER,
                     "regather_all_networks_interval_range specified but "
                     "continual gathering policy is GATHER_ONCE");
   }
 
   if (config.ice_check_interval_strong_connectivity_or_default() <
-      config.ice_check_interval_weak_connectivity.value_or(
-          GetWeakPingIntervalInFieldTrial())) {
+      config.ice_check_interval_weak_connectivity.value_or(GetWeakPingIntervalInFieldTrial())) 
+  {
     return RTCError(RTCErrorType::INVALID_PARAMETER,
                     "Ping interval of candidate pairs is shorter when ICE is "
                     "strongly connected than that when ICE is weakly "
@@ -679,14 +682,16 @@ RTCError P2PTransportChannel::ValidateIceConfig(const IceConfig& config) {
 
   if (config.receiving_timeout_or_default() <
       std::max(config.ice_check_interval_strong_connectivity_or_default(),
-               config.ice_check_min_interval_or_default())) {
+               config.ice_check_min_interval_or_default())) 
+  {
     return RTCError(
         RTCErrorType::INVALID_PARAMETER,
         "Receiving timeout is shorter than the minimal ping interval.");
   }
 
   if (config.backup_connection_ping_interval_or_default() <
-      config.ice_check_interval_strong_connectivity_or_default()) {
+      config.ice_check_interval_strong_connectivity_or_default()) 
+  {
     return RTCError(RTCErrorType::INVALID_PARAMETER,
                     "Ping interval of backup candidate pairs is shorter than "
                     "that of general candidate pairs when ICE is strongly "
@@ -694,7 +699,8 @@ RTCError P2PTransportChannel::ValidateIceConfig(const IceConfig& config) {
   }
 
   if (config.stable_writable_connection_ping_interval_or_default() <
-      config.ice_check_interval_strong_connectivity_or_default()) {
+      config.ice_check_interval_strong_connectivity_or_default()) 
+  {
     return RTCError(RTCErrorType::INVALID_PARAMETER,
                     "Ping interval of stable and writable candidate pairs is "
                     "shorter than that of general candidate pairs when ICE is "
@@ -702,14 +708,16 @@ RTCError P2PTransportChannel::ValidateIceConfig(const IceConfig& config) {
   }
 
   if (config.ice_unwritable_timeout_or_default() >
-      config.ice_inactive_timeout_or_default()) {
+      config.ice_inactive_timeout_or_default()) 
+  {
     return RTCError(RTCErrorType::INVALID_PARAMETER,
                     "The timeout period for the writability state to become "
                     "UNRELIABLE is longer than that to become TIMEOUT.");
   }
 
   if (config.regather_all_networks_interval_range &&
-      config.regather_all_networks_interval_range.value().min() < 0) {
+      config.regather_all_networks_interval_range.value().min() < 0) 
+  {
     return RTCError(
         RTCErrorType::INVALID_RANGE,
         "The minimum regathering interval for all networks is negative.");
@@ -745,13 +753,19 @@ void P2PTransportChannel::MaybeStartGathering() {
       SignalGatheringState(this);
     }
 
-    if (!allocator_sessions_.empty()) {
+    if (!allocator_sessions_.empty())
+	{
       IceRestartState state;
-      if (writable()) {
+      if (writable()) 
+	  {
         state = IceRestartState::CONNECTED;
-      } else if (IsGettingPorts()) {
+      }
+	  else if (IsGettingPorts()) 
+	  {
         state = IceRestartState::CONNECTING;
-      } else {
+      } 
+	  else
+	  {
         state = IceRestartState::DISCONNECTED;
       }
       RTC_HISTOGRAM_ENUMERATION("WebRTC.PeerConnection.IceRestartState",

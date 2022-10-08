@@ -68,10 +68,9 @@ CreateModularPeerConnectionFactory(
     std::unique_ptr<CallFactoryInterface> call_factory,
     std::unique_ptr<RtcEventLogFactoryInterface> event_log_factory,
     std::unique_ptr<FecControllerFactoryInterface> fec_controller_factory,
-    std::unique_ptr<NetworkStatePredictorFactoryInterface>
-        network_state_predictor_factory,
-    std::unique_ptr<NetworkControllerFactoryInterface>
-        network_controller_factory) {
+    std::unique_ptr<NetworkStatePredictorFactoryInterface> network_state_predictor_factory,
+    std::unique_ptr<NetworkControllerFactoryInterface> network_controller_factory) 
+{
   PeerConnectionFactoryDependencies dependencies;
   dependencies.network_thread = network_thread;
   dependencies.worker_thread = worker_thread;
@@ -82,8 +81,7 @@ CreateModularPeerConnectionFactory(
   dependencies.fec_controller_factory = std::move(fec_controller_factory);
   dependencies.network_state_predictor_factory =
       std::move(network_state_predictor_factory);
-  dependencies.network_controller_factory =
-      std::move(network_controller_factory);
+  dependencies.network_controller_factory = std::move(network_controller_factory);
   return CreateModularPeerConnectionFactory(std::move(dependencies));
 }
 

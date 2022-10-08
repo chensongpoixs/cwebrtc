@@ -436,18 +436,19 @@ void JsepTransportController::SetMediaTransportSettings(
 }
 
 std::unique_ptr<cricket::IceTransportInternal>
-JsepTransportController::CreateIceTransport(const std::string transport_name,
-                                            bool rtcp) {
+JsepTransportController::CreateIceTransport(const std::string transport_name, bool rtcp) 
+{
   int component = rtcp ? cricket::ICE_CANDIDATE_COMPONENT_RTCP
                        : cricket::ICE_CANDIDATE_COMPONENT_RTP;
 
-  if (config_.external_transport_factory) {
-    return config_.external_transport_factory->CreateIceTransport(
-        transport_name, component);
-  } else {
+  if (config_.external_transport_factory) 
+  {
+    return config_.external_transport_factory->CreateIceTransport(transport_name, component);
+  }
+  else 
+  {
     return absl::make_unique<cricket::P2PTransportChannel>(
-        transport_name, component, port_allocator_, async_resolver_factory_,
-        config_.event_log);
+        transport_name, component, port_allocator_, async_resolver_factory_, config_.event_log);
   }
 }
 
@@ -686,17 +687,18 @@ RTCError JsepTransportController::ApplyDescription_n(bool local, SdpType type, c
 }
 
 RTCError JsepTransportController::ValidateAndMaybeUpdateBundleGroup(
-    bool local,
-    SdpType type,
-    const cricket::SessionDescription* description) {
+    bool local, SdpType type, const cricket::SessionDescription* description) 
+{
   RTC_DCHECK(description);
-  const cricket::ContentGroup* new_bundle_group =
-      description->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
+  const cricket::ContentGroup* new_bundle_group = description->GetGroupByName(cricket::GROUP_TYPE_BUNDLE);
 
   // The BUNDLE group containing a MID that no m= section has is invalid.
-  if (new_bundle_group) {
-    for (const auto& content_name : new_bundle_group->content_names()) {
-      if (!description->GetContentByName(content_name)) {
+  if (new_bundle_group) 
+  {
+    for (const auto& content_name : new_bundle_group->content_names()) 
+	{
+      if (!description->GetContentByName(content_name)) 
+	  {
         return RTCError(RTCErrorType::INVALID_PARAMETER,
                         "The BUNDLE group contains MID:" + content_name +
                             " matching no m= section.");
@@ -896,10 +898,10 @@ bool JsepTransportController::ShouldUpdateBundleGroup(
 std::vector<int> JsepTransportController::GetEncryptedHeaderExtensionIds(
     const cricket::ContentInfo& content_info) {
   const cricket::MediaContentDescription* content_desc =
-      static_cast<const cricket::MediaContentDescription*>(
-          content_info.description);
+      static_cast<const cricket::MediaContentDescription*>( content_info.description);
 
-  if (!config_.crypto_options.srtp.enable_encrypted_rtp_header_extensions) {
+  if (!config_.crypto_options.srtp.enable_encrypted_rtp_header_extensions) 
+  {
     return std::vector<int>();
   }
 
@@ -917,18 +919,22 @@ std::vector<int> JsepTransportController::GetEncryptedHeaderExtensionIds(
 
 std::vector<int>
 JsepTransportController::MergeEncryptedHeaderExtensionIdsForBundle(
-    const cricket::SessionDescription* description) {
+    const cricket::SessionDescription* description) 
+{
   RTC_DCHECK(description);
   RTC_DCHECK(bundle_group_);
 
   std::vector<int> merged_ids;
   // Union the encrypted header IDs in the group when bundle is enabled.
-  for (const cricket::ContentInfo& content_info : description->contents()) {
-    if (bundle_group_->HasContentName(content_info.name)) {
-      std::vector<int> extension_ids =
-          GetEncryptedHeaderExtensionIds(content_info);
-      for (int id : extension_ids) {
-        if (!absl::c_linear_search(merged_ids, id)) {
+  for (const cricket::ContentInfo& content_info : description->contents()) 
+  {
+    if (bundle_group_->HasContentName(content_info.name)) 
+	{
+      std::vector<int> extension_ids = GetEncryptedHeaderExtensionIds(content_info);
+      for (int id : extension_ids) 
+	  {
+        if (!absl::c_linear_search(merged_ids, id)) 
+		{
           merged_ids.push_back(id);
         }
       }
@@ -980,10 +986,10 @@ cricket::JsepTransport* JsepTransportController::GetJsepTransportByName(
 
 std::unique_ptr<webrtc::MediaTransportInterface>
 JsepTransportController::MaybeCreateMediaTransport(
-    const cricket::ContentInfo& content_info,
-    const cricket::SessionDescription& description,
-    bool local) {
-  if (config_.media_transport_factory == nullptr) {
+    const cricket::ContentInfo& content_info, const cricket::SessionDescription& description, bool local)
+{
+  if (config_.media_transport_factory == nullptr)
+  {
     return nullptr;
   }
 
@@ -1026,21 +1032,20 @@ JsepTransportController::MaybeCreateMediaTransport(
          "transport.";
   MediaTransportSettings settings;
   settings.is_caller = local;
-  if (config_.use_media_transport_for_media) {
+  if (config_.use_media_transport_for_media) 
+  {
     settings.event_log = config_.event_log;
   }
 
   // Assume there is only one media transport (or if more, use the first one).
   if (!local && !description.MediaTransportSettings().empty() &&
       config_.media_transport_factory->GetTransportName() ==
-          description.MediaTransportSettings()[0].transport_name) {
-    settings.remote_transport_parameters =
-        description.MediaTransportSettings()[0].transport_setting;
+          description.MediaTransportSettings()[0].transport_name)
+  {
+    settings.remote_transport_parameters = description.MediaTransportSettings()[0].transport_setting;
   }
 
-  auto media_transport_result =
-      config_.media_transport_factory->CreateMediaTransport(network_thread_,
-                                                            settings);
+  auto media_transport_result =  config_.media_transport_factory->CreateMediaTransport(network_thread_, settings);
 
   // TODO(sukhanov): Proper error handling.
   RTC_CHECK(media_transport_result.ok());
@@ -1061,14 +1066,14 @@ RTCError JsepTransportController::MaybeCreateJsepTransport(
   }
 
   const cricket::MediaContentDescription* content_desc =
-      static_cast<const cricket::MediaContentDescription*>(
-          content_info.description);
+      static_cast<const cricket::MediaContentDescription*>( content_info.description);
   if (certificate_ && !content_desc->cryptos().empty()) 
   {
     return RTCError(RTCErrorType::INVALID_PARAMETER,
                     "SDES and DTLS-SRTP cannot be enabled at the same time.");
   }
-
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //                 TODO@chensong 2022-10-08 
   std::unique_ptr<cricket::IceTransportInternal> ice =    CreateIceTransport(content_info.name, /*rtcp=*/false);
 
   std::unique_ptr<MediaTransportInterface> media_transport =  MaybeCreateMediaTransport(content_info, description, local);
