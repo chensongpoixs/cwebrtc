@@ -150,8 +150,8 @@ JsepTransport::~JsepTransport() {
 }
 
 webrtc::RTCError JsepTransport::SetLocalJsepTransportDescription(
-    const JsepTransportDescription& jsep_description,
-    SdpType type) {
+    const JsepTransportDescription& jsep_description, SdpType type)
+{
   webrtc::RTCError error;
 
   RTC_DCHECK_RUN_ON(network_thread_);

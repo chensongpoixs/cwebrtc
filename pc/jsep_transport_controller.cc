@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -98,8 +98,7 @@ JsepTransportController::~JsepTransportController() {
       rtc::Bind(&JsepTransportController::DestroyAllJsepTransports_n, this));
 }
 
-RTCError JsepTransportController::SetLocalDescription( SdpType type,
-    const cricket::SessionDescription* description) 
+RTCError JsepTransportController::SetLocalDescription( SdpType type, const cricket::SessionDescription* description) 
 {
   if (!network_thread_->IsCurrent()) 
   {
@@ -190,7 +189,7 @@ rtc::scoped_refptr<webrtc::DtlsTransport> JsepTransportController::LookupDtlsTra
 
 void JsepTransportController::SetIceConfig(const cricket::IceConfig& config) 
 {
-	// TODO@chensong 2022-09-29 ICEÊÇÔÚÍøÂçÏß³ÌÖĞ²Ù×÷µÄ ÅäÖÃICEµÄĞÅÏ¢
+	// TODO@chensong 2022-09-29 ICEÃŠÃ‡Ã”ÃšÃÃ¸Ã‚Ã§ÃÃŸÂ³ÃŒÃ–ÃÂ²Ã™Ã—Ã·ÂµÃ„ Ã…Ã¤Ã–ÃƒICEÂµÃ„ÃÃ…ÃÂ¢
   if (!network_thread_->IsCurrent()) 
   {
     network_thread_->Invoke<void>(RTC_FROM_HERE, [&] { SetIceConfig(config); });
@@ -198,7 +197,8 @@ void JsepTransportController::SetIceConfig(const cricket::IceConfig& config)
   }
 
   ice_config_ = config;
-  // TODO@chensong 2022-09-29    DtlsTransportÖĞÉèÖÃICEµÄĞÅÏ¢  
+  // TODO@chensong 2022-09-29    DtlsTransportÃ–ÃÃ‰Ã¨Ã–ÃƒICEÂµÃ„ÃÃ…ÃÂ¢   
+  // TODO@chensong 2022-10-10   ICEä¿¡æ¯çš„é…ç½®
   for (auto& dtls : GetDtlsTransports()) 
   {
     dtls->ice_transport()->SetIceConfig(ice_config_);
@@ -671,6 +671,7 @@ RTCError JsepTransportController::ApplyDescription_n(bool local, SdpType type, c
                                        extension_ids, rtp_abs_sendtime_extn_id);
     if (local)
 	{
+		// TODO@chensong 2022-10-09 ????
       error = transport->SetLocalJsepTransportDescription(jsep_description, type);
     } 
 	else
@@ -815,14 +816,15 @@ void JsepTransportController::HandleRejectedContent(
   MaybeDestroyJsepTransport(content_info.name);
 }
 
-bool JsepTransportController::HandleBundledContent(
-    const cricket::ContentInfo& content_info) {
+bool JsepTransportController::HandleBundledContent(const cricket::ContentInfo& content_info) 
+{
   auto jsep_transport = GetJsepTransportByName(*bundled_mid());
   RTC_DCHECK(jsep_transport);
   // If the content is bundled, let the
   // BaseChannel/SctpTransport change the RtpTransport/DtlsTransport first,
   // then destroy the cricket::JsepTransport.
-  if (SetTransportForMid(content_info.name, jsep_transport)) {
+  if (SetTransportForMid(content_info.name, jsep_transport)) 
+  {
     // TODO(bugs.webrtc.org/9719) For media transport this is far from ideal,
     // because it means that we first create media transport and start
     // connecting it, and then we destroy it. We will need to address it before
@@ -833,11 +835,11 @@ bool JsepTransportController::HandleBundledContent(
   return false;
 }
 
-bool JsepTransportController::SetTransportForMid(
-    const std::string& mid,
-    cricket::JsepTransport* jsep_transport) {
+bool JsepTransportController::SetTransportForMid(const std::string& mid, cricket::JsepTransport* jsep_transport) 
+{
   RTC_DCHECK(jsep_transport);
-  if (mid_to_transport_[mid] == jsep_transport) {
+  if (mid_to_transport_[mid] == jsep_transport) 
+  {
     return true;
   }
 
@@ -1054,9 +1056,7 @@ JsepTransportController::MaybeCreateMediaTransport(
 }
 
 RTCError JsepTransportController::MaybeCreateJsepTransport(
-    bool local,
-    const cricket::ContentInfo& content_info,
-    const cricket::SessionDescription& description) 
+    bool local, const cricket::ContentInfo& content_info, const cricket::SessionDescription& description) 
 {
   RTC_DCHECK(network_thread_->IsCurrent());
   cricket::JsepTransport* transport = GetJsepTransportByName(content_info.name);
@@ -1276,7 +1276,7 @@ void JsepTransportController::OnTransportCandidateGathered_n(
     return;
   }
   std::string transport_name = transport->transport_name();
-  //TODO@chensong 2022-03-24  Õâ±ßºÍstun server ½»»»  µÃµ½ ip ºÍport  [host, srflx, prflx, relay]
+  //TODO@chensong 2022-03-24  Ã•Ã¢Â±ÃŸÂºÃstun server Â½Â»Â»Â»  ÂµÃƒÂµÂ½ ip ÂºÃport  [host, srflx, prflx, relay]
   invoker_.AsyncInvoke<void>(
       RTC_FROM_HERE, signaling_thread_, [this, transport_name, candidate] {
         SignalIceCandidatesGathered(transport_name, {candidate});
