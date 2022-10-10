@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  *  Copyright 2017 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -190,7 +190,7 @@ rtc::scoped_refptr<webrtc::DtlsTransport> JsepTransportController::LookupDtlsTra
 
 void JsepTransportController::SetIceConfig(const cricket::IceConfig& config) 
 {
-	// TODO@chensong 2022-09-29 ICE «‘⁄Õ¯¬Áœﬂ≥Ã÷–≤Ÿ◊˜µƒ ≈‰÷√ICEµƒ–≈œ¢
+	// TODO@chensong 2022-09-29 ICEÊòØÂú®ÁΩëÁªúÁ∫øÁ®ã‰∏≠Êìç‰ΩúÁöÑ ÈÖçÁΩÆICEÁöÑ‰ø°ÊÅØ
   if (!network_thread_->IsCurrent()) 
   {
     network_thread_->Invoke<void>(RTC_FROM_HERE, [&] { SetIceConfig(config); });
@@ -198,7 +198,7 @@ void JsepTransportController::SetIceConfig(const cricket::IceConfig& config)
   }
 
   ice_config_ = config;
-  // TODO@chensong 2022-09-29    DtlsTransport÷–…Ë÷√ICEµƒ–≈œ¢  
+  // TODO@chensong 2022-09-29    DtlsTransport‰∏≠ËÆæÁΩÆICEÁöÑ‰ø°ÊÅØ  
   for (auto& dtls : GetDtlsTransports()) 
   {
     dtls->ice_transport()->SetIceConfig(ice_config_);
@@ -793,36 +793,42 @@ RTCError JsepTransportController::ValidateContent(
 }
 
 void JsepTransportController::HandleRejectedContent(
-    const cricket::ContentInfo& content_info,
-    const cricket::SessionDescription* description) {
+    const cricket::ContentInfo& content_info, const cricket::SessionDescription* description) 
+{
   // If the content is rejected, let the
   // BaseChannel/SctpTransport change the RtpTransport/DtlsTransport first,
   // then destroy the cricket::JsepTransport.
   RemoveTransportForMid(content_info.name);
-  if (content_info.name == bundled_mid()) {
-    for (const auto& content_name : bundle_group_->content_names()) {
+  if (content_info.name == bundled_mid()) 
+  {
+    for (const auto& content_name : bundle_group_->content_names()) 
+	{
       RemoveTransportForMid(content_name);
     }
     bundle_group_.reset();
-  } else if (IsBundled(content_info.name)) {
+  } 
+  else if (IsBundled(content_info.name))
+  {
     // Remove the rejected content from the |bundle_group_|.
     bundle_group_->RemoveContentName(content_info.name);
     // Reset the bundle group if nothing left.
-    if (!bundle_group_->FirstContentName()) {
+    if (!bundle_group_->FirstContentName()) 
+	{
       bundle_group_.reset();
     }
   }
   MaybeDestroyJsepTransport(content_info.name);
 }
 
-bool JsepTransportController::HandleBundledContent(
-    const cricket::ContentInfo& content_info) {
+bool JsepTransportController::HandleBundledContent(const cricket::ContentInfo& content_info) 
+{
   auto jsep_transport = GetJsepTransportByName(*bundled_mid());
   RTC_DCHECK(jsep_transport);
   // If the content is bundled, let the
   // BaseChannel/SctpTransport change the RtpTransport/DtlsTransport first,
   // then destroy the cricket::JsepTransport.
-  if (SetTransportForMid(content_info.name, jsep_transport)) {
+  if (SetTransportForMid(content_info.name, jsep_transport)) 
+  {
     // TODO(bugs.webrtc.org/9719) For media transport this is far from ideal,
     // because it means that we first create media transport and start
     // connecting it, and then we destroy it. We will need to address it before
@@ -833,23 +839,23 @@ bool JsepTransportController::HandleBundledContent(
   return false;
 }
 
-bool JsepTransportController::SetTransportForMid(
-    const std::string& mid,
-    cricket::JsepTransport* jsep_transport) {
+bool JsepTransportController::SetTransportForMid(const std::string& mid, cricket::JsepTransport* jsep_transport) 
+{
   RTC_DCHECK(jsep_transport);
-  if (mid_to_transport_[mid] == jsep_transport) {
+  if (mid_to_transport_[mid] == jsep_transport)
+  {
     return true;
   }
 
   mid_to_transport_[mid] = jsep_transport;
+  // TODO@chensong 2022-10-09   Ë∞ÉÁî®PeerConnectionÂØπË±°ÁöÑOnTransportChangedÊñπÊ≥ï
   return config_.transport_observer->OnTransportChanged(
-      mid, jsep_transport->rtp_transport(), jsep_transport->RtpDtlsTransport(),
-      jsep_transport->media_transport());
+      mid, jsep_transport->rtp_transport(), jsep_transport->RtpDtlsTransport(), jsep_transport->media_transport());
 }
 
-void JsepTransportController::RemoveTransportForMid(const std::string& mid) {
-  bool ret = config_.transport_observer->OnTransportChanged(mid, nullptr,
-                                                            nullptr, nullptr);
+void JsepTransportController::RemoveTransportForMid(const std::string& mid) 
+{
+  bool ret = config_.transport_observer->OnTransportChanged(mid, nullptr, nullptr, nullptr);
   // Calling OnTransportChanged with nullptr should always succeed, since it is
   // only expected to fail when adding media to a transport (not removing).
   RTC_DCHECK(ret);
@@ -918,8 +924,7 @@ std::vector<int> JsepTransportController::GetEncryptedHeaderExtensionIds(
 }
 
 std::vector<int>
-JsepTransportController::MergeEncryptedHeaderExtensionIdsForBundle(
-    const cricket::SessionDescription* description) 
+JsepTransportController::MergeEncryptedHeaderExtensionIdsForBundle(const cricket::SessionDescription* description) 
 {
   RTC_DCHECK(description);
   RTC_DCHECK(bundle_group_);
@@ -978,8 +983,8 @@ const cricket::JsepTransport* JsepTransportController::GetJsepTransportByName(
   return (it == jsep_transports_by_name_.end()) ? nullptr : it->second.get();
 }
 
-cricket::JsepTransport* JsepTransportController::GetJsepTransportByName(
-    const std::string& transport_name) {
+cricket::JsepTransport* JsepTransportController::GetJsepTransportByName(const std::string& transport_name)
+{
   auto it = jsep_transports_by_name_.find(transport_name);
   return (it == jsep_transports_by_name_.end()) ? nullptr : it->second.get();
 }
@@ -1128,23 +1133,28 @@ RTCError JsepTransportController::MaybeCreateJsepTransport(
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
   SetTransportForMid(content_info.name, jsep_transport.get());
-
+  // TODO@chensong 2022-10-09  ‰øùÊåÅ‰∏Ä‰∏™mË°åÁöÑÂ™í‰ΩìÁ±ªÂûãÂà∞ jsep_transports_by_name_
   jsep_transports_by_name_[content_info.name] = std::move(jsep_transport);
+  // TODO@chensong 2022-10-09 Êõ¥Êñ∞Áä∂ÊÄÅËøûÊé•‰∏≠ ...
   UpdateAggregateStates_n();
   return RTCError::OK();
 }
 
 void JsepTransportController::MaybeDestroyJsepTransport(
-    const std::string& mid) {
+    const std::string& mid) 
+{
   auto jsep_transport = GetJsepTransportByName(mid);
-  if (!jsep_transport) {
+  if (!jsep_transport) 
+  {
     return;
   }
 
   // Don't destroy the JsepTransport if there are still media sections referring
   // to it.
-  for (const auto& kv : mid_to_transport_) {
-    if (kv.second == jsep_transport) {
+  for (const auto& kv : mid_to_transport_) 
+  {
+    if (kv.second == jsep_transport) 
+	{
       return;
     }
   }
@@ -1276,7 +1286,7 @@ void JsepTransportController::OnTransportCandidateGathered_n(
     return;
   }
   std::string transport_name = transport->transport_name();
-  //TODO@chensong 2022-03-24  ’‚±ﬂ∫Õstun server Ωªªª  µ√µΩ ip ∫Õport  [host, srflx, prflx, relay]
+  //TODO@chensong 2022-03-24  ËøôËæπÂíåstun server ‰∫§Êç¢  ÂæóÂà∞ ip Âíåport  [host, srflx, prflx, relay]
   invoker_.AsyncInvoke<void>(
       RTC_FROM_HERE, signaling_thread_, [this, transport_name, candidate] {
         SignalIceCandidatesGathered(transport_name, {candidate});
@@ -1491,8 +1501,7 @@ void JsepTransportController::UpdateAggregateStates_n()
   } else if (total_ice_disconnected > 0) {
     // None of the previous states apply and any RTCIceTransports or
     // RTCDtlsTransports are in the "disconnected" state.
-    new_combined_state =
-        PeerConnectionInterface::PeerConnectionState::kDisconnected;
+    new_combined_state = PeerConnectionInterface::PeerConnectionState::kDisconnected;
   } else if (total_new + total_closed == total_transports) {
     // None of the previous states apply and all RTCIceTransports and
     // RTCDtlsTransports are in the "new" or "closed" state, or there are no

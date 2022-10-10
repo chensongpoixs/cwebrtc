@@ -245,9 +245,11 @@ class JsepTransportController : public sigslot::has_slots<> {
       const std::vector<int>& encrypted_extension_ids,
       int rtp_abs_sendtime_extn_id);
 
-  absl::optional<std::string> bundled_mid() const {
+  absl::optional<std::string> bundled_mid() const
+  {
     absl::optional<std::string> bundled_mid;
-    if (bundle_group_ && bundle_group_->FirstContentName()) {
+    if (bundle_group_ && bundle_group_->FirstContentName()) 
+	{
       bundled_mid = *(bundle_group_->FirstContentName());
     }
     return bundled_mid;

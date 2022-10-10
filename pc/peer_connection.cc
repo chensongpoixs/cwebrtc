@@ -2648,8 +2648,8 @@ void PeerConnection::SetRemoteDescription(
   NoteUsageEvent(UsageEvent::SET_REMOTE_DESCRIPTION_CALLED);
 }
 
-RTCError PeerConnection::ApplyRemoteDescription(
-    std::unique_ptr<SessionDescriptionInterface> desc) {
+RTCError PeerConnection::ApplyRemoteDescription(std::unique_ptr<SessionDescriptionInterface> desc) 
+{
   RTC_DCHECK_RUN_ON(signaling_thread());
   RTC_DCHECK(desc);
 
@@ -5579,16 +5579,18 @@ void PeerConnection::StopRtcEventLog_w() {
   }
 }
 
-cricket::ChannelInterface* PeerConnection::GetChannel(
-    const std::string& content_name) {
-  for (const auto& transceiver : transceivers_) {
+cricket::ChannelInterface* PeerConnection::GetChannel(const std::string& content_name) 
+{
+  for (const auto& transceiver : transceivers_) 
+  {
     cricket::ChannelInterface* channel = transceiver->internal()->channel();
-    if (channel && channel->content_name() == content_name) {
+    if (channel && channel->content_name() == content_name) 
+	{
       return channel;
     }
   }
-  if (rtp_data_channel() &&
-      rtp_data_channel()->content_name() == content_name) {
+  if (rtp_data_channel() && rtp_data_channel()->content_name() == content_name) 
+  {
     return rtp_data_channel();
   }
   return nullptr;
@@ -7228,15 +7230,18 @@ bool PeerConnection::OnTransportChanged(
     const std::string& mid,
     RtpTransportInternal* rtp_transport,
     rtc::scoped_refptr<DtlsTransport> dtls_transport,
-    MediaTransportInterface* media_transport) {
+    MediaTransportInterface* media_transport) 
+{
   RTC_DCHECK_RUN_ON(network_thread());
   RTC_DCHECK_RUNS_SERIALIZED(&use_media_transport_race_checker_);
   bool ret = true;
   auto base_channel = GetChannel(mid);
-  if (base_channel) {
+  if (base_channel) 
+  {
     ret = base_channel->SetRtpTransport(rtp_transport);
   }
-  if (sctp_transport_ && mid == sctp_mid_) {
+  if (sctp_transport_ && mid == sctp_mid_) 
+  {
     sctp_transport_->SetDtlsTransport(dtls_transport);
   }
 
