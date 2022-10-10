@@ -98,8 +98,7 @@ JsepTransportController::~JsepTransportController() {
       rtc::Bind(&JsepTransportController::DestroyAllJsepTransports_n, this));
 }
 
-RTCError JsepTransportController::SetLocalDescription( SdpType type,
-    const cricket::SessionDescription* description) 
+RTCError JsepTransportController::SetLocalDescription( SdpType type, const cricket::SessionDescription* description) 
 {
   if (!network_thread_->IsCurrent()) 
   {
@@ -190,7 +189,11 @@ rtc::scoped_refptr<webrtc::DtlsTransport> JsepTransportController::LookupDtlsTra
 
 void JsepTransportController::SetIceConfig(const cricket::IceConfig& config) 
 {
+//<<<<<<< HEAD
 	// TODO@chensong 2022-09-29 ICE是在网络线程中操作的 配置ICE的信息
+//=======
+	// TODO@chensong 2022-09-29 ICEÊÇÔÚÍøÂçÏß³ÌÖÐ²Ù×÷µÄ ÅäÖÃICEµÄÐÅÏ¢
+//>>>>>>> fb4af2220f5c323d455a7800ad02215d0b5249ec
   if (!network_thread_->IsCurrent()) 
   {
     network_thread_->Invoke<void>(RTC_FROM_HERE, [&] { SetIceConfig(config); });
@@ -198,7 +201,12 @@ void JsepTransportController::SetIceConfig(const cricket::IceConfig& config)
   }
 
   ice_config_ = config;
+//<<<<<<< HEAD
   // TODO@chensong 2022-09-29    DtlsTransport中设置ICE的信息  
+//=======
+  // TODO@chensong 2022-09-29    DtlsTransportÖÐÉèÖÃICEµÄÐÅÏ¢   
+  // TODO@chensong 2022-10-10   ICE信息的配置
+//>>>>>>> fb4af2220f5c323d455a7800ad02215d0b5249ec
   for (auto& dtls : GetDtlsTransports()) 
   {
     dtls->ice_transport()->SetIceConfig(ice_config_);
@@ -671,6 +679,7 @@ RTCError JsepTransportController::ApplyDescription_n(bool local, SdpType type, c
                                        extension_ids, rtp_abs_sendtime_extn_id);
     if (local)
 	{
+		// TODO@chensong 2022-10-09 ????
       error = transport->SetLocalJsepTransportDescription(jsep_description, type);
     } 
 	else
@@ -842,7 +851,10 @@ bool JsepTransportController::HandleBundledContent(const cricket::ContentInfo& c
 bool JsepTransportController::SetTransportForMid(const std::string& mid, cricket::JsepTransport* jsep_transport) 
 {
   RTC_DCHECK(jsep_transport);
-  if (mid_to_transport_[mid] == jsep_transport)
+//<<<<<<< HEAD
+//  if (mid_to_transport_[mid] == jsep_transport)
+//=======
+  if (mid_to_transport_[mid] == jsep_transport) 
   {
     return true;
   }
@@ -1059,9 +1071,7 @@ JsepTransportController::MaybeCreateMediaTransport(
 }
 
 RTCError JsepTransportController::MaybeCreateJsepTransport(
-    bool local,
-    const cricket::ContentInfo& content_info,
-    const cricket::SessionDescription& description) 
+    bool local, const cricket::ContentInfo& content_info, const cricket::SessionDescription& description) 
 {
   RTC_DCHECK(network_thread_->IsCurrent());
   cricket::JsepTransport* transport = GetJsepTransportByName(content_info.name);
@@ -1286,7 +1296,11 @@ void JsepTransportController::OnTransportCandidateGathered_n(
     return;
   }
   std::string transport_name = transport->transport_name();
+//<<<<<<< HEAD
   //TODO@chensong 2022-03-24  这边和stun server 交换  得到 ip 和port  [host, srflx, prflx, relay]
+//=======
+  //TODO@chensong 2022-03-24  Õâ±ßºÍstun server ½»»»  µÃµ½ ip ºÍport  [host, srflx, prflx, relay]
+//>>>>>>> fb4af2220f5c323d455a7800ad02215d0b5249ec
   invoker_.AsyncInvoke<void>(
       RTC_FROM_HERE, signaling_thread_, [this, transport_name, candidate] {
         SignalIceCandidatesGathered(transport_name, {candidate});

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -289,6 +289,7 @@ bool BaseChannel::SetLocalContent(const MediaContentDescription* content,
                                   SdpType type,
                                   std::string* error_desc) {
   TRACE_EVENT0("webrtc", "BaseChannel::SetLocalContent");
+  // TODO@chensong 2022-10-09  关键步骤 线程切换
   return InvokeOnWorker<bool>(
       RTC_FROM_HERE,
       Bind(&BaseChannel::SetLocalContent_w, this, content, type, error_desc));
@@ -671,7 +672,7 @@ bool BaseChannel::UpdateLocalStreams_w(const std::vector<StreamParams>& streams,
       new_stream.GenerateSsrcs(new_stream.rids().size(), /* rtx = */ true,
                                /* flex_fec = */ false, ssrc_generator_);
     }
-
+	//TODO@chensong 2022-10-09  关键步骤
     if (media_channel()->AddSendStream(new_stream)) {
       RTC_LOG(LS_INFO) << "Add send stream ssrc: " << new_stream.ssrcs[0];
     } else {
@@ -1164,32 +1165,35 @@ bool RtpDataChannel::SetLocalContent_w(const MediaContentDescription* content,
   RTC_LOG(LS_INFO) << "Setting local data description";
 
   RTC_DCHECK(content);
-  if (!content) {
+  if (!content) 
+  {
     SafeSetError("Can't find data content in local description.", error_desc);
     return false;
   }
 
   const DataContentDescription* data = content->as_data();
 
-  if (!CheckDataChannelTypeFromContent(data, error_desc)) {
+  if (!CheckDataChannelTypeFromContent(data, error_desc)) 
+  {
     return false;
   }
 
-  RtpHeaderExtensions rtp_header_extensions =
-      GetFilteredRtpHeaderExtensions(data->rtp_header_extensions());
+  RtpHeaderExtensions rtp_header_extensions = GetFilteredRtpHeaderExtensions(data->rtp_header_extensions());
 
   DataRecvParameters recv_params = last_recv_params_;
   RtpParametersFromMediaDescription(data, rtp_header_extensions, &recv_params);
-  if (!media_channel()->SetRecvParameters(recv_params)) {
-    SafeSetError("Failed to set remote data description recv parameters.",
-                 error_desc);
+  if (!media_channel()->SetRecvParameters(recv_params))
+  {
+    SafeSetError("Failed to set remote data description recv parameters.", error_desc);
     return false;
   }
-  for (const DataCodec& codec : data->codecs()) {
+  for (const DataCodec& codec : data->codecs()) 
+  {
     AddHandledPayloadType(codec.id);
   }
   // Need to re-register the sink to update the handled payload.
-  if (!RegisterRtpDemuxerSink()) {
+  if (!RegisterRtpDemuxerSink()) 
+  {
     RTC_LOG(LS_ERROR) << "Failed to set up data demuxing.";
     return false;
   }
@@ -1200,7 +1204,9 @@ bool RtpDataChannel::SetLocalContent_w(const MediaContentDescription* content,
   // only give it to the media channel once we have a remote
   // description too (without a remote description, we won't be able
   // to send them anyway).
-  if (!UpdateLocalStreams_w(data->streams(), type, error_desc)) {
+  // TODO@chensong 2022-10-09 关键步骤
+  if (!UpdateLocalStreams_w(data->streams(), type, error_desc)) 
+  {
     SafeSetError("Failed to set local data description streams.", error_desc);
     return false;
   }

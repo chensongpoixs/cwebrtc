@@ -304,6 +304,7 @@ void RtpSenderBase::SetSsrc(uint32_t ssrc)
   ssrc_ = ssrc;
   if (can_send_track())
   {
+	  // TODO@chensong 2022-10-09 编码器启动设置非常关键步骤  AudioRtpSender::SetSend方法
     SetSend();
     AddTrackToStats();
   }
@@ -558,7 +559,9 @@ void AudioRtpSender::SetSend() {
   // |track_->enabled()| hops to the signaling thread, so call it before we hop
   // to the worker thread or else it will deadlock.
   bool track_enabled = track_->enabled();
-  bool success = worker_thread_->Invoke<bool>(RTC_FROM_HERE, [&] {
+  bool success = worker_thread_->Invoke<bool>(RTC_FROM_HERE, [&] 
+  {
+	  // TODO@chensong 非常关键步骤切换线程 设置查找ssrc对应SendStream， 设置WebRtcAudioSendStream的源， 并将它设置为源的输出
     return voice_media_channel()->SetAudioSend(ssrc_, track_enabled, &options,
                                                sink_adapter_.get());
   });

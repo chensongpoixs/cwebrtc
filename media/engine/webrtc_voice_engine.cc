@@ -880,7 +880,8 @@ class WebRtcVoiceMediaChannel::WebRtcAudioSendStream
   // get data callbacks.
   // This method is called on the libjingle worker thread.
   // TODO(xians): Make sure Start() is called only once.
-  void SetSource(AudioSource* source) {
+  void SetSource(AudioSource* source) 
+  {
     RTC_DCHECK(worker_thread_checker_.IsCurrent());
     RTC_DCHECK(source);
     if (source_) {
@@ -889,6 +890,7 @@ class WebRtcVoiceMediaChannel::WebRtcAudioSendStream
     }
     source->SetSink(this);
     source_ = source;
+	// TODO@chensong 2022-10-10  [编码器非常关键的步骤] 启动编码器 
     UpdateSendState();
   }
 
@@ -990,7 +992,8 @@ class WebRtcVoiceMediaChannel::WebRtcAudioSendStream
     RTC_DCHECK(worker_thread_checker_.IsCurrent());
     RTC_DCHECK(stream_);
     RTC_DCHECK_EQ(1UL, rtp_parameters_.encodings.size());
-    if (send_ && source_ != nullptr && rtp_parameters_.encodings[0].active) {
+    if (send_ && source_ != nullptr && rtp_parameters_.encodings[0].active) 
+	{
       stream_->Start();
     } else {  // !send || source_ = nullptr
       stream_->Stop();
@@ -1793,11 +1796,14 @@ void WebRtcVoiceMediaChannel::SetSend(bool send) {
 bool WebRtcVoiceMediaChannel::SetAudioSend(uint32_t ssrc,
                                            bool enable,
                                            const AudioOptions* options,
-                                           AudioSource* source) {
+                                           AudioSource* source) 
+{
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   // TODO(solenberg): The state change should be fully rolled back if any one of
   //                  these calls fail.
-  if (!SetLocalSource(ssrc, source)) {
+  // TODO@chensong 2022-10-10 根据ssrc找到对应的SendStream对象
+  if (!SetLocalSource(ssrc, source))
+  {
     return false;
   }
   if (!MuteStream(ssrc, !enable)) {
@@ -1966,9 +1972,14 @@ bool WebRtcVoiceMediaChannel::SetLocalSource(uint32_t ssrc,
     return true;
   }
 
-  if (source) {
+  if (source) 
+  {
+
+	  // TODO@chensong 2022-10-10 设置WebRtcAudioSendStream 的源，并将它设置为源的输出
     it->second->SetSource(source);
-  } else {
+  }
+  else 
+  {
     it->second->ClearSource();
   }
 

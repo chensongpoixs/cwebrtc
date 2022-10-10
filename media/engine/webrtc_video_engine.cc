@@ -1145,7 +1145,8 @@ bool WebRtcVideoChannel::ValidateReceiveSsrcAvailability(
   return true;
 }
 
-bool WebRtcVideoChannel::AddSendStream(const StreamParams& sp) {
+bool WebRtcVideoChannel::AddSendStream(const StreamParams& sp) 
+{
   RTC_DCHECK_RUN_ON(&thread_checker_);
   RTC_LOG(LS_INFO) << "AddSendStream: " << sp.ToString();
   if (!ValidateStreamParams(sp))
@@ -1175,6 +1176,7 @@ bool WebRtcVideoChannel::AddSendStream(const StreamParams& sp) {
   config.rtp.extmap_allow_mixed = ExtmapAllowMixed();
   config.rtcp_report_interval_ms = video_config_.rtcp_report_interval_ms;
 
+  //TODO@chensong 2022-10-09 在构造函数中，创建AudioSendStream
   WebRtcVideoSendStream* stream = new WebRtcVideoSendStream(
       call_, sp, std::move(config), default_send_options_,
       video_config_.enable_cpu_adaptation, bitrate_config_.max_bitrate_bps,
