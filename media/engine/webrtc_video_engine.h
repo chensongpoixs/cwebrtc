@@ -533,6 +533,7 @@ class WebRtcVideoChannel : public VideoMediaChannel, public webrtc::Transport {
   // TODO(deadbeef): Don't duplicate information between
   // send_params/recv_params, rtp_extensions, options, etc.
   VideoSendParameters send_params_ RTC_GUARDED_BY(thread_checker_);
+  //TODO@chensong 2022-10-15 视频引擎参数
   VideoOptions default_send_options_ RTC_GUARDED_BY(thread_checker_);
   VideoRecvParameters recv_params_ RTC_GUARDED_BY(thread_checker_);
   int64_t last_stats_log_ms_ RTC_GUARDED_BY(thread_checker_);

@@ -271,6 +271,7 @@ void WebRtcVoiceEngine::Init()
   }
 
   // Connect the ADM to our audio path.
+  // TODO@chensong 2022-10-15 音频引擎底层数据转发到应用层的方法
   adm()->RegisterAudioCallback(audio_state()->audio_transport());
 
   // Set default engine options.
@@ -1613,14 +1614,19 @@ bool WebRtcVoiceMediaChannel::SetRecvCodecs(
 // Utility function called from SetSendParameters() to extract current send
 // codec settings from the given list of codecs (originally from SDP). Both send
 // and receive streams may be reconfigured based on the new settings.
-bool WebRtcVoiceMediaChannel::SetSendCodecs(
-    const std::vector<AudioCodec>& codecs) {
+/** 
+TODO@chensong 2022-10-16 音频编码器的选择
+
+*/
+bool WebRtcVoiceMediaChannel::SetSendCodecs(const std::vector<AudioCodec>& codecs) 
+{
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   dtmf_payload_type_ = absl::nullopt;
   dtmf_payload_freq_ = -1;
 
   // Validate supplied codecs list.
-  for (const AudioCodec& codec : codecs) {
+  for (const AudioCodec& codec : codecs) 
+  {
     // TODO(solenberg): Validate more aspects of input - that payload types
     //                  don't overlap, remove redundant/unsupported codecs etc -
     //                  the same way it is done for RtpHeaderExtensions.
@@ -1635,8 +1641,10 @@ bool WebRtcVoiceMediaChannel::SetSendCodecs(
   // case we don't have a DTMF codec with a rate matching the send codec's, or
   // if this function returns early.
   std::vector<AudioCodec> dtmf_codecs;
-  for (const AudioCodec& codec : codecs) {
-    if (IsCodec(codec, kDtmfCodecName)) {
+  for (const AudioCodec& codec : codecs) 
+  {
+    if (IsCodec(codec, kDtmfCodecName)) 
+	{
       dtmf_codecs.push_back(codec);
       if (!dtmf_payload_type_ || codec.clockrate < dtmf_payload_freq_) {
         dtmf_payload_type_ = codec.id;
@@ -1650,7 +1658,9 @@ bool WebRtcVoiceMediaChannel::SetSendCodecs(
       send_codec_spec;
   webrtc::BitrateConstraints bitrate_config;
   absl::optional<webrtc::AudioCodecInfo> voice_codec_info;
-  for (const AudioCodec& voice_codec : codecs) {
+  // TODO@chensong 2022-10-16 比较是否是正常的编码器
+  for (const AudioCodec& voice_codec : codecs) 
+  {
     if (!(IsCodec(voice_codec, kCnCodecName) ||
           IsCodec(voice_codec, kDtmfCodecName) ||
           IsCodec(voice_codec, kRedCodecName))) {

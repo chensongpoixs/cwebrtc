@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -55,7 +55,15 @@ class ACMVADCallback {
 
   virtual int32_t InFrameType(AudioFrameType frame_type) = 0;
 };
+/** 
+TODO@chensong 2022-10-16
 
+创建音频编码器的过程(三大步骤)
+
+1. 首先创建AudioCodingModule对象
+2. 之后创建具体的编码器
+3. 最后将创建好的编码器数中到AudioCodingMoudule中
+*/
 class AudioCodingModule {
  protected:
   AudioCodingModule() {}

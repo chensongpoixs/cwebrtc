@@ -3134,7 +3134,14 @@ void AudioDeviceWindowsCore::RevertCaptureThreadPriority() {
 
   _hMmTask = NULL;
 }
+/** 
+TODO@chensong 2022-10-16 传递数据 栈调用流程
 
+-> audio_transport_cb_->RecordedDataIsAvailable(...)
+-> AudioDevicebuffer::DeliverRecordedData()
+-> DoCaptureThreadPollDMO()
+
+*/
 DWORD AudioDeviceWindowsCore::DoCaptureThreadPollDMO() {
   assert(_mediaBuffer != NULL);
   bool keepRecording = true;
