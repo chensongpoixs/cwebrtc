@@ -1336,7 +1336,7 @@ bool WebRtcVoiceMediaChannel::SetSendParameters(
                    << params.ToString();
   // TODO(pthatcher): Refactor this to be more clean now that we have
   // all the information at once.
-
+  // TODO@chensong 2022-10-16 --> SetupSendCodec 
   if (!SetSendCodecs(params.codecs)) {
     return false;
   }
@@ -1750,7 +1750,9 @@ bool WebRtcVoiceMediaChannel::SetSendCodecs(const std::vector<AudioCodec>& codec
   if (send_codec_spec_ != send_codec_spec) {
     send_codec_spec_ = std::move(send_codec_spec);
     // Apply new settings to all streams.
-    for (const auto& kv : send_streams_) {
+    for (const auto& kv : send_streams_)
+	{
+		// TODO@chensong 2022-10-16 -- >SetupSendCodec
       kv.second->SetSendCodecSpec(*send_codec_spec_);
     }
   } else {

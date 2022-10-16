@@ -1216,6 +1216,20 @@ bool RtpDataChannel::SetLocalContent_w(const MediaContentDescription* content,
   return true;
 }
 
+/** 
+TODO@chensong 2022-10-16  SetupSendCodec
+
+
+-> internal::AudioSendStream::SetupSendCodec()
+-> internal::AudioSendStream::ReconfigureSendStream()
+-> internal::AudioSendStream::ConfigureStream()
+-> internal::AudioSendStream::Reconfigure()
+-> WebRtcAudioSendStream::ReconfigureAudioSendStream()
+-> WebRtcAudioSendStream::SetSendCodecSpec()
+-> WebRtcVoiceMediaChannel::SetSendCodec()
+-> WebRtcVoiceMediaChannel::SetSendParameters()
+-> VoiceChannel::SetRemoteContent_w()
+*/
 bool RtpDataChannel::SetRemoteContent_w(const MediaContentDescription* content,
                                         SdpType type,
                                         std::string* error_desc) {
@@ -1245,8 +1259,8 @@ bool RtpDataChannel::SetRemoteContent_w(const MediaContentDescription* content,
 
   RTC_LOG(LS_INFO) << "Setting remote data description";
   DataSendParameters send_params = last_send_params_;
-  RtpSendParametersFromMediaDescription<DataCodec>(data, rtp_header_extensions,
-                                                   &send_params);
+  RtpSendParametersFromMediaDescription<DataCodec>(data, rtp_header_extensions, &send_params);
+  // TODO@chensong 2022-10-16 ---> SetupSendCodec
   if (!media_channel()->SetSendParameters(send_params)) {
     SafeSetError("Failed to set remote data description send parameters.",
                  error_desc);

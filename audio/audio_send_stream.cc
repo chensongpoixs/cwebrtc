@@ -306,7 +306,7 @@ void AudioSendStream::ConfigureStream(
        new_config.rtp.rid != old_config.rtp.rid)) {
     channel_send->SetRid(new_config.rtp.rid, new_ids.rid, new_ids.repaired_rid);
   }
-
+  // TODO@chensong 2022-10-16 
   if (!ReconfigureSendCodec(stream, new_config)) {
     RTC_LOG(LS_ERROR) << "Failed to set up send codec state.";
   }
@@ -660,7 +660,9 @@ bool AudioSendStream::ReconfigureSendCodec(AudioSendStream* stream,
       new_config.send_codec_spec->format !=
           old_config.send_codec_spec->format ||
       new_config.send_codec_spec->payload_type !=
-          old_config.send_codec_spec->payload_type) {
+          old_config.send_codec_spec->payload_type)
+  {
+	  // TODO@chensong 2022-10-16 
     return SetupSendCodec(stream, new_config);
   }
 
