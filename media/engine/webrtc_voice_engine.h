@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -39,6 +39,17 @@ class AudioDeviceModule;
 class AudioMixer;
 class AudioSource;
 class WebRtcVoiceMediaChannel;
+
+
+/** 
+TODO@chensong 2022-10-16
+
+1. 一般每个pc都有一个音频发送通道(ChannelSend)
+2.  对于每个ChannelSend都要采集编码器吗？
+3. AudioSendStream与ChannelSend一一对应
+4. AudioSendStream继承自AudioSender
+5. 所有AudioSender都由AudioTransport管理
+*/
 
 // WebRtcVoiceEngine is a class to be used with CompositeMediaEngine.
 // It uses the WebRtc VoiceEngine library for audio handling.
