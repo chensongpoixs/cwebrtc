@@ -858,8 +858,8 @@ bool AudioDeviceModuleImpl::Recording() const {
   return audio_device_->Recording();
 }
 
-int32_t AudioDeviceModuleImpl::RegisterAudioCallback(
-    AudioTransport* audioCallback) {
+int32_t AudioDeviceModuleImpl::RegisterAudioCallback(AudioTransport* audioCallback) 
+{
   RTC_LOG(INFO) << __FUNCTION__;
   return audio_device_buffer_.RegisterAudioCallback(audioCallback);
 }

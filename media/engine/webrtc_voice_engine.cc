@@ -213,13 +213,39 @@ WebRtcVoiceEngine::~WebRtcVoiceEngine() {
     adm()->Terminate();
   }
 }
+/** 
+TODO@chensong 2022-10-16 
 
+1. 创建AudioDeviceBuffer的流程
+
+-> AudioDeviceBuffer::AudioDeviceBuffer(...)
+-> AudioDeviceModuleImpl::AudioDeviceModuleImpl(...)
+-> AudioDeviceModule::CreateForTest(...)
+-> AudioDeviceModule::Create(...)
+-> WebRtcVoiceEngine::Init()
+
+
+
+ 2. 注册音频数据的回调函数
+
+ -> audio_transport_cb_ = audio_callback
+ -> audio_device_buffer_.RegisterAudioCallback(audioCallback);
+ -> adm()->RegisterAudioCallBack(audio_state()->audio_transport());
+
+
+3. 传递数据
+
+-> audio_transport_cb_->RecordedDataIsAvailable(...)
+-> AudioDeviceBuffer::DeliverRecordedData()
+-> DoCaputureThreadPollDMO()
+*/
 void WebRtcVoiceEngine::Init() 
 {
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   RTC_LOG(LS_INFO) << "WebRtcVoiceEngine::Init";
   //?????????????
   // TaskQueue expects to be created/destroyed on the same thread.
+  //TODO@chensong 2022-10-16  音频录制维护功能（LOW） 维护
   low_priority_worker_queue_.reset(
       new rtc::TaskQueue(task_queue_factory_->CreateTaskQueue(
           "rtc-low-prio", webrtc::TaskQueueFactory::Priority::LOW)));
@@ -299,8 +325,8 @@ void WebRtcVoiceEngine::Init()
   initialized_ = true;
 }
 
-rtc::scoped_refptr<webrtc::AudioState> WebRtcVoiceEngine::GetAudioState()
-    const {
+rtc::scoped_refptr<webrtc::AudioState> WebRtcVoiceEngine::GetAudioState() const 
+{
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   return audio_state_;
 }
