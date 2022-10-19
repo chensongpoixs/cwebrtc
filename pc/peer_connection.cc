@@ -2601,7 +2601,8 @@ void PeerConnection::SetRemoteDescription(
     return;
   }
 
-  if (desc->GetType() == SdpType::kOffer) {
+  if (desc->GetType() == SdpType::kOffer) 
+  {
     // Report to UMA the format of the received offer.
     // 向UMA报告收到的报价的格式
     ReportSdpFormatReceived(*desc);

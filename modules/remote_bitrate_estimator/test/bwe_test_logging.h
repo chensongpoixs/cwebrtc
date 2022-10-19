@@ -14,7 +14,7 @@
 // To enable BWE logging, run this command from trunk/ :
 // build/gyp_chromium --depth=. webrtc/modules/modules.gyp
 //   -Denable_bwe_test_logging=1
-#ifndef BWE_TEST_LOGGING_COMPILE_TIME_ENABLE
+#ifndef BWE_TEST_LOGGING_COMPILE_TIME_ENABLE 
 #define BWE_TEST_LOGGING_COMPILE_TIME_ENABLE 0
 #endif  // BWE_TEST_LOGGING_COMPILE_TIME_ENABLE
 

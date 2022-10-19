@@ -31,7 +31,7 @@ namespace webrtc {
 
 class RtcEventLog;
 
-/**
+/**  TODO@chensong 2022-10-19 基于丢包计算预估码率，结合延迟预估码率，得到最终的目标码率
 *   TODO@chensong 20220825
 *      链路容量跟踪器
 */
@@ -162,8 +162,8 @@ class SendSideBandwidthEstimation {
   // set |current_bitrate_| to the capped value and updates the event log.
   void CapBitrateToThresholds(Timestamp at_time, DataRate bitrate);
 
-  RttBasedBackoff rtt_backoff_;
-  LinkCapacityTracker link_capacity_;
+  RttBasedBackoff rtt_backoff_; // 基于Rtt的回退
+  LinkCapacityTracker link_capacity_; //链路容量跟踪器
 
   // 最小比特率历史记录
   std::deque<std::pair<Timestamp, DataRate> > min_bitrate_history_;
