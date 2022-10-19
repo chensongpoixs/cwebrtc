@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -488,7 +488,7 @@ ChannelReceive::ChannelReceive(
   configuration.receive_statistics = rtp_receive_statistics_.get();
 
   configuration.event_log = event_log_;
-
+  // TODO@chensong 2022-10-19 创建RTP-RTCP 管理模块
   _rtpRtcpModule = RtpRtcp::Create(configuration);
   _rtpRtcpModule->SetSendingMediaStatus(false);
   _rtpRtcpModule->SetRemoteSSRC(remote_ssrc_);

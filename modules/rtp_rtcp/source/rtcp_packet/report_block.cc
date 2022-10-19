@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -53,6 +53,7 @@ bool ReportBlock::Parse(const uint8_t* buffer, size_t length) {
   }
 
   source_ssrc_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[0]);
+  // TODO@chensong 2022-10-19  丢包率 fraction_lost
   fraction_lost_ = buffer[4];
   cumulative_lost_ = ByteReader<int32_t, 3>::ReadBigEndian(&buffer[5]);
   extended_high_seq_num_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[8]);
