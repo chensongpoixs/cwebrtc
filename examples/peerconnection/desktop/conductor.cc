@@ -185,7 +185,7 @@ bool Conductor::InitializePeerConnection() {
     return false;
   }
   // 设置SDP  ->马流是否加密哈DTLS
-  if (!CreatePeerConnection(/*dtls=*/true)) 
+  if (!CreatePeerConnection(/*dtls=*/false)) 
   {
     main_wnd_->MessageBox("Error", "CreatePeerConnection failed", true);
     DeletePeerConnection();

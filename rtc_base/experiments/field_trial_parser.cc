@@ -36,7 +36,8 @@ FieldTrialParameterInterface::~FieldTrialParameterInterface() {
 
 void ParseFieldTrial(
     std::initializer_list<FieldTrialParameterInterface*> fields,
-    std::string trial_string) {
+    std::string trial_string) 
+{
   std::map<std::string, FieldTrialParameterInterface*> field_map;
   FieldTrialParameterInterface* keyless_field = nullptr;
   for (FieldTrialParameterInterface* field : fields) {

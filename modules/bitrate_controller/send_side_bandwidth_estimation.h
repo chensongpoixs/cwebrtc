@@ -67,6 +67,7 @@ class RttBasedBackoff {
   void UpdatePropagationRtt(Timestamp at_time, TimeDelta propagation_rtt);
   TimeDelta CorrectedRtt(Timestamp at_time) const;
 
+ //private:
   // rtt极限
   FieldTrialParameter<TimeDelta> rtt_limit_;
 

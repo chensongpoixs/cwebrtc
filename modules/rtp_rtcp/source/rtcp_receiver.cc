@@ -167,7 +167,7 @@ void RTCPReceiver::IncomingPacket(const uint8_t* packet, size_t packet_size) {
     RTC_LOG(LS_WARNING) << "Incoming empty RTCP packet";
     return;
   }
-
+  // TODO@chensong 2022-10-19   解析RTCP 数据包的格式
   PacketInformation packet_information;
   if (!ParseCompoundPacket(packet, packet + packet_size, &packet_information))
     return;

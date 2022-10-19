@@ -503,7 +503,9 @@ void BaseChannel::OnRtcpPacketReceived(rtc::CopyOnWriteBuffer* packet,
 
 void BaseChannel::OnPacketReceived(bool rtcp,
                                    const rtc::CopyOnWriteBuffer& packet,
-                                   int64_t packet_time_us) {
+                                   int64_t packet_time_us) 
+{
+	// TODO@chensong 2022-10-19  us   app  msg RTCP 
   if (!has_received_packet_ && !rtcp) {
     has_received_packet_ = true;
     signaling_thread()->Post(RTC_FROM_HERE, this, MSG_FIRSTPACKETRECEIVED);
@@ -528,7 +530,7 @@ void BaseChannel::OnPacketReceived(bool rtcp,
         << " packet when SRTP is inactive and crypto is required";
     return;
   }
-
+  // TODO@chensong 2022-10-19 为什么要这样操作呢
   invoker_.AsyncInvoke<void>(
       RTC_FROM_HERE, worker_thread_,
       Bind(&BaseChannel::ProcessPacket, this, rtcp, packet, packet_time_us));

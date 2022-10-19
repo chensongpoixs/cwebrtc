@@ -1592,6 +1592,7 @@ void WebRtcVideoChannel::OnRtcpReceived(rtc::CopyOnWriteBuffer packet,
   // for both audio and video on the same path. Since BundleFilter doesn't
   // filter RTCP anymore incoming RTCP packets could've been going to audio (so
   // logging failures spam the log).
+  // TODO@chensong 2022-10-19   RTCP --> net ===>function [Call::DeliverPacket]
   call_->Receiver()->DeliverPacket(webrtc::MediaType::VIDEO, packet,
                                    packet_time_us);
 }

@@ -27,6 +27,7 @@
 
 namespace webrtc {
 namespace {
+	// TODO@chensong 2022-10-19 [TimeDelta::Millis<1000> => 1ms]
 constexpr TimeDelta kBweIncreaseInterval = TimeDelta::Millis<1000>();
 constexpr TimeDelta kBweDecreaseInterval = TimeDelta::Millis<300>();
 constexpr TimeDelta kStartPhase = TimeDelta::Millis<2000>();
@@ -92,8 +93,7 @@ if (!out_bandwidth_ptr)
 #define BANDWIDTH_ESTIMATION_FORMAT(format, ...)                                      \
   BANDWIDTH_FILE_LOG                                                    \
   if (out_bandwidth_ptr) {                                              \
-    ::fprintf(out_bandwidth_ptr, "[%s][%d]" format, __FUNCTION__, __LINE__, \
-              format, ##__VA_ARGS__); \
+    ::fprintf(out_bandwidth_ptr, "[%s][%d]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__); \
     ::fflush(out_bandwidth_ptr);                                        \
   }
 
@@ -200,7 +200,8 @@ RttBasedBackoff::RttBasedBackoff()
       // trigger rtt backoff unless packet feedback is enabled.
       last_propagation_rtt_update_(Timestamp::PlusInfinity()),
       last_propagation_rtt_(TimeDelta::Zero()),
-      last_packet_sent_(Timestamp::MinusInfinity()) {
+      last_packet_sent_(Timestamp::MinusInfinity())
+{
   BANDWIDTH_ESTIMATION_LOG();
   ParseFieldTrial(
       {&rtt_limit_, &drop_fraction_, &drop_interval_, &persist_on_route_change_,
@@ -208,34 +209,40 @@ RttBasedBackoff::RttBasedBackoff()
       field_trial::FindFullName("WebRTC-Bwe-MaxRttLimit"));
 }
 
-void RttBasedBackoff::OnRouteChange() {
+void RttBasedBackoff::OnRouteChange() 
+{
   BANDWIDTH_ESTIMATION_LOG();
-  if (!persist_on_route_change_) {
+  if (!persist_on_route_change_) 
+  {
     last_propagation_rtt_update_ = Timestamp::PlusInfinity();
     last_propagation_rtt_ = TimeDelta::Zero();
   }
 }
 
-void RttBasedBackoff::UpdatePropagationRtt(Timestamp at_time,
-                                           TimeDelta propagation_rtt) {
+void RttBasedBackoff::UpdatePropagationRtt(Timestamp at_time, TimeDelta propagation_rtt) 
+{
   BANDWIDTH_ESTIMATION_LOG();
+  static uint64_t count = 0;
+  BANDWIDTH_ESTIMATION_FORMAT("============>>>> [count = %llu][TimeMillis = %llu]",
+                              ++count, rtc::TimeMillis());
   last_propagation_rtt_update_ = at_time;
   last_propagation_rtt_ = propagation_rtt;
 }
 
-TimeDelta RttBasedBackoff::CorrectedRtt(Timestamp at_time) const {
+TimeDelta RttBasedBackoff::CorrectedRtt(Timestamp at_time) const 
+{
   BANDWIDTH_ESTIMATION_LOG();
   
   TimeDelta time_since_rtt = at_time - last_propagation_rtt_update_;
   TimeDelta timeout_correction = time_since_rtt;
-  BANDWIDTH_ESTIMATION_FORMAT("[at_time = %s][time_since_rtt = %s]",
+  /*BANDWIDTH_ESTIMATION_FORMAT("[at_time = %s][time_since_rtt = %s]",
                               webrtc::ToString(at_time).c_str(),
-                              webrtc::ToString(time_since_rtt).c_str());
-  if (safe_timeout_) {
+                              webrtc::ToString(time_since_rtt).c_str());*/
+  if (safe_timeout_) 
+  {
     // Avoid timeout when no packets are being sent.
     TimeDelta time_since_packet_sent = at_time - last_packet_sent_;
-    timeout_correction =
-        std::max(time_since_rtt - time_since_packet_sent, TimeDelta::Zero());
+    timeout_correction = std::max(time_since_rtt - time_since_packet_sent, TimeDelta::Zero());
   }
   return timeout_correction + last_propagation_rtt_;
 }
@@ -509,12 +516,15 @@ void SendSideBandwidthEstimation::UpdateRtt(TimeDelta rtt, Timestamp at_time) {
   }
 }
 
-void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time) {
+void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time) 
+{
   BANDWIDTH_ESTIMATION_LOG();
   DataRate new_bitrate = current_bitrate_;
-  if (rtt_backoff_.CorrectedRtt(at_time) > rtt_backoff_.rtt_limit_) {
+  if (rtt_backoff_.CorrectedRtt(at_time) > rtt_backoff_.rtt_limit_) 
+  {
     if (at_time - time_last_decrease_ >= rtt_backoff_.drop_interval_ &&
-        current_bitrate_ > rtt_backoff_.bandwidth_floor_) {
+        current_bitrate_ > rtt_backoff_.bandwidth_floor_) 
+	{
       time_last_decrease_ = at_time;
       new_bitrate = std::max(current_bitrate_ * rtt_backoff_.drop_fraction_,
                              rtt_backoff_.bandwidth_floor_.Get());
@@ -562,13 +572,16 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time) {
 
   TimeDelta time_since_loss_packet_report = at_time - last_loss_packet_report_;
   TimeDelta time_since_loss_feedback = at_time - last_loss_feedback_;
-  if (time_since_loss_packet_report < 1.2 * kMaxRtcpFeedbackInterval) {
+  // TODO@chensong 2022-10-19  [1.2 * 5 = 6ms]
+  if (time_since_loss_packet_report < 1.2 * kMaxRtcpFeedbackInterval) 
+  {
     // We only care about loss above a given bitrate threshold.
     float loss = last_fraction_loss_ / 256.0f;
     // We only make decisions based on loss when the bitrate is above a
     // threshold. This is a crude way of handling loss which is uncorrelated
     // to congestion.
-    if (current_bitrate_ < bitrate_threshold_ || loss <= low_loss_threshold_) {
+    if (current_bitrate_ < bitrate_threshold_ || loss <= low_loss_threshold_) 
+	{
       // Loss < 2%: Increase rate by 8% of the min bitrate in the last
       // kBweIncreaseInterval.
       // Note that by remembering the bitrate over the last second one can
@@ -579,22 +592,26 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time) {
       //   If instead one would do: current_bitrate_ *= 1.08^(delta time),
       //   it would take over one second since the lower packet loss to achieve
       //   108kbps.
-      new_bitrate =
-          DataRate::bps(min_bitrate_history_.front().second.bps() * 1.08 + 0.5);
+      new_bitrate = DataRate::bps(min_bitrate_history_.front().second.bps() * 1.08 + 0.5);
 
       // Add 1 kbps extra, just to make sure that we do not get stuck
       // (gives a little extra increase at low rates, negligible at higher
       // rates).
       new_bitrate += DataRate::bps(1000);
-    } else if (current_bitrate_ > bitrate_threshold_) {
-      if (loss <= high_loss_threshold_) {
+    } 
+	else if (current_bitrate_ > bitrate_threshold_) 
+	{
+      if (loss <= high_loss_threshold_) 
+	  {
         // Loss between 2% - 10%: Do nothing.
-      } else {
+      }
+	  else 
+	  {
         // Loss > 10%: Limit the rate decreases to once a kBweDecreaseInterval
         // + rtt.
-        if (!has_decreased_since_last_fraction_loss_ &&
-            (at_time - time_last_decrease_) >=
-                (kBweDecreaseInterval + last_round_trip_time_)) {
+        if (!has_decreased_since_last_fraction_loss_ &&  (at_time - time_last_decrease_) >=
+                (kBweDecreaseInterval + last_round_trip_time_)) 
+		{
           time_last_decrease_ = at_time;
 
           // Reduce rate:
@@ -608,14 +625,16 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time) {
         }
       }
     }
-  } else if (time_since_loss_feedback >
+  } 
+  else if (time_since_loss_feedback >
                  kFeedbackTimeoutIntervals * kMaxRtcpFeedbackInterval &&
              (last_timeout_.IsInfinite() ||
-              at_time - last_timeout_ > kTimeoutInterval)) {
-    if (in_timeout_experiment_) {
-      RTC_LOG(LS_WARNING) << "Feedback timed out ("
-                          << ToString(time_since_loss_feedback)
-                          << "), reducing bitrate.";
+              at_time - last_timeout_ > kTimeoutInterval)) 
+  {
+	  // [(5 * 3 ) = 15ms ]
+    if (in_timeout_experiment_) 
+	{
+      RTC_LOG(LS_WARNING) << "Feedback timed out (" << ToString(time_since_loss_feedback)<< "), reducing bitrate.";
       new_bitrate = new_bitrate * 0.8;
       // Reset accumulators since we've already acted on missing feedback and
       // shouldn't to act again on these old lost packets.
@@ -651,10 +670,13 @@ void SendSideBandwidthEstimation::UpdateMinHistory(Timestamp at_time) {
   BANDWIDTH_ESTIMATION_LOG();
   // Remove old data points from history.
   // Since history precision is in ms, add one so it is able to increase
-  // bitrate if it is off by as little as 0.5ms.
-  while (!min_bitrate_history_.empty() &&
-         at_time - min_bitrate_history_.front().first + TimeDelta::ms(1) >
-             kBweIncreaseInterval) {
+  // bitrate if it is off by as little as 0.5ms
+  BANDWIDTH_ESTIMATION_FORMAT("[at_time = %s] [TimeDelta::ms(1) = %s][kBweIncreaseInterval = %s]\n",
+                              webrtc::ToString(at_time).c_str(),
+      webrtc::ToString(TimeDelta::ms(1)).c_str(),
+      webrtc::ToString(kBweIncreaseInterval).c_str());
+  while (!min_bitrate_history_.empty() && at_time - min_bitrate_history_.front().first + TimeDelta::ms(1) > kBweIncreaseInterval) 
+  {
     min_bitrate_history_.pop_front();
   }
 
