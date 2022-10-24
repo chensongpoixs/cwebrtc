@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2018 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -34,8 +34,10 @@ static bool VerifyIceParams(const JsepTransportDescription& jsep_description) {
   // For legacy protocols.
   // TODO(zhihuang): Remove this once the legacy protocol is no longer
   // supported.
-  if (jsep_description.transport_desc.ice_ufrag.empty() &&
-      jsep_description.transport_desc.ice_pwd.empty()) {
+  //  TODO@chensong 2022-10-24  ICE 中用户名和密码检查
+	if (jsep_description.transport_desc.ice_ufrag.empty() &&
+      jsep_description.transport_desc.ice_pwd.empty()) 
+  {
     return true;
   }
 
