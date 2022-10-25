@@ -266,7 +266,7 @@ class ChannelSend : public ChannelSendInterface,
   rtc::ThreadChecker construction_thread_;
 
   const bool use_twcc_plr_for_ana_;
-
+  // TODO@chensong 2022-10-25 音频编码发送是否开始 
   bool encoder_queue_is_active_ RTC_GUARDED_BY(encoder_queue_) = false;
 
   MediaTransportInterface* const media_transport_;
@@ -658,7 +658,7 @@ ChannelSend::ChannelSend(Clock* clock,
       frame_encryptor_(frame_encryptor),
       crypto_options_(crypto_options),
       encoder_queue_(task_queue_factory->CreateTaskQueue(
-          "AudioEncoder",
+          "AudioEncoder",  // TODO@chensong  2022-10-25 编码线程任务队列  里面由有一个线程管理 
           TaskQueueFactory::Priority::NORMAL)) {
   RTC_DCHECK(module_process_thread);
   module_process_thread_checker_.Detach();
@@ -1092,7 +1092,9 @@ void ChannelSend::ProcessAndEncodeAudio(
   struct ProcessAndEncodeAudio {
     void operator()() {
       RTC_DCHECK_RUN_ON(&channel->encoder_queue_);
-      if (!channel->encoder_queue_is_active_) {
+	  // TODO@chensong 2022-10-15 是否停止编码发送了 
+      if (!channel->encoder_queue_is_active_) 
+	  {
         return;
       }
       channel->ProcessAndEncodeAudioOnTaskQueue(audio_frame.get());
@@ -1103,6 +1105,7 @@ void ChannelSend::ProcessAndEncodeAudio(
   // Profile time between when the audio frame is added to the task queue and
   // when the task is actually executed.
   audio_frame->UpdateProfileTimeStamp();
+  // TODO@chensong 2022-10-25 音频一帧数据放到编码队列中去
   encoder_queue_.PostTask(ProcessAndEncodeAudio{std::move(audio_frame), this});
 }
 

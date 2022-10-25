@@ -675,8 +675,7 @@ bool RTPSender::SendToNetwork(std::unique_ptr<RtpPacketToSend> packet,
     // Correct offset between implementations of millisecond time stamps in
     // TickTime and Clock.
     int64_t corrected_time_ms = packet->capture_time_ms() + clock_delta_ms_;
-    size_t packet_size =
-        send_side_bwe_with_overhead_ ? packet->size() : packet->payload_size();
+    size_t packet_size = send_side_bwe_with_overhead_ ? packet->size() : packet->payload_size();
     if (ssrc == FlexfecSsrc()) {
       // Store FlexFEC packets in the history here, so they can be found
       // when the pacer calls TimeToSendPacket.
@@ -687,8 +686,7 @@ bool RTPSender::SendToNetwork(std::unique_ptr<RtpPacketToSend> packet,
       packet_history_.PutRtpPacket(std::move(packet), storage, absl::nullopt);
     }
     // TODO@chensong 20220803   将packet投入[F:\Work\20220719_webrtc\src\modules\pacing\paced_sender.cc]PacedSender的发送队列中
-    paced_sender_->InsertPacket(priority, ssrc, seq_no, corrected_time_ms,
-                                packet_size, false);
+    paced_sender_->InsertPacket(priority, ssrc, seq_no, corrected_time_ms, packet_size, false);
     return true;
   }
 

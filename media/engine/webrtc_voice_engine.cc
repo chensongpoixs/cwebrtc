@@ -948,6 +948,7 @@ class WebRtcVoiceMediaChannel::WebRtcAudioSendStream
         audio_frame->timestamp_, static_cast<const int16_t*>(audio_data),
         number_of_frames, sample_rate, audio_frame->speech_type_,
         audio_frame->vad_activity_, number_of_channels);
+	// TODO@chensong 2022-10-25 发送音频数据
     stream_->SendAudioData(std::move(audio_frame));
   }
 
