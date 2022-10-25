@@ -1,146 +1,50 @@
 {
-	"codecs": [{
+	"codecs": 
+	[
+		{
 		"kind": "video",
 		"mimeType": "video/H264",
 		"clockRate": 90000,
-		"parameters": {
-			"packetization-mode": 1,
-			"level-asymmetry-allowed": 1,
-			"profile-level-id": "42e01f",
-			"x-google-start-bitrate": 1000,
-			"x-google-max-bitrate": 28000,
-			"x-google-min-bitrate": 5500
-		},
-		"rtcpFeedback": [{
-			"type": "nack",
-			"parameter": ""
-		}, {
-			"type": "nack",
-			"parameter": "pli"
-		}, {
-			"type": "ccm",
-			"parameter": "fir"
-		}, {
-			"type": "goog-remb",
-			"parameter": ""
-		}, {
-			"type": "transport-cc",
-			"parameter": ""
-		}],
+		"parameters": 
+			{
+				"packetization-mode": 1,
+				"level-asymmetry-allowed": 1,
+				"profile-level-id": "42e01f",
+				"x-google-start-bitrate": 1000,
+				"x-google-max-bitrate": 28000,
+				"x-google-min-bitrate": 5500
+			},
+		"rtcpFeedback": [
+				{
+					"type": "nack",
+					"parameter": ""
+				}, {
+					"type": "nack",
+					"parameter": "pli"
+				}, {
+					"type": "ccm",
+					"parameter": "fir"
+				}, {
+					"type": "goog-remb",
+					"parameter": ""
+				}, {
+					"type": "transport-cc",
+					"parameter": ""
+				}
+			],
 		"preferredPayloadType": 100
-	}, {
-		"kind": "video",
-		"mimeType": "video/rtx",
-		"preferredPayloadType": 101,
-		"clockRate": 90000,
-		"parameters": {
-			"apt": 100
-		},
-		"rtcpFeedback": []
-	}, {
-		"kind": "video",
-		"mimeType": "video/H264",
-		"clockRate": 90000,
-		"parameters": {
-			"packetization-mode": 1,
-			"level-asymmetry-allowed": 1,
-			"profile-level-id": "4d0032",
-			"x-google-start-bitrate": 1000
-		},
-		"rtcpFeedback": [{
-			"type": "nack",
-			"parameter": ""
-		}, {
-			"type": "nack",
-			"parameter": "pli"
-		}, {
-			"type": "ccm",
-			"parameter": "fir"
-		}, {
-			"type": "goog-remb",
-			"parameter": ""
-		}, {
-			"type": "transport-cc",
-			"parameter": ""
-		}],
-		"preferredPayloadType": 102
-	}, {
-		"kind": "video",
-		"mimeType": "video/rtx",
-		"preferredPayloadType": 103,
-		"clockRate": 90000,
-		"parameters": {
-			"apt": 102
-		},
-		"rtcpFeedback": []
-	}, {
-		"kind": "video",
-		"mimeType": "video/VP8",
-		"clockRate": 90000,
-		"rtcpFeedback": [{
-			"type": "nack",
-			"parameter": ""
-		}, {
-			"type": "nack",
-			"parameter": "pli"
-		}, {
-			"type": "ccm",
-			"parameter": "fir"
-		}, {
-			"type": "goog-remb",
-			"parameter": ""
-		}, {
-			"type": "transport-cc",
-			"parameter": ""
-		}],
-		"parameters": {
-			"x-google-start-bitrate": 1000
-		},
-		"preferredPayloadType": 104
-	}, {
-		"kind": "video",
-		"mimeType": "video/rtx",
-		"preferredPayloadType": 105,
-		"clockRate": 90000,
-		"parameters": {
-			"apt": 104
-		},
-		"rtcpFeedback": []
-	}, {
-		"kind": "video",
-		"mimeType": "video/VP9",
-		"clockRate": 90000,
-		"rtcpFeedback": [{
-			"type": "nack",
-			"parameter": ""
-		}, {
-			"type": "nack",
-			"parameter": "pli"
-		}, {
-			"type": "ccm",
-			"parameter": "fir"
-		}, {
-			"type": "goog-remb",
-			"parameter": ""
-		}, {
-			"type": "transport-cc",
-			"parameter": ""
-		}],
-		"parameters": {
-			"profile-id": 2,
-			"x-google-start-bitrate": 1000
-		},
-		"preferredPayloadType": 106
-	}, {
-		"kind": "video",
-		"mimeType": "video/rtx",
-		"preferredPayloadType": 107,
-		"clockRate": 90000,
-		"parameters": {
-			"apt": 106
-		},
-		"rtcpFeedback": []
-	}],
+		}, 
+		{
+			"kind": "video",
+			"mimeType": "video/rtx",
+			"preferredPayloadType": 101,
+			"clockRate": 90000,
+			"parameters": {
+				"apt": 100
+			},
+			"rtcpFeedback": []
+		} 
+	],
 	"headerExtensions": [{
 		"kind": "audio",
 		"uri": "urn:ietf:params:rtp-hdrext:sdes:mid",

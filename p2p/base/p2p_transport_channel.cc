@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -1479,7 +1479,7 @@ void P2PTransportChannel::RequestSortAndStateUpdate(
     sort_dirty_ = true;
   }
 }
-
+// TODO@chensong 2022-10-25启动stun心跳包保持开始函数
 void P2PTransportChannel::MaybeStartPinging() {
   if (started_pinging_) {
     return;
@@ -2014,6 +2014,8 @@ bool P2PTransportChannel::ReadyToSend(Connection* connection) const {
 }
 
 // Handle queued up check-and-ping request
+// TODO@chensong 2022-10-25  
+// MaybeStartPinging ->[CheckAndPing <-> CheckAndPing] stun 心跳包 一直在发送
 void P2PTransportChannel::CheckAndPing() {
   // Make sure the states of the connections are up-to-date (since this affects
   // which ones are pingable).
