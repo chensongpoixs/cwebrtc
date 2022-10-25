@@ -167,10 +167,12 @@ void RTCPReceiver::IncomingPacket(const uint8_t* packet, size_t packet_size) {
     RTC_LOG(LS_WARNING) << "Incoming empty RTCP packet";
     return;
   }
-
+  //TODO@chensong 20220909 根据对端反馈信息处理 
   PacketInformation packet_information;
   if (!ParseCompoundPacket(packet, packet + packet_size, &packet_information))
+  {
     return;
+  }
   TriggerCallbacksFromRtcpPacket(packet_information);
 }
 
@@ -368,8 +370,11 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
       case rtcp::Rtpfb::kPacketType:
         switch (rtcp_block.fmt()) {
           case rtcp::Nack::kFeedbackMessageType:
+          {
+			  // TODO@chensong 处理Nack信息包 丢包的处理
             HandleNack(rtcp_block, packet_information);
             break;
+		  }
           case rtcp::Tmmbr::kFeedbackMessageType:
             HandleTmmbr(rtcp_block, packet_information);
             break;
@@ -688,11 +693,12 @@ void RTCPReceiver::HandleNack(const CommonHeader& rtcp_block,
   if (receiver_only_ || main_ssrc_ != nack.media_ssrc())  // Not to us.
     return;
 
-  packet_information->nack_sequence_numbers.insert(
-      packet_information->nack_sequence_numbers.end(),
+  packet_information->nack_sequence_numbers.insert( packet_information->nack_sequence_numbers.end(),
       nack.packet_ids().begin(), nack.packet_ids().end());
   for (uint16_t packet_id : nack.packet_ids())
+  {
     nack_stats_.ReportRequest(packet_id);
+  }
 
   if (!nack.packet_ids().empty()) {
     packet_information->packet_type_flags |= kRtcpNack;
@@ -1010,8 +1016,10 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
   if (!receiver_only_ && (packet_information.packet_type_flags & kRtcpSrReq)) {
     rtp_rtcp_->OnRequestSendReport();
   }
+  // TODO@chensong 发送RTX丢包信息
   if (!receiver_only_ && (packet_information.packet_type_flags & kRtcpNack)) {
-    if (!packet_information.nack_sequence_numbers.empty()) {
+    if (!packet_information.nack_sequence_numbers.empty()) 
+	{
       RTC_LOG(LS_VERBOSE) << "Incoming NACK length: "
                           << packet_information.nack_sequence_numbers.size();
       rtp_rtcp_->OnReceivedNack(packet_information.nack_sequence_numbers);
