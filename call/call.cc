@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -420,7 +420,7 @@ std::string Call::Stats::ToString(int64_t time_ms) const {
   ss << '}';
   return ss.str();
 }
-
+// TODO@chensong 20220803 网络发送信息包线程 PacerThread、ModuleProcessThread
 Call* Call::Create(const Call::Config& config) {
   return Create(config, Clock::GetRealTimeClock(),
                 ProcessThread::Create("PacerThread"),
@@ -436,6 +436,11 @@ Call* Call::Create(const Call::Config& config,
   TaskQueueFactory* task_queue_factory = config.task_queue_factory
                                              ? config.task_queue_factory
                                              : &GlobalTaskQueueFactory();
+
+  // TODO@chensong 2022-09-29
+  //		1.
+  //RtpTransportControllerSend中有个线程pacer专门发送网络包反馈网络情况
+  //		2. Call :
   return new internal::Call(
       clock, config,
       absl::make_unique<RtpTransportControllerSend>(
@@ -1455,8 +1460,10 @@ PacketReceiver::DeliveryStatus Call::DeliverPacket(
     rtc::CopyOnWriteBuffer packet,
     int64_t packet_time_us) {
   RTC_DCHECK_RUN_ON(&configuration_sequence_checker_);
-  if (RtpHeaderParser::IsRtcp(packet.cdata(), packet.size()))
+  if (RtpHeaderParser::IsRtcp(packet.cdata(), packet.size())) 
+  {
     return DeliverRtcp(media_type, packet.cdata(), packet.size());
+  }
 
   return DeliverRtp(media_type, std::move(packet), packet_time_us);
 }

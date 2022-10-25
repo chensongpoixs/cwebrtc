@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -36,14 +36,15 @@ const char kDefaultRtcpCname[] = "DefaultRtcpCname";
 
 // Options for an RtpSender contained with an media description/"m=" section.
 // Note: Spec-compliant Simulcast and legacy simulcast are mutually exclusive.
-struct SenderOptions {
+struct SenderOptions 
+{
   std::string track_id;
   std::vector<std::string> stream_ids;
   // Use RIDs and Simulcast Layers to indicate spec-compliant Simulcast.
   std::vector<RidDescription> rids;
   SimulcastLayerList simulcast_layers;
   // Use |num_sim_layers| to indicate legacy simulcast.
-  int num_sim_layers;
+  int num_sim_layers; // TODO@chensong 2022-10-08   判断simulcast的标志多路流
 };
 
 // Options for an individual media description/"m=" section.
@@ -291,15 +292,16 @@ class MediaSessionDescriptionFactory {
   void ComputeAudioCodecsIntersectionAndUnion();
 
   bool is_unified_plan_ = false;
-  AudioCodecs audio_send_codecs_;
-  AudioCodecs audio_recv_codecs_;
+  // TODO@chensong 20220927
+  AudioCodecs audio_send_codecs_; //从channel_mananger中获得音频编码器信息
+  AudioCodecs audio_recv_codecs_;//从channel_mananger中获得音频编码器信息
   // Intersection of send and recv.
   AudioCodecs audio_sendrecv_codecs_;
   // Union of send and recv.
   AudioCodecs all_audio_codecs_;
   RtpHeaderExtensions audio_rtp_extensions_;
-  VideoCodecs video_codecs_;
-  RtpHeaderExtensions video_rtp_extensions_;
+  VideoCodecs video_codecs_;					//从channel_mananger中获得视频编码器信息
+  RtpHeaderExtensions video_rtp_extensions_; //从channel_mananger中获得视频扩展头
   DataCodecs data_codecs_;
   // This object is not owned by the channel so it must outlive it.
   rtc::UniqueRandomIdGenerator* const ssrc_generator_;

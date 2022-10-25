@@ -48,103 +48,118 @@ ChannelManager::~ChannelManager() {
   worker_thread_->Invoke<void>(RTC_FROM_HERE, [&] { media_engine_.reset(); });
 }
 
-bool ChannelManager::SetVideoRtxEnabled(bool enable) {
+bool ChannelManager::SetVideoRtxEnabled(bool enable) 
+{
   // To be safe, this call is only allowed before initialization. Apps like
   // Flute only have a singleton ChannelManager and we don't want this flag to
   // be toggled between calls or when there's concurrent calls. We expect apps
   // to enable this at startup and retain that setting for the lifetime of the
   // app.
-  if (!initialized_) {
+  if (!initialized_) 
+  {
     enable_rtx_ = enable;
     return true;
-  } else {
+  }
+  else 
+  {
     RTC_LOG(LS_WARNING) << "Cannot toggle rtx after initialization!";
     return false;
   }
 }
 
-void ChannelManager::GetSupportedAudioSendCodecs(
-    std::vector<AudioCodec>* codecs) const {
-  if (!media_engine_) {
+void ChannelManager::GetSupportedAudioSendCodecs(std::vector<AudioCodec>* codecs) const 
+{
+  if (!media_engine_) 
+  {
     return;
   }
   *codecs = media_engine_->voice().send_codecs();
 }
 
-void ChannelManager::GetSupportedAudioReceiveCodecs(
-    std::vector<AudioCodec>* codecs) const {
-  if (!media_engine_) {
+void ChannelManager::GetSupportedAudioReceiveCodecs( std::vector<AudioCodec>* codecs) const 
+{
+  if (!media_engine_) 
+  {
     return;
   }
   *codecs = media_engine_->voice().recv_codecs();
 }
 
-void ChannelManager::GetSupportedAudioRtpHeaderExtensions(
-    RtpHeaderExtensions* ext) const {
-  if (!media_engine_) {
+void ChannelManager::GetSupportedAudioRtpHeaderExtensions(RtpHeaderExtensions* ext) const 
+{
+  if (!media_engine_) 
+  {
     return;
   }
   *ext = media_engine_->voice().GetCapabilities().header_extensions;
 }
 
-void ChannelManager::GetSupportedVideoCodecs(
-    std::vector<VideoCodec>* codecs) const {
-  if (!media_engine_) {
+void ChannelManager::GetSupportedVideoCodecs( std::vector<VideoCodec>* codecs) const 
+{
+  if (!media_engine_) 
+  {
     return;
   }
   codecs->clear();
-
+  // TODO@chensong 2022-09-27 获取视频的编解码器的信息
   std::vector<VideoCodec> video_codecs = media_engine_->video().codecs();
-  for (const auto& video_codec : video_codecs) {
-    if (!enable_rtx_ &&
-        absl::EqualsIgnoreCase(kRtxCodecName, video_codec.name)) {
+  for (const auto& video_codec : video_codecs) 
+  {
+    if (!enable_rtx_ && absl::EqualsIgnoreCase(kRtxCodecName, video_codec.name)) 
+	{
       continue;
     }
     codecs->push_back(video_codec);
   }
 }
 
-void ChannelManager::GetSupportedVideoRtpHeaderExtensions(
-    RtpHeaderExtensions* ext) const {
-  if (!media_engine_) {
+void ChannelManager::GetSupportedVideoRtpHeaderExtensions( RtpHeaderExtensions* ext) const 
+{
+  if (!media_engine_) 
+  {
     return;
   }
   *ext = media_engine_->video().GetCapabilities().header_extensions;
 }
 
-void ChannelManager::GetSupportedDataCodecs(
-    std::vector<DataCodec>* codecs) const {
+void ChannelManager::GetSupportedDataCodecs( std::vector<DataCodec>* codecs) const 
+{
   *codecs = data_engine_->data_codecs();
 }
 /************************************************************************/
-/* 信号线程执行的                                                                */
+/*TODO@chensong 2022-10-06  工作线程执行的 媒体引擎的初始化的接口Init                                                               */
 /************************************************************************/
-bool ChannelManager::Init() {
+bool ChannelManager::Init() 
+{
   RTC_DCHECK(!initialized_);
-  if (initialized_) {
+  if (initialized_) 
+  {
     return false;
   }
   RTC_DCHECK(network_thread_);
   RTC_DCHECK(worker_thread_);
-  // 正常情况信号线程与网络线程 所以是会设置线程
-  if (!network_thread_->IsCurrent()) {
+  //TODO@chensong 20220321 正常情况工作线程与网络线程 所以是会设置线程
+  if (!network_thread_->IsCurrent()) 
+  {
     // Do not allow invoking calls to other threads on the network thread.
 	 // 不允许调用网络线程上的其他线程。
-    network_thread_->Invoke<void>(
-        RTC_FROM_HERE, [&] { network_thread_->DisallowBlockingCalls(); });
+    network_thread_->Invoke<void>(RTC_FROM_HERE, [&] { network_thread_->DisallowBlockingCalls(); });
   }
   // 媒体信息初始化 非常重要的哈 ^_^
-  if (media_engine_) {
-    initialized_ = worker_thread_->Invoke<bool>(
-        RTC_FROM_HERE, [&] { return media_engine_->Init(); });
+  if (media_engine_)
+  {
+    initialized_ = worker_thread_->Invoke<bool>(RTC_FROM_HERE, [&] { return media_engine_->Init(); });
     RTC_DCHECK(initialized_);
-  } else {
+  } 
+  else 
+  {
     initialized_ = true;
   }
   return initialized_;
 }
 
-void ChannelManager::Terminate() {
+void ChannelManager::Terminate() 
+{
   RTC_DCHECK(initialized_);
   if (!initialized_) {
     return;
@@ -168,8 +183,10 @@ VoiceChannel* ChannelManager::CreateVoiceChannel(
     bool srtp_required,
     const webrtc::CryptoOptions& crypto_options,
     rtc::UniqueRandomIdGenerator* ssrc_generator,
-    const AudioOptions& options) {
-  if (!worker_thread_->IsCurrent()) {
+    const AudioOptions& options)
+{
+  if (!worker_thread_->IsCurrent()) 
+  {
     return worker_thread_->Invoke<VoiceChannel*>(RTC_FROM_HERE, [&] {
       return CreateVoiceChannel(
           call, media_config, rtp_transport, media_transport, signaling_thread,
@@ -180,13 +197,15 @@ VoiceChannel* ChannelManager::CreateVoiceChannel(
   RTC_DCHECK_RUN_ON(worker_thread_);
   RTC_DCHECK(initialized_);
   RTC_DCHECK(call);
-  if (!media_engine_) {
+  if (!media_engine_) 
+  {
     return nullptr;
   }
 
   VoiceMediaChannel* media_channel = media_engine_->voice().CreateMediaChannel(
       call, media_config, options, crypto_options);
-  if (!media_channel) {
+  if (!media_channel) 
+  {
     return nullptr;
   }
 
@@ -202,12 +221,15 @@ VoiceChannel* ChannelManager::CreateVoiceChannel(
   return voice_channel_ptr;
 }
 
-void ChannelManager::DestroyVoiceChannel(VoiceChannel* voice_channel) {
+void ChannelManager::DestroyVoiceChannel(VoiceChannel* voice_channel) 
+{
   TRACE_EVENT0("webrtc", "ChannelManager::DestroyVoiceChannel");
-  if (!voice_channel) {
+  if (!voice_channel) 
+  {
     return;
   }
-  if (!worker_thread_->IsCurrent()) {
+  if (!worker_thread_->IsCurrent()) 
+  {
     worker_thread_->Invoke<void>(RTC_FROM_HERE,
                                  [&] { DestroyVoiceChannel(voice_channel); });
     return;
@@ -220,7 +242,8 @@ void ChannelManager::DestroyVoiceChannel(VoiceChannel* voice_channel) {
                               return p.get() == voice_channel;
                             });
   RTC_DCHECK(it != voice_channels_.end());
-  if (it == voice_channels_.end()) {
+  if (it == voice_channels_.end()) 
+  {
     return;
   }
 
@@ -237,8 +260,10 @@ VideoChannel* ChannelManager::CreateVideoChannel(
     bool srtp_required,
     const webrtc::CryptoOptions& crypto_options,
     rtc::UniqueRandomIdGenerator* ssrc_generator,
-    const VideoOptions& options) {
-  if (!worker_thread_->IsCurrent()) {
+    const VideoOptions& options) 
+{
+  if (!worker_thread_->IsCurrent()) 
+  {
     return worker_thread_->Invoke<VideoChannel*>(RTC_FROM_HERE, [&] {
       return CreateVideoChannel(
           call, media_config, rtp_transport, media_transport, signaling_thread,
@@ -249,7 +274,8 @@ VideoChannel* ChannelManager::CreateVideoChannel(
   RTC_DCHECK_RUN_ON(worker_thread_);
   RTC_DCHECK(initialized_);
   RTC_DCHECK(call);
-  if (!media_engine_) {
+  if (!media_engine_)
+  {
     return nullptr;
   }
   // TODO@chensong 2022-07-25 创建视频通道

@@ -147,7 +147,8 @@ class PeerConnectionMediaBaseTest : public ::testing::Test {
     return content->media_description()->direction();
   }
 
-  bool IsUnifiedPlan() const {
+  bool IsUnifiedPlan() const 
+  {
     return sdp_semantics_ == SdpSemantics::kUnifiedPlan;
   }
 

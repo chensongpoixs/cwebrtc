@@ -2133,15 +2133,39 @@ int32_t AudioDeviceWindowsCore::InitRecordingDMO() {
     return -1;
   }
 
+  
+  /*   TODO@chensong 20220806 音频媒体数据结构的介绍                                                  
+  typedef struct _DMOMediaType
+	{
+	GUID majortype;                 // 流的主类型 GUID
+	GUID subtype;                   // 流的子类型 GUID
+	BOOL bFixedSizeSamples;         // 采样是否是固定大小、音频为TRUE
+	BOOL bTemporalCompression;      // 时域压缩 [音视频 分为时域和频域   视频==》【时域：时间顺序继续压缩 帧间压缩】【频域： 帧内压缩】]
+	ULONG lSampleSize;              // 以字节为单位的采样大小
+	GUID formattype;                // 数据格式类型， 音频为WAVEFORMATEX
+	IUnknown *pUnk;                 // 未使用
+	ULONG cbFormat;                 // 不同媒体类型格式块的大小
+	  [size_is]   BYTE *pbFormat; // 根据cbFormat决定该字段
+ } 	DMO_MEDIA_TYPE;
+  */
+   
   DMO_MEDIA_TYPE mt = {};
+  /*
+     函数功能 : 初始化DMO_MEDIA_TYPE变量
+	 参数1   : 需要初始化的DMO_MEDIA_TYPE对象指针
+	 参数2   : 分配的格式块占有字节数
+  */
   HRESULT hr = MoInitMediaType(&mt, sizeof(WAVEFORMATEX));
   if (FAILED(hr)) {
     MoFreeMediaType(&mt);
     _TraceCOMError(hr);
     return -1;
   }
+  // 指定音频数据
   mt.majortype = MEDIATYPE_Audio;
+  // 指定音频数据的格式
   mt.subtype = MEDIASUBTYPE_PCM;
+  // 指定音频数据格式
   mt.formattype = FORMAT_WaveFormatEx;
 
   // Supported formats
@@ -2165,6 +2189,10 @@ int32_t AudioDeviceWindowsCore::InitRecordingDMO() {
   _recChannels = ptrWav->nChannels;
 
   // Set the DMO output format parameters.
+  // TODO@chensong 20220806 音频DMO设备接口参数说明
+  // param 1 : 输出源索引值， 从0开始
+  // param 2 : DMO_MEDIA_TYPE 类型指针
+  // param 3 : 按位的组合标记，设置为0
   hr = _dmo->SetOutputType(kAecCaptureStreamIndex, &mt, 0);
   MoFreeMediaType(&mt);
   if (FAILED(hr)) {
@@ -2210,10 +2238,12 @@ int32_t AudioDeviceWindowsCore::InitRecording() {
   if (_recIsInitialized) {
     return 0;
   }
-
+  // TODO@chensong 20220814 
+  // 1. 获取内部计时器的时钟频率、即每秒滴答数
   if (QueryPerformanceFrequency(&_perfCounterFreq) == 0) {
     return -1;
   }
+  // 2. 设置WebRTC中得时钟频率 与系统得时钟频率一致  【因子】
   _perfCounterFactor = 10000000.0 / (double)_perfCounterFreq.QuadPart;
 
   if (_ptrDeviceIn == NULL) {
@@ -2221,6 +2251,7 @@ int32_t AudioDeviceWindowsCore::InitRecording() {
   }
 
   // Initialize the microphone (devices might have been added or removed)
+  // 3. 录制设备得初始化
   if (InitMicrophone() == -1) {
     RTC_LOG(LS_WARNING) << "InitMicrophone() failed";
   }
@@ -2229,7 +2260,7 @@ int32_t AudioDeviceWindowsCore::InitRecording() {
   if (_ptrDeviceIn == NULL) {
     return -1;
   }
-
+  // 4. 是否使用硬件AEC
   if (_builtInAecEnabled) {
     // The DMO will configure the capture device.
     return InitRecordingDMO();
@@ -2432,6 +2463,7 @@ int32_t AudioDeviceWindowsCore::StartRecording() {
 
     // Create thread which will drive the capturing
     LPTHREAD_START_ROUTINE lpStartAddress = WSAPICaptureThread;
+	// 是否开启 硬件AEC
     if (_builtInAecEnabled) {
       // Redirect to the DMO polling method.
       lpStartAddress = WSAPICaptureThreadPollDMO;
@@ -2584,6 +2616,7 @@ int32_t AudioDeviceWindowsCore::StartPlayout() {
   }
 
   {
+	  // 和其它线程冲突问题
     rtc::CritScope critScoped(&_critSect);
 
     // Create thread which will drive the rendering.
@@ -2594,7 +2627,7 @@ int32_t AudioDeviceWindowsCore::StartPlayout() {
       return -1;
     }
 
-    // Set thread priority to highest possible.
+    // Set thread priority to highest possible. 设置线程为高级别
     SetThreadPriority(_hPlayThread, THREAD_PRIORITY_TIME_CRITICAL);
   }  // critScoped
 
@@ -2745,17 +2778,18 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
   HANDLE hMmTask = NULL;
 
   // Initialize COM as MTA in this thread.
+  // COM 组件初始化
   ScopedCOMInitializer comInit(ScopedCOMInitializer::kMTA);
   if (!comInit.succeeded()) {
     RTC_LOG(LS_ERROR) << "failed to initialize COM in render thread";
     return 1;
   }
-
+  // 设置线程的名字
   rtc::SetCurrentThreadName("webrtc_core_audio_render_thread");
 
   // Use Multimedia Class Scheduler Service (MMCSS) to boost the thread
   // priority.
-  //
+  // 是否支持 AVRT 
   if (_winSupportAvrt) {
     DWORD taskIndex(0);
     hMmTask = _PAvSetMmThreadCharacteristicsA("Pro Audio", &taskIndex);
@@ -2782,6 +2816,7 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
   // session.
   //
   UINT32 bufferLength = 0;
+  // 获取扬声器的缓冲区的buffer的大小
   hr = _ptrClientOut->GetBufferSize(&bufferLength);
   EXIT_ON_ERROR(hr);
   RTC_LOG(LS_VERBOSE) << "[REND] size of buffer       : " << bufferLength;
@@ -2811,23 +2846,27 @@ DWORD AudioDeviceWindowsCore::DoRenderThread() {
   //////////////////////////////////////////////////////////////////////////////////
   //   TODO@chensong 2022-07-24 获取音频引擎处理终端Buf的间隔时间
   //参数说明 ：
-  //    devPeriod :   默认处理周期
+  //    devPeriod :   默认处理周期 单位是 微妙 ns 
   // devPeriodMin :   最小处理周期
   REFERENCE_TIME devPeriod = 0;
   REFERENCE_TIME devPeriodMin = 0;
+  // 访问设备的周期
   _ptrClientOut->GetDevicePeriod(&devPeriod, &devPeriodMin);
   RTC_LOG(LS_VERBOSE) << "[REND] device period        : " << (DWORD)devPeriod
                       << " (" << (double)(devPeriod / 10000.0) << " ms)";
 
-  // Derive initial rendering delay.
+  // Derive initial rendering delay. 以毫秒为单位
   // Example: 10*(960/480) + 15 = 20 + 15 = 35ms
-  //
-  int playout_delay = 10 * (bufferLength / _playBlockSize) +
+  //  10ms的播放的延迟的时间
+  // 播放延迟时间公式  = 10毫秒  * (缓冲区大小 / 缓冲区的块大小） + 延迟的时间 + 设备周期的时间
+  int playout_delay = 10/*10ms */ * (bufferLength/*播放缓冲区的大小*/ / _playBlockSize/*播放块的大小*/) +
                       (int)((latency + devPeriod) / 10000);
+  //播放延迟时间给保存到成员变量中去
   _sndCardPlayDelay = playout_delay;
   _writtenSamples = 0;
   RTC_LOG(LS_VERBOSE) << "[REND] initial delay        : " << playout_delay;
 
+  //终端设备缓冲区的大小
   double endpointBufferSizeMS =
       10.0 * ((double)bufferLength / (double)_devicePlayBlockSize);
   RTC_LOG(LS_VERBOSE) << "[REND] endpointBufferSizeMS : "
@@ -2855,11 +2894,12 @@ AUDCLNT_BUFFERFLAGS_SILENT	= 0x2,   //静音数据
 AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
 } ;
 */
+  // 释放数据  默认声音静音
   hr = _ptrRenderClient->ReleaseBuffer(bufferLength, AUDCLNT_BUFFERFLAGS_SILENT);
   EXIT_ON_ERROR(hr);
-
+  // 写入数据的累加
   _writtenSamples += bufferLength;
-
+  //  获取时间
   hr = _ptrClientOut->GetService(__uuidof(IAudioClock), (void**)&clock);
   if (FAILED(hr)) {
     RTC_LOG(LS_WARNING)
@@ -2869,32 +2909,34 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
   // Start up the rendering audio stream.
   hr = _ptrClientOut->Start();
   EXIT_ON_ERROR(hr);
-
+  // 线程lock释放
   _UnLock();
 
   // Set event which will ensure that the calling thread modifies the playing
   // state to true.
-  //
+  // 事件通知   工作线程继续工作
   SetEvent(_hRenderStartedEvent);
 
   // >> ------------------ THREAD LOOP ------------------
 
   while (keepPlaying) {
     // Wait for a render notification event or a shutdown event
+	  // 等待信号 
     DWORD waitResult = WaitForMultipleObjects(2, waitArray, FALSE, 500);
     switch (waitResult) {
-      case WAIT_OBJECT_0 + 0:  // _hShutdownRenderEvent
+      case WAIT_OBJECT_0 + 0:  // _hShutdownRenderEvent  不播放声音 退出线程
         keepPlaying = false;
         break;
-      case WAIT_OBJECT_0 + 1:  // _hRenderSamplesReadyEvent
+      case WAIT_OBJECT_0 + 1:  // _hRenderSamplesReadyEvent 音频数据到了
         break;
-      case WAIT_TIMEOUT:  // timeout notification
+      case WAIT_TIMEOUT:  // timeout notification 超时就直接退出
         RTC_LOG(LS_WARNING) << "render event timed out after 0.5 seconds";
         goto Exit;
       default:  // unexpected error
         RTC_LOG(LS_WARNING) << "unknown wait termination on render side";
         goto Exit;
     }
+
 
     while (keepPlaying) {
       _Lock();
@@ -2919,9 +2961,11 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
       EXIT_ON_ERROR(hr);
 
       // Derive the amount of available space in the output buffer
+	  // buffer中还可以填充数据的大小，  
       uint32_t framesAvailable = bufferLength - padding;
 
       // Do we have 10 ms available in the render buffer?
+	  // 特殊情况  跳出从新开始
       if (framesAvailable < _playBlockSize) {
         // Not enough space in render buffer to store next render packet.
         _UnLock();
@@ -2929,19 +2973,21 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
       }
 
       // Write n*10ms buffers to the render buffer
+	  // 计算一个填充多少次
       const uint32_t n10msBuffers = (framesAvailable / _playBlockSize);
       for (uint32_t n = 0; n < n10msBuffers; n++) {
         // Get pointer (i.e., grab the buffer) to next space in the shared
         // render buffer.
+		  // 获取填充buffer的地址
         hr = _ptrRenderClient->GetBuffer(_playBlockSize, &pData);
         EXIT_ON_ERROR(hr);
 
-        if (_ptrAudioBuffer) {
+        if (_ptrAudioBuffer/*音频数据源*/) {
           // Request data to be played out (#bytes =
           // _playBlockSize*_audioFrameSize)
           _UnLock();
-          int32_t nSamples =
-              _ptrAudioBuffer->RequestPlayoutData(_playBlockSize);
+		  // 获取一个数据的大小
+          int32_t nSamples = _ptrAudioBuffer->RequestPlayoutData(_playBlockSize);
           _Lock();
 
           if (nSamples == -1) {
@@ -2959,6 +3005,7 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
                 << " period";
             goto Exit;
           }
+		  // 判断 大小是否对于blocksize的大小 说明出问题， 警告信息
           if (nSamples != static_cast<int32_t>(_playBlockSize)) {
             RTC_LOG(LS_WARNING)
                 << "nSamples(" << nSamples << ") != _playBlockSize"
@@ -2970,15 +3017,17 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
         }
 
         DWORD dwFlags(0);
+		// 减去计数
         hr = _ptrRenderClient->ReleaseBuffer(_playBlockSize, dwFlags);
         // See http://msdn.microsoft.com/en-us/library/dd316605(VS.85).aspx
         // for more details regarding AUDCLNT_E_DEVICE_INVALIDATED.
         EXIT_ON_ERROR(hr);
-
+		// 写入buffer的数据多少 累加数据
         _writtenSamples += _playBlockSize;
       }
 
       // Check the current delay on the playout side.
+	 
       if (clock) {
         UINT64 pos = 0;
         UINT64 freq = 1;
@@ -2997,6 +3046,7 @@ AUDCLNT_BUFFERFLAGS_TIMESTAMP_ERROR	= 0x4  // 时间戳错误
         playout_delay = ROUND((double(_writtenSamples) / _devicePlaySampleRate -
                                double(pos) / freq) *
                               1000.0);
+		// 播放延迟的大小
         _sndCardPlayDelay = playout_delay;
       }
 
@@ -3084,7 +3134,14 @@ void AudioDeviceWindowsCore::RevertCaptureThreadPriority() {
 
   _hMmTask = NULL;
 }
+/** 
+TODO@chensong 2022-10-16 传递数据 栈调用流程
 
+-> audio_transport_cb_->RecordedDataIsAvailable(...)
+-> AudioDevicebuffer::DeliverRecordedData()
+-> DoCaptureThreadPollDMO()
+
+*/
 DWORD AudioDeviceWindowsCore::DoCaptureThreadPollDMO() {
   assert(_mediaBuffer != NULL);
   bool keepRecording = true;
@@ -3128,6 +3185,15 @@ DWORD AudioDeviceWindowsCore::DoCaptureThreadPollDMO() {
 
       DWORD dwStatus = 0;
       {
+		  /*
+		  typedef struct _DMO_OUTPUT_DATA_BUFFER
+			{
+			IMediaBuffer *pBuffer;			// 指向由应用分配的支持IMediaBuffer接口的BUffer
+			DWORD dwStatus;					// 处理输出后， DMO修改该标记
+			REFERENCE_TIME rtTimestamp;		// 指明数据在该BUffer中的开始时间戳
+			REFERENCE_TIME rtTimelength;    // 指定BUffer中数据长度的参考时间
+			} 	DMO_OUTPUT_DATA_BUFFER;
+		  */
         DMO_OUTPUT_DATA_BUFFER dmoBuffer = {0};
         dmoBuffer.pBuffer = _mediaBuffer;
         dmoBuffer.pBuffer->AddRef();
@@ -3388,7 +3454,8 @@ DWORD AudioDeviceWindowsCore::DoCaptureThread() {
 
         _readSamples += framesAvailable;
         syncBufIndex += framesAvailable;
-
+		// TODO@chensong 20220814 
+		// 获得从计算机开启之后得滴答数
         QueryPerformanceCounter(&t1);
 
         // Get the current recording and playout delay.
@@ -3537,12 +3604,14 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
 
   // Set the AEC system mode.
   // SINGLE_CHANNEL_AEC - AEC processing only.
+  // 修改DMO得属性 使用AEC模式
   if (SetVtI4Property(ps, MFPKEY_WMAAECMA_SYSTEM_MODE, SINGLE_CHANNEL_AEC)) {
     return -1;
   }
 
   // Set the AEC source mode.
   // VARIANT_TRUE - Source mode (we poll the AEC for captured data).
+  // 工作模式得设置   使用filter模式
   if (SetBoolProperty(ps, MFPKEY_WMAAECMA_DMO_SOURCE_MODE, VARIANT_TRUE) ==
       -1) {
     return -1;
@@ -3550,11 +3619,13 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
 
   // Enable the feature mode.
   // This lets us override all the default processing settings below.
+  // 我们应用是否允许修改属性  可以修改得
   if (SetBoolProperty(ps, MFPKEY_WMAAECMA_FEATURE_MODE, VARIANT_TRUE) == -1) {
     return -1;
   }
 
   // Disable analog AGC (default enabled).
+  // 是否使用增益边界  WebRTC中使用增益
   if (SetBoolProperty(ps, MFPKEY_WMAAECMA_MIC_GAIN_BOUNDER, VARIANT_FALSE) ==
       -1) {
     return -1;
@@ -3562,6 +3633,7 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
 
   // Disable noise suppression (default enabled).
   // 0 - Disabled, 1 - Enabled
+  // 是否使用降燥   WebRTC中是使用自己得降燥模块得 
   if (SetVtI4Property(ps, MFPKEY_WMAAECMA_FEATR_NS, 0) == -1) {
     return -1;
   }
@@ -3579,6 +3651,7 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
 
   // Set the devices selected by VoE. If using a default device, we need to
   // search for the device index.
+  // 设置输入设备和输出设备的id
   int inDevIndex = _inputDeviceIndex;
   int outDevIndex = _outputDeviceIndex;
   if (!_usingInputDeviceIndex) {
@@ -3586,7 +3659,7 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
     if (_inputDevice == AudioDeviceModule::kDefaultDevice) {
       role = eConsole;
     }
-
+	// 获取设备id
     if (_GetDefaultDeviceIndex(eCapture, role, &inDevIndex) == -1) {
       return -1;
     }
@@ -3597,16 +3670,17 @@ int AudioDeviceWindowsCore::SetDMOProperties() {
     if (_outputDevice == AudioDeviceModule::kDefaultDevice) {
       role = eConsole;
     }
-
+	// 获取设备id
     if (_GetDefaultDeviceIndex(eRender, role, &outDevIndex) == -1) {
       return -1;
     }
   }
-
+  // 把输入设备和输出设备放到devIndex中
   DWORD devIndex = static_cast<uint32_t>(outDevIndex << 16) +
                    static_cast<uint32_t>(0x0000ffff & inDevIndex);
   RTC_LOG(LS_VERBOSE) << "Capture device index: " << inDevIndex
                       << ", render device index: " << outDevIndex;
+  // 设置设备的值到DMO中去， DMO使用那个输入设备或者那个输出设备id
   if (SetVtI4Property(ps, MFPKEY_WMAAECMA_DEVICE_INDEXES, devIndex) == -1) {
     return -1;
   }
@@ -3846,7 +3920,7 @@ int32_t AudioDeviceWindowsCore::_GetDefaultDeviceID(EDataFlow dir,
   assert(dir == eRender || dir == eCapture);
   assert(role == eConsole || role == eCommunications);
   assert(_ptrEnumerator != NULL);
-
+  // 获取Device
   hr = _ptrEnumerator->GetDefaultAudioEndpoint(dir, role, &pDevice);
 
   if (FAILED(hr)) {
@@ -3889,6 +3963,7 @@ int32_t AudioDeviceWindowsCore::_GetDefaultDeviceIndex(EDataFlow dir,
   }
 
   UINT count = 0;
+  // 获取有多少设备
   hr = collection->GetCount(&count);
   if (FAILED(hr)) {
     _TraceCOMError(hr);
@@ -3913,7 +3988,7 @@ int32_t AudioDeviceWindowsCore::_GetDefaultDeviceIndex(EDataFlow dir,
     if (_GetDeviceID(device, szDeviceID, kDeviceIDLength) == -1) {
       return -1;
     }
-
+	// 找到设备id
     if (wcsncmp(szDefaultDeviceID, szDeviceID, kDeviceIDLength) == 0) {
       // Found a match.
       *index = i;
@@ -4012,6 +4087,7 @@ int32_t AudioDeviceWindowsCore::_GetDeviceID(IMMDevice* pDevice,
   assert(bufferLen > 0);
 
   if (pDevice != NULL) {
+	  // 获取设备id
     hr = pDevice->GetId(&pwszID);
   }
 

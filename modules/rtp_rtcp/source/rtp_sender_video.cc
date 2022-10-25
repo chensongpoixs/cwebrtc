@@ -381,6 +381,7 @@ bool RTPSenderVideo::LogAndSendToNetwork(
                                   rtp_sender_->NackOverheadRate() / 1000,
                                   packet->Ssrc());
 #endif
+  //TODO@chensong  发送给RTPSender 对象了然后转发给PacedSender对象
   return rtp_sender_->SendToNetwork(std::move(packet), storage, priority);
 }
 
@@ -474,8 +475,8 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   bool set_frame_marking = video_header->codec == kVideoCodecH264 &&
         video_header->frame_marking.temporal_id != kNoTemporalIdx;
 
-  const absl::optional<PlayoutDelay> playout_delay =
-      playout_delay_oracle_->PlayoutDelayToSend(video_header->playout_delay);
+   // 根据video_header信息，更新播放延迟(current_playout_delay_)
+  const absl::optional<PlayoutDelay> playout_delay = playout_delay_oracle_->PlayoutDelayToSend(video_header->playout_delay);
   {
     rtc::CritScope cs(&crit_);
     // According to
@@ -515,9 +516,13 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
         frame_type == VideoFrameType::kVideoFrameKey ? key_fec_params_
                                                      : delta_fec_params_;
     if (flexfec_enabled())
+    {
       flexfec_sender_->SetFecParameters(fec_params);
+	}
     if (ulpfec_enabled())
-      ulpfec_generator_.SetFecParameters(fec_params);
+    {
+       ulpfec_generator_.SetFecParameters(fec_params);
+	}
 
     fec_packet_overhead = CalculateFecPacketOverhead();
     red_enabled = this->red_enabled();
@@ -529,8 +534,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   int packet_capacity = rtp_sender_->MaxRtpPacketSize() - fec_packet_overhead -
                         (rtp_sender_->RtxStatus() ? kRtxHeaderSize : 0);
 
-  std::unique_ptr<RtpPacketToSend> single_packet =
-      rtp_sender_->AllocatePacket();
+  std::unique_ptr<RtpPacketToSend> single_packet = rtp_sender_->AllocatePacket();
   RTC_DCHECK_LE(packet_capacity, single_packet->capacity());
   single_packet->SetPayloadType(payload_type);
   single_packet->SetTimestamp(rtp_timestamp);
@@ -540,6 +544,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   auto middle_packet = absl::make_unique<RtpPacketToSend>(*single_packet);
   auto last_packet = absl::make_unique<RtpPacketToSend>(*single_packet);
   // Simplest way to estimate how much extensions would occupy is to set them.
+  // 根据video_header 给packet添加extension
   AddRtpHeaderExtensions(*video_header, playout_delay, frame_type,
                          set_video_rotation, set_color_space, set_frame_marking,
                          /*first=*/true, /*last=*/true, single_packet.get());
@@ -595,13 +600,14 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
     }
   }
 
+  // 如果帧加密了，对payload和header进行加密
   // TODO(benwright@webrtc.org) - Allocate enough to always encrypt inline.
   rtc::Buffer encrypted_video_payload;
   if (frame_encryptor_ != nullptr) {
     if (generic_descriptor_raw.empty()) {
       return false;
     }
-
+    // 获取帧加密后最大的长度
     const size_t max_ciphertext_size =
         frame_encryptor_->GetMaxCiphertextByteSize(cricket::MEDIA_TYPE_VIDEO,
                                                    payload_size);
@@ -672,47 +678,58 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
 
   uint16_t first_sequence_number;
   bool first_frame = first_frame_sent_();
-  for (size_t i = 0; i < num_packets; ++i) {
+  for (size_t i = 0; i < num_packets; ++i) 
+  {
     std::unique_ptr<RtpPacketToSend> packet;
     int expected_payload_capacity;
     // Choose right packet template:
-    if (num_packets == 1) {
+    if (num_packets == 1) 
+	{
       packet = std::move(single_packet);
-      expected_payload_capacity =
-          limits.max_payload_len - limits.single_packet_reduction_len;
-    } else if (i == 0) {
+      expected_payload_capacity = limits.max_payload_len - limits.single_packet_reduction_len;
+    } 
+	else if (i == 0) 
+	{
       packet = std::move(first_packet);
-      expected_payload_capacity =
-          limits.max_payload_len - limits.first_packet_reduction_len;
-    } else if (i == num_packets - 1) {
+      expected_payload_capacity = limits.max_payload_len - limits.first_packet_reduction_len;
+    }
+	else if (i == num_packets - 1) 
+	{
       packet = std::move(last_packet);
-      expected_payload_capacity =
-          limits.max_payload_len - limits.last_packet_reduction_len;
-    } else {
+      expected_payload_capacity = limits.max_payload_len - limits.last_packet_reduction_len;
+    } 
+	else 
+	{
       packet = absl::make_unique<RtpPacketToSend>(*middle_packet);
       expected_payload_capacity = limits.max_payload_len;
     }
 
-    if (!packetizer->NextPacket(packet.get()))
+	if (!packetizer->NextPacket(packet.get()))
+	{
       return false;
+	}
     RTC_DCHECK_LE(packet->payload_size(), expected_payload_capacity);
-    if (!rtp_sender_->AssignSequenceNumber(packet.get()))
+	if (!rtp_sender_->AssignSequenceNumber(packet.get()))
+	{
       return false;
+	}
     packetized_payload_size += packet->payload_size();
 
-    if (rtp_sequence_number_map_ && i == 0) {
+    if (rtp_sequence_number_map_ && i == 0) 
+	{
       first_sequence_number = packet->SequenceNumber();
     }
 
-    if (i == 0) {
-      playout_delay_oracle_->OnSentPacket(packet->SequenceNumber(),
-                                          playout_delay);
+    if (i == 0) 
+	{
+      playout_delay_oracle_->OnSentPacket(packet->SequenceNumber(),  playout_delay);
     }
     // No FEC protection for upper temporal layers, if used.
     bool protect_packet = temporal_id == 0 || temporal_id == kNoTemporalIdx;
 
     // Put packetization finish timestamp into extension.
-    if (packet->HasExtension<VideoTimingExtension>()) {
+    if (packet->HasExtension<VideoTimingExtension>()) 
+	{
       packet->set_packetization_finish_time_ms(clock_->TimeInMilliseconds());
       // TODO(ilnik): Due to webrtc:7859, packets with timing extensions are not
       // protected by FEC. It reduces FEC efficiency a bit. When FEC is moved
@@ -722,24 +739,34 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
       // FEC, otherwise recovered by FEC packets will be corrupted.
       protect_packet = false;
     }
-
-    if (flexfec_enabled()) {
+	//////////////////////////////////////////////////////////////////////////
+	//////TODO@chensong ulpfec  2022-09-13  RED %%%
+    if (flexfec_enabled()) 
+	{
       // TODO(brandtr): Remove the FlexFEC code path when FlexfecSender
       // is wired up to PacedSender instead.
       SendVideoPacketWithFlexfec(std::move(packet), storage, protect_packet);
-    } else if (red_enabled) {
+    } 
+	else if (red_enabled) 
+	{
       SendVideoPacketAsRedMaybeWithUlpfec(std::move(packet), storage,
                                           protect_packet);
-    } else {
+    }
+	else 
+	{
+		// TODO@chensong   
       SendVideoPacket(std::move(packet), storage);
     }
 
-    if (first_frame) {
-      if (i == 0) {
+    if (first_frame) 
+	{
+      if (i == 0) 
+	  {
         RTC_LOG(LS_INFO)
             << "Sent first RTP packet of the first video frame (pre-pacer)";
       }
-      if (i == num_packets - 1) {
+      if (i == num_packets - 1) 
+	  {
         RTC_LOG(LS_INFO)
             << "Sent last RTP packet of the first video frame (pre-pacer)";
       }

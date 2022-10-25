@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -58,6 +58,16 @@ void FeedbackParams::Intersect(const FeedbackParams& from) {
       ++iter_to;
     }
   }
+}
+std::string FeedbackParams::ToString() const {
+  std::ostringstream cmd;
+
+  cmd << "| FeedbackParams |\n";
+  for (const FeedbackParam& f : params_) {
+    cmd << "[id = " << f.id() << "][ param = " << f.param() << "]";
+  }
+  // cmd << "--------------------------\n";
+  return cmd.str();
 }
 
 bool FeedbackParams::HasDuplicateEntries() const {
@@ -132,6 +142,23 @@ void Codec::AddFeedbackParam(const FeedbackParam& param) {
 
 bool Codec::HasFeedbackParam(const FeedbackParam& param) const {
   return feedback_params.Has(param);
+}
+
+std::string Codec::ToString() const 
+{
+  std::ostringstream cmd;
+  cmd << "|Codec|\n";
+  cmd << "[id = " << id << "][" << name << "][clockrate =" << clockrate << "]";
+  cmd << "|CodecParameterMap|\n";
+  for (const std::pair<std::string, std::string> &p : params)
+  {
+    cmd << "[key = " << p.first << "][ value = " << p.second << "]";
+  }
+
+  cmd << "|FeedbackParams|\n";
+  cmd << feedback_params.ToString();
+
+  return cmd.str();
 }
 
 void Codec::IntersectFeedbackParams(const Codec& other) {
@@ -265,13 +292,18 @@ static bool IsSameH264PacketizationMode(const CodecParameterMap& ours,
 }
 
 bool VideoCodec::Matches(const VideoCodec& other) const {
-  if (!Codec::Matches(other))
+  if (!Codec::Matches(other)) {
     return false;
-  if (absl::EqualsIgnoreCase(name, kH264CodecName))
+  }
+  if (absl::EqualsIgnoreCase(name, kH264CodecName)) 
+  {
+    // TODO@chensong 2022-10-06 H264的Profile和Mode匹配
     return webrtc::H264::IsSameH264Profile(params, other.params) &&
            IsSameH264PacketizationMode(params, other.params);
-  if (absl::EqualsIgnoreCase(name, kVp9CodecName))
+  }
+  if (absl::EqualsIgnoreCase(name, kVp9CodecName)) {
     return webrtc::IsSameVP9Profile(params, other.params);
+  }
   return true;
 }
 

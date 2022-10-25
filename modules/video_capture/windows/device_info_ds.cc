@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -348,7 +348,11 @@ int32_t DeviceInfoDS::CreateCapabilityMap(const char* deviceUniqueIdUTF8)
   AM_MEDIA_TYPE* pmt = NULL;
   VIDEO_STREAM_CONFIG_CAPS caps;
   int count, size;
-
+  //virtual HRESULT STDMETHODCALLTYPE GetNumberOfCapabilities(
+	 // /* [annotation][out] */
+	 // _Out_  int *piCount // 支持哪些Capabilities,
+	 // /* [annotation][out] */
+	 // _Out_  int *piSize // 每个Capabilities的大小) = 0;
   hr = streamConfig->GetNumberOfCapabilities(&count, &size);
   if (FAILED(hr)) {
     RTC_LOG(LS_INFO) << "Failed to GetNumberOfCapabilities";
@@ -367,7 +371,15 @@ int32_t DeviceInfoDS::CreateCapabilityMap(const char* deviceUniqueIdUTF8)
   bool supportFORMAT_VideoInfo = false;
   bool foundInterlacedFormat = false;
   GUID preferedVideoFormat = FORMAT_VideoInfo;
-  for (int32_t tmp = 0; tmp < count; ++tmp) {
+  for (int32_t tmp = 0; tmp < count; ++tmp) 
+  {
+	  // TODO@chensong 202208029 
+	  //GetStreamCaps(
+		 // /* [in] */ int iIndex/*指定获取某个Index的Capability， 从0开始*/,
+		 // /* [annotation][out] */
+		 // _Out_  AM_MEDIA_TYPE **ppmt/*该方法分配且用媒体类型填充的*/,
+		 // /* [annotation][out] */
+		 // _Out_  BYTE *pSCC/*调用者分配 VIDEO_STREAM_CONFIG_CAPS*/) = 0;
     hr = streamConfig->GetStreamCaps(tmp, &pmt, reinterpret_cast<BYTE*>(&caps));
     if (hr == S_OK) {
       if (pmt->majortype == MEDIATYPE_Video &&
@@ -446,6 +458,15 @@ int32_t DeviceInfoDS::CreateCapabilityMap(const char* deviceUniqueIdUTF8)
         // because GetFrameRateList array is reversed in the above camera. So
         // a util method written. Can't assume the first value will return
         // the max fps.
+		// TODO@chensong 20220829  用于获取采集帧率列表
+		//GetFrameRateList(
+		//	/* [in] */ IPin *pPin /*查询帧率的Pin*/,
+		//	/* [in] */ long iIndex /*查询帧率格式的索引值*/,
+		//	/* [in] */ SIZE Dimensions /*以像素为单位图像的大小*/,
+		//	/* [annotation][out] */
+		//	_Out_  long *ListSize/*用于存放帧率列表元素个数*/,
+		//	/* [annotation][out] */
+		//	_Out_  LONGLONG **FrameRates/*存放帧率数组的地址指针*/)
         hrVC = videoControlConfig->GetFrameRateList(
             outputCapturePin, tmp, size, &listSize, &frameDurationList);
 

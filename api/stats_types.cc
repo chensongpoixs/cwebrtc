@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -818,6 +818,7 @@ StatsReport* StatsCollection::FindOrAddNew(const StatsReport::Id& id) {
 StatsReport* StatsCollection::ReplaceOrAddNew(const StatsReport::Id& id) {
   RTC_DCHECK(thread_checker_.IsCurrent());
   RTC_DCHECK(id.get());
+  // TODO@chensong 20220906 防止上次track停止通道 所以删除list_中的track_id
   Container::iterator it = absl::c_find_if(
       list_,
       [&id](const StatsReport* r) -> bool { return r->id()->Equals(id); });

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -55,7 +55,7 @@ class BuiltinVideoEncoderFactory : public VideoEncoderFactory {
     return info;
   }
   /////////////////////////////////////////////////////
-  ///////////TODO@chensong 20220312 --> ±àÂëÆ÷¹¤³§ ----> videoEncoder ->>>
+  ///////////TODO@chensong 20220312 --> ç¼–ç å™¨åˆå§‹åŒ–è°ƒç”¨çš„å‡½æ•° ----> videoEncoder ->>>
   /////////////////////////////////////////////////////
   std::unique_ptr<VideoEncoder> CreateVideoEncoder(
       const SdpVideoFormat& format) override {
@@ -75,6 +75,7 @@ class BuiltinVideoEncoderFactory : public VideoEncoderFactory {
   }
 
  private:
+	 // TODO@chensong  2022-10-06 src/media/engine/internal_encoder_factory.h
   const std::unique_ptr<VideoEncoderFactory> internal_encoder_factory_;
 };
 

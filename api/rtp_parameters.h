@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -47,11 +47,29 @@ enum class FecMechanism {
   FLEXFEC,
 };
 
+
+// TODO@chensong 2022-09-29 
+//H264_FMTP
+//a = fmtp : 96 level - asymmetry - allowed = 1;
+//packetization - mode = 1;profile-level-id=42001f
+//1
+//a) profile-level-id=42001f
+//
+//Profile: 66(hex: 42)
+//Level: 3.1(hex:1f)转成十进制，再除以10
+//1
+//2
+//b) packetization-mode=1,表示I帧会拆分成多个rtp包发送，对于264来说，rtp payload的第一个字节（0x7C）的低5bit为(11100)，十进制为28，
+//代表此nalutype为FU-A，多包封装类型
+ 
+
+
 // Used in RtcpFeedback struct.
+// TODO@chensong 2022-09-29 
 enum class RtcpFeedbackType {
-  CCM,
-  NACK,
-  REMB,  // "goog-remb"
+  CCM, // (支持使用rtcp反馈机制来实现编码控制);
+  NACK, // i(关键帧重传,当连续出现解码失败，或者长期没有解码输入，就通过RTCP报文发送请求IDR帧命令);
+  REMB,  // "goog-remb" (支持使用rtcp包来控制发送方的码流,goog-remb为google的拥塞控制处理算法)
   TRANSPORT_CC,
 };
 
@@ -647,8 +665,7 @@ struct RTC_EXPORT RtpParameters {
   // When bandwidth is constrained and the RtpSender needs to choose between
   // degrading resolution or degrading framerate, degradationPreference
   // indicates which is preferred. Only for video tracks.
-  DegradationPreference degradation_preference =
-      DegradationPreference::BALANCED;
+  DegradationPreference degradation_preference = DegradationPreference::BALANCED;
 
   bool operator==(const RtpParameters& o) const {
     return mid == o.mid && codecs == o.codecs &&

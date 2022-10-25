@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2011 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -151,25 +151,33 @@ void StreamParams::GenerateSsrcs(int num_layers,
   RTC_DCHECK_GE(num_layers, 0);
   RTC_DCHECK(ssrc_generator);
   std::vector<uint32_t> primary_ssrcs;
-  for (int i = 0; i < num_layers; ++i) {
+  // TODO@chensong 2022-10-08 num_layers是判断是否是simulcast的标志 多路视频流
+  for (int i = 0; i < num_layers; ++i) 
+  {
     uint32_t ssrc = ssrc_generator->GenerateId();
     primary_ssrcs.push_back(ssrc);
     add_ssrc(ssrc);
   }
-
-  if (num_layers > 1) {
+  if (num_layers > 1)
+  {
+	  // TODO@chensong 2022-10-08 simulcast 的标志 'SIM'关键字
     SsrcGroup simulcast(kSimSsrcGroupSemantics, primary_ssrcs);
     ssrc_groups.push_back(simulcast);
   }
-
-  if (generate_fid) {
-    for (uint32_t ssrc : primary_ssrcs) {
+  // TODO@chensong 2022-10-08 是否启动RTX机制
+  if (generate_fid) 
+  {
+    for (uint32_t ssrc : primary_ssrcs) 
+	{
       AddFidSsrc(ssrc, ssrc_generator->GenerateId());
     }
   }
 
-  if (generate_fec_fr) {
-    for (uint32_t ssrc : primary_ssrcs) {
+  // TODO@chensong 2022-10-08  是否启动 flexfec-03机制
+  if (generate_fec_fr) 
+  {
+    for (uint32_t ssrc : primary_ssrcs) 
+	{
       AddFecFrSsrc(ssrc, ssrc_generator->GenerateId());
     }
   }
@@ -180,25 +188,26 @@ void StreamParams::GetPrimarySsrcs(std::vector<uint32_t>* ssrcs) const {
   if (sim_group == NULL) {
     ssrcs->push_back(first_ssrc());
   } else {
-    ssrcs->insert(ssrcs->end(), sim_group->ssrcs.begin(),
-                  sim_group->ssrcs.end());
+    ssrcs->insert(ssrcs->end(), sim_group->ssrcs.begin(), sim_group->ssrcs.end());
   }
 }
 
 void StreamParams::GetFidSsrcs(const std::vector<uint32_t>& primary_ssrcs,
                                std::vector<uint32_t>* fid_ssrcs) const {
-  for (uint32_t primary_ssrc : primary_ssrcs) {
+  for (uint32_t primary_ssrc : primary_ssrcs) 
+  {
     uint32_t fid_ssrc;
-    if (GetFidSsrc(primary_ssrc, &fid_ssrc)) {
+    if (GetFidSsrc(primary_ssrc, &fid_ssrc)) 
+	{
       fid_ssrcs->push_back(fid_ssrc);
     }
   }
 }
 
-bool StreamParams::AddSecondarySsrc(const std::string& semantics,
-                                    uint32_t primary_ssrc,
-                                    uint32_t secondary_ssrc) {
-  if (!has_ssrc(primary_ssrc)) {
+bool StreamParams::AddSecondarySsrc(const std::string& semantics, uint32_t primary_ssrc, uint32_t secondary_ssrc) 
+{
+  if (!has_ssrc(primary_ssrc)) 
+  {
     return false;
   }
 
@@ -210,9 +219,10 @@ bool StreamParams::AddSecondarySsrc(const std::string& semantics,
 bool StreamParams::GetSecondarySsrc(const std::string& semantics,
                                     uint32_t primary_ssrc,
                                     uint32_t* secondary_ssrc) const {
-  for (const SsrcGroup& ssrc_group : ssrc_groups) {
-    if (ssrc_group.has_semantics(semantics) && ssrc_group.ssrcs.size() >= 2 &&
-        ssrc_group.ssrcs[0] == primary_ssrc) {
+  for (const SsrcGroup& ssrc_group : ssrc_groups) 
+  {
+    if (ssrc_group.has_semantics(semantics) && ssrc_group.ssrcs.size() >= 2 && ssrc_group.ssrcs[0] == primary_ssrc) 
+	{
       *secondary_ssrc = ssrc_group.ssrcs[1];
       return true;
     }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -130,14 +130,14 @@ BaseChannel::BaseChannel(rtc::Thread* worker_thread,
                          bool srtp_required,
                          webrtc::CryptoOptions crypto_options,
                          UniqueRandomIdGenerator* ssrc_generator)
-    : worker_thread_(worker_thread),
-      network_thread_(network_thread),
-      signaling_thread_(signaling_thread),
-      content_name_(content_name),
-      srtp_required_(srtp_required),
-      crypto_options_(crypto_options),
-      media_channel_(std::move(media_channel)),
-      ssrc_generator_(ssrc_generator) {
+    : worker_thread_(worker_thread)
+	, network_thread_(network_thread)
+	, signaling_thread_(signaling_thread)
+	, content_name_(content_name)
+	, srtp_required_(srtp_required)
+	, crypto_options_(crypto_options)
+	, media_channel_(std::move(media_channel))
+	, ssrc_generator_(ssrc_generator) {
   RTC_DCHECK_RUN_ON(worker_thread_);
   RTC_DCHECK(ssrc_generator_);
   demuxer_criteria_.mid = content_name;
@@ -289,6 +289,7 @@ bool BaseChannel::SetLocalContent(const MediaContentDescription* content,
                                   SdpType type,
                                   std::string* error_desc) {
   TRACE_EVENT0("webrtc", "BaseChannel::SetLocalContent");
+  // TODO@chensong 2022-10-09  关键步骤 线程切换
   return InvokeOnWorker<bool>(
       RTC_FROM_HERE,
       Bind(&BaseChannel::SetLocalContent_w, this, content, type, error_desc));
@@ -502,7 +503,9 @@ void BaseChannel::OnRtcpPacketReceived(rtc::CopyOnWriteBuffer* packet,
 
 void BaseChannel::OnPacketReceived(bool rtcp,
                                    const rtc::CopyOnWriteBuffer& packet,
-                                   int64_t packet_time_us) {
+                                   int64_t packet_time_us) 
+{
+	// TODO@chensong 2022-10-19  us   app  msg RTCP 
   if (!has_received_packet_ && !rtcp) {
     has_received_packet_ = true;
     signaling_thread()->Post(RTC_FROM_HERE, this, MSG_FIRSTPACKETRECEIVED);
@@ -527,7 +530,7 @@ void BaseChannel::OnPacketReceived(bool rtcp,
         << " packet when SRTP is inactive and crypto is required";
     return;
   }
-
+  // TODO@chensong 2022-10-19 为什么要这样操作呢
   invoker_.AsyncInvoke<void>(
       RTC_FROM_HERE, worker_thread_,
       Bind(&BaseChannel::ProcessPacket, this, rtcp, packet, packet_time_us));
@@ -671,7 +674,7 @@ bool BaseChannel::UpdateLocalStreams_w(const std::vector<StreamParams>& streams,
       new_stream.GenerateSsrcs(new_stream.rids().size(), /* rtx = */ true,
                                /* flex_fec = */ false, ssrc_generator_);
     }
-
+	//TODO@chensong 2022-10-09  关键步骤
     if (media_channel()->AddSendStream(new_stream)) {
       RTC_LOG(LS_INFO) << "Add send stream ssrc: " << new_stream.ssrcs[0];
     } else {
@@ -1164,32 +1167,35 @@ bool RtpDataChannel::SetLocalContent_w(const MediaContentDescription* content,
   RTC_LOG(LS_INFO) << "Setting local data description";
 
   RTC_DCHECK(content);
-  if (!content) {
+  if (!content) 
+  {
     SafeSetError("Can't find data content in local description.", error_desc);
     return false;
   }
 
   const DataContentDescription* data = content->as_data();
 
-  if (!CheckDataChannelTypeFromContent(data, error_desc)) {
+  if (!CheckDataChannelTypeFromContent(data, error_desc)) 
+  {
     return false;
   }
 
-  RtpHeaderExtensions rtp_header_extensions =
-      GetFilteredRtpHeaderExtensions(data->rtp_header_extensions());
+  RtpHeaderExtensions rtp_header_extensions = GetFilteredRtpHeaderExtensions(data->rtp_header_extensions());
 
   DataRecvParameters recv_params = last_recv_params_;
   RtpParametersFromMediaDescription(data, rtp_header_extensions, &recv_params);
-  if (!media_channel()->SetRecvParameters(recv_params)) {
-    SafeSetError("Failed to set remote data description recv parameters.",
-                 error_desc);
+  if (!media_channel()->SetRecvParameters(recv_params))
+  {
+    SafeSetError("Failed to set remote data description recv parameters.", error_desc);
     return false;
   }
-  for (const DataCodec& codec : data->codecs()) {
+  for (const DataCodec& codec : data->codecs()) 
+  {
     AddHandledPayloadType(codec.id);
   }
   // Need to re-register the sink to update the handled payload.
-  if (!RegisterRtpDemuxerSink()) {
+  if (!RegisterRtpDemuxerSink()) 
+  {
     RTC_LOG(LS_ERROR) << "Failed to set up data demuxing.";
     return false;
   }
@@ -1200,7 +1206,9 @@ bool RtpDataChannel::SetLocalContent_w(const MediaContentDescription* content,
   // only give it to the media channel once we have a remote
   // description too (without a remote description, we won't be able
   // to send them anyway).
-  if (!UpdateLocalStreams_w(data->streams(), type, error_desc)) {
+  // TODO@chensong 2022-10-09 关键步骤
+  if (!UpdateLocalStreams_w(data->streams(), type, error_desc)) 
+  {
     SafeSetError("Failed to set local data description streams.", error_desc);
     return false;
   }
@@ -1210,6 +1218,20 @@ bool RtpDataChannel::SetLocalContent_w(const MediaContentDescription* content,
   return true;
 }
 
+/** 
+TODO@chensong 2022-10-16  SetupSendCodec
+
+
+-> internal::AudioSendStream::SetupSendCodec()
+-> internal::AudioSendStream::ReconfigureSendStream()
+-> internal::AudioSendStream::ConfigureStream()
+-> internal::AudioSendStream::Reconfigure()
+-> WebRtcAudioSendStream::ReconfigureAudioSendStream()
+-> WebRtcAudioSendStream::SetSendCodecSpec()
+-> WebRtcVoiceMediaChannel::SetSendCodec()
+-> WebRtcVoiceMediaChannel::SetSendParameters()
+-> VoiceChannel::SetRemoteContent_w()
+*/
 bool RtpDataChannel::SetRemoteContent_w(const MediaContentDescription* content,
                                         SdpType type,
                                         std::string* error_desc) {
@@ -1239,8 +1261,8 @@ bool RtpDataChannel::SetRemoteContent_w(const MediaContentDescription* content,
 
   RTC_LOG(LS_INFO) << "Setting remote data description";
   DataSendParameters send_params = last_send_params_;
-  RtpSendParametersFromMediaDescription<DataCodec>(data, rtp_header_extensions,
-                                                   &send_params);
+  RtpSendParametersFromMediaDescription<DataCodec>(data, rtp_header_extensions, &send_params);
+  // TODO@chensong 2022-10-16 ---> SetupSendCodec
   if (!media_channel()->SetSendParameters(send_params)) {
     SafeSetError("Failed to set remote data description send parameters.",
                  error_desc);

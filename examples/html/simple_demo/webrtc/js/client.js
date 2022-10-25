@@ -7,7 +7,7 @@ var localVideo = document.querySelector('video#localvideo');
 //对端视频窗口
 var remoteVideo = document.querySelector('video#remotevideo');
 
-
+// connserver 连接服务器的标签
 var btnConn = document.querySelector('button#connserver');
 
 
@@ -310,7 +310,7 @@ function conn()
 		}
 		else if (data.hasOwnProperty('type') && data.type === 'answer')
 		{   // 如果收到的SDP是Answer
-			answer.value = data.sdp;
+			answer.value = data;
 			
 			//进行媒体协商
 			pc.setRemoteDescription(new RTCSessionDescription(data));
@@ -364,7 +364,6 @@ function connSignalServer()
  返回值: true 
 
 */
-
 function getMediaStream(stream)
 {
 	//将从设备上获取到的音视频track添加到localStream中
@@ -427,7 +426,7 @@ function start()
 			autoGainControl: true
 		}
 	};
-	
+	// 底层的api 设置回调函数 getMediaStream
 	navigator.mediaDevices.getUserMedia(constraints)
 					.then(getMediaStream)
 					.catch(handleError);
@@ -478,7 +477,7 @@ function getAnswer(desc)
 	pc.setLocalDescription(desc);
 	
 	// 将Answer显示出来
-	answer.value = desc.sdp;
+	answer.value = desc;
 	
 	// 将Answer SDP 发送给对端
 	sendMessage(roomid, desc);
@@ -495,8 +494,8 @@ function getOffer(desc)
 	//设置Offer
 	pc.setLocalDescription(desc);
 	
-	//将Offer显示出来
-	offer.value = desc.sdp;
+	//将Offer显示在网页中出来
+	offer.value = desc;
 	offerdesc = desc;
 	
 	//将Offer SDP 发送给对端
@@ -590,7 +589,6 @@ function bindTracks()
 
 /**
  功能： 开启 "呼叫"
-
 */
 
 function call()

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -44,9 +44,9 @@ class WebRtcCertificateGeneratorCallback
       const rtc::scoped_refptr<rtc::RTCCertificate>& certificate) override;
   void OnFailure() override;
 
-  sigslot::signal0<> SignalRequestFailed;
+  sigslot::signal0<> SignalRequestFailed; //证书创建失败回调函数
   sigslot::signal1<const rtc::scoped_refptr<rtc::RTCCertificate>&>
-      SignalCertificateReady;
+      SignalCertificateReady; ////证书创建成功回调函数
 };
 
 struct CreateSessionDescriptionRequest {
@@ -110,8 +110,7 @@ class WebRtcSessionDescriptionFactory : public rtc::MessageHandler,
     session_desc_factory_.set_is_unified_plan(is_unified_plan);
   }
 
-  sigslot::signal1<const rtc::scoped_refptr<rtc::RTCCertificate>&>
-      SignalCertificateReady;
+  sigslot::signal1<const rtc::scoped_refptr<rtc::RTCCertificate>&> SignalCertificateReady;
 
   // For testing.
   bool waiting_for_certificate_for_testing() const {
@@ -141,11 +140,9 @@ class WebRtcSessionDescriptionFactory : public rtc::MessageHandler,
       std::unique_ptr<SessionDescriptionInterface> description);
 
   void OnCertificateRequestFailed();
-  void SetCertificate(
-      const rtc::scoped_refptr<rtc::RTCCertificate>& certificate);
+  void SetCertificate(const rtc::scoped_refptr<rtc::RTCCertificate>& certificate);
 
-  std::queue<CreateSessionDescriptionRequest>
-      create_session_description_requests_;
+  std::queue<CreateSessionDescriptionRequest> create_session_description_requests_;
   rtc::Thread* const signaling_thread_;
   cricket::TransportDescriptionFactory transport_desc_factory_;
   cricket::MediaSessionDescriptionFactory session_desc_factory_;

@@ -266,7 +266,8 @@ RTCErrorType ParseIceServers(
     const PeerConnectionInterface::IceServers& servers,
     cricket::ServerAddresses* stun_servers,
     std::vector<cricket::RelayServerConfig>* turn_servers) {
-  for (const PeerConnectionInterface::IceServer& server : servers) {
+  for (const PeerConnectionInterface::IceServer& server : servers) 
+  {
     if (!server.urls.empty()) {
       for (const std::string& url : server.urls) {
         if (url.empty()) {

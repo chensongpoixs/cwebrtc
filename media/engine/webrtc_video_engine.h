@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -85,25 +85,24 @@ class WebRtcVideoEngine : public VideoEngineInterface {
   WebRtcVideoEngine(
       std::unique_ptr<webrtc::VideoEncoderFactory> video_encoder_factory,
       std::unique_ptr<webrtc::VideoDecoderFactory> video_decoder_factory,
-      std::unique_ptr<webrtc::VideoBitrateAllocatorFactory>
-          video_bitrate_allocator_factory);
+      std::unique_ptr<webrtc::VideoBitrateAllocatorFactory> video_bitrate_allocator_factory);
 
   ~WebRtcVideoEngine() override;
 
+  // TODO@chensong 2022-09-29  channel_manager 中CreateVideoChannel方法调用该方法 创建视频通道
   VideoMediaChannel* CreateMediaChannel(
       webrtc::Call* call,
       const MediaConfig& config,
       const VideoOptions& options,
       const webrtc::CryptoOptions& crypto_options) override;
-
+  // TODO@chensong 2022-10-06 获取视频编码器信息方法
   std::vector<VideoCodec> codecs() const override;
   RtpCapabilities GetCapabilities() const override;
 
  private:
   const std::unique_ptr<webrtc::VideoDecoderFactory> decoder_factory_;
   const std::unique_ptr<webrtc::VideoEncoderFactory> encoder_factory_;
-  const std::unique_ptr<webrtc::VideoBitrateAllocatorFactory>
-      bitrate_allocator_factory_;
+  const std::unique_ptr<webrtc::VideoBitrateAllocatorFactory> bitrate_allocator_factory_;
 };
 
 class WebRtcVideoChannel : public VideoMediaChannel, public webrtc::Transport {
@@ -271,8 +270,8 @@ class WebRtcVideoChannel : public VideoMediaChannel, public webrtc::Transport {
       const std::vector<VideoCodecSettings>& codecs);
 
   // Wrapper for the sender part.
-  class WebRtcVideoSendStream
-      : public rtc::VideoSourceInterface<webrtc::VideoFrame> {
+  class WebRtcVideoSendStream  : public rtc::VideoSourceInterface<webrtc::VideoFrame> 
+  {
    public:
     WebRtcVideoSendStream(
         webrtc::Call* call,
@@ -534,6 +533,7 @@ class WebRtcVideoChannel : public VideoMediaChannel, public webrtc::Transport {
   // TODO(deadbeef): Don't duplicate information between
   // send_params/recv_params, rtp_extensions, options, etc.
   VideoSendParameters send_params_ RTC_GUARDED_BY(thread_checker_);
+  //TODO@chensong 2022-10-15 视频引擎参数
   VideoOptions default_send_options_ RTC_GUARDED_BY(thread_checker_);
   VideoRecvParameters recv_params_ RTC_GUARDED_BY(thread_checker_);
   int64_t last_stats_log_ms_ RTC_GUARDED_BY(thread_checker_);
@@ -548,8 +548,7 @@ class WebRtcVideoChannel : public VideoMediaChannel, public webrtc::Transport {
   const webrtc::CryptoOptions crypto_options_ RTC_GUARDED_BY(thread_checker_);
 
   // Buffer for unhandled packets.
-  std::unique_ptr<UnhandledPacketsBuffer> unknown_ssrc_packet_buffer_
-      RTC_GUARDED_BY(thread_checker_);
+  std::unique_ptr<UnhandledPacketsBuffer> unknown_ssrc_packet_buffer_ RTC_GUARDED_BY(thread_checker_);
 };
 
 class EncoderStreamFactory

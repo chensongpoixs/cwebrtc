@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -213,34 +213,66 @@ WebRtcVoiceEngine::~WebRtcVoiceEngine() {
     adm()->Terminate();
   }
 }
+/** 
+TODO@chensong 2022-10-16 
 
-void WebRtcVoiceEngine::Init() {
+1. 创建AudioDeviceBuffer的流程
+
+-> AudioDeviceBuffer::AudioDeviceBuffer(...)
+-> AudioDeviceModuleImpl::AudioDeviceModuleImpl(...)
+-> AudioDeviceModule::CreateForTest(...)
+-> AudioDeviceModule::Create(...)
+-> WebRtcVoiceEngine::Init()
+
+
+
+ 2. 注册音频数据的回调函数
+
+ -> audio_transport_cb_ = audio_callback
+ -> audio_device_buffer_.RegisterAudioCallback(audioCallback);
+ -> adm()->RegisterAudioCallBack(audio_state()->audio_transport());
+
+
+3. 传递数据
+
+-> audio_transport_cb_->RecordedDataIsAvailable(...)
+-> AudioDeviceBuffer::DeliverRecordedData()
+-> DoCaputureThreadPollDMO()
+*/
+void WebRtcVoiceEngine::Init() 
+{
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   RTC_LOG(LS_INFO) << "WebRtcVoiceEngine::Init";
   //?????????????
   // TaskQueue expects to be created/destroyed on the same thread.
+  //TODO@chensong 2022-10-16  音频录制维护功能（LOW） 维护
   low_priority_worker_queue_.reset(
       new rtc::TaskQueue(task_queue_factory_->CreateTaskQueue(
           "rtc-low-prio", webrtc::TaskQueueFactory::Priority::LOW)));
 
   // Load our audio codec lists.
   RTC_LOG(LS_INFO) << "Supported send codecs in order of preference:";
+  // TODO@chensong 2022-03-25  音频编码器信息 
   send_codecs_ = CollectCodecs(encoder_factory_->GetSupportedEncoders());
-  for (const AudioCodec& codec : send_codecs_) {
+  for (const AudioCodec& codec : send_codecs_) 
+  {
     RTC_LOG(LS_INFO) << ToString(codec);
   }
 
   RTC_LOG(LS_INFO) << "Supported recv codecs in order of preference:";
+  // TODO@chensong 2022-09-05 音频解码器信息
   recv_codecs_ = CollectCodecs(decoder_factory_->GetSupportedDecoders());
-  for (const AudioCodec& codec : recv_codecs_) {
+  for (const AudioCodec& codec : recv_codecs_) 
+  {
     RTC_LOG(LS_INFO) << ToString(codec);
   }
 
 #if defined(WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE)
   // No ADM supplied? Create a default one.
-  if (!adm_) {
-    adm_ = webrtc::AudioDeviceModule::Create(
-        webrtc::AudioDeviceModule::kPlatformDefaultAudio, task_queue_factory_);
+  if (!adm_)
+  {
+	 // TODO@chensong 2022-10-06 创建音频设备(ADM)
+    adm_ = webrtc::AudioDeviceModule::Create(webrtc::AudioDeviceModule::kPlatformDefaultAudio, task_queue_factory_);
   }
 #endif  // WEBRTC_INCLUDE_INTERNAL_AUDIO_DEVICE
   RTC_CHECK(adm());
@@ -250,17 +282,22 @@ void WebRtcVoiceEngine::Init() {
   // Set up AudioState.
   {
     webrtc::AudioState::Config config;
-    if (audio_mixer_) {
+    if (audio_mixer_) 
+	{
       config.audio_mixer = audio_mixer_;
-    } else {
+    }
+	else 
+	{
       config.audio_mixer = webrtc::AudioMixerImpl::Create();
     }
     config.audio_processing = apm_;
     config.audio_device_module = adm_;
+	// TODO@chensong 2022-10-06 音频状态管理音频模块
     audio_state_ = webrtc::AudioState::Create(config);
   }
 
   // Connect the ADM to our audio path.
+  // TODO@chensong 2022-10-15 音频引擎底层数据转发到应用层的方法
   adm()->RegisterAudioCallback(audio_state()->audio_transport());
 
   // Set default engine options.
@@ -288,8 +325,8 @@ void WebRtcVoiceEngine::Init() {
   initialized_ = true;
 }
 
-rtc::scoped_refptr<webrtc::AudioState> WebRtcVoiceEngine::GetAudioState()
-    const {
+rtc::scoped_refptr<webrtc::AudioState> WebRtcVoiceEngine::GetAudioState() const 
+{
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   return audio_state_;
 }
@@ -540,7 +577,9 @@ bool WebRtcVoiceEngine::ApplyOptions(const AudioOptions& options_in) {
   return true;
 }
 
-const std::vector<AudioCodec>& WebRtcVoiceEngine::send_codecs() const {
+const std::vector<AudioCodec>& WebRtcVoiceEngine::send_codecs() const
+{
+	// TODO@chensong 2022-10-08 音频引擎是在初始化时候获取所有编解码信息的
   RTC_DCHECK(signal_thread_checker_.IsCurrent());
   return send_codecs_;
 }
@@ -619,55 +658,65 @@ webrtc::AudioState* WebRtcVoiceEngine::audio_state() {
   return audio_state_.get();
 }
 
-AudioCodecs WebRtcVoiceEngine::CollectCodecs(
-    const std::vector<webrtc::AudioCodecSpec>& specs) const {
+AudioCodecs WebRtcVoiceEngine::CollectCodecs(const std::vector<webrtc::AudioCodecSpec>& specs) const 
+{
   PayloadTypeMapper mapper;
   AudioCodecs out;
 
   // Only generate CN payload types for these clockrates:
+  // TODO@chensong 20220905  产生噪声的设置
   std::map<int, bool, std::greater<int>> generate_cn = {
       {8000, false}, {16000, false}, {32000, false}};
   // Only generate telephone-event payload types for these clockrates:
+  // TODO@chensong 20220905 音频的设置
   std::map<int, bool, std::greater<int>> generate_dtmf = {
       {8000, false}, {16000, false}, {32000, false}, {48000, false}};
 
-  auto map_format = [&mapper](const webrtc::SdpAudioFormat& format,
-                              AudioCodecs* out) {
+  auto map_format = [&mapper](const webrtc::SdpAudioFormat& format, AudioCodecs* out) {
     absl::optional<AudioCodec> opt_codec = mapper.ToAudioCodec(format);
-    if (opt_codec) {
-      if (out) {
+    if (opt_codec) 
+	{
+      if (out)
+	  {
         out->push_back(*opt_codec);
       }
-    } else {
-      RTC_LOG(LS_ERROR) << "Unable to assign payload type to format: "
-                        << rtc::ToString(format);
+    } 
+	else 
+	{
+      RTC_LOG(LS_ERROR) << "Unable to assign payload type to format: " << rtc::ToString(format);
     }
 
     return opt_codec;
   };
-
-  for (const auto& spec : specs) {
+  //  TODO@chensong 2022-09-05 
+  // 把音频格式数据换一个容器存储即[AudioCodecs]
+  for (const auto& spec : specs) 
+  {
     // We need to do some extra stuff before adding the main codecs to out.
     absl::optional<AudioCodec> opt_codec = map_format(spec.format, nullptr);
-    if (opt_codec) {
+    if (opt_codec) 
+	{
       AudioCodec& codec = *opt_codec;
-      if (spec.info.supports_network_adaption) {
-        codec.AddFeedbackParam(
-            FeedbackParam(kRtcpFbParamTransportCc, kParamValueEmpty));
+      if (spec.info.supports_network_adaption) 
+	  {
+        codec.AddFeedbackParam(FeedbackParam(kRtcpFbParamTransportCc, kParamValueEmpty));
       }
 
-      if (spec.info.allow_comfort_noise) {
+      if (spec.info.allow_comfort_noise) 
+	  {
         // Generate a CN entry if the decoder allows it and we support the
         // clockrate.
         auto cn = generate_cn.find(spec.format.clockrate_hz);
-        if (cn != generate_cn.end()) {
+        if (cn != generate_cn.end()) 
+		{
           cn->second = true;
         }
       }
 
       // Generate a telephone-event entry if we support the clockrate.
       auto dtmf = generate_dtmf.find(spec.format.clockrate_hz);
-      if (dtmf != generate_dtmf.end()) {
+      if (dtmf != generate_dtmf.end()) 
+	  {
         dtmf->second = true;
       }
 
@@ -676,15 +725,19 @@ AudioCodecs WebRtcVoiceEngine::CollectCodecs(
   }
 
   // Add CN codecs after "proper" audio codecs.
-  for (const auto& cn : generate_cn) {
-    if (cn.second) {
+  for (const auto& cn : generate_cn) 
+  {
+    if (cn.second) 
+	{
       map_format({kCnCodecName, cn.first, 1}, &out);
     }
   }
 
   // Add telephone-event codecs last.
-  for (const auto& dtmf : generate_dtmf) {
-    if (dtmf.second) {
+  for (const auto& dtmf : generate_dtmf) 
+  {
+    if (dtmf.second) 
+	{
       map_format({kDtmfCodecName, dtmf.first, 1}, &out);
     }
   }
@@ -854,7 +907,8 @@ class WebRtcVoiceMediaChannel::WebRtcAudioSendStream
   // get data callbacks.
   // This method is called on the libjingle worker thread.
   // TODO(xians): Make sure Start() is called only once.
-  void SetSource(AudioSource* source) {
+  void SetSource(AudioSource* source) 
+  {
     RTC_DCHECK(worker_thread_checker_.IsCurrent());
     RTC_DCHECK(source);
     if (source_) {
@@ -863,6 +917,7 @@ class WebRtcVoiceMediaChannel::WebRtcAudioSendStream
     }
     source->SetSink(this);
     source_ = source;
+	// TODO@chensong 2022-10-10  [编码器非常关键的步骤] 启动编码器 
     UpdateSendState();
   }
 
@@ -964,7 +1019,8 @@ class WebRtcVoiceMediaChannel::WebRtcAudioSendStream
     RTC_DCHECK(worker_thread_checker_.IsCurrent());
     RTC_DCHECK(stream_);
     RTC_DCHECK_EQ(1UL, rtp_parameters_.encodings.size());
-    if (send_ && source_ != nullptr && rtp_parameters_.encodings[0].active) {
+    if (send_ && source_ != nullptr && rtp_parameters_.encodings[0].active) 
+	{
       stream_->Start();
     } else {  // !send || source_ = nullptr
       stream_->Stop();
@@ -1280,7 +1336,7 @@ bool WebRtcVoiceMediaChannel::SetSendParameters(
                    << params.ToString();
   // TODO(pthatcher): Refactor this to be more clean now that we have
   // all the information at once.
-
+  // TODO@chensong 2022-10-16 --> SetupSendCodec 
   if (!SetSendCodecs(params.codecs)) {
     return false;
   }
@@ -1584,14 +1640,19 @@ bool WebRtcVoiceMediaChannel::SetRecvCodecs(
 // Utility function called from SetSendParameters() to extract current send
 // codec settings from the given list of codecs (originally from SDP). Both send
 // and receive streams may be reconfigured based on the new settings.
-bool WebRtcVoiceMediaChannel::SetSendCodecs(
-    const std::vector<AudioCodec>& codecs) {
+/** 
+TODO@chensong 2022-10-16 音频编码器的选择
+
+*/
+bool WebRtcVoiceMediaChannel::SetSendCodecs(const std::vector<AudioCodec>& codecs) 
+{
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   dtmf_payload_type_ = absl::nullopt;
   dtmf_payload_freq_ = -1;
 
   // Validate supplied codecs list.
-  for (const AudioCodec& codec : codecs) {
+  for (const AudioCodec& codec : codecs) 
+  {
     // TODO(solenberg): Validate more aspects of input - that payload types
     //                  don't overlap, remove redundant/unsupported codecs etc -
     //                  the same way it is done for RtpHeaderExtensions.
@@ -1606,8 +1667,10 @@ bool WebRtcVoiceMediaChannel::SetSendCodecs(
   // case we don't have a DTMF codec with a rate matching the send codec's, or
   // if this function returns early.
   std::vector<AudioCodec> dtmf_codecs;
-  for (const AudioCodec& codec : codecs) {
-    if (IsCodec(codec, kDtmfCodecName)) {
+  for (const AudioCodec& codec : codecs) 
+  {
+    if (IsCodec(codec, kDtmfCodecName)) 
+	{
       dtmf_codecs.push_back(codec);
       if (!dtmf_payload_type_ || codec.clockrate < dtmf_payload_freq_) {
         dtmf_payload_type_ = codec.id;
@@ -1621,7 +1684,9 @@ bool WebRtcVoiceMediaChannel::SetSendCodecs(
       send_codec_spec;
   webrtc::BitrateConstraints bitrate_config;
   absl::optional<webrtc::AudioCodecInfo> voice_codec_info;
-  for (const AudioCodec& voice_codec : codecs) {
+  // TODO@chensong 2022-10-16 比较是否是正常的编码器
+  for (const AudioCodec& voice_codec : codecs) 
+  {
     if (!(IsCodec(voice_codec, kCnCodecName) ||
           IsCodec(voice_codec, kDtmfCodecName) ||
           IsCodec(voice_codec, kRedCodecName))) {
@@ -1685,7 +1750,9 @@ bool WebRtcVoiceMediaChannel::SetSendCodecs(
   if (send_codec_spec_ != send_codec_spec) {
     send_codec_spec_ = std::move(send_codec_spec);
     // Apply new settings to all streams.
-    for (const auto& kv : send_streams_) {
+    for (const auto& kv : send_streams_)
+	{
+		// TODO@chensong 2022-10-16 -- >SetupSendCodec
       kv.second->SetSendCodecSpec(*send_codec_spec_);
     }
   } else {
@@ -1743,6 +1810,7 @@ void WebRtcVoiceMediaChannel::SetSend(bool send) {
     engine()->ApplyOptions(options_);
 
     // InitRecording() may return an error if the ADM is already recording.
+	// TODO@chensong 20220816  音频录制设备的初始化
     if (!engine()->adm()->RecordingIsInitialized() &&
         !engine()->adm()->Recording()) {
       if (engine()->adm()->InitRecording() != 0) {
@@ -1752,8 +1820,12 @@ void WebRtcVoiceMediaChannel::SetSend(bool send) {
   }
 
   // Change the settings on each send channel.
-  for (auto& kv : send_streams_) {
-    kv.second->SetSend(send);
+  // TODO@chensong 20220816 是对所有的发送音频流的遍历
+  for (auto& kv : send_streams_) 
+  {
+    // 打开音频麦克风设备AudioSendStream方法中Start方法 即
+    // AudioState中AddSendingStream方法
+    kv.second->SetSend(send); 
   }
 
   send_ = send;
@@ -1762,11 +1834,14 @@ void WebRtcVoiceMediaChannel::SetSend(bool send) {
 bool WebRtcVoiceMediaChannel::SetAudioSend(uint32_t ssrc,
                                            bool enable,
                                            const AudioOptions* options,
-                                           AudioSource* source) {
+                                           AudioSource* source) 
+{
   RTC_DCHECK(worker_thread_checker_.IsCurrent());
   // TODO(solenberg): The state change should be fully rolled back if any one of
   //                  these calls fail.
-  if (!SetLocalSource(ssrc, source)) {
+  // TODO@chensong 2022-10-10 根据ssrc找到对应的SendStream对象
+  if (!SetLocalSource(ssrc, source))
+  {
     return false;
   }
   if (!MuteStream(ssrc, !enable)) {
@@ -1935,9 +2010,14 @@ bool WebRtcVoiceMediaChannel::SetLocalSource(uint32_t ssrc,
     return true;
   }
 
-  if (source) {
+  if (source) 
+  {
+
+	  // TODO@chensong 2022-10-10 设置WebRtcAudioSendStream 的源，并将它设置为源的输出
     it->second->SetSource(source);
-  } else {
+  }
+  else 
+  {
     it->second->ClearSource();
   }
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -55,35 +55,43 @@ webrtc::RtpParameters CreateRtpParametersWithEncodings(StreamParams sp) {
 }
 
 webrtc::RTCError CheckRtpParametersValues(
-    const webrtc::RtpParameters& rtp_parameters) {
+    const webrtc::RtpParameters& rtp_parameters) 
+{
   using webrtc::RTCErrorType;
 
-  for (size_t i = 0; i < rtp_parameters.encodings.size(); ++i) {
-    if (rtp_parameters.encodings[i].bitrate_priority <= 0) {
+  for (size_t i = 0; i < rtp_parameters.encodings.size(); ++i) 
+  {
+    if (rtp_parameters.encodings[i].bitrate_priority <= 0) 
+	{
       LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_RANGE,
                            "Attempted to set RtpParameters bitrate_priority to "
                            "an invalid number. bitrate_priority must be > 0.");
     }
     if (rtp_parameters.encodings[i].scale_resolution_down_by &&
-        *rtp_parameters.encodings[i].scale_resolution_down_by < 1.0) {
+        *rtp_parameters.encodings[i].scale_resolution_down_by < 1.0) 
+	{
       LOG_AND_RETURN_ERROR(
           RTCErrorType::INVALID_RANGE,
           "Attempted to set RtpParameters scale_resolution_down_by to an "
           "invalid number. scale_resolution_down_by must be >= 1.0");
     }
     if (rtp_parameters.encodings[i].min_bitrate_bps &&
-        rtp_parameters.encodings[i].max_bitrate_bps) {
+        rtp_parameters.encodings[i].max_bitrate_bps) 
+	{
       if (*rtp_parameters.encodings[i].max_bitrate_bps <
-          *rtp_parameters.encodings[i].min_bitrate_bps) {
+          *rtp_parameters.encodings[i].min_bitrate_bps) 
+	  {
         LOG_AND_RETURN_ERROR(webrtc::RTCErrorType::INVALID_RANGE,
                              "Attempted to set RtpParameters min bitrate "
                              "larger than max bitrate.");
       }
     }
-    if (rtp_parameters.encodings[i].num_temporal_layers) {
+    if (rtp_parameters.encodings[i].num_temporal_layers) 
+	{
       if (*rtp_parameters.encodings[i].num_temporal_layers < 1 ||
           *rtp_parameters.encodings[i].num_temporal_layers >
-              webrtc::kMaxTemporalStreams) {
+              webrtc::kMaxTemporalStreams) 
+	  {
         LOG_AND_RETURN_ERROR(RTCErrorType::INVALID_RANGE,
                              "Attempted to set RtpParameters "
                              "num_temporal_layers to an invalid number.");

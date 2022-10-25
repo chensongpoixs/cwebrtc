@@ -110,13 +110,16 @@ rtc::scoped_refptr<AudioDeviceModuleForTest> AudioDeviceModule::CreateForTest(
   }
 
   // Create the platform-dependent implementation.
-  if (audioDevice->CreatePlatformSpecificObjects() == -1) {
+  // TODO@chensong 20220816 对应平台的类 win => AudioDeviceWindowsCore 构造函数
+  if (audioDevice->CreatePlatformSpecificObjects() == -1) 
+  {
     return nullptr;
   }
 
   // Ensure that the generic audio buffer can communicate with the platform
   // specific parts.
-  if (audioDevice->AttachAudioBuffer() == -1) {
+  if (audioDevice->AttachAudioBuffer() == -1) 
+  {
     return nullptr;
   }
 
@@ -855,8 +858,8 @@ bool AudioDeviceModuleImpl::Recording() const {
   return audio_device_->Recording();
 }
 
-int32_t AudioDeviceModuleImpl::RegisterAudioCallback(
-    AudioTransport* audioCallback) {
+int32_t AudioDeviceModuleImpl::RegisterAudioCallback(AudioTransport* audioCallback) 
+{
   RTC_LOG(INFO) << __FUNCTION__;
   return audio_device_buffer_.RegisterAudioCallback(audioCallback);
 }

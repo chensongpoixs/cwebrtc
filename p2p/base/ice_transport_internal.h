@@ -49,8 +49,10 @@ enum IceGatheringState {
 
 enum ContinualGatheringPolicy {
   // All port allocator sessions will stop after a writable connection is found.
+  // 找到可写连接后，所有端口分配器会话都将停止。
   GATHER_ONCE = 0,
   // The most recent port allocator session will keep on running.
+  //最近的端口分配器会话将继续运行
   GATHER_CONTINUALLY,
 };
 

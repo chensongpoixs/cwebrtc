@@ -111,6 +111,9 @@
 //	HINSTANCE prev_instance,
 //	wchar_t* cmd_line,
 //	int cmd_show)
+
+
+
 int main(int argc, char *argv[])
 {
 	//HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow

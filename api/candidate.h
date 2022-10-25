@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -180,18 +180,19 @@ class RTC_EXPORT Candidate {
   std::string ToStringInternal(bool sensitive) const;
 
   std::string id_;
-  int component_;
-  std::string protocol_;
+  int component_; // TODO@chensong 2022-10-07 对应就是SDP中M行的名子 例如: audio => [0] video => [1]
+  std::string protocol_; // TCP or UDP
   std::string relay_protocol_;
   rtc::SocketAddress address_;
-  uint32_t priority_;
-  std::string username_;
-  std::string password_;
-  std::string type_;
+  uint32_t priority_; // 优先级， 优先级高的会优先使用
+  std::string username_; // 用户名
+  std::string password_; // 密码
+  std::string type_; // [host, srflx, prflx, relay, priority ]
+  ////////////////////////// TODO@chensong 20220907 candidate /////////////////////////////////////////
   std::string network_name_;
-  rtc::AdapterType network_type_;
+  rtc::AdapterType network_type_; // 整个类型非常主要呢 [检查类型]
   uint32_t generation_;
-  std::string foundation_;
+  std::string foundation_;//  crc32[网络类型(host) +  后备协议地址[relay_protocol] ]
   rtc::SocketAddress related_address_;
   std::string tcptype_;
   std::string transport_name_;

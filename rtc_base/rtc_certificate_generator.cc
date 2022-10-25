@@ -28,7 +28,7 @@ namespace {
 
 // A certificates' subject and issuer name.
 const char kIdentityName[] = "WebRTC";
-const uint64_t kYearInSeconds = 365 * 24 * 60 * 60;
+const uint64_t kYearInSeconds = 365 * 24 * 60 * 60; // 一年的时间
 
 enum {
   MSG_GENERATE,
@@ -62,7 +62,7 @@ class RTCCertificateGenerationTask : public RefCountInterface,
   // Handles |MSG_GENERATE| and its follow-up |MSG_GENERATE_DONE|.
   void OnMessage(Message* msg) override {
     switch (msg->message_id) {
-      case MSG_GENERATE:
+      case MSG_GENERATE: {
         RTC_DCHECK(worker_thread_->IsCurrent());
         // Perform the certificate generation work here on the worker thread.
         certificate_ = RTCCertificateGenerator::GenerateCertificate(
@@ -72,13 +72,19 @@ class RTCCertificateGenerationTask : public RefCountInterface,
         signaling_thread_->Post(RTC_FROM_HERE, this, MSG_GENERATE_DONE,
                                 msg->pdata);
         break;
-      case MSG_GENERATE_DONE:
+      }
+      case MSG_GENERATE_DONE: 
+	  {
         RTC_DCHECK(signaling_thread_->IsCurrent());
         // Perform callback with result here on the signaling thread.
-		// TODO@chensong 这边开始创建好本地WebRTC的SDP的信息 进行回调webrtc_session_destion_factory中信息哈 ^_^
-        if (certificate_) {
+        // TODO@chensong 2022-03-25 这边开始创建好本地WebRTC的证书的信息
+        // 进行回调webrtc_session_destion_factory中信息哈 ^_^
+        if (certificate_) 
+		{
           callback_->OnSuccess(certificate_);
-        } else {
+        }
+		else 
+		{
           callback_->OnFailure();
         }
         // Destroy |msg->pdata| which references |this| with ref counting. This
@@ -86,18 +92,19 @@ class RTCCertificateGenerationTask : public RefCountInterface,
         // after this line.
         delete msg->pdata;
         return;
+      }
       default:
         RTC_NOTREACHED();
     }
   }
 
  private:
-  Thread* const signaling_thread_;
-  Thread* const worker_thread_;
+  Thread* const signaling_thread_; // 信号线程
+  Thread* const worker_thread_; // 工作线程
   const KeyParams key_params_;
-  const absl::optional<uint64_t> expires_ms_;
-  const scoped_refptr<RTCCertificateGeneratorCallback> callback_;
-  scoped_refptr<RTCCertificate> certificate_;
+  const absl::optional<uint64_t> expires_ms_; // 证书的过期时间
+  const scoped_refptr<RTCCertificateGeneratorCallback> callback_; //工作线程生成证书后， 信号线程调用该回调传给上层应用的证书
+  scoped_refptr<RTCCertificate> certificate_; // 证书
 };
 
 }  // namespace
@@ -147,7 +154,7 @@ void RTCCertificateGenerator::GenerateCertificateAsync(
     const scoped_refptr<RTCCertificateGeneratorCallback>& callback) {
   RTC_DCHECK(signaling_thread_->IsCurrent());
   RTC_DCHECK(callback);
-  // TODO@chensong  2022-03-25  创建certificate 的info 
+  // TODO@chensong  2022-03-25  创建certificate 的info
   // Create a new |RTCCertificateGenerationTask| for this generation request. It
   // is reference counted and referenced by the message data, ensuring it lives
   // until the task has completed (independent of |RTCCertificateGenerator|).

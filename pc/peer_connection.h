@@ -123,12 +123,9 @@ class PeerConnection : public PeerConnectionInternal,
       const std::string& kind,
       const std::string& stream_id) override;
 
-  std::vector<rtc::scoped_refptr<RtpSenderInterface>> GetSenders()
-      const override;
-  std::vector<rtc::scoped_refptr<RtpReceiverInterface>> GetReceivers()
-      const override;
-  std::vector<rtc::scoped_refptr<RtpTransceiverInterface>> GetTransceivers()
-      const override;
+  std::vector<rtc::scoped_refptr<RtpSenderInterface>> GetSenders() const override;
+  std::vector<rtc::scoped_refptr<RtpReceiverInterface>> GetReceivers()  const override;
+  std::vector<rtc::scoped_refptr<RtpTransceiverInterface>> GetTransceivers()  const override;
 
   rtc::scoped_refptr<DataChannelInterface> CreateDataChannel(
       const std::string& label,
@@ -164,6 +161,10 @@ class PeerConnection : public PeerConnectionInternal,
       const override;
 
   // JSEP01
+  /**
+  * TODO@chensong 2022-09-29 
+  *真正要生成SDP信息的api的接口
+  */
   void CreateOffer(CreateSessionDescriptionObserver* observer,
                    const RTCOfferAnswerOptions& options) override;
   void CreateAnswer(CreateSessionDescriptionObserver* observer,
@@ -329,9 +330,7 @@ class PeerConnection : public PeerConnectionInternal,
   rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>
   GetFirstAudioTransceiver() const RTC_RUN_ON(signaling_thread());
 
-  void CreateAudioReceiver(MediaStreamInterface* stream,
-                           const RtpSenderInfo& remote_sender_info)
-      RTC_RUN_ON(signaling_thread());
+  void CreateAudioReceiver(MediaStreamInterface* stream, const RtpSenderInfo& remote_sender_info) RTC_RUN_ON(signaling_thread());
 
   void CreateVideoReceiver(MediaStreamInterface* stream,
                            const RtpSenderInfo& remote_sender_info)
@@ -1086,8 +1085,7 @@ class PeerConnection : public PeerConnectionInternal,
     return media_transport;
   }
 
-  sigslot::signal1<DataChannel*> SignalDataChannelCreated_
-      RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal1<DataChannel*> SignalDataChannelCreated_  RTC_GUARDED_BY(signaling_thread());
 
   // Storing the factory as a scoped reference pointer ensures that the memory
   // in the PeerConnectionFactoryImpl remains available as long as the
@@ -1096,8 +1094,7 @@ class PeerConnection : public PeerConnectionInternal,
   // PeerConnectionFactoryInterface all instances created using the raw pointer
   // will refer to the same reference count.
   const rtc::scoped_refptr<PeerConnectionFactory> factory_;
-  PeerConnectionObserver* observer_ RTC_GUARDED_BY(signaling_thread()) =
-      nullptr;
+  PeerConnectionObserver* observer_ RTC_GUARDED_BY(signaling_thread()) = nullptr;
 
   // The EventLog needs to outlive |call_| (and any other object that uses it).
   std::unique_ptr<RtcEventLog> event_log_ RTC_GUARDED_BY(worker_thread());
@@ -1107,35 +1104,26 @@ class PeerConnection : public PeerConnectionInternal,
   RtcEventLog* const event_log_ptr_ RTC_PT_GUARDED_BY(worker_thread());
 
   SignalingState signaling_state_ RTC_GUARDED_BY(signaling_thread()) = kStable;
-  IceConnectionState ice_connection_state_ RTC_GUARDED_BY(signaling_thread()) =
-      kIceConnectionNew;
-  PeerConnectionInterface::IceConnectionState standardized_ice_connection_state_
-      RTC_GUARDED_BY(signaling_thread()) = kIceConnectionNew;
-  PeerConnectionInterface::PeerConnectionState connection_state_
-      RTC_GUARDED_BY(signaling_thread()) = PeerConnectionState::kNew;
+  IceConnectionState ice_connection_state_ RTC_GUARDED_BY(signaling_thread()) =   kIceConnectionNew;
+  PeerConnectionInterface::IceConnectionState standardized_ice_connection_state_  RTC_GUARDED_BY(signaling_thread()) = kIceConnectionNew;
+  PeerConnectionInterface::PeerConnectionState connection_state_ RTC_GUARDED_BY(signaling_thread()) = PeerConnectionState::kNew;
 
-  IceGatheringState ice_gathering_state_ RTC_GUARDED_BY(signaling_thread()) =
-      kIceGatheringNew;
-  PeerConnectionInterface::RTCConfiguration configuration_
-      RTC_GUARDED_BY(signaling_thread());
+  IceGatheringState ice_gathering_state_ RTC_GUARDED_BY(signaling_thread()) = kIceGatheringNew;
+  PeerConnectionInterface::RTCConfiguration configuration_ RTC_GUARDED_BY(signaling_thread());
 
   // Cache configuration_.use_media_transport so that we can access it from
   // other threads.
   // TODO(bugs.webrtc.org/9987): Caching just this bool and allowing the data
   // it's derived from to change is not necessarily sound. Stop doing it.
   rtc::RaceChecker use_media_transport_race_checker_;
-  bool use_media_transport_ RTC_GUARDED_BY(use_media_transport_race_checker_) =
-      configuration_.use_media_transport;
+  bool use_media_transport_ RTC_GUARDED_BY(use_media_transport_race_checker_) = configuration_.use_media_transport;
 
   // TODO(zstein): |async_resolver_factory_| can currently be nullptr if it
   // is not injected. It should be required once chromium supplies it.
-  std::unique_ptr<AsyncResolverFactory> async_resolver_factory_
-      RTC_GUARDED_BY(signaling_thread());
-  std::unique_ptr<cricket::PortAllocator>
-      port_allocator_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  std::unique_ptr<AsyncResolverFactory> async_resolver_factory_  RTC_GUARDED_BY(signaling_thread());
+  std::unique_ptr<cricket::PortAllocator>  port_allocator_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                         // signaling and network thread.
-  std::unique_ptr<rtc::SSLCertificateVerifier>
-      tls_cert_verifier_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  std::unique_ptr<rtc::SSLCertificateVerifier> tls_cert_verifier_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                            // signaling and network thread.
 
   // One PeerConnection has only one RTCP CNAME.
@@ -1143,24 +1131,17 @@ class PeerConnection : public PeerConnectionInternal,
   const std::string rtcp_cname_;
 
   // Streams added via AddStream.
-  const rtc::scoped_refptr<StreamCollection> local_streams_
-      RTC_GUARDED_BY(signaling_thread());
+  const rtc::scoped_refptr<StreamCollection> local_streams_ RTC_GUARDED_BY(signaling_thread());
   // Streams created as a result of SetRemoteDescription.
-  const rtc::scoped_refptr<StreamCollection> remote_streams_
-      RTC_GUARDED_BY(signaling_thread());
+  const rtc::scoped_refptr<StreamCollection> remote_streams_ RTC_GUARDED_BY(signaling_thread());
 
-  std::vector<std::unique_ptr<MediaStreamObserver>> stream_observers_
-      RTC_GUARDED_BY(signaling_thread());
+  std::vector<std::unique_ptr<MediaStreamObserver>> stream_observers_ RTC_GUARDED_BY(signaling_thread());
 
   // These lists store sender info seen in local/remote descriptions.
-  std::vector<RtpSenderInfo> remote_audio_sender_infos_
-      RTC_GUARDED_BY(signaling_thread());
-  std::vector<RtpSenderInfo> remote_video_sender_infos_
-      RTC_GUARDED_BY(signaling_thread());
-  std::vector<RtpSenderInfo> local_audio_sender_infos_
-      RTC_GUARDED_BY(signaling_thread());
-  std::vector<RtpSenderInfo> local_video_sender_infos_
-      RTC_GUARDED_BY(signaling_thread());
+  std::vector<RtpSenderInfo> remote_audio_sender_infos_ RTC_GUARDED_BY(signaling_thread());
+  std::vector<RtpSenderInfo> remote_video_sender_infos_ RTC_GUARDED_BY(signaling_thread());
+  std::vector<RtpSenderInfo> local_audio_sender_infos_ RTC_GUARDED_BY(signaling_thread());
+  std::vector<RtpSenderInfo> local_video_sender_infos_ RTC_GUARDED_BY(signaling_thread());
 
   SctpSidAllocator sid_allocator_ RTC_GUARDED_BY(signaling_thread());
   // label -> DataChannel
@@ -1178,12 +1159,11 @@ class PeerConnection : public PeerConnectionInternal,
   // pointer from any thread.
   Call* const call_ptr_;
 
-  std::unique_ptr<StatsCollector> stats_
-      RTC_GUARDED_BY(signaling_thread());  // A pointer is passed to senders_
-  rtc::scoped_refptr<RTCStatsCollector> stats_collector_
-      RTC_GUARDED_BY(signaling_thread());
+  std::unique_ptr<StatsCollector> stats_ RTC_GUARDED_BY(signaling_thread());  // A pointer is passed to senders_
+  rtc::scoped_refptr<RTCStatsCollector> stats_collector_ RTC_GUARDED_BY(signaling_thread());
   // 通道个数 接受和发送通道
-  std::vector< rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>> transceivers_;  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
+  std::vector< rtc::scoped_refptr<RtpTransceiverProxyWithInternal<RtpTransceiver>>> transceivers_;  
+  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
                       // and network thread.
 
   // In Unified Plan, if we encounter remote SDP that does not contain an a=msid
@@ -1194,35 +1174,33 @@ class PeerConnection : public PeerConnectionInternal,
   // MIDs will be generated using this generator which will keep track of
   // all the MIDs that have been seen over the life of the PeerConnection.
   rtc::UniqueStringGenerator mid_generator_ RTC_GUARDED_BY(signaling_thread());
-
-  SessionError session_error_ RTC_GUARDED_BY(signaling_thread()) =
-      SessionError::kNone;
+  // TODO@chensong 20220920
+  // 这个变量 是三种情况下会修改状态
+  // 1. 在设置本地的SDP的 ApplyLocalDescription函数失败会修改会话的控制错误状态 
+  // 2. 第二中和第一种类似 是在设置SDP对端的函数ApplyRemoteDescription函数失败 会修改会话的控制错误状态 KContent
+  // 3. 是在ICE中DTLS-SRTP 的密钥验证错误的时候会报KTransport状态
+  SessionError session_error_ RTC_GUARDED_BY(signaling_thread()) = SessionError::kNone;
   std::string session_error_desc_ RTC_GUARDED_BY(signaling_thread());
 
   std::string session_id_ RTC_GUARDED_BY(signaling_thread());
 
-  std::unique_ptr<JsepTransportController>
-      transport_controller_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  std::unique_ptr<JsepTransportController> transport_controller_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                               // signaling and network thread.
-  std::unique_ptr<cricket::SctpTransportInternalFactory>
-      sctp_factory_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  std::unique_ptr<cricket::SctpTransportInternalFactory> sctp_factory_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                       // signaling and network thread.
   // |rtp_data_channel_| is used if in RTP data channel mode, |sctp_transport_|
   // when using SCTP.
-  cricket::RtpDataChannel* rtp_data_channel_ =
-      nullptr;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  cricket::RtpDataChannel* rtp_data_channel_ = nullptr;  // TODO(bugs.webrtc.org/9987): Accessed on both
                 // signaling and some other thread.
 
   cricket::SctpTransportInternal* cricket_sctp_transport() {
     return sctp_transport_->internal();
   }
-  rtc::scoped_refptr<SctpTransport>
-      sctp_transport_;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  rtc::scoped_refptr<SctpTransport> sctp_transport_;  // TODO(bugs.webrtc.org/9987): Accessed on both
                         // signaling and network thread.
 
   // |sctp_mid_| is the content name (MID) in SDP.
-  absl::optional<std::string>
-      sctp_mid_;  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
+  absl::optional<std::string> sctp_mid_;  // TODO(bugs.webrtc.org/9987): Accessed on both signaling
                   // and network thread.
 
   // Value cached on signaling thread. Only updated when SctpReadyToSendData
@@ -1238,58 +1216,45 @@ class PeerConnection : public PeerConnectionInternal,
   // TODO(deadbeef): Use a proxy object to ensure that method calls/signals
   // are marshalled to the right thread. Could almost use proxy.h for this,
   // but it doesn't have a mechanism for marshalling sigslot::signals
-  std::unique_ptr<rtc::AsyncInvoker> sctp_invoker_
-      RTC_GUARDED_BY(network_thread());
-  sigslot::signal1<bool> SignalSctpReadyToSendData
-      RTC_GUARDED_BY(signaling_thread());
-  sigslot::signal2<const cricket::ReceiveDataParams&,
-                   const rtc::CopyOnWriteBuffer&>
-      SignalSctpDataReceived RTC_GUARDED_BY(signaling_thread());
-  sigslot::signal1<int> SignalSctpClosingProcedureStartedRemotely
-      RTC_GUARDED_BY(signaling_thread());
-  sigslot::signal1<int> SignalSctpClosingProcedureComplete
-      RTC_GUARDED_BY(signaling_thread());
+  std::unique_ptr<rtc::AsyncInvoker> sctp_invoker_ RTC_GUARDED_BY(network_thread());
+  sigslot::signal1<bool> SignalSctpReadyToSendData RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal2<const cricket::ReceiveDataParams&, const rtc::CopyOnWriteBuffer&> SignalSctpDataReceived RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal1<int> SignalSctpClosingProcedureStartedRemotely RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal1<int> SignalSctpClosingProcedureComplete RTC_GUARDED_BY(signaling_thread());
 
   // Whether this peer is the caller. Set when the local description is applied.
+  // TODO@chensong 20220928 ice 中作为客户端与服务端 参数 a=setup:xxx 关联参数
   absl::optional<bool> is_caller_ RTC_GUARDED_BY(signaling_thread());
 
   // Content name (MID) for media transport data channels in SDP.
-  absl::optional<std::string>
-      media_transport_data_mid_;  // TODO(bugs.webrtc.org/9987): Accessed on
+  absl::optional<std::string> media_transport_data_mid_;  // TODO(bugs.webrtc.org/9987): Accessed on
                                   // both signaling and network thread.
 
   // Media transport used for data channels.  Thread-safe.
-  MediaTransportInterface* media_transport_ =
-      nullptr;  // TODO(bugs.webrtc.org/9987): Object is thread safe, but
+  MediaTransportInterface* media_transport_ = nullptr;  // TODO(bugs.webrtc.org/9987): Object is thread safe, but
                 // pointer accessed on both signaling and network thread.
 
   // Cached value of whether the media transport is ready to send.
-  bool media_transport_ready_to_send_data_ RTC_GUARDED_BY(signaling_thread()) =
-      false;
+  bool media_transport_ready_to_send_data_ RTC_GUARDED_BY(signaling_thread()) = false;
 
   // Used to invoke media transport signals on the signaling thread.
-  std::unique_ptr<rtc::AsyncInvoker> media_transport_invoker_
-      RTC_GUARDED_BY(network_thread());
+  std::unique_ptr<rtc::AsyncInvoker> media_transport_invoker_  RTC_GUARDED_BY(network_thread());
 
   // Identical to the signals for SCTP, but from media transport:
-  sigslot::signal1<bool> SignalMediaTransportWritable_s
-      RTC_GUARDED_BY(signaling_thread());
-  sigslot::signal2<const cricket::ReceiveDataParams&,
-                   const rtc::CopyOnWriteBuffer&>
-      SignalMediaTransportReceivedData_s RTC_GUARDED_BY(signaling_thread());
-  sigslot::signal1<int> SignalMediaTransportChannelClosing_s
-      RTC_GUARDED_BY(signaling_thread());
-  sigslot::signal1<int> SignalMediaTransportChannelClosed_s
-      RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal1<bool> SignalMediaTransportWritable_s RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal2<const cricket::ReceiveDataParams&, const rtc::CopyOnWriteBuffer&> SignalMediaTransportReceivedData_s RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal1<int> SignalMediaTransportChannelClosing_s RTC_GUARDED_BY(signaling_thread());
+  sigslot::signal1<int> SignalMediaTransportChannelClosed_s  RTC_GUARDED_BY(signaling_thread());
 
-  std::unique_ptr<SessionDescriptionInterface> current_local_description_
-      RTC_GUARDED_BY(signaling_thread());
-  std::unique_ptr<SessionDescriptionInterface> pending_local_description_
-      RTC_GUARDED_BY(signaling_thread());
-  std::unique_ptr<SessionDescriptionInterface> current_remote_description_
-      RTC_GUARDED_BY(signaling_thread());
-  std::unique_ptr<SessionDescriptionInterface> pending_remote_description_
-      RTC_GUARDED_BY(signaling_thread());
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// TODO@chensong 2022-10-04 在调用SetLocalDesctioption和SetRemoveDesctioption函数设置这些值
+  //  做四个值主要来区分主动呼叫和对端呼叫时设置对端的Offer或者Answer
+  std::unique_ptr<SessionDescriptionInterface> current_local_description_ RTC_GUARDED_BY(signaling_thread());
+  std::unique_ptr<SessionDescriptionInterface> pending_local_description_ RTC_GUARDED_BY(signaling_thread());
+  std::unique_ptr<SessionDescriptionInterface> current_remote_description_ RTC_GUARDED_BY(signaling_thread());
+  std::unique_ptr<SessionDescriptionInterface> pending_remote_description_ RTC_GUARDED_BY(signaling_thread());
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   bool dtls_enabled_ RTC_GUARDED_BY(signaling_thread()) = false;
   // Specifies which kind of data channel is allowed. This is controlled
   // by the chrome command-line flag and constraints:
@@ -1298,31 +1263,26 @@ class PeerConnection : public PeerConnectionInternal,
   // not set or false, SCTP is allowed (DCT_SCTP);
   // 2. If constraint kEnableRtpDataChannels is true, RTP is allowed (DCT_RTP);
   // 3. If both 1&2 are false, data channel is not allowed (DCT_NONE).
-  cricket::DataChannelType data_channel_type_ =
-      cricket::DCT_NONE;  // TODO(bugs.webrtc.org/9987): Accessed on both
+  cricket::DataChannelType data_channel_type_ = cricket::DCT_NONE;  // TODO(bugs.webrtc.org/9987): Accessed on both
                           // signaling and network thread.
 
   // List of content names for which the remote side triggered an ICE restart.
-  std::set<std::string> pending_ice_restarts_
-      RTC_GUARDED_BY(signaling_thread());
+  std::set<std::string> pending_ice_restarts_ RTC_GUARDED_BY(signaling_thread());
 
-  std::unique_ptr<WebRtcSessionDescriptionFactory> webrtc_session_desc_factory_
-      RTC_GUARDED_BY(signaling_thread());
+  std::unique_ptr<WebRtcSessionDescriptionFactory> webrtc_session_desc_factory_ RTC_GUARDED_BY(signaling_thread());
 
   // Member variables for caching global options.
   cricket::AudioOptions audio_options_ RTC_GUARDED_BY(signaling_thread());
   cricket::VideoOptions video_options_ RTC_GUARDED_BY(signaling_thread());
   // stun and turn server 标志是否存在的字段
   int usage_event_accumulator_ RTC_GUARDED_BY(signaling_thread()) = 0;
-  bool return_histogram_very_quickly_ RTC_GUARDED_BY(signaling_thread()) =
-      false;
+  bool return_histogram_very_quickly_ RTC_GUARDED_BY(signaling_thread()) = false;
 
   // This object should be used to generate any SSRC that is not explicitly
   // specified by the user (or by the remote party).
   // The generator is not used directly, instead it is passed on to the
   // channel manager and the session description factory.
-  rtc::UniqueRandomIdGenerator ssrc_generator_
-      RTC_GUARDED_BY(signaling_thread());
+  rtc::UniqueRandomIdGenerator ssrc_generator_ RTC_GUARDED_BY(signaling_thread());
 };
 
 }  // namespace webrtc

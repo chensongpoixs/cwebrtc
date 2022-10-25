@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2004 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -55,7 +55,7 @@ class FeedbackParams {
   void Intersect(const FeedbackParams& from);
 
   const std::vector<FeedbackParam>& params() const { return params_; }
-
+  std::string ToString() const ;
  private:
   bool HasDuplicateEntries() const;
 
@@ -63,9 +63,9 @@ class FeedbackParams {
 };
 
 struct RTC_EXPORT Codec {
-  int id;
-  std::string name;
-  int clockrate;
+  int id; 
+  std::string name;					// 媒体数据格式
+  int clockrate;					// 采样率
   CodecParameterMap params;
   FeedbackParams feedback_params;
 
@@ -88,6 +88,8 @@ struct RTC_EXPORT Codec {
   bool HasFeedbackParam(const FeedbackParam& param) const;
   void AddFeedbackParam(const FeedbackParam& param);
 
+
+  std::string ToString() const;
   // Filter |this| feedbacks params such that only those shared by both |this|
   // and |other| are kept.
   void IntersectFeedbackParams(const Codec& other);

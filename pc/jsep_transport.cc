@@ -150,8 +150,8 @@ JsepTransport::~JsepTransport() {
 }
 
 webrtc::RTCError JsepTransport::SetLocalJsepTransportDescription(
-    const JsepTransportDescription& jsep_description,
-    SdpType type) {
+    const JsepTransportDescription& jsep_description, SdpType type)
+{
   webrtc::RTCError error;
 
   RTC_DCHECK_RUN_ON(network_thread_);
@@ -233,12 +233,13 @@ webrtc::RTCError JsepTransport::SetLocalJsepTransportDescription(
 }
 
 webrtc::RTCError JsepTransport::SetRemoteJsepTransportDescription(
-    const JsepTransportDescription& jsep_description,
-    webrtc::SdpType type) {
+    const JsepTransportDescription& jsep_description, webrtc::SdpType type) 
+{
   webrtc::RTCError error;
 
   RTC_DCHECK_RUN_ON(network_thread_);
-  if (!VerifyIceParams(jsep_description)) {
+  if (!VerifyIceParams(jsep_description)) 
+  {
     remote_description_.reset();
     return webrtc::RTCError(webrtc::RTCErrorType::INVALID_PARAMETER,
                             "Invalid ice-ufrag or ice-pwd length.");
@@ -251,7 +252,8 @@ webrtc::RTCError JsepTransport::SetRemoteJsepTransportDescription(
   }
 
   // If doing SDES, setup the SDES crypto parameters.
-  if (sdes_transport_) {
+  if (sdes_transport_) 
+  {
     RTC_DCHECK(!unencrypted_rtp_transport_);
     RTC_DCHECK(!dtls_srtp_transport_);
     if (!SetSdes(jsep_description.cryptos,
@@ -262,7 +264,9 @@ webrtc::RTCError JsepTransport::SetRemoteJsepTransportDescription(
     }
     sdes_transport_->CacheRtpAbsSendTimeHeaderExtension(
         jsep_description.rtp_abs_sendtime_extn_id);
-  } else if (dtls_srtp_transport_) {
+  } 
+  else if (dtls_srtp_transport_) 
+  {
     RTC_DCHECK(!unencrypted_rtp_transport_);
     RTC_DCHECK(!sdes_transport_);
     dtls_srtp_transport_->UpdateSendEncryptedHeaderExtensionIds(

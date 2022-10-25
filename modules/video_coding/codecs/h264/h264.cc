@@ -64,10 +64,15 @@ void DisableRtcUseH264() {
   g_rtc_use_h264 = false;
 #endif
 }
-
-std::vector<SdpVideoFormat> SupportedH264Codecs() {
-  if (!IsH264CodecSupported())
+/**
+* WebRTC 中支持H264的格式
+*/
+std::vector<SdpVideoFormat> SupportedH264Codecs() 
+{
+  if (!IsH264CodecSupported()) 
+  {
     return std::vector<SdpVideoFormat>();
+  }
   // We only support encoding Constrained Baseline Profile (CBP), but the
   // decoder supports more profiles. We can list all profiles here that are
   // supported by the decoder and that are also supersets of CBP, i.e. the
@@ -81,8 +86,7 @@ std::vector<SdpVideoFormat> SupportedH264Codecs() {
       CreateH264Format(H264::kProfileBaseline, H264::kLevel3_1, "1"),
       CreateH264Format(H264::kProfileBaseline, H264::kLevel3_1, "0"),
       CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1, "1"),
-      CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1, "0")
-  };
+      CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1, "0")};
 }
 
 std::unique_ptr<H264Encoder> H264Encoder::Create(

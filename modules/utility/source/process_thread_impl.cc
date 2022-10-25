@@ -65,10 +65,12 @@ void ProcessThreadImpl::Start() {
   RTC_DCHECK(!stop_);
 
   for (ModuleCallback& m : modules_)
+  {
     m.module->ProcessThreadAttached(this);
+  }
 
-  thread_.reset(
-      new rtc::PlatformThread(&ProcessThreadImpl::Run, this, thread_name_));
+  // TODO@chensong 2022-09-29 线程的回调函数传进入 
+  thread_.reset(new rtc::PlatformThread(&ProcessThreadImpl::Run, this, thread_name_));
   thread_->Start();
 }
 
@@ -166,25 +168,29 @@ bool ProcessThreadImpl::Run(void* obj) {
   return static_cast<ProcessThreadImpl*>(obj)->Process();
 }
 
-bool ProcessThreadImpl::Process() {
+bool ProcessThreadImpl::Process() 
+{
   TRACE_EVENT1("webrtc", "ProcessThreadImpl", "name", thread_name_);
   int64_t now = rtc::TimeMillis();
   int64_t next_checkpoint = now + (1000 * 60);
 
   {
     rtc::CritScope lock(&lock_);
-    if (stop_)
+    if (stop_) {
       return false;
+    }
     for (ModuleCallback& m : modules_) {
       // TODO(tommi): Would be good to measure the time TimeUntilNextProcess
       // takes and dcheck if it takes too long (e.g. >=10ms).  Ideally this
       // operation should not require taking a lock, so querying all modules
       // should run in a matter of nanoseconds.
-      if (m.next_callback == 0)
+      if (m.next_callback == 0) 
+	  {
         m.next_callback = GetNextCallbackTime(m.module, now);
+      }
 
-      if (m.next_callback <= now ||
-          m.next_callback == kCallProcessImmediately) {
+      if (m.next_callback <= now ||  m.next_callback == kCallProcessImmediately) 
+	  {
         {
           TRACE_EVENT2("webrtc", "ModuleProcess", "function",
                        m.location.function_name(), "file",

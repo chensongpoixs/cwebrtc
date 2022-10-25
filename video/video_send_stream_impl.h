@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -121,6 +121,7 @@ class VideoSendStreamImpl : public webrtc::BitrateAllocatorObserver,
   // Implements EncodedImageCallback. The implementation routes encoded frames
   // to the |payload_router_| and |config.pre_encode_callback| if set.
   // Called on an arbitrary encoder callback thread.
+  // TODO@chensong 20220802 编码完成一帧后调用该函数发送一帧编码后的数据
   EncodedImageCallback::Result OnEncodedImage(
       const EncodedImage& encoded_image,
       const CodecSpecificInfo* codec_specific_info,
@@ -171,6 +172,7 @@ class VideoSendStreamImpl : public webrtc::BitrateAllocatorObserver,
   double encoder_bitrate_priority_;
   bool has_packet_feedback_;
 
+  //是负责视频编码的类，其从媒体源获取视频帧然后进行编码
   VideoStreamEncoderInterface* const video_stream_encoder_;
   EncoderRtcpFeedback encoder_feedback_;
 
@@ -188,8 +190,11 @@ class VideoSendStreamImpl : public webrtc::BitrateAllocatorObserver,
   // Context for the most recent and last sent video bitrate allocation. Used to
   // throttle sending of similar bitrate allocations.
   struct VbaSendContext {
+    // 上一次分配的码率
     VideoBitrateAllocation last_sent_allocation;
+    // 对频繁更新进行节流的分配码率
     absl::optional<VideoBitrateAllocation> throttled_allocation;
+    // 上次的发送时间
     int64_t last_send_time_ms;
   };
   absl::optional<VbaSendContext> video_bitrate_allocation_context_

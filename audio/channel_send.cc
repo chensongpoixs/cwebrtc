@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -433,37 +433,38 @@ class VoERtcpObserver : public RtcpBandwidthObserver {
     // TODO(mflodman): Do we need to aggregate reports here or can we jut send
     // what we get? I.e. do we ever get multiple reports bundled into one RTCP
     // report for VoiceEngine?
-    if (report_blocks.empty())
+    if (report_blocks.empty()) 
+	{
       return;
+    }
 
     int fraction_lost_aggregate = 0;
     int total_number_of_packets = 0;
 
     // If receiving multiple report blocks, calculate the weighted average based
     // on the number of packets a report refers to.
-    for (ReportBlockList::const_iterator block_it = report_blocks.begin();
-         block_it != report_blocks.end(); ++block_it) {
+    for (ReportBlockList::const_iterator block_it = report_blocks.begin(); block_it != report_blocks.end(); ++block_it) 
+	{
       // Find the previous extended high sequence number for this remote SSRC,
       // to calculate the number of RTP packets this report refers to. Ignore if
       // we haven't seen this SSRC before.
       std::map<uint32_t, uint32_t>::iterator seq_num_it =
           extended_max_sequence_number_.find(block_it->source_ssrc);
       int number_of_packets = 0;
-      if (seq_num_it != extended_max_sequence_number_.end()) {
+      if (seq_num_it != extended_max_sequence_number_.end()) 
+	  {
         number_of_packets =
             block_it->extended_highest_sequence_number - seq_num_it->second;
       }
       fraction_lost_aggregate += number_of_packets * block_it->fraction_lost;
       total_number_of_packets += number_of_packets;
 
-      extended_max_sequence_number_[block_it->source_ssrc] =
-          block_it->extended_highest_sequence_number;
+      extended_max_sequence_number_[block_it->source_ssrc] = block_it->extended_highest_sequence_number;
     }
     int weighted_fraction_lost = 0;
-    if (total_number_of_packets > 0) {
-      weighted_fraction_lost =
-          (fraction_lost_aggregate + total_number_of_packets / 2) /
-          total_number_of_packets;
+    if (total_number_of_packets > 0) 
+	{
+      weighted_fraction_lost = (fraction_lost_aggregate + total_number_of_packets / 2) / total_number_of_packets;
     }
     owner_->OnUplinkPacketLossRate(weighted_fraction_lost / 255.0f);
   }
@@ -691,7 +692,7 @@ ChannelSend::ChannelSend(Clock* clock,
       retransmission_rate_limiter_.get();
   configuration.extmap_allow_mixed = extmap_allow_mixed;
   configuration.rtcp_report_interval_ms = rtcp_report_interval_ms;
-
+  // TODO@chensong 2022-10-19 创建RTP-RTCP 管理模块
   _rtpRtcpModule = RtpRtcp::Create(configuration);
   _rtpRtcpModule->SetSendingMediaStatus(false);
 
@@ -736,7 +737,6 @@ ChannelSend::~ChannelSend() {
 
   if (_moduleProcessThreadPtr)
     _moduleProcessThreadPtr->DeRegisterModule(_rtpRtcpModule.get());
- 
 }
 
 void ChannelSend::StartSend() {

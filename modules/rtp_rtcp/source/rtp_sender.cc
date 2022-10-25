@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -680,12 +680,13 @@ bool RTPSender::SendToNetwork(std::unique_ptr<RtpPacketToSend> packet,
     if (ssrc == FlexfecSsrc()) {
       // Store FlexFEC packets in the history here, so they can be found
       // when the pacer calls TimeToSendPacket.
+		//统计打包后的payload的码率开销
       flexfec_packet_history_.PutRtpPacket(std::move(packet), storage,
                                            absl::nullopt);
     } else {
       packet_history_.PutRtpPacket(std::move(packet), storage, absl::nullopt);
     }
-
+    // TODO@chensong 20220803   将packet投入[F:\Work\20220719_webrtc\src\modules\pacing\paced_sender.cc]PacedSender的发送队列中
     paced_sender_->InsertPacket(priority, ssrc, seq_no, corrected_time_ms,
                                 packet_size, false);
     return true;

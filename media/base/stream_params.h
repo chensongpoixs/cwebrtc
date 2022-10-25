@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2011 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -80,7 +80,7 @@ struct SsrcGroup {
 
   std::string ToString() const;
 
-  std::string semantics;        // e.g FIX, FEC, SIM.
+  std::string semantics;        // e.g FIX, FEC, SIM. TODO@chensong 2022-10-08 这个非常有趣的东西哈 ^_^
   std::vector<uint32_t> ssrcs;  // SSRCs of this type.
 };
 
@@ -132,7 +132,8 @@ struct StreamParams {
 
   // Convenience function to add an FID ssrc for a primary_ssrc
   // that's already been added.
-  bool AddFidSsrc(uint32_t primary_ssrc, uint32_t fid_ssrc) {
+  bool AddFidSsrc(uint32_t primary_ssrc, uint32_t fid_ssrc) 
+  {
     return AddSecondarySsrc(kFidSsrcGroupSemantics, primary_ssrc, fid_ssrc);
   }
 

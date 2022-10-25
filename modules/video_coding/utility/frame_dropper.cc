@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2011 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -78,7 +78,8 @@ void FrameDropper::Enable(bool enable) {
 }
 
 void FrameDropper::Fill(size_t framesize_bytes, bool delta_frame) {
-  if (!enabled_) {
+  if (!enabled_) 
+  {
     return;
   }
   float framesize_kbits = 8.0f * static_cast<float>(framesize_bytes) / 1000.0f;
@@ -171,69 +172,94 @@ void FrameDropper::UpdateRatio() {
 
 // This function signals when to drop frames to the caller. It makes use of the
 // drop_ratio_ to smooth out the drops over time.
-bool FrameDropper::DropFrame() {
-  if (!enabled_) {
+//此函数指示何时将帧丢弃给调用者。它利用了
+// drop_ratio_用于随时间平滑下降。
+bool FrameDropper::DropFrame() 
+{
+  if (!enabled_)
+  {
     return false;
   }
-  if (drop_next_) {
+  if (drop_next_) 
+  {
     drop_next_ = false;
     drop_count_ = 0;
   }
 
-  if (drop_ratio_.filtered() >= 0.5f) {  // Drops per keep
+  if (drop_ratio_.filtered() >= 0.5f) 
+  {  // Drops per keep
     // Limit is the number of frames we should drop between each kept frame
     // to keep our drop ratio. limit is positive in this case.
+    //每次保持下降
+    //限制是我们应该在每个保留的帧之间放置的帧数
+    //保持我们的下降率。在这种情况下，极限为正。
     float denom = 1.0f - drop_ratio_.filtered();
-    if (denom < 1e-5) {
+    if (denom < 1e-5) 
+	{
       denom = 1e-5f;
     }
     int32_t limit = static_cast<int32_t>(1.0f / denom - 1.0f + 0.5f);
     // Put a bound on the max amount of dropped frames between each kept
     // frame, in terms of frame rate and window size (secs).
-    int max_limit =
-        static_cast<int>(incoming_frame_rate_ * max_drop_duration_secs_);
-    if (limit > max_limit) {
+    //对每个保留帧之间的最大丢弃帧数进行限制
+    //帧，在帧速率和窗口大小（秒）方面。
+    int max_limit = static_cast<int>(incoming_frame_rate_ * max_drop_duration_secs_);
+    if (limit > max_limit) 
+	{
       limit = max_limit;
     }
-    if (drop_count_ < 0) {
+    if (drop_count_ < 0) 
+	{
       // Reset the drop_count_ since it was negative and should be positive.
       drop_count_ = -drop_count_;
     }
-    if (drop_count_ < limit) {
+    if (drop_count_ < limit) 
+	{
       // As long we are below the limit we should drop frames.
       drop_count_++;
       return true;
-    } else {
+    }
+	else 
+	{
       // Only when we reset drop_count_ a frame should be kept.
       drop_count_ = 0;
       return false;
     }
-  } else if (drop_ratio_.filtered() > 0.0f &&
-             drop_ratio_.filtered() < 0.5f) {  // Keeps per drop
+  }
+  else if (drop_ratio_.filtered() > 0.0f && drop_ratio_.filtered() < 0.5f) 
+  {  // Keeps per drop
     // Limit is the number of frames we should keep between each drop
     // in order to keep the drop ratio. limit is negative in this case,
     // and the drop_count_ is also negative.
     float denom = drop_ratio_.filtered();
-    if (denom < 1e-5) {
+    if (denom < 1e-5) 
+	{
       denom = 1e-5f;
     }
     int32_t limit = -static_cast<int32_t>(1.0f / denom - 1.0f + 0.5f);
-    if (drop_count_ > 0) {
+    if (drop_count_ > 0) 
+	{
       // Reset the drop_count_ since we have a positive
       // drop_count_, and it should be negative.
       drop_count_ = -drop_count_;
     }
-    if (drop_count_ > limit) {
-      if (drop_count_ == 0) {
+    if (drop_count_ > limit) 
+	{
+      if (drop_count_ == 0) 
+	  {
         // Drop frames when we reset drop_count_.
         drop_count_--;
         return true;
-      } else {
+      } 
+	  else 
+	  {
         // Keep frames as long as we haven't reached limit.
         drop_count_--;
         return false;
       }
-    } else {
+    }
+	else 
+	{
       drop_count_ = 0;
       return false;
     }

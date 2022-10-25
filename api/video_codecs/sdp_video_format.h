@@ -29,7 +29,7 @@ struct RTC_EXPORT SdpVideoFormat {
   SdpVideoFormat(SdpVideoFormat&&);
   SdpVideoFormat& operator=(const SdpVideoFormat&);
   SdpVideoFormat& operator=(SdpVideoFormat&&);
-
+  std::string ToString() const;
   ~SdpVideoFormat();
 
   friend RTC_EXPORT bool operator==(const SdpVideoFormat& a,

@@ -501,8 +501,7 @@ VideoStreamEncoder::VideoStreamEncoder(
       degradation_preference_(DegradationPreference::DISABLED),
       posted_frames_waiting_for_encode_(0),
       last_captured_timestamp_(0),
-      delta_ntp_internal_ms_(clock_->CurrentNtpInMilliseconds() -
-                             clock_->TimeInMilliseconds()),
+      delta_ntp_internal_ms_(clock_->CurrentNtpInMilliseconds() - clock_->TimeInMilliseconds()),
       last_frame_log_ms_(clock_->TimeInMilliseconds()),
       captured_frame_count_(0),
       dropped_frame_count_(0),
@@ -896,7 +895,8 @@ void VideoStreamEncoder::ConfigureQualityScaler(
       GetActiveCounts(kCpu), GetActiveCounts(kQuality));
 }
 // ---> encoder -> coding
-void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
+void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) 
+{
   RTC_DCHECK_RUNS_SERIALIZED(&incoming_frame_race_checker_);
   VideoFrame incoming_frame = video_frame;
 
@@ -908,31 +908,40 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
   // capture time to be less than present time, we should reset the capture
   // timestamps here. Otherwise there may be issues with RTP send stream.
   if (incoming_frame.timestamp_us() > current_time_us)
+  {
     incoming_frame.set_timestamp_us(current_time_us);
+  }
 
   // Capture time may come from clock with an offset and drift from clock_.
+  // 默认延迟时间 [delta_ntp_internal_ms_]为什么呢
   int64_t capture_ntp_time_ms;
-  if (video_frame.ntp_time_ms() > 0) {
+  if (video_frame.ntp_time_ms() > 0) 
+  {
     capture_ntp_time_ms = video_frame.ntp_time_ms();
-  } else if (video_frame.render_time_ms() != 0) {
+  }
+  else if (video_frame.render_time_ms() != 0) 
+  {
     capture_ntp_time_ms = video_frame.render_time_ms() + delta_ntp_internal_ms_;
-  } else {
+  }
+  else 
+  {
     capture_ntp_time_ms = current_time_ms + delta_ntp_internal_ms_;
   }
   incoming_frame.set_ntp_time_ms(capture_ntp_time_ms);
 
   // Convert NTP time, in ms, to RTP timestamp.
   const int kMsToRtpTimestamp = 90;
-  incoming_frame.set_timestamp(
-      kMsToRtpTimestamp * static_cast<uint32_t>(incoming_frame.ntp_time_ms()));
+  incoming_frame.set_timestamp( kMsToRtpTimestamp * static_cast<uint32_t>(incoming_frame.ntp_time_ms()));
 
-  if (incoming_frame.ntp_time_ms() <= last_captured_timestamp_) {
+  if (incoming_frame.ntp_time_ms() <= last_captured_timestamp_) 
+  {
     // We don't allow the same capture time for two frames, drop this one.
     RTC_LOG(LS_WARNING) << "Same/old NTP timestamp ("
                         << incoming_frame.ntp_time_ms()
                         << " <= " << last_captured_timestamp_
                         << ") for incoming frame. Dropping.";
-    encoder_queue_.PostTask([this, incoming_frame]() {
+    encoder_queue_.PostTask([this, incoming_frame]() 
+	{
       RTC_DCHECK_RUN_ON(&encoder_queue_);
       accumulated_update_rect_.Union(incoming_frame.update_rect());
     });
@@ -940,7 +949,8 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
   }
 
   bool log_stats = false;
-  if (current_time_ms - last_frame_log_ms_ > kFrameLogIntervalMs) {
+  if (current_time_ms - last_frame_log_ms_ > kFrameLogIntervalMs) 
+  {
     last_frame_log_ms_ = current_time_ms;
     log_stats = true;
   }
@@ -977,7 +987,8 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame) {
               VideoStreamEncoderObserver::DropReason::kEncoderQueue);
           accumulated_update_rect_.Union(incoming_frame.update_rect());
         }
-        if (log_stats) {
+        if (log_stats) 
+		{
           RTC_LOG(LS_INFO) << "Number of frames: captured "
                            << captured_frame_count_
                            << ", dropped (due to encoder blocked) "
@@ -1153,9 +1164,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
     ReconfigureEncoder();
     last_parameters_update_ms_.emplace(now_ms);
   }
-  else if (!last_parameters_update_ms_ ||
-             now_ms - *last_parameters_update_ms_ >=
-                 vcm::VCMProcessTimer::kDefaultProcessIntervalMs) 
+  else if (!last_parameters_update_ms_ || now_ms - *last_parameters_update_ms_ >= vcm::VCMProcessTimer::kDefaultProcessIntervalMs) 
   {
     if (last_encoder_rate_settings_) 
     {
@@ -1165,8 +1174,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
       // encoder.
       EncoderRateSettings new_rate_settings = *last_encoder_rate_settings_;
       new_rate_settings.framerate_fps = static_cast<double>(framerate_fps);
-      SetEncoderRates(
-          UpdateBitrateAllocationAndNotifyObserver(new_rate_settings));
+      SetEncoderRates( UpdateBitrateAllocationAndNotifyObserver(new_rate_settings));
     }
     last_parameters_update_ms_.emplace(now_ms);
   }
@@ -1175,8 +1183,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   // remember its updated region.
   if (pending_frame_) 
   {
-    encoder_stats_observer_->OnFrameDropped(
-        VideoStreamEncoderObserver::DropReason::kEncoderQueue);
+    encoder_stats_observer_->OnFrameDropped( VideoStreamEncoderObserver::DropReason::kEncoderQueue);
     accumulated_update_rect_.Union(pending_frame_->update_rect());
   }
 
@@ -1189,11 +1196,13 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
     }
     ++initial_framedrop_;
     // Storing references to a native buffer risks blocking frame capture.
-    if (video_frame.video_frame_buffer()->type() !=
-        VideoFrameBuffer::Type::kNative) {
+    if (video_frame.video_frame_buffer()->type() != VideoFrameBuffer::Type::kNative) 
+	{
       pending_frame_ = video_frame;
       pending_frame_post_time_us_ = time_when_posted_us;
-    } else {
+    }
+	else 
+	{
       // Ensure that any previously stored frame is dropped.
       pending_frame_.reset();
       accumulated_update_rect_.Union(video_frame.update_rect());
@@ -1202,7 +1211,8 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   }
   initial_framedrop_ = kMaxInitialFramedrop;
 
-  if (EncoderPaused()) {
+  if (EncoderPaused()) 
+  {
     // Storing references to a native buffer risks blocking frame capture.
     if (video_frame.video_frame_buffer()->type() != VideoFrameBuffer::Type::kNative) 
     {
@@ -1212,7 +1222,9 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
         }
       pending_frame_ = video_frame;
       pending_frame_post_time_us_ = time_when_posted_us;
-    } else {
+    }
+	else 
+	{
       // Ensure that any previously stored frame is dropped.
       pending_frame_.reset();
       TraceFrameDropStart();
@@ -1226,11 +1238,10 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   frame_dropper_.Leak(framerate_fps);
   // Frame dropping is enabled iff frame dropping is not force-disabled, and
   // rate controller is not trusted.
-  const bool frame_dropping_enabled =
-      !force_disable_frame_dropper_ &&
-      !encoder_info_.has_trusted_rate_controller;
+  const bool frame_dropping_enabled = !force_disable_frame_dropper_ && !encoder_info_.has_trusted_rate_controller;
   frame_dropper_.Enable(frame_dropping_enabled);
-  if (frame_dropping_enabled && frame_dropper_.DropFrame()) {
+  if (frame_dropping_enabled && frame_dropper_.DropFrame()) 
+  {
     RTC_LOG(LS_VERBOSE)
         << "Drop Frame: "
         << "target bitrate "
@@ -1258,8 +1269,7 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
   {
     int cropped_width = video_frame.width() - crop_width_;
     int cropped_height = video_frame.height() - crop_height_;
-    rtc::scoped_refptr<I420Buffer> cropped_buffer =
-        I420Buffer::Create(cropped_width, cropped_height);
+    rtc::scoped_refptr<I420Buffer> cropped_buffer = I420Buffer::Create(cropped_width, cropped_height);
     // TODO(ilnik): Remove scaling if cropping is too big, as it should never
     // happen after SinkWants signaled correctly from ReconfigureEncoder.
     VideoFrame::UpdateRect update_rect = video_frame.update_rect();
@@ -1300,7 +1310,8 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
     }
   }
 
-  if (!accumulated_update_rect_.IsEmpty()) {
+  if (!accumulated_update_rect_.IsEmpty()) 
+  {
     accumulated_update_rect_.Union(out_frame.update_rect());
     accumulated_update_rect_.Intersect(
         VideoFrame::UpdateRect{0, 0, out_frame.width(), out_frame.height()});
@@ -1324,7 +1335,7 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
       bitrate_adjuster_->Reset();
     }
   }
-
+  //TODO@chensong 20220802   根据变更的帧率，重新设定码率调节器
   if (bitrate_adjuster_) 
   {
       //TODO@chensong 20220718 编码器 空间层????? ---> 为什么是定义为5呢
@@ -1342,19 +1353,21 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
   last_encode_info_ms_ = clock_->TimeInMilliseconds();
   RTC_DCHECK_EQ(send_codec_.width, out_frame.width());
   RTC_DCHECK_EQ(send_codec_.height, out_frame.height());
-  const VideoFrameBuffer::Type buffer_type =
-      out_frame.video_frame_buffer()->type();
+
+  //TODO@chensong 20220802 对原始帧进行420转码
+  const VideoFrameBuffer::Type buffer_type = out_frame.video_frame_buffer()->type(); 
   const bool is_buffer_type_supported =
       buffer_type == VideoFrameBuffer::Type::kI420 ||
       (buffer_type == VideoFrameBuffer::Type::kNative &&
        info.supports_native_handle);
 
-  if (!is_buffer_type_supported) {
+  if (!is_buffer_type_supported) 
+  {
     // This module only supports software encoding.
-    rtc::scoped_refptr<I420BufferInterface> converted_buffer(
-        out_frame.video_frame_buffer()->ToI420());
+    rtc::scoped_refptr<I420BufferInterface> converted_buffer(out_frame.video_frame_buffer()->ToI420());
 
-    if (!converted_buffer) {
+    if (!converted_buffer) 
+	{
       RTC_LOG(LS_ERROR) << "Frame conversion failed, dropping frame.";
       return;
     }
@@ -1383,16 +1396,17 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
 
   frame_encoder_timer_.OnEncodeStarted(out_frame.timestamp(),
                                        out_frame.render_time_ms());
-
+  //// 将帧送入编码队列
   const int32_t encode_status = encoder_->Encode(out_frame, &next_frame_types_);
 
-  if (encode_status < 0) {
-    RTC_LOG(LS_ERROR) << "Failed to encode frame. Error code: "
-                      << encode_status;
+  if (encode_status < 0) 
+  {
+    RTC_LOG(LS_ERROR) << "Failed to encode frame. Error code: " << encode_status;
     return;
   }
 
-  for (auto& it : next_frame_types_) {
+  for (auto& it : next_frame_types_) 
+  {
     it = VideoFrameType::kVideoFrameDelta;
   }
 }
@@ -1449,62 +1463,65 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
     const RTPFragmentationHeader* fragmentation) {
   TRACE_EVENT_INSTANT1("webrtc", "VCMEncodedFrameCallback::Encoded",
                        "timestamp", encoded_image.Timestamp());
+  // TODO@chensong 2022-07-26 这个字段是啥意思 spatial_idx ？？？？？ -->解析Image的Info: ExperimentId,simulcast
   const size_t spatial_idx = encoded_image.SpatialIndex().value_or(0);
   EncodedImage image_copy(encoded_image);
 
-  frame_encoder_timer_.FillTimingInfo(
-      spatial_idx, &image_copy,
-      rtc::TimeMicros() / rtc::kNumMicrosecsPerMillisec);
+  frame_encoder_timer_.FillTimingInfo( spatial_idx, &image_copy, rtc::TimeMicros() / rtc::kNumMicrosecsPerMillisec);
 
   // Piggyback ALR experiment group id and simulcast id into the content type.
-  const uint8_t experiment_id = experiment_groups_[videocontenttypehelpers::IsScreenshare(
-          image_copy.content_type_)];
+  const uint8_t experiment_id = experiment_groups_[videocontenttypehelpers::IsScreenshare(image_copy.content_type_)];
 
   // TODO(ilnik): This will force content type extension to be present even
   // for realtime video. At the expense of miniscule overhead we will get
   // sliced receive statistics.
-  RTC_CHECK(videocontenttypehelpers::SetExperimentId(&image_copy.content_type_,
-                                                     experiment_id));
+  RTC_CHECK(videocontenttypehelpers::SetExperimentId(&image_copy.content_type_, experiment_id));
   // We count simulcast streams from 1 on the wire. That's why we set simulcast
   // id in content type to +1 of that is actual simulcast index. This is because
   // value 0 on the wire is reserved for 'no simulcast stream specified'.
-  RTC_CHECK(videocontenttypehelpers::SetSimulcastId(
-      &image_copy.content_type_, static_cast<uint8_t>(spatial_idx + 1)));
+  RTC_CHECK(videocontenttypehelpers::SetSimulcastId( &image_copy.content_type_, static_cast<uint8_t>(spatial_idx + 1)));
 
   // Encoded is called on whatever thread the real encoder implementation run
   // on. In the case of hardware encoders, there might be several encoders
   // running in parallel on different threads.
   encoder_stats_observer_->OnSendEncodedImage(image_copy, codec_specific_info);
-
-  EncodedImageCallback::Result result =
-      sink_->OnEncodedImage(image_copy, codec_specific_info, fragmentation);
+  // TODO@chensong ----->VideoSendStreamImpl  -->  -----> 真正视频 将帧传给video/VideoSendStreamImpl
+  EncodedImageCallback::Result result = sink_->OnEncodedImage(image_copy, codec_specific_info, fragmentation);
 
   // We are only interested in propagating the meta-data about the image, not
   // encoded data itself, to the post encode function. Since we cannot be sure
   // the pointer will still be valid when run on the task queue, set it to null.
   image_copy.set_buffer(nullptr, 0);
-
+  //bug: simulcast_id用了image.SpatialIndex()的位置，对于提供spatial的编码器就无法
+  // 获取spatial layer信息了，
   int temporal_index = 0;
-  if (codec_specific_info) {
-    if (codec_specific_info->codecType == kVideoCodecVP9) {
+  if (codec_specific_info) 
+  {
+    if (codec_specific_info->codecType == kVideoCodecVP9) 
+	{
       temporal_index = codec_specific_info->codecSpecific.VP9.temporal_idx;
-    } else if (codec_specific_info->codecType == kVideoCodecVP8) {
+    } 
+	else if (codec_specific_info->codecType == kVideoCodecVP8) 
+	{
       temporal_index = codec_specific_info->codecSpecific.VP8.temporalIdx;
     }
   }
-  if (temporal_index == kNoTemporalIdx) {
+  if (temporal_index == kNoTemporalIdx) 
+  {
     temporal_index = 0;
   }
-
+  //  TODO@chensong 20220802 使用该帧去更新码率调节器，媒体源调节器等
   RunPostEncode(image_copy, rtc::TimeMicros(), temporal_index);
 
-  if (result.error == Result::OK) {
+  if (result.error == Result::OK) 
+  {
     // In case of an internal encoder running on a separate thread, the
     // decision to drop a frame might be a frame late and signaled via
     // atomic flag. This is because we can't easily wait for the worker thread
     // without risking deadlocks, eg during shutdown when the worker thread
     // might be waiting for the internal encoder threads to stop.
-    if (pending_frame_drops_.load() > 0) {
+    if (pending_frame_drops_.load() > 0) 
+	{
       int pending_drops = pending_frame_drops_.fetch_sub(1);
       RTC_DCHECK_GT(pending_drops, 0);
       result.drop_next_frame = true;
@@ -1886,11 +1903,8 @@ void VideoStreamEncoder::RunPostEncode(EncodedImage encoded_image,
       pending_frame_drops_.fetch_add(1);
     }
   }
-
-  overuse_detector_->FrameSent(
-      encoded_image.Timestamp(), time_sent_us,
-      encoded_image.capture_time_ms_ * rtc::kNumMicrosecsPerMillisec,
-      encode_duration_us);
+  // TODO@chensong 20222-07-26 统计视频编码的延迟
+  overuse_detector_->FrameSent( encoded_image.Timestamp(), time_sent_us, encoded_image.capture_time_ms_ * rtc::kNumMicrosecsPerMillisec, encode_duration_us);
   if (quality_scaler_ && encoded_image.qp_ >= 0)
     quality_scaler_->ReportQp(encoded_image.qp_, time_sent_us);
   if (bitrate_adjuster_) {

@@ -143,28 +143,30 @@ bool PortAllocator::SetConfiguration(
     int candidate_pool_size,
     bool prune_turn_ports,
     webrtc::TurnCustomizer* turn_customizer,
-    const absl::optional<int>& stun_candidate_keepalive_interval) {
+    const absl::optional<int>& stun_candidate_keepalive_interval) 
+{
   CheckRunOnValidThreadIfInitialized();
   // A positive candidate pool size would lead to the creation of a pooled
   // allocator session and starting getting ports, which we should only do on
   // the network thread.
   RTC_DCHECK(candidate_pool_size == 0 || thread_checker_.IsCurrent());
-  bool ice_servers_changed =
-      (stun_servers != stun_servers_ || turn_servers != turn_servers_);
+  bool ice_servers_changed = (stun_servers != stun_servers_ || turn_servers != turn_servers_);
   stun_servers_ = stun_servers;
   turn_servers_ = turn_servers;
   prune_turn_ports_ = prune_turn_ports;
 
-  if (candidate_pool_frozen_) {
-    if (candidate_pool_size != candidate_pool_size_) {
-      RTC_LOG(LS_ERROR)
-          << "Trying to change candidate pool size after pool was frozen.";
+  if (candidate_pool_frozen_) 
+  {
+    if (candidate_pool_size != candidate_pool_size_) 
+	{
+      RTC_LOG(LS_ERROR) << "Trying to change candidate pool size after pool was frozen.";
       return false;
     }
     return true;
   }
 
-  if (candidate_pool_size < 0) {
+  if (candidate_pool_size < 0) 
+  {
     RTC_LOG(LS_ERROR) << "Can't set negative pool size.";
     return false;
   }
@@ -173,7 +175,8 @@ bool PortAllocator::SetConfiguration(
 
   // If ICE servers changed, throw away any existing pooled sessions and create
   // new ones.
-  if (ice_servers_changed) {
+  if (ice_servers_changed) 
+  {
     pooled_sessions_.clear();
   }
 
@@ -181,7 +184,8 @@ bool PortAllocator::SetConfiguration(
 
   // If |candidate_pool_size_| is less than the number of pooled sessions, get
   // rid of the extras.
-  while (candidate_pool_size_ < static_cast<int>(pooled_sessions_.size())) {
+  while (candidate_pool_size_ < static_cast<int>(pooled_sessions_.size())) 
+  {
     pooled_sessions_.back().reset(nullptr);
     pooled_sessions_.pop_back();
   }
@@ -191,22 +195,20 @@ bool PortAllocator::SetConfiguration(
   // Ports in sessions that are taken and owned by P2PTransportChannel will be
   // updated there via IceConfig.
   stun_candidate_keepalive_interval_ = stun_candidate_keepalive_interval;
-  for (const auto& session : pooled_sessions_) {
-    session->SetStunKeepaliveIntervalForReadyPorts(
-        stun_candidate_keepalive_interval_);
+  for (const auto& session : pooled_sessions_) 
+  {
+    session->SetStunKeepaliveIntervalForReadyPorts(stun_candidate_keepalive_interval_);
   }
 
   // If |candidate_pool_size_| is greater than the number of pooled sessions,
   // create new sessions.
-  while (static_cast<int>(pooled_sessions_.size()) < candidate_pool_size_) {
-    IceParameters iceCredentials =
-        IceCredentialsIterator::CreateRandomIceCredentials();
-    PortAllocatorSession* pooled_session =
-        CreateSessionInternal("", 0, iceCredentials.ufrag, iceCredentials.pwd);
+  while (static_cast<int>(pooled_sessions_.size()) < candidate_pool_size_) 
+  {
+    IceParameters iceCredentials = IceCredentialsIterator::CreateRandomIceCredentials();
+    PortAllocatorSession* pooled_session = CreateSessionInternal("", 0, iceCredentials.ufrag, iceCredentials.pwd);
     pooled_session->set_pooled(true);
     pooled_session->StartGettingPorts();
-    pooled_sessions_.push_back(
-        std::unique_ptr<PortAllocatorSession>(pooled_session));
+    pooled_sessions_.push_back(std::unique_ptr<PortAllocatorSession>(pooled_session));
   }
   return true;
 }

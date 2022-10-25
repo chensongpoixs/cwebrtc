@@ -163,12 +163,12 @@ class RTC_EXPORT PeerConnectionInterface : public rtc::RefCountInterface {
  public:
   // See https://w3c.github.io/webrtc-pc/#dom-rtcsignalingstate
   enum SignalingState {
-    kStable,
-    kHaveLocalOffer,
-    kHaveLocalPrAnswer,
-    kHaveRemoteOffer,
-    kHaveRemotePrAnswer,
-    kClosed,
+    kStable,			// 没有正在进行的报价/答案交换。这也是初始状态，在这种情况下，本地和远程描述为空。
+    kHaveLocalOffer,    // 本地描述，类型为”offer "，已成功应用。
+    kHaveLocalPrAnswer, // 远程描述，类型为”offer"，已成功应用。
+    kHaveRemoteOffer,   // 类型的远程描述”offer"已成功应用，并且类型为”pranswer"已成功申请。
+    kHaveRemotePrAnswer,// 类型的本地描述”offer"已成功应用，并且类型为”pranswer"已成功申请。
+    kClosed,			// 	这RTCPeerConnection已关闭;其[[IsClosed]]插槽是 。true
   };
 
   // See https://w3c.github.io/webrtc-pc/#dom-rtcicegatheringstate
@@ -440,8 +440,7 @@ class RTC_EXPORT PeerConnectionInterface : public rtc::RefCountInterface {
     // if a lower cost one exists. For example, if both Wi-Fi and cellular
     // interfaces are available, this could be used to avoid using the cellular
     // interface.
-    CandidateNetworkPolicy candidate_network_policy =
-        kCandidateNetworkPolicyAll;
+    CandidateNetworkPolicy candidate_network_policy = kCandidateNetworkPolicyAll;
 
     // The maximum number of packets that can be stored in the NetEq audio
     // jitter buffer. Can be reduced to lower tolerated audio latency.
@@ -1198,6 +1197,13 @@ class PeerConnectionObserver {
   // log function.
   // The heuristics for defining what constitutes "interesting" are
   // implementation-defined.
+  // TODO@chensong 2022-09-29 
+  //当WebRTC检测到有趣的用法时调用。 
+  //适当的操作是添加有关 
+  // PeerConnect并将事件写入某种“有趣的事件” 
+  // log函数。 
+  //定义什么构成“有趣”的启发是 
+  //定义了实现。
   virtual void OnInterestingUsage(int usage_pattern) {}
 };
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2011 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -21,6 +21,10 @@ namespace webrtc {
 // The Frame Dropper implements a variant of the leaky bucket algorithm
 // for keeping track of when to drop frames to avoid bit rate
 // over use when the encoder can't keep its bit rate.
+//帧滴管实现了漏桶算法的一种变体
+//用于跟踪何时丢弃帧以避免比特率
+//编码器无法保持其比特率时过度使用。
+//  移帧器
 class FrameDropper {
  public:
   FrameDropper();
@@ -35,6 +39,9 @@ class FrameDropper {
   // given frame rate. Must be called for every frame.
   //
   // Return value     : True if we should drop the current frame.
+  //回答了这样一个问题：如果我们想要达到一个
+  //给定帧速率。必须为每个帧调用。
+  //返回值：如果要删除当前帧，则返回True
   bool DropFrame();
 
   // Updates the FrameDropper with the size of the latest encoded frame.
@@ -69,6 +76,12 @@ class FrameDropper {
 
   // |large_frame_accumulation_spread_| represents the number of frames over
   // which a large frame is accumulated.
+  //关键帧和大增量帧不会立即累积在
+  //因为它们可以立即使铲斗溢出，从而导致较大的
+  //在以下可能小得多的数据包上丢弃。相反，这些
+  //当铲斗泄漏时，大的机架累积在多个机架上。
+  //| large_frame_cumulation_spread|表示上的帧数
+  //积累了一个大的框架。
   float large_frame_accumulation_spread_;
   // |large_frame_accumulation_count_| represents the number of frames left
   // to finish accumulating a large frame.

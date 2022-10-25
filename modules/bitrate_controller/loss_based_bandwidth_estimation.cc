@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -20,6 +20,7 @@
 
 namespace webrtc {
 namespace {
+	// 基于损失的控制
 const char kBweLossBasedControl[] = "WebRTC-Bwe-LossBasedControl";
 
 // Increase slower when RTT is high.

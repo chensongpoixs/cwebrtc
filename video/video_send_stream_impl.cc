@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -462,6 +462,8 @@ void VideoSendStreamImpl::OnBitrateAllocationUpdated(
       // the previously sent allocation and the same streams are still enabled,
       // it is considered "similar". We do not want send similar allocations
       // more once per kMaxVbaThrottleTimeMs.
+      // 如果allocation处于previously allocation + kMaxVbaSizeDifferencePercent 区间
+      // 则被当作similar，认为一个kMaxVbaThrottleTimeMs不更新
       const VideoBitrateAllocation& last =
           video_bitrate_allocation_context_->last_sent_allocation;
       const bool is_similar =
@@ -486,13 +488,18 @@ void VideoSendStreamImpl::OnBitrateAllocationUpdated(
     video_bitrate_allocation_context_->last_send_time_ms = now_ms;
 
     // Send bitrate allocation metadata only if encoder is not paused.
+    // 告知给下层的观察者
+	//这里再进一步细说一下: VideoSendStreamImpl::OnBitrateAllocationUpdated()这个函数有两个地方会调用，
+	//一个是在编码器设置编码码率的时候通知VideoSendStreamImpl，而另一个则是此处的收帧函数OnEncodedImage()，
+	//这里只是将缓存的旧值(throttled_allocation)传入，
     rtp_video_sender_->OnBitrateAllocationUpdated(allocation);
   }
 }
 
 void VideoSendStreamImpl::SignalEncoderActive() {
   RTC_DCHECK_RUN_ON(worker_queue_);
-  if (rtp_video_sender_->IsActive()) {
+  if (rtp_video_sender_->IsActive()) 
+  {
     RTC_LOG(LS_INFO) << "SignalEncoderActive, Encoder is active.";
     bitrate_allocator_->AddObserver(this, GetAllocationConfig());
   }
@@ -577,6 +584,14 @@ void VideoSendStreamImpl::OnEncoderConfigurationChanged(
   }
 }
 
+/**
+*
+*该函数主要做了三件事:
+
+启用enable_padding，通知编码器中的码率分配器，让其做码率分配的时候把padding也考虑上
+将编好的帧和相关信息转到RtpVideoSender处理
+检查码率分配是否已经改变，通知下层
+*/
 EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
     const EncodedImage& encoded_image,
     const CodecSpecificInfo* codec_specific_info,
@@ -588,7 +603,8 @@ EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
   // Indicate that there still is activity going on.
   activity_ = true;
 
-  auto enable_padding_task = [this]() {
+  auto enable_padding_task = [this]() 
+  {
     if (disable_padding_) {
       RTC_DCHECK_RUN_ON(worker_queue_);
       disable_padding_ = false;
@@ -596,12 +612,15 @@ EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
       SignalEncoderActive();
     }
   };
-  if (!worker_queue_->IsCurrent()) {
+  if (!worker_queue_->IsCurrent()) 
+  {
     worker_queue_->PostTask(enable_padding_task);
-  } else {
+  }
+  else 
+  {
     enable_padding_task();
   }
-
+  // TODO@chensong 20220802 将image发送给RtpVideoSender
   EncodedImageCallback::Result result(EncodedImageCallback::Result::OK);
   if (media_transport_) {
     int64_t frame_id;
@@ -616,33 +635,42 @@ EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
     // will need to do some translation to produce reference info using frame
     // ids.
     std::vector<int64_t> referenced_frame_ids;
-    if (encoded_image._frameType != VideoFrameType::kVideoFrameKey) {
+    if (encoded_image._frameType != VideoFrameType::kVideoFrameKey) 
+	{
       RTC_DCHECK_GT(frame_id, 0);
       referenced_frame_ids.push_back(frame_id - 1);
     }
-    media_transport_->SendVideoFrame(
-        config_->rtp.ssrcs[0], webrtc::MediaTransportEncodedVideoFrame(
+    media_transport_->SendVideoFrame( config_->rtp.ssrcs[0], webrtc::MediaTransportEncodedVideoFrame(
                                    frame_id, referenced_frame_ids,
                                    config_->rtp.payload_type, encoded_image));
-  } else {
+  }
+  else 
+  {
     result = rtp_video_sender_->OnEncodedImage(
         encoded_image, codec_specific_info, fragmentation);
   }
   // Check if there's a throttled VideoBitrateAllocation that we should try
   // sending.
   rtc::WeakPtr<VideoSendStreamImpl> send_stream = weak_ptr_;
-  auto update_task = [send_stream]() {
-    if (send_stream) {
+  auto update_task = [send_stream]() 
+  {
+    if (send_stream) 
+	{
       RTC_DCHECK_RUN_ON(send_stream->worker_queue_);
       auto& context = send_stream->video_bitrate_allocation_context_;
-      if (context && context->throttled_allocation) {
+      if (context && context->throttled_allocation) 
+	  {
+		  // TODO@chensong 20220802 告知相关观察者，分配码率的变化
         send_stream->OnBitrateAllocationUpdated(*context->throttled_allocation);
       }
     }
   };
-  if (!worker_queue_->IsCurrent()) {
+  if (!worker_queue_->IsCurrent()) 
+  {
     worker_queue_->PostTask(update_task);
-  } else {
+  }
+  else 
+  {
     update_task();
   }
 

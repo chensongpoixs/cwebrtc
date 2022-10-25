@@ -34,9 +34,12 @@ class BuiltinVideoBitrateAllocatorFactory
     switch (codec.codecType) {
       case kVideoCodecVP8:
         RTC_FALLTHROUGH();
-      case kVideoCodecH264:
+      case kVideoCodecH264: 
+	  {
+		  //TODO@chensong H264 
         rate_allocator.reset(new SimulcastRateAllocator(codec));
         break;
+      }
       case kVideoCodecVP9:
         rate_allocator.reset(new SvcRateAllocator(codec));
         break;

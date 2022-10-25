@@ -55,6 +55,10 @@ class ProcessThread {
 
   // Adds a module that will start to receive callbacks on the worker thread.
   // Can be called from any thread.
+  // TODO@chensong 20220803 
+  // 执行ProcessThread::RegisterModule(module)将一个Module添加进来，
+  //     Module的接口如下，对Process()进行override后，
+  //     使用ProcessThread::WakeUp(module)则会唤醒去调用Process()
   virtual void RegisterModule(Module* module, const rtc::Location& from) = 0;
 
   // Removes a previously registered module.
