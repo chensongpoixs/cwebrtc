@@ -409,6 +409,7 @@ int32_t AudioCodingModuleImpl::Encode(const InputData& input_data) {
 
   {
     rtc::CritScope lock(&callback_crit_sect_);
+	// TODO@chensong 2022-10-15 音频传输层是否创建好了 
     if (packetization_callback_) 
 	{
 		// TODO@chensong 2022-10-25 发送音频数据  -> ChannelSend::SendData
