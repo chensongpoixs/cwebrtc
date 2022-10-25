@@ -455,7 +455,8 @@ int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
     }
   }
 
-  if (paced_sender_) {
+  if (paced_sender_) 
+  {
     // Convert from TickTime to Clock since capture_time_ms is based on
     // TickTime.
     int64_t corrected_capture_tims_ms =
@@ -506,11 +507,14 @@ bool RTPSender::SendPacketToNetwork(const RtpPacketToSend& packet,
 
 void RTPSender::OnReceivedNack(
     const std::vector<uint16_t>& nack_sequence_numbers,
-    int64_t avg_rtt) {
+    int64_t avg_rtt) 
+{
   packet_history_.SetRtt(5 + avg_rtt);
-  for (uint16_t seq_no : nack_sequence_numbers) {
+  for (uint16_t seq_no : nack_sequence_numbers) 
+  {
     const int32_t bytes_sent = ReSendPacket(seq_no);
-    if (bytes_sent < 0) {
+    if (bytes_sent < 0) 
+	{
       // Failed to send one Sequence number. Give up the rest in this nack.
       RTC_LOG(LS_WARNING) << "Failed resending RTP packet " << seq_no
                           << ", Discard rest of packets.";

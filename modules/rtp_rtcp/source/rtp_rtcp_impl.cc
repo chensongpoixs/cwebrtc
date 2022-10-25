@@ -795,15 +795,18 @@ void ModuleRtpRtcpImpl::OnReceivedNack(
   if (!rtp_sender_)
     return;
 
-  for (uint16_t nack_sequence_number : nack_sequence_numbers) {
+  for (uint16_t nack_sequence_number : nack_sequence_numbers)
+  {
     send_loss_stats_.AddLostPacket(nack_sequence_number);
   }
-  if (!rtp_sender_->StorePackets() || nack_sequence_numbers.size() == 0) {
+  if (!rtp_sender_->StorePackets() || nack_sequence_numbers.size() == 0) 
+  {
     return;
   }
   // Use RTT from RtcpRttStats class if provided.
   int64_t rtt = rtt_ms();
-  if (rtt == 0) {
+  if (rtt == 0) 
+  {
     rtcp_receiver_.RTT(rtcp_receiver_.RemoteSSRC(), NULL, &rtt, NULL, NULL);
   }
   rtp_sender_->OnReceivedNack(nack_sequence_numbers, rtt);
