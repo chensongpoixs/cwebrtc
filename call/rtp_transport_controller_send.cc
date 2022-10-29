@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -90,7 +90,7 @@ RtpTransportControllerSend::RtpTransportControllerSend(
   RTC_DCHECK(bitrate_config.start_bitrate_bps > 0);
 
   pacer_.SetPacingRates(bitrate_config.start_bitrate_bps, 0);
-  // TODO@chensong 2022-09-29 ×¢²áÍøÂç·¢ËÍ°ü  »á²»Í£µ÷ÓÃ pacer_ÖĞ·½·¨Process
+  // TODO@chensong 2022-09-29 æ³¨å†Œç½‘ç»œå‘é€åŒ…  ä¼šä¸åœè°ƒç”¨ pacer_ä¸­æ–¹æ³•Process
   process_thread_->RegisterModule(&pacer_, RTC_FROM_HERE);
   process_thread_->Start();
 }
