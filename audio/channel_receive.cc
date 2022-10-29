@@ -274,6 +274,7 @@ int32_t ChannelReceive::OnReceivedPayloadData(const uint8_t* payloadData,
   }
 
   // Push the incoming payload (parsed and ready for decoding) into the ACM
+  // TODO@chensong 2022-10-29  ACM 处理
   if (audio_coding_->IncomingPacket(payloadData, payloadSize, rtp_header) !=
       0) {
     RTC_DLOG(LS_ERROR) << "ChannelReceive::OnReceivedPayloadData() unable to "
@@ -577,7 +578,9 @@ void ChannelReceive::SetReceiveCodecs(
 }
 
 // May be called on either worker thread or network thread.
-void ChannelReceive::OnRtpPacket(const RtpPacketReceived& packet) {
+// TODO@chensong 2022-10-29 去除RTP header 头部信息
+void ChannelReceive::OnRtpPacket(const RtpPacketReceived& packet) 
+{
   int64_t now_ms = rtc::TimeMillis();
   uint8_t audio_level;
   bool voice_activity;
@@ -610,7 +613,7 @@ void ChannelReceive::OnRtpPacket(const RtpPacketReceived& packet) {
 
   RTPHeader header;
   packet_copy.GetHeader(&header);
-
+  // TODO@chensong 2022-10-29  auido 接受到RTP的音频数据关键处理的函数
   ReceivePacket(packet_copy.data(), packet_copy.size(), header);
 }
 
@@ -626,7 +629,9 @@ bool ChannelReceive::ReceivePacket(const uint8_t* packet,
   // E2EE Custom Audio Frame Decryption (This is optional).
   // Keep this buffer around for the lifetime of the OnReceivedPayloadData call.
   rtc::Buffer decrypted_audio_payload;
-  if (frame_decryptor_ != nullptr) {
+  // TODO@chensong 2022-10-29 判断frame_decryptor_音频有没有加密  加密就解码
+  if (frame_decryptor_ != nullptr) 
+  {
     const size_t max_plaintext_size = frame_decryptor_->GetMaxPlaintextByteSize(
         cricket::MEDIA_TYPE_AUDIO, payload_length);
     decrypted_audio_payload.SetSize(max_plaintext_size);

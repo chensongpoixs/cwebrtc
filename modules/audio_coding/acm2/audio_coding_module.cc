@@ -425,7 +425,7 @@ int32_t AudioCodingModuleImpl::Encode(const InputData& input_data) {
       vad_callback_->InFrameType(frame_type);
     }
   }
-  previous_pltype_ = encoded_info.payload_type;
+  previous_pltype_ = encoded_info  .payload_type;
   return static_cast<int32_t>(encode_buffer_.size());
 }
 

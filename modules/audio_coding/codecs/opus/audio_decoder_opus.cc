@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -23,6 +23,7 @@ namespace webrtc {
 AudioDecoderOpusImpl::AudioDecoderOpusImpl(size_t num_channels)
     : channels_(num_channels) {
   RTC_DCHECK(num_channels == 1 || num_channels == 2);
+  // TODO@chensong 2022-10-30 创建Opus解码器 和Opus解码器的初始化
   const int error = WebRtcOpus_DecoderCreate(&dec_state_, channels_);
   RTC_DCHECK(error == 0);
   WebRtcOpus_DecoderInit(dec_state_);

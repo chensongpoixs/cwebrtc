@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -108,6 +108,7 @@ struct RTPHeader {
 
 // RTCP mode to use. Compound mode is described by RFC 4585 and reduced-size
 // RTCP mode is described by RFC 5506.
+// TODO@chensong 2022-10-30   中文翻译 https://rfc2cn.com/rfc5506.html
 enum class RtcpMode { kOff, kCompound, kReducedSize };
 
 enum NetworkState {
