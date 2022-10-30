@@ -119,16 +119,23 @@ class WebRtcVoiceEngine final : public VoiceEngineInterface {
   const webrtc::AudioAllocationSettings allocation_settings_;
 
   // The audio device module.
-  rtc::scoped_refptr<webrtc::AudioDeviceModule> adm_;
+  // TODO@chensong 2022-10-30 音频设备数据采集 与数据放到扬声器中播放的管理
+  rtc::scoped_refptr<webrtc::AudioDeviceModule> adm_; 
   rtc::scoped_refptr<webrtc::AudioEncoderFactory> encoder_factory_;
   rtc::scoped_refptr<webrtc::AudioDecoderFactory> decoder_factory_;
+  
+  // TODO@chensong 2022-10-30 音频混合器 多路音频合成一路音频流播放
   rtc::scoped_refptr<webrtc::AudioMixer> audio_mixer_;
   // The audio processing module.
+  // TODO@chensong 2022-10-30 处理3A问题 ===> [自动增益、回声消除、降噪]
   rtc::scoped_refptr<webrtc::AudioProcessing> apm_;
   // The primary instance of WebRtc VoiceEngine.
+  // TODO@chensong  2022-10-30 音频流的状态控制
   rtc::scoped_refptr<webrtc::AudioState> audio_state_;
+
   std::vector<AudioCodec> send_codecs_;
   std::vector<AudioCodec> recv_codecs_;
+  // TODO@chensong 2022-10-30 所有channel的管理 ???
   std::vector<WebRtcVoiceMediaChannel*> channels_;
   bool is_dumping_aec_ = false;
   bool initialized_ = false;

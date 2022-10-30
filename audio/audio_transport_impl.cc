@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -122,14 +122,14 @@ int32_t AudioTransportImpl::RecordedDataIsAvailable(
   }
 
   std::unique_ptr<AudioFrame> audio_frame(new AudioFrame());
-  InitializeCaptureFrame(sample_rate, send_sample_rate_hz, number_of_channels,
-                         send_num_channels, audio_frame.get());
-  voe::RemixAndResample(static_cast<const int16_t*>(audio_data),
-                        number_of_frames, number_of_channels, sample_rate,
+  InitializeCaptureFrame(sample_rate, send_sample_rate_hz, number_of_channels, send_num_channels, audio_frame.get());
+
+  // TODO@chensong 2022-10-30 音频数据重采样 我们的需要的格式
+  voe::RemixAndResample(static_cast<const int16_t*>(audio_data), number_of_frames, number_of_channels, sample_rate,
                         &capture_resampler_, audio_frame.get());
-  ProcessCaptureFrame(audio_delay_milliseconds, key_pressed,
-                      swap_stereo_channels, audio_processing_,
-                      audio_frame.get());
+
+  // TODO@chensong 2022-10-30  3A 处理
+  ProcessCaptureFrame(audio_delay_milliseconds, key_pressed, swap_stereo_channels, audio_processing_, audio_frame.get());
 
   // Typing detection (utilizes the APM/VAD decision). We let the VAD determine
   // if we're using this feature or not.
@@ -153,9 +153,12 @@ int32_t AudioTransportImpl::RecordedDataIsAvailable(
     typing_noise_detected_ = typing_detected;
 
     RTC_DCHECK_GT(audio_frame->samples_per_channel_, 0);
-    if (!sending_streams_.empty()) {
+	// TODO@chensong 2022-10-30   我们需要发送多少个音频sender => [给每一个端都发送音频的数据]
+    if (!sending_streams_.empty())
+	{
       auto it = sending_streams_.begin();
-      while (++it != sending_streams_.end()) {
+      while (++it != sending_streams_.end()) 
+	  {
         std::unique_ptr<AudioFrame> audio_frame_copy(new AudioFrame());
         audio_frame_copy->CopyFrom(*audio_frame);
         (*it)->SendAudioData(std::move(audio_frame_copy));

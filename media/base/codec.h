@@ -63,7 +63,7 @@ class FeedbackParams {
 };
 
 struct RTC_EXPORT Codec {
-  int id; 
+  int id;  // payloadType 
   std::string name;					// 媒体数据格式
   int clockrate;					// 采样率
   CodecParameterMap params;

@@ -664,11 +664,11 @@ AudioCodecs WebRtcVoiceEngine::CollectCodecs(const std::vector<webrtc::AudioCode
   AudioCodecs out;
 
   // Only generate CN payload types for these clockrates:
-  // TODO@chensong 20220905  产生噪声的设置
+  // TODO@chensong 2022-09-05  产生噪声的设置
   std::map<int, bool, std::greater<int>> generate_cn = {
       {8000, false}, {16000, false}, {32000, false}};
   // Only generate telephone-event payload types for these clockrates:
-  // TODO@chensong 20220905 音频的设置
+  // TODO@chensong 2022-09-05 音频的设置 ----> [拨号音 例如：通话过程中按下`1键`拨号音]
   std::map<int, bool, std::greater<int>> generate_dtmf = {
       {8000, false}, {16000, false}, {32000, false}, {48000, false}};
 

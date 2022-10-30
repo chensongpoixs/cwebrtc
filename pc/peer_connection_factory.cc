@@ -160,7 +160,7 @@ PeerConnectionFactory::~PeerConnectionFactory() {
 bool PeerConnectionFactory::Initialize() {
   RTC_DCHECK(signaling_thread_->IsCurrent());
   rtc::InitRandom(rtc::Time32());
-  // 1. 网络管理类初始化
+  // 1. 网络管理类初始化  --> TODO@chensong 2022-10-30  管理网卡
   default_network_manager_.reset(new rtc::BasicNetworkManager());
   if (!default_network_manager_) 
   {

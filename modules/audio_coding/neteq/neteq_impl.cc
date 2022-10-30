@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -1380,7 +1380,7 @@ int NetEqImpl::DecodeLoop(PacketList* packet_list,
                           int* decoded_length,
                           AudioDecoder::SpeechType* speech_type) {
   RTC_DCHECK(last_decoded_timestamps_.empty());
-
+  // TODO@chensong 2022-10-30 这是音频解码的地方
   // Do decoding.
   while (!packet_list->empty() && !decoder_database_->IsComfortNoise(
                                       packet_list->front().payload_type)) {
