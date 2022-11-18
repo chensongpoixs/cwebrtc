@@ -80,7 +80,7 @@ if (!out_bandwidth_ptr)
 
 #define BANDWIDTH_FILE_LOG if (!out_bandwidth_ptr)\
 {  \
-  out_bandwidth_ptr = ::fopen("./bandwidth/send_side_bandwidth_estimation.log", "wb+"); \
+  /*out_bandwidth_ptr = ::fopen("./bandwidth/send_side_bandwidth_estimation.log", "wb+");*/ \
 } 
 
 #define BANDWIDTH_ESTIMATION_LOG()                                      \
@@ -617,8 +617,7 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
           // Reduce rate:
           //   newRate = rate * (1 - 0.5*lossRate);
           //   where packetLoss = 256*lossRate;
-          new_bitrate =
-              DataRate::bps((current_bitrate_.bps() *
+          new_bitrate = DataRate::bps((current_bitrate_.bps() *
                              static_cast<double>(512 - last_fraction_loss_)) /
                             512.0);
           has_decreased_since_last_fraction_loss_ = true;

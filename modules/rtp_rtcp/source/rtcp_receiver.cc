@@ -695,7 +695,9 @@ void RTCPReceiver::HandleNack(const CommonHeader& rtcp_block,
   }
 
   if (receiver_only_ || main_ssrc_ != nack.media_ssrc())  // Not to us.
+  {
     return;
+  }
 
   packet_information->nack_sequence_numbers.insert( packet_information->nack_sequence_numbers.end(),
       nack.packet_ids().begin(), nack.packet_ids().end());
