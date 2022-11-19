@@ -785,11 +785,10 @@ void ChannelSend::SetEncoder(int payload_type,
 
   // The RTP/RTCP module needs to know the RTP timestamp rate (i.e. clockrate)
   // as well as some other things, so we collect this info and send it along.
-  _rtpRtcpModule->RegisterSendPayloadFrequency(payload_type,
-                                               encoder->RtpTimestampRateHz());
-  rtp_sender_audio_->RegisterAudioPayload("audio", payload_type,
-                                          encoder->RtpTimestampRateHz(),
-                                          encoder->NumChannels(), 0);
+  // TODO@chensong 2022-11-19  把音频的payloadtype注册rtprtcpmodule模块中去 就可以处理payload_type的类型了
+  _rtpRtcpModule->RegisterSendPayloadFrequency(payload_type, encoder->RtpTimestampRateHz());
+  // TODO@chensong 2022-11-19 把音频的payload_type注册到rtp_sender_audio中去 ===> 发送的时候就知道往那个通道发送数据
+  rtp_sender_audio_->RegisterAudioPayload("audio", payload_type, encoder->RtpTimestampRateHz(), encoder->NumChannels(), 0);
 
   if (media_transport_) {
     rtc::CritScope cs(&media_transport_lock_);
@@ -798,6 +797,7 @@ void ChannelSend::SetEncoder(int payload_type,
     // encoder use RTP clock rather than sample count, and they differ for G722.
     media_transport_sampling_frequency_ = encoder->RtpTimestampRateHz();
   }
+  //TODO@chensong 2022-11-19 将opus编码器设置到audio_coding中去
   audio_coding_->SetEncoder(std::move(encoder));
 }
 

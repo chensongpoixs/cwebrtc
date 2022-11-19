@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -738,13 +738,18 @@ size_t AudioEncoderOpusImpl::SufficientOutputBufferSize() const {
 // If the given config is OK, recreate the Opus encoder instance with those
 // settings, save the config, and return true. Otherwise, do nothing and return
 // false.
-bool AudioEncoderOpusImpl::RecreateEncoderInstance(
-    const AudioEncoderOpusConfig& config) {
-  if (!config.IsOk())
-    return false;
+bool AudioEncoderOpusImpl::RecreateEncoderInstance(const AudioEncoderOpusConfig& config) 
+{
+	if (!config.IsOk())
+	{
+		return false;
+	}
   config_ = config;
   if (inst_)
-    RTC_CHECK_EQ(0, WebRtcOpus_EncoderFree(inst_));
+  {
+	  RTC_CHECK_EQ(0, WebRtcOpus_EncoderFree(inst_));
+  }
+  // TODO@chensong 20022-11-19 设置音频缓冲区的buffer的大小
   input_buffer_.clear();
   input_buffer_.reserve(Num10msFramesPerPacket() * SamplesPer10msFrame());
   RTC_CHECK_EQ(0, WebRtcOpus_EncoderCreate(
@@ -761,10 +766,10 @@ bool AudioEncoderOpusImpl::RecreateEncoderInstance(
   } else {
     RTC_CHECK_EQ(0, WebRtcOpus_DisableFec(inst_));
   }
-  RTC_CHECK_EQ(
-      0, WebRtcOpus_SetMaxPlaybackRate(inst_, config.max_playback_rate_hz));
+  RTC_CHECK_EQ(0, WebRtcOpus_SetMaxPlaybackRate(inst_, config.max_playback_rate_hz));
   // Use the default complexity if the start bitrate is within the hysteresis
   // window.
+  // TODO@chensong 2022-11-19  设置复杂度
   complexity_ = GetNewComplexity(config).value_or(config.complexity);
   RTC_CHECK_EQ(0, WebRtcOpus_SetComplexity(inst_, complexity_));
   bitrate_changed_ = true;
@@ -781,7 +786,9 @@ bool AudioEncoderOpusImpl::RecreateEncoderInstance(
   } else {
     RTC_CHECK_EQ(0, WebRtcOpus_DisableCbr(inst_));
   }
+  // TODO@chensong 2022-11-19 编码后通道数
   num_channels_to_encode_ = NumChannels();
+  // TODO@chensong 2022-11-19 下一帧时间长度
   next_frame_length_ms_ = config_.frame_size_ms;
   return true;
 }
