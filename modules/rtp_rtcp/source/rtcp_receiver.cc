@@ -404,9 +404,11 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
           case rtcp::Fir::kFeedbackMessageType:
             HandleFir(rtcp_block, packet_information);
             break;
-          case rtcp::Psfb::kAfbMessageType:
+          case rtcp::Psfb::kAfbMessageType: // TODO@chensong 2022-11-28 接受网络带宽bps [goole old net ]
+          {
             HandlePsfbApp(rtcp_block, packet_information);
             break;
+		  }
           default:
             ++num_skipped_packets_;
             break;
@@ -902,10 +904,11 @@ void RTCPReceiver::HandlePsfbApp(const CommonHeader& rtcp_block,
                                  PacketInformation* packet_information) {
   {
     rtcp::Remb remb;
-    if (remb.Parse(rtcp_block)) {
+    if (remb.Parse(rtcp_block)) 
+	{
       packet_information->packet_type_flags |= kRtcpRemb;
-      packet_information->receiver_estimated_max_bitrate_bps =
-          remb.bitrate_bps();
+	  // TODO@chensong 2022-11-28 faackback 中 Remb反馈网络带宽 bps
+      packet_information->receiver_estimated_max_bitrate_bps = remb.bitrate_bps();
       return;
     }
   }
