@@ -2156,7 +2156,7 @@ void WebRtcVoiceMediaChannel::OnPacketReceived(rtc::CopyOnWriteBuffer packet,
     return;
   }
   RTC_DCHECK(!absl::c_linear_search(unsignaled_recv_ssrcs_, ssrc));
-
+  // TODO@chensong 2022-11-28 接收到端 创建 RecvStream ->  audio 
   // Add new stream.
   StreamParams sp = unsignaled_stream_params_;
   sp.ssrcs.push_back(ssrc);
