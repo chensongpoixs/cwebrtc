@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2019 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -17,9 +17,9 @@
 namespace webrtc {
 
 enum class BandwidthUsage {
-  kBwNormal = 0,
-  kBwUnderusing = 1,
-  kBwOverusing = 2,
+  kBwNormal = 0, //带宽常态使用，既不过载、也不拥塞。
+  kBwUnderusing = 1, // 当前带宽利用不足，可充分利用。
+  kBwOverusing = 2, // 带宽使用过载，网络发生拥塞。
   kLast
 };
 

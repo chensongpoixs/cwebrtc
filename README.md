@@ -27,6 +27,21 @@ native API header files.
  * [Coding style guide](style-guide.md)
  * [Code of conduct](CODE_OF_CONDUCT.md)
 
+
+
+
+
+# 一、 WebRTC中调整参数的列表
+
+[WebRTC中调整参数的列表](webrtc_argv_list.md)
+
+
+
+
+
+# 二、正文
+
+
 ![](https://github.com/chensongpoixs/cwebrtc/blob/chensong/img/video_send_encoder.jpg?raw=true)
 
 
@@ -36,7 +51,6 @@ RtpStreamSender有三个成员变量:rtp_rtcp(rtp\rtcp 打包、接收、发送)
 
 congestion_controller: 拥塞控制
 
-# 一、正文
 
 ## 1、整体框架
 

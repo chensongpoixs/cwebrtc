@@ -2759,3 +2759,9 @@ chensong.log
 modules/rtp_rtcp/source/rtcp_receiver.cc.bak
 call/flexfec_receive_stream_impl.cc.bak
 video/rtp_video_stream_receiver.cc.bak
+README.md.bak
+webrtc_argv_list.md.bak
+modules/remote_bitrate_estimator/overuse_detector.h.bak
+modules/remote_bitrate_estimator/overuse_detector.cc.bak
+modules/congestion_controller/goog_cc/goog_cc_network_control.cc.bak
+api/network_state_predictor.h.bak

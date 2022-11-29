@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -85,6 +85,7 @@ BandwidthUsage OveruseDetector::Detect(double offset,
   if (num_of_deltas < 2) {
     return BandwidthUsage::kBwNormal;
   }
+  // TODO@chensong 2022-11-29 趋势值的计算 T 
   const double T = std::min(num_of_deltas, kMaxNumDeltas) * offset;
   BWE_TEST_LOGGING_PLOT(1, "T", now_ms, T);
   BWE_TEST_LOGGING_PLOT(1, "threshold", now_ms, threshold_);
@@ -127,7 +128,9 @@ void OveruseDetector::UpdateThreshold(double modified_offset, int64_t now_ms) {
     return;
 
   if (last_update_ms_ == -1)
+  {
     last_update_ms_ = now_ms;
+  }
 
   if (fabs(modified_offset) > threshold_ + kMaxAdaptOffsetMs) {
     // Avoid adapting the threshold to big latency spikes, caused e.g.,

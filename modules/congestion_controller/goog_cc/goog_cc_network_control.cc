@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -78,6 +78,43 @@ bool IsNotDisabled(const WebRtcKeyValueConfig* config, absl::string_view key) {
 }
 }  // namespace
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29  googcc  算法
+
+#if _DEBUG
+
+static FILE* out_rtc_gcc_file_ptr = NULL;
+static void rtc_gcc_log() 
+{
+  if (!out_rtc_gcc_file_ptr) {
+    out_rtc_gcc_file_ptr =
+        ::fopen("./debug/goog_cc_network_control.log", "wb+");
+  }
+ // va_list argptr;
+ // va_start(argptr, format);
+ // ::fprintf(out_rtc_gcc_file_ptr, format, ##__VA_ARGS__);
+ // ::fprintf(out_rtc_gcc_file_ptr, "\n");
+ // ::fflush(out_rtc_gcc_file_ptr);
+
+  //va_end(argptr);
+}
+
+#define RTC_GCC_NETWORK_CONTROL_LOG()
+#define NORMAL_LOG(format, ...) \
+  rtc_gcc_log();                \
+  fprintf(out_rtc_gcc_file_ptr, format, ##__VA_ARGS__); \
+	fprintf(out_rtc_gcc_file_ptr, "\n");	  \
+	fflush(out_rtc_gcc_file_ptr);
+
+#define NORMAL_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define ERROR_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define WARNING_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#endif  // _DEBUG
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 GoogCcNetworkController::GoogCcNetworkController(
     RtcEventLog* event_log,
     NetworkControllerConfig config,
@@ -543,6 +580,9 @@ NetworkControlUpdate GoogCcNetworkController::GetNetworkState(
   DataRate bandwidth = use_stable_bandwidth_estimate_
                            ? bandwidth_estimation_->GetEstimatedLinkCapacity()
                            : last_raw_target_rate_;
+#if _DEBUG
+  NORMAL_EX_LOG( " [goog_cc_network_control bandwidth = %s" , webrtc::ToString(bandwidth).c_str() );
+#endif
   TimeDelta rtt = TimeDelta::ms(last_estimated_rtt_ms_);
   NetworkControlUpdate update;
   update.target_rate = TargetTransferRate();
@@ -561,7 +601,6 @@ NetworkControlUpdate GoogCcNetworkController::GetNetworkState(
   return update;
 }
 
-
 void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(
     NetworkControlUpdate* update,
     Timestamp at_time) {
@@ -570,7 +609,6 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(
   int64_t rtt_ms;
   bandwidth_estimation_->CurrentEstimate(&estimated_bitrate_bps, &fraction_loss,
                                          &rtt_ms);
-
 
   BWE_TEST_LOGGING_PLOT(1, "fraction_loss_%", at_time.ms(),
                         (fraction_loss * 100) / 256);
@@ -603,6 +641,10 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(
     DataRate bandwidth = use_stable_bandwidth_estimate_
                              ? bandwidth_estimation_->GetEstimatedLinkCapacity()
                              : last_raw_target_rate_;
+#if _DEBUG
+    NORMAL_EX_LOG(" [goog_cc_network_control bandwidth = %s",
+                  webrtc::ToString(bandwidth).c_str());
+#endif
 
     TimeDelta bwe_period = delay_based_bwe_->GetExpectedBwePeriod();
 
