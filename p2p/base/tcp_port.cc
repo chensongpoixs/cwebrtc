@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-/*
+/* 
  *  This is a diagram of how TCP reconnect works for the active side. The
  *  passive side just waits for an incoming connection.
  *
