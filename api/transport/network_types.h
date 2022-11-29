@@ -80,6 +80,8 @@ struct PacedPacketInfo {
 
   bool operator==(const PacedPacketInfo& rhs) const;
 
+  
+
   // TODO(srte): Move probing info to a separate, optional struct.
   static constexpr int kNotAProbe = -1;
   int send_bitrate_bps = -1;
@@ -99,6 +101,7 @@ struct SentPacket {
   int64_t sequence_number;
   // Tracked data in flight when the packet was sent, excluding unacked data.
   DataSize data_in_flight = DataSize::Zero();
+ 
 };
 
 // Transport level feedback
@@ -131,7 +134,23 @@ struct PacketResult {
 
   SentPacket sent_packet;
   Timestamp receive_time = Timestamp::PlusInfinity();
+
+ 
 };
+
+template <class C>
+std::string VecToString(std::vector<C> t) {
+  std::string ret;
+
+   
+  for (size_t i = 0; i <  (t).size(); ++i) {
+    if (i != 0) {
+      ret += "\n";
+    }
+    ret += "[ " + std::to_string(i) + " ] " + webrtc::ToString(t[i])   ;
+  }
+  return ret;
+}
 
 struct TransportPacketsFeedback {
   TransportPacketsFeedback();
@@ -150,6 +169,8 @@ struct TransportPacketsFeedback {
   std::vector<PacketResult> ReceivedWithSendInfo() const;
   std::vector<PacketResult> LostWithSendInfo() const;
   std::vector<PacketResult> PacketsWithFeedback() const;
+
+  
 };
 
 // Network estimation
@@ -212,6 +233,17 @@ struct ProcessInterval {
   Timestamp at_time = Timestamp::PlusInfinity();
   absl::optional<DataSize> pacer_queue;
 };
+
+//////////////////////////////////////////////////
+
+
+std::string ToString(const PacedPacketInfo& packetinfo);
+
+std::string ToString(const SentPacket& sendpacket);
+std::string ToString(const PacketResult& packet);
+
+std::string ToString(const TransportPacketsFeedback& transportpacket);
+
 }  // namespace webrtc
 
 #endif  // API_TRANSPORT_NETWORK_TYPES_H_

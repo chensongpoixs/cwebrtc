@@ -51,6 +51,33 @@ inline bool IsTurnChannelData(uint16_t msg_type) {
   return ((msg_type & 0xC000) == 0x4000);  // MSB are 0b01
 }
 
+
+
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29
+
+#if _DEBUG
+
+static FILE* out_rtc_turn_port_ptr = NULL;
+static void rtc_turn_port_log() {
+  if (!out_rtc_turn_port_ptr) {
+    out_rtc_turn_port_ptr = ::fopen("./debug/turn_port.log", "wb+");
+  }
+}
+
+#define NORMAL_LOG(format, ...)                         \
+  rtc_turn_port_log();                                   \
+  fprintf(out_rtc_turn_port_ptr, format, ##__VA_ARGS__); \
+  fprintf(out_rtc_turn_port_ptr, "\n");                  \
+  fflush(out_rtc_turn_port_ptr);
+
+#define NORMAL_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
+#endif  // _DEBUG
+
+
 static int GetRelayPreference(cricket::ProtocolType proto) {
   switch (proto) {
     case cricket::PROTO_TCP:
@@ -713,7 +740,13 @@ void TurnPort::OnReadPacket(rtc::AsyncPacketSocket* socket,
 }
 
 void TurnPort::OnSentPacket(rtc::AsyncPacketSocket* socket,
-                            const rtc::SentPacket& sent_packet) {
+                            const rtc::SentPacket& sent_packet)
+{
+#if _DEBUG
+
+	NORMAL_EX_LOG("[PortInterface::SignalSentPacket][sent_packet = %s]",
+                webrtc::ToString(sent_packet).c_str());
+#endif 
   PortInterface::SignalSentPacket(sent_packet);
 }
 

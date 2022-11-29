@@ -37,6 +37,31 @@ using rtc::Bind;
 using rtc::UniqueRandomIdGenerator;
 using webrtc::SdpType;
 
+
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29
+
+#if _DEBUG
+
+static FILE* out_rtc_channel_ptr = NULL;
+static void rtc_turn_port_log() {
+  if (!out_rtc_channel_ptr) {
+    out_rtc_channel_ptr = ::fopen("./debug/channel.log", "wb+");
+  }
+}
+
+#define NORMAL_LOG(format, ...)                          \
+  rtc_turn_port_log();                                   \
+  fprintf(out_rtc_channel_ptr, format, ##__VA_ARGS__); \
+  fprintf(out_rtc_channel_ptr, "\n");                  \
+  fflush(out_rtc_channel_ptr);
+
+#define NORMAL_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
+#endif  // _DEBUG
+
 namespace {
 
 struct SendPacketMessageData : public rtc::MessageData {
@@ -797,6 +822,14 @@ void BaseChannel::SignalSentPacket_n(const rtc::SentPacket& sent_packet) {
 
 void BaseChannel::SignalSentPacket_w(const rtc::SentPacket& sent_packet) {
   RTC_DCHECK(worker_thread_->IsCurrent());
+
+  #if _DEBUG
+
+  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+                webrtc::ToString(sent_packet).c_str());
+#endif  // _DEBUG
+
+
   SignalSentPacket(sent_packet);
 }
 

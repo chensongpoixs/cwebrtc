@@ -348,8 +348,8 @@ NetworkControlUpdate GoogCcNetworkController::OnSentPacket(
 #if _DEBUG
 
   NORMAL_EX_LOG(
-      "[bandwidth_estimation_->OnSentPacket][sent_packet = "
-      "][]");
+      "[bandwidth_estimation_->OnSentPacket][sent_packet = %s"
+      "][]", webrtc::ToString(sent_packet).c_str());
 #endif  // _DEBUG
   if (congestion_window_pushback_controller_) {
     congestion_window_pushback_controller_->UpdateOutstandingData(
@@ -621,11 +621,22 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
 
 #if _DEBUG
 
-  NORMAL_EX_LOG(
-      "[bandwidth_estimation_->SetAcknowledgedRate][acknowledged_bitrate =  "
-      "][report.feedback_time = %s]",
-      /* webrtc::ToString(acknowledged_bitrate).c_str(),*/
-      webrtc::ToString(report.feedback_time).c_str());
+  if (acknowledged_bitrate)
+  {
+    NORMAL_EX_LOG(
+        "[bandwidth_estimation_->SetAcknowledgedRate][acknowledged_bitrate =  "
+        "%s][report.feedback_time = %s]",
+          webrtc::ToString(acknowledged_bitrate.value()).c_str(), 
+        webrtc::ToString(report.feedback_time).c_str());
+  }
+  else 
+  {
+    NORMAL_EX_LOG(
+        "[bandwidth_estimation_->SetAcknowledgedRate][acknowledged_bitrate =  "
+        "][report.feedback_time = %s]",
+        /* webrtc::ToString(acknowledged_bitrate).c_str(),*/
+        webrtc::ToString(report.feedback_time).c_str());
+  }
 #endif  // _DEBUG
 
   bandwidth_estimation_->IncomingPacketFeedbackVector(report);

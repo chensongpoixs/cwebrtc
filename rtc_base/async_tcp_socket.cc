@@ -42,6 +42,34 @@ static const size_t kMinimumRecvSize = 128;
 
 static const int kListenBacklog = 5;
 
+
+
+
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29
+
+#if _DEBUG
+
+static FILE* out_rtc_async_tcp_socket_ptr = NULL;
+static void rtc_turn_port_log() {
+  if (!out_rtc_async_tcp_socket_ptr) {
+    out_rtc_async_tcp_socket_ptr = ::fopen("./debug/async_tcp_socket.log", "wb+");
+  }
+}
+
+#define NORMAL_LOG(format, ...)                              \
+  rtc_turn_port_log();                                       \
+  fprintf(out_rtc_async_tcp_socket_ptr, format, ##__VA_ARGS__); \
+  fprintf(out_rtc_async_tcp_socket_ptr, "\n");                  \
+  fflush(out_rtc_async_tcp_socket_ptr);
+
+#define NORMAL_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
+#endif  // _DEBUG
+
+
+
 // Binds and connects |socket|
 AsyncSocket* AsyncTCPSocketBase::ConnectSocket(
     rtc::AsyncSocket* socket,
@@ -305,6 +333,11 @@ int AsyncTCPSocket::Send(const void* pv,
   rtc::SentPacket sent_packet(options.packet_id, rtc::TimeMillis(),
                               options.info_signaled_after_sent);
   CopySocketInformationToPacketInfo(cb, *this, false, &sent_packet.info);
+#if _DEBUG
+  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
+
+  #endif // _DEBUG_
+
   SignalSentPacket(this, sent_packet);
 
   // We claim to have sent the whole thing, even if we only sent partial

@@ -65,4 +65,9 @@ struct SentPacket {
 
 }  // namespace rtc
 
+namespace webrtc {
+
+	std::string ToString(const rtc::PacketInfo & packetinfo);
+	std::string ToString(const rtc::SentPacket& packet);
+}
 #endif  // RTC_BASE_NETWORK_SENT_PACKET_H_

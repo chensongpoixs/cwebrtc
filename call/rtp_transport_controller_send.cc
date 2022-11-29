@@ -26,6 +26,44 @@
 #include "system_wrappers/include/field_trial.h"
 
 namespace webrtc {
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29  googcc  算法
+
+#if _DEBUG
+
+static FILE* out_rtc_rtp_transport_send_file_ptr = NULL;
+static void rtc_rtp_transport_send_log() {
+  if (!out_rtc_rtp_transport_send_file_ptr) {
+    out_rtc_rtp_transport_send_file_ptr =
+        ::fopen("./debug/rtp_transport_controller_send.log", "wb+");
+  }
+
+  // va_list argptr;
+  // va_start(argptr, format);
+  // ::fprintf(out_rtc_gcc_file_ptr, format, ##__VA_ARGS__);
+  // ::fprintf(out_rtc_gcc_file_ptr, "\n");
+  // ::fflush(out_rtc_gcc_file_ptr);
+
+  // va_end(argptr);
+}
+
+ 
+#define NORMAL_LOG(format, ...)                         \
+  rtc_rtp_transport_send_log();                                        \
+  fprintf(out_rtc_rtp_transport_send_file_ptr, format, ##__VA_ARGS__); \
+  fprintf(out_rtc_rtp_transport_send_file_ptr, "\n");                  \
+  fflush(out_rtc_rtp_transport_send_file_ptr);
+
+#define NORMAL_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define ERROR_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define WARNING_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#endif  // _DEBUG
+
 namespace {
 static const int64_t kRetransmitWindowSizeMs = 500;
 static const size_t kMaxOverheadBytes = 500;
@@ -306,17 +344,29 @@ void RtpTransportControllerSend::EnablePeriodicAlrProbing(bool enable) {
 }
 void RtpTransportControllerSend::OnSentPacket(
     const rtc::SentPacket& sent_packet) {
-  absl::optional<SentPacket> packet_msg =
-      transport_feedback_adapter_.ProcessSentPacket(sent_packet);
-  if (packet_msg) {
-    task_queue_.PostTask([this, packet_msg]() {
+  absl::optional<SentPacket> packet_msg = transport_feedback_adapter_.ProcessSentPacket(sent_packet);
+#if _DEBUG
+
+  if (packet_msg)
+  {
+    NORMAL_EX_LOG(
+        "[transport_feedback_adapter_.ProcessSentPacket][sent_packet = %s]  [packet_msg = %s]",
+        webrtc::ToString(sent_packet) .c_str(),
+        webrtc::ToString(packet_msg.value()).c_str());
+  }
+#endif // _DEBUG
+  if (packet_msg) 
+  {
+    task_queue_.PostTask([this, packet_msg]() 
+	{
       RTC_DCHECK_RUN_ON(&task_queue_);
       if (controller_)
+      {
         PostUpdates(controller_->OnSentPacket(*packet_msg));
+	  }
     });
   }
-  pacer_.UpdateOutstandingData(
-      transport_feedback_adapter_.GetOutstandingData().bytes());
+  pacer_.UpdateOutstandingData( transport_feedback_adapter_.GetOutstandingData().bytes());
 }
 
 void RtpTransportControllerSend::SetSdpBitrateParameters(

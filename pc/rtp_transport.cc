@@ -26,6 +26,34 @@
 
 namespace webrtc {
 
+
+
+
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29
+
+#if _DEBUG
+
+static FILE* out_rtc_rtp_transport_ptr = NULL;
+static void rtc_turn_port_log() {
+  if (!out_rtc_rtp_transport_ptr) {
+    out_rtc_rtp_transport_ptr = ::fopen("./debug/rtp_transport.log", "wb+");
+  }
+}
+
+#define NORMAL_LOG(format, ...)                        \
+  rtc_turn_port_log();                                 \
+  fprintf(out_rtc_rtp_transport_ptr, format, ##__VA_ARGS__); \
+  fprintf(out_rtc_rtp_transport_ptr, "\n");                  \
+  fflush(out_rtc_rtp_transport_ptr);
+
+#define NORMAL_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
+#endif  // _DEBUG
+
+
+
 void RtpTransport::SetRtcpMuxEnabled(bool enable) {
   rtcp_mux_enabled_ = enable;
   MaybeSignalReadyToSend();
@@ -226,6 +254,15 @@ void RtpTransport::OnSentPacket(rtc::PacketTransportInternal* packet_transport,
                                 const rtc::SentPacket& sent_packet) {
   RTC_DCHECK(packet_transport == rtp_packet_transport_ ||
              packet_transport == rtcp_packet_transport_);
+
+
+  #if _DEBUG
+
+	NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+                webrtc::ToString(sent_packet).c_str());
+#endif  // _DEBUG
+
+
   SignalSentPacket(sent_packet);
 }
 

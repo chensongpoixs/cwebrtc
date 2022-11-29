@@ -86,4 +86,71 @@ ProcessInterval::ProcessInterval() = default;
 ProcessInterval::ProcessInterval(const ProcessInterval&) = default;
 ProcessInterval::~ProcessInterval() = default;
 
+
+
+
+
+
+
+
+
+/////////////////////////
+
+
+
+std::string ToString(const PacedPacketInfo& packetinfo) {
+  char buffer[1024] = {0};
+  ::sprintf(buffer,
+            "\n[send_bitrate_bps = %d]\n[probe_cluster_id = "
+            "%d]\n[probe_cluster_min_probes = %d]\n[probe_cluster_min_bytes = %d]\n",
+            packetinfo.send_bitrate_bps, packetinfo.probe_cluster_id,
+            packetinfo.probe_cluster_min_probes,
+            packetinfo.probe_cluster_min_bytes);
+  return buffer;
+}
+
+std::string ToString(const SentPacket& sendpacket) {
+  char buffer[1024 * 50] = {0};
+  sprintf(buffer,
+          "\n[send_time = %s]\n[size = %s]\n[prior_unacked_data = %s]\n[pacing_info "
+          "= %s]\n[sequence_number = %llu]\n[data_in_flight = %s]\n",
+          webrtc::ToString(sendpacket.send_time).c_str(),
+          webrtc::ToString(sendpacket.size).c_str(),
+          webrtc::ToString(sendpacket.prior_unacked_data).c_str(),
+          webrtc::ToString(sendpacket.pacing_info).c_str(),
+          sendpacket.sequence_number,
+          webrtc::ToString(sendpacket.data_in_flight).c_str());
+
+  return buffer;
+}
+
+std::string ToString(const PacketResult& packet) {
+  char buffer[1024 * 5] = {0};
+  sprintf(buffer, "\n[sent_packet = %s]\n[receive_time = %s]\n",
+          webrtc::ToString(packet.sent_packet).c_str(),
+          webrtc::ToString(packet.receive_time).c_str());
+  return buffer;
+}
+
+std::string ToString(const TransportPacketsFeedback& transportpacket) {
+  char buffer[1024 * 100] = {0};
+
+  // char ver_packet_feedbacks[1024 * 10];
+  std::string ver_packet_feedbacks =
+      VecToString(transportpacket.packet_feedbacks);
+  std::string vec_sendless_arrival_times =
+      VecToString(transportpacket.sendless_arrival_times);
+  ;
+
+  sprintf(buffer,
+          "\n[feedback_time = %s]\n[first_unacked_send_time = %s]\n[data_in_flight "
+          "= %s]\n[prior_in_flight = %s]\n[packet_feedbacks = "
+          "%s]\n[sendless_arrival_times = %s]\n",
+          webrtc::ToString(transportpacket.feedback_time).c_str(),
+          webrtc::ToString(transportpacket.first_unacked_send_time).c_str(),
+          webrtc::ToString(transportpacket.data_in_flight).c_str(),
+          webrtc::ToString(transportpacket.prior_in_flight).c_str(),
+          ver_packet_feedbacks.c_str(), vec_sendless_arrival_times.c_str());
+  return buffer;
+}
 }  // namespace webrtc

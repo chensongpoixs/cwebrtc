@@ -68,6 +68,39 @@
 
 namespace webrtc {
 
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29  call 
+
+#if _DEBUG
+
+static FILE* out_rtc_call_ptr = NULL;
+static void rtc_call_log() {
+  if (!out_rtc_call_ptr) {
+    out_rtc_call_ptr =
+        ::fopen("./debug/call.log", "wb+");
+  }
+
+}
+
+#define RTC_GCC_NETWORK_CONTROL_LOG()
+#define NORMAL_LOG(format, ...)                         \
+  rtc_call_log();                                        \
+  fprintf(out_rtc_call_ptr, format, ##__VA_ARGS__); \
+  fprintf(out_rtc_call_ptr, "\n");                  \
+  fflush(out_rtc_call_ptr);
+
+#define NORMAL_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define ERROR_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define WARNING_EX_LOG(format, ...) \
+  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#endif  // _DEBUG
+
+
+
 namespace {
 bool SendPeriodicFeedback(const std::vector<RtpExtension>& extensions) {
   for (const auto& extension : extensions) {
@@ -1182,6 +1215,12 @@ void Call::UpdateAggregateNetworkState() {
 void Call::OnSentPacket(const rtc::SentPacket& sent_packet) {
   video_send_delay_stats_->OnSentPacket(sent_packet.packet_id,
                                         clock_->TimeInMilliseconds());
+
+  #if _DEBUG
+
+  NORMAL_EX_LOG("[transport_send_ptr_->OnSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
+#endif  // _DEBUG
+
   transport_send_ptr_->OnSentPacket(sent_packet);
 }
 
