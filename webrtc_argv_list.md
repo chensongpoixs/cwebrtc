@@ -103,7 +103,7 @@ WebRTC-Audio-Agc2ForceInitialSaturationMargin
 WebRTC-ExtraICEPing
 WebRTC-Rfc5389StunRetransmissions
 WebRTC-DisablePacerEmergencyStop
-WebRTC-Bwe-StableBandwidthEstimate
+WebRTC-Bwe-StableBandwidthEstimate ---> gcc算法评估
 WebRTC-Bwe-ProbeRateFallback
 WebRTC-Bwe-MinAllocAsLowerBound
 WebRTC-LibvpxVp8TrustedRateController
@@ -224,5 +224,5 @@ WebRTC-Rfc5389StunRetransmissions
 ```
 
 
-##  一、
+##  一、 WebRTC-Bwe-StableBandwidthEstimate 网络评估
 
