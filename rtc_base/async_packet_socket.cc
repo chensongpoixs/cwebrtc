@@ -43,3 +43,13 @@ void CopySocketInformationToPacketInfo(size_t packet_size_bytes,
 }
 
 }  // namespace rtc
+
+namespace webrtc {
+
+std::string ToString(const rtc::PacketOptions& packet) {
+  char buffer[1024 * 10] = {0};
+
+  //::sprintf(buffer, "[]");
+  return buffer;
+}
+}  // namespace webrtc
