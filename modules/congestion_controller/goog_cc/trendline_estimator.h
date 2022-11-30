@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -60,8 +60,10 @@ class TrendlineEstimator : public DelayIncreaseDetectorInterface {
   void UpdateThreshold(double modified_offset, int64_t now_ms);
 
   // Parameters.
+  // TODO@chensong 2022-11-30   回归线对噪声数据的线性最小二乘拟合参数默认值 [ window_size_ = 20]
   const size_t window_size_;
-  const double smoothing_coef_;
+  // TODO@chensong 2022-11-30 默认值[ smoothing_coef_ = 0.9]
+  const double smoothing_coef_; 
   const double threshold_gain_;
   // Used by the existing threshold.
   int num_of_deltas_;

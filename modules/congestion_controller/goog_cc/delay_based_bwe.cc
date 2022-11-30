@@ -41,6 +41,7 @@ constexpr double kTimestampToMs = 1000.0 / static_cast<double>(1 << kInterArriva
 constexpr uint32_t kFixedSsrc = 0;
 
 // Parameters for linear least squares fit of regression line to noisy data.
+// TODO@chensong 2022-11-30 回归线对噪声数据的线性最小二乘拟合参数
 constexpr size_t kDefaultTrendlineWindowSize = 20;
 constexpr double kDefaultTrendlineSmoothingCoeff = 0.9;
 constexpr double kDefaultTrendlineThresholdGain = 4.0;

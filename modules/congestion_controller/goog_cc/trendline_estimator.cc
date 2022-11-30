@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -23,6 +23,7 @@
 namespace webrtc {
 
 namespace {
+// TODO@chensong 2022-11-30 线性回归函数最小二乘法
 absl::optional<double> LinearFitSlope(
     const std::deque<std::pair<double, double>>& points) {
   RTC_DCHECK(points.size() >= 2);
@@ -35,15 +36,19 @@ absl::optional<double> LinearFitSlope(
   }
   double x_avg = sum_x / points.size();
   double y_avg = sum_y / points.size();
+  // TODO@chensong 2022-11-30 直线方程y=bx+a的斜率b按如下公式计算:
   // Compute the slope k = \sum (x_i-x_avg)(y_i-y_avg) / \sum (x_i-x_avg)^2
   double numerator = 0;
   double denominator = 0;
-  for (const auto& point : points) {
+  for (const auto& point : points) 
+  {
     numerator += (point.first - x_avg) * (point.second - y_avg);
     denominator += (point.first - x_avg) * (point.first - x_avg);
   }
-  if (denominator == 0)
+  if (denominator == 0) 
+  {
     return absl::nullopt;
+  }
   return numerator / denominator;
 }
 
@@ -90,32 +95,41 @@ void TrendlineEstimator::Update(double recv_delta_ms,
   if (calculated_deltas) {
     const double delta_ms = recv_delta_ms - send_delta_ms;
     ++num_of_deltas_;
-    num_of_deltas_ = std::min(num_of_deltas_, kDeltaCounterMax);
-    if (first_arrival_time_ms_ == -1)
+    num_of_deltas_ = std::min(num_of_deltas_, kDeltaCounterMax /* 1000 */);
+    if (first_arrival_time_ms_ == -1) {
       first_arrival_time_ms_ = arrival_time_ms;
+    }
 
     // Exponential backoff filter.
     accumulated_delay_ += delta_ms;
     BWE_TEST_LOGGING_PLOT(1, "accumulated_delay_ms", arrival_time_ms,
                           accumulated_delay_);
+    /*
+    TODO@chensong 2022-11-30
+        到达时间滤波器(arrival-time filter)
+   为减少网络波动影响，使用中会将最近1000个
+   包组传输时延进行叠加，计算出一个平滑延迟值 smoothed_delay。 WebRTC
+   使用了线性回归进行时延梯度趋势预测，通过最小二乘法求拟合直线的斜率，根据斜率判断增长趋势
+    */
     smoothed_delay_ = smoothing_coef_ * smoothed_delay_ +
-                      (1 - smoothing_coef_) * accumulated_delay_;
+                      (1 - smoothing_coef_ /*0.9*/) * accumulated_delay_;
     BWE_TEST_LOGGING_PLOT(1, "smoothed_delay_ms", arrival_time_ms,
                           smoothed_delay_);
 
-    // Simple linear regression.
-    delay_hist_.push_back(std::make_pair(
-        static_cast<double>(arrival_time_ms - first_arrival_time_ms_),
-        smoothed_delay_));
+    // Simple linear regression. ==>>> 简单线性回归
+    delay_hist_.push_back(std::make_pair(static_cast<double>(arrival_time_ms - first_arrival_time_ms_), smoothed_delay_));
     if (delay_hist_.size() > window_size_)
+	{
       delay_hist_.pop_front();
+    }
     double trend = prev_trend_;
-    if (delay_hist_.size() == window_size_) {
+    if (delay_hist_.size() == window_size_ /*20*/) 
+	{
       // Update trend_ if it is possible to fit a line to the data. The delay
       // trend can be seen as an estimate of (send_rate - capacity)/capacity.
-      // 0 < trend < 1   ->  the delay increases, queues are filling up
-      //   trend == 0    ->  the delay does not change
-      //   trend < 0     ->  the delay decreases, queues are being emptied
+      // 0 < trend < 1   ->  the delay increases, queues are filling up		==> 1、延时增大，路由buffer 正在被填充。
+      //   trend == 0    ->  the delay does not change						==> 2、延时没有发生变化。
+      //   trend < 0     ->  the delay decreases, queues are being emptied	==> 3、延时开始降低，路由buffer正在排空。
       trend = LinearFitSlope(delay_hist_).value_or(trend);
     }
 
@@ -139,22 +153,27 @@ void TrendlineEstimator::Detect(double trend, double ts_delta, int64_t now_ms) {
     return;
   }
   const double modified_trend =
-      std::min(num_of_deltas_, kMinNumDeltas) * trend * threshold_gain_;
+      std::min(num_of_deltas_, kMinNumDeltas) * trend * threshold_gain_ /*4.0*/;
   prev_modified_trend_ = modified_trend;
   BWE_TEST_LOGGING_PLOT(1, "T", now_ms, modified_trend);
   BWE_TEST_LOGGING_PLOT(1, "threshold", now_ms, threshold_);
-  if (modified_trend > threshold_) {
-    if (time_over_using_ == -1) {
+  if (modified_trend > threshold_) 
+  {
+    if (time_over_using_ == -1) 
+	{
       // Initialize the timer. Assume that we've been
       // over-using half of the time since the previous
       // sample.
       time_over_using_ = ts_delta / 2;
-    } else {
+    }
+	else 
+	{
       // Increment timer
       time_over_using_ += ts_delta;
     }
     overuse_counter_++;
-    if (time_over_using_ > overusing_time_threshold_ && overuse_counter_ > 1) {
+    if (time_over_using_ > overusing_time_threshold_ && overuse_counter_ > 1) 
+	{
       if (trend >= prev_trend_) {
         time_over_using_ = 0;
         overuse_counter_ = 0;

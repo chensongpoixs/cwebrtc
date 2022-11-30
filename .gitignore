@@ -2770,3 +2770,6 @@ modules/congestion_controller/goog_cc/delay_based_bwe.cc.bak
 rtcp_feedbook.md.bak
 modules/remote_bitrate_estimator/inter_arrival.h.bak
 modules/remote_bitrate_estimator/inter_arrival.cc.bak
+modules/congestion_controller/goog_cc/median_slope_estimator.h.bak
+modules/congestion_controller/goog_cc/trendline_estimator.cc.bak
+modules/congestion_controller/goog_cc/trendline_estimator.h.bak
