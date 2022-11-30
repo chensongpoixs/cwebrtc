@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -52,7 +52,53 @@ class InterArrival {
                      int* packet_size_delta);
 
  private:
-  struct TimestampGroup {
+  
+	 /*
+	 TODO@chensong 2022-11-30 这个数据结果是非常讲究的哈 ^_^ 包组延时评估(InterArrival)
+
+
+                               Sender                                     Receiver                         
+       TG1:first_timestamp        |         seq = 1                           |                              
+                                  |                       time = 1            |     TG1:first_arrival_ms   
+
+                                  |         seq = 2                           |                            
+                                  |                       time = 2            | 
+
+                                  |         seq = 3                           |                            
+                                  |                       time = 3            |  
+
+       TG1:timestamp              |         seq = 4                           |                            
+                                  |                       time = 4            |     TG1:complete_time_ms   
+
+                                  |                                           |                            
+                                  |                                           |                           
+--------------------------------------------------------------------------------------------------------------
+                                  |                                           |                            
+       TG2:first_timestamp        |         seq = 5                           |                            
+                                  |                       time = 10           |     TG2:first_arrival_ms
+
+                                  |         seq = 6                           |                            
+                                  |                       time = 11           |  
+
+                                  |         seq = 7                           |                            
+                                  |                       time = 12           | 
+
+       TG2:timestamp              |         seq = 8                           |                            
+                                  |                       time = 13           |     TG2:complete_time_ms                       								  
+                                  |                                           |                            								  
+                                  |                                           |                            								  
+  
+          图中TG1包括seq 1~4，TG2包括 5~6，因此我们可以计算出 Trendline滤波器需要的三个参数：
+             发送时间差值 delta_times、
+              到达时间差值 delta_arrival、
+              包组大小差值 delta_size。
+ 
+               delta_times     = TG2:timestamp          -            TG1:timestamp;
+               delta_arrival   = TG2:complete_time_ms   -            TG1:complete_time_ms;
+               delta_size      = TG2:size               -            TG1:size;
+	 */
+  struct TimestampGroup 
+  {
     TimestampGroup()
         : size(0),
           first_timestamp(0),
@@ -84,7 +130,7 @@ class InterArrival {
   const uint32_t kTimestampGroupLengthTicks;
   TimestampGroup current_timestamp_group_;
   TimestampGroup prev_timestamp_group_;
-  double timestamp_to_ms_coeff_;
+  double timestamp_to_ms_coeff_; // 1.4901161193847656e-05
   bool burst_grouping_;
   int num_consecutive_reordered_packets_;
 

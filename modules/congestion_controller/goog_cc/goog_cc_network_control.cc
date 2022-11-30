@@ -563,8 +563,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
 #endif  // _DEBUG
     }
 
-    expected_packets_since_last_loss_update_ +=
-        report.PacketsWithFeedback().size();
+    expected_packets_since_last_loss_update_ += report.PacketsWithFeedback().size();
     for (const auto& packet_feedback : report.PacketsWithFeedback()) {
       if (packet_feedback.receive_time.IsInfinite())
         lost_packets_since_last_loss_update_ += 1;
@@ -590,11 +589,9 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
     }
   }
 
-  std::vector<PacketFeedback> received_feedback_vector =
-      ReceivedPacketsFeedbackAsRtp(report);
+  std::vector<PacketFeedback> received_feedback_vector = ReceivedPacketsFeedbackAsRtp(report);
 
-  absl::optional<int64_t> alr_start_time =
-      alr_detector_->GetApplicationLimitedRegionStartTime();
+  absl::optional<int64_t> alr_start_time = alr_detector_->GetApplicationLimitedRegionStartTime();
 
   if (previously_in_alr && !alr_start_time.has_value()) {
     int64_t now_ms = report.feedback_time.ms();
@@ -646,7 +643,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
   NetworkControlUpdate update;
   bool recovered_from_overuse = false;
   bool backoff_in_alr = false;
-
+  // TODO@chensong 2022-11-30  基于延迟（delay-based）的拥塞控制算法
   DelayBasedBwe::Result result;
   result = delay_based_bwe_->IncomingPacketFeedbackVector(
       received_feedback_vector, acknowledged_bitrate, probe_bitrate,

@@ -2768,3 +2768,5 @@ api/network_state_predictor.h.bak
 rtc_base/async_packet_socket.cc.bak
 modules/congestion_controller/goog_cc/delay_based_bwe.cc.bak
 rtcp_feedbook.md.bak
+modules/remote_bitrate_estimator/inter_arrival.h.bak
+modules/remote_bitrate_estimator/inter_arrival.cc.bak
