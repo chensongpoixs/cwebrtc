@@ -2765,3 +2765,6 @@ modules/remote_bitrate_estimator/overuse_detector.h.bak
 modules/remote_bitrate_estimator/overuse_detector.cc.bak
 modules/congestion_controller/goog_cc/goog_cc_network_control.cc.bak
 api/network_state_predictor.h.bak
+rtc_base/async_packet_socket.cc.bak
+modules/congestion_controller/goog_cc/delay_based_bwe.cc.bak
+rtcp_feedbook.md.bak

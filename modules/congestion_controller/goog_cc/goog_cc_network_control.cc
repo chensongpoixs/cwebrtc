@@ -19,7 +19,7 @@
 #include <string>
 #include <utility>
 #include <vector>
- 
+
 #include "absl/memory/memory.h"
 #include "api/units/time_delta.h"
 #include "modules/congestion_controller/goog_cc/acknowledged_bitrate_estimator.h"
@@ -83,13 +83,9 @@ bool IsNotDisabled(const WebRtcKeyValueConfig* config, absl::string_view key) {
 
 #if _DEBUG
 
-
-
- 
 static FILE* out_rtc_gcc_file_ptr = NULL;
 static void rtc_gcc_log() {
-  if (!out_rtc_gcc_file_ptr) 
-  {
+  if (!out_rtc_gcc_file_ptr) {
     out_rtc_gcc_file_ptr =
         ::fopen("./debug/goog_cc_network_control.log", "wb+");
   }
@@ -349,7 +345,8 @@ NetworkControlUpdate GoogCcNetworkController::OnSentPacket(
 
   NORMAL_EX_LOG(
       "[bandwidth_estimation_->OnSentPacket][sent_packet = %s"
-      "][]", webrtc::ToString(sent_packet).c_str());
+      "][]",
+      webrtc::ToString(sent_packet).c_str());
 #endif  // _DEBUG
   if (congestion_window_pushback_controller_) {
     congestion_window_pushback_controller_->UpdateOutstandingData(
@@ -505,8 +502,9 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
   Timestamp max_recv_time = Timestamp::MinusInfinity();
 
   std::vector<PacketResult> feedbacks = report.ReceivedWithSendInfo();
-  for (const auto& feedback : feedbacks)
+  for (const auto& feedback : feedbacks) {
     max_recv_time = std::max(max_recv_time, feedback.receive_time);
+  }
 
   for (const auto& feedback : feedbacks) {
     TimeDelta feedback_rtt =
@@ -520,8 +518,10 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
   if (max_feedback_rtt.IsFinite()) {
     feedback_max_rtts_.push_back(max_feedback_rtt.ms());
     const size_t kMaxFeedbackRttWindow = 32;
-    if (feedback_max_rtts_.size() > kMaxFeedbackRttWindow)
+    if (feedback_max_rtts_.size() > kMaxFeedbackRttWindow) 
+	{
       feedback_max_rtts_.pop_front();
+    }
     // TODO(srte): Use time since last unacknowledged packet.
     bandwidth_estimation_->UpdatePropagationRtt(report.feedback_time,
                                                 min_propagation_rtt);
@@ -621,16 +621,13 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
 
 #if _DEBUG
 
-  if (acknowledged_bitrate)
-  {
+  if (acknowledged_bitrate) {
     NORMAL_EX_LOG(
         "[bandwidth_estimation_->SetAcknowledgedRate][acknowledged_bitrate =  "
         "%s][report.feedback_time = %s]",
-          webrtc::ToString(acknowledged_bitrate.value()).c_str(), 
+        webrtc::ToString(acknowledged_bitrate.value()).c_str(),
         webrtc::ToString(report.feedback_time).c_str());
-  }
-  else 
-  {
+  } else {
     NORMAL_EX_LOG(
         "[bandwidth_estimation_->SetAcknowledgedRate][acknowledged_bitrate =  "
         "][report.feedback_time = %s]",

@@ -85,8 +85,7 @@ class GoogCcNetworkController : public NetworkControllerInterface {
   const RateControlSettings rate_control_settings_;
 
   const std::unique_ptr<ProbeController> probe_controller_;
-  const std::unique_ptr<CongestionWindowPushbackController>
-      congestion_window_pushback_controller_;
+  const std::unique_ptr<CongestionWindowPushbackController> congestion_window_pushback_controller_;
 
   std::unique_ptr<SendSideBandwidthEstimation> bandwidth_estimation_;
   std::unique_ptr<AlrDetector> alr_detector_;

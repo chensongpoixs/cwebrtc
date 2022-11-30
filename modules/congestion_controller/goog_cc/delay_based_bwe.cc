@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -106,8 +106,8 @@ DelayBasedBwe::DelayBasedBwe(const WebRtcKeyValueConfig* key_value_config,
   RTC_LOG(LS_INFO)
       << "Using Trendline filter for delay change estimation with window size "
       << trendline_window_size_;
-  delay_detector_.reset(new TrendlineEstimator(
-      trendline_window_size_, trendline_smoothing_coeff_,
+  // TODO@chensong 2022-11-30 延迟的探测器   --->> [3. 过载检测器]
+  delay_detector_.reset(new TrendlineEstimator(trendline_window_size_, trendline_smoothing_coeff_,
       trendline_threshold_gain_, network_state_predictor_));
 }
 
@@ -188,9 +188,16 @@ void DelayBasedBwe::IncomingPacketFeedback(
   // so wrapping works properly.
   uint32_t timestamp = send_time_24bits << kAbsSendTimeInterArrivalUpshift;
 
-  uint32_t ts_delta = 0;
-  int64_t t_delta = 0;
-  int size_delta = 0;
+
+
+  // TODO@chensong 2022-11-30 因此我们可以计算出 Trendline滤波器需要的三个参数：
+  // 1. 发送时间差值 delta_times、
+  // 2. 到达时间差值 delta_arrival、
+  // 3. 包组大小差值 delta_size。
+  uint32_t ts_delta = 0;  // 发送时间差值
+  int64_t t_delta = 0;   // 到达时间差值
+  int size_delta = 0;    // 包组大小差值
+
   bool calculated_deltas = inter_arrival_->ComputeDeltas(
       timestamp, packet_feedback.arrival_time_ms, at_time.ms(),
       packet_feedback.payload_size, &ts_delta, &t_delta, &size_delta);

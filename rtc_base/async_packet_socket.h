@@ -140,6 +140,8 @@ void CopySocketInformationToPacketInfo(size_t packet_size_bytes,
 
 }  // namespace rtc
 namespace webrtc {
-std::string ToString(const rtc::PacketOptions& packet);
+std::string ToString(const rtc::PacketTimeUpdateParams& packet);
+	std::string ToString(const rtc::PacketOptions& packet);
+
 }
 #endif  // RTC_BASE_ASYNC_PACKET_SOCKET_H_
