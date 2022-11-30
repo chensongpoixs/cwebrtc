@@ -15,7 +15,13 @@
 #include <stdint.h>
 
 #include "rtc_base/constructor_magic.h"
+/*
+TODO@chensong 2022-11-30 
+Trendline算法计算延时梯度是基于包组的，不是基于包的。而RTT延时计算是基于单个包的.
 
+        Trendline是接收端计算延时，RTT是发起端计算延时，不要混淆。
+
+*/
 namespace webrtc {
 
 // Helper class to compute the inter-arrival time delta and the size delta
@@ -57,36 +63,36 @@ class InterArrival {
 	 TODO@chensong 2022-11-30 这个数据结果是非常讲究的哈 ^_^ 包组延时评估(InterArrival)
 
 
-                               Sender                                     Receiver                         
-       TG1:first_timestamp        |         seq = 1                           |                              
-                                  |                       time = 1            |     TG1:first_arrival_ms   
-
-                                  |         seq = 2                           |                            
-                                  |                       time = 2            | 
-
-                                  |         seq = 3                           |                            
-                                  |                       time = 3            |  
-
-       TG1:timestamp              |         seq = 4                           |                            
-                                  |                       time = 4            |     TG1:complete_time_ms   
-
-                                  |                                           |                            
-                                  |                                           |                           
---------------------------------------------------------------------------------------------------------------
-                                  |                                           |                            
-       TG2:first_timestamp        |         seq = 5                           |                            
-                                  |                       time = 10           |     TG2:first_arrival_ms
-
-                                  |         seq = 6                           |                            
-                                  |                       time = 11           |  
-
-                                  |         seq = 7                           |                            
-                                  |                       time = 12           | 
-
-       TG2:timestamp              |         seq = 8                           |                            
-                                  |                       time = 13           |     TG2:complete_time_ms                       								  
-                                  |                                           |                            								  
-                                  |                                           |                            								  
+                               Sender                   Network                    Receiver                         
+       TG1:first_timestamp        |         seq = 1        |                          |                              
+                                  |                        |      time = 1            |     TG1:first_arrival_ms   
+                                  |                        |                          |                            
+                                  |         seq = 2        |                          |                            
+                                  |                        |      time = 2            | 
+                                  |                        |                          |                            
+                                  |         seq = 3        |                          |                            
+                                  |                        |      time = 3            |  
+                                  |                        |                          |                            
+       TG1:timestamp              |         seq = 4        |                          |                            
+                                  |                        |      time = 4            |     TG1:complete_time_ms   
+                                  |                        |                          |                            
+                                  |                        |                          |                            
+                                  |                        |                          |                           
+------------------------------------------------------     |  --------------------------------------------------------
+                                  |                        |                          |                            
+       TG2:first_timestamp        |         seq = 5        |                          |                            
+                                  |                        |      time = 10           |     TG2:first_arrival_ms
+                                  |                        |                          |                            
+                                  |         seq = 6        |                          |                            
+                                  |                        |      time = 11           |  
+                                  |                        |                          |                            
+                                  |         seq = 7        |                          |                            
+                                  |                        |      time = 12           | 
+                                  |                        |                          |                            
+       TG2:timestamp              |         seq = 8        |                          |                            
+                                  |                        |      time = 13           |     TG2:complete_time_ms                       								  
+                                  |                        |                          |                            								  
+                                  |                        |                          |                            								  
   
           图中TG1包括seq 1~4，TG2包括 5~6，因此我们可以计算出 Trendline滤波器需要的三个参数：
              发送时间差值 delta_times、

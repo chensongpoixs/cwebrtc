@@ -111,8 +111,7 @@ void TrendlineEstimator::Update(double recv_delta_ms,
    包组传输时延进行叠加，计算出一个平滑延迟值 smoothed_delay。 WebRTC
    使用了线性回归进行时延梯度趋势预测，通过最小二乘法求拟合直线的斜率，根据斜率判断增长趋势
     */
-    smoothed_delay_ = smoothing_coef_ * smoothed_delay_ +
-                      (1 - smoothing_coef_ /*0.9*/) * accumulated_delay_;
+    smoothed_delay_ = smoothing_coef_ * smoothed_delay_ + (1 - smoothing_coef_ /*0.9*/) * accumulated_delay_;
     BWE_TEST_LOGGING_PLOT(1, "smoothed_delay_ms", arrival_time_ms,
                           smoothed_delay_);
 

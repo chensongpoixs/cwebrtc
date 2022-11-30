@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -45,7 +45,11 @@ Remb::Remb(const Remb& rhs) = default;
 
 Remb::~Remb() = default;
 
-bool Remb::Parse(const CommonHeader& packet) {
+/*
+评估流量
+*/
+bool Remb::Parse(const CommonHeader& packet) 
+{
   RTC_DCHECK(packet.type() == kPacketType);
   RTC_DCHECK_EQ(packet.fmt(), Psfb::kAfbMessageType);
 
