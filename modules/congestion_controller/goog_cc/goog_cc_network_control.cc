@@ -231,6 +231,9 @@ NetworkControlUpdate GoogCcNetworkController::OnNetworkRouteChange(
   return update;
 }
 
+/*
+TODO@chensong 得到目标码率 [update]
+*/
 NetworkControlUpdate GoogCcNetworkController::OnProcessInterval(
     ProcessInterval msg) {
   NetworkControlUpdate update;
@@ -518,8 +521,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
   if (max_feedback_rtt.IsFinite()) {
     feedback_max_rtts_.push_back(max_feedback_rtt.ms());
     const size_t kMaxFeedbackRttWindow = 32;
-    if (feedback_max_rtts_.size() > kMaxFeedbackRttWindow) 
-	{
+    if (feedback_max_rtts_.size() > kMaxFeedbackRttWindow) {
       feedback_max_rtts_.pop_front();
     }
     // TODO(srte): Use time since last unacknowledged packet.
@@ -563,7 +565,8 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
 #endif  // _DEBUG
     }
 
-    expected_packets_since_last_loss_update_ += report.PacketsWithFeedback().size();
+    expected_packets_since_last_loss_update_ +=
+        report.PacketsWithFeedback().size();
     for (const auto& packet_feedback : report.PacketsWithFeedback()) {
       if (packet_feedback.receive_time.IsInfinite())
         lost_packets_since_last_loss_update_ += 1;
@@ -589,9 +592,11 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
     }
   }
 
-  std::vector<PacketFeedback> received_feedback_vector = ReceivedPacketsFeedbackAsRtp(report);
+  std::vector<PacketFeedback> received_feedback_vector =
+      ReceivedPacketsFeedbackAsRtp(report);
 
-  absl::optional<int64_t> alr_start_time = alr_detector_->GetApplicationLimitedRegionStartTime();
+  absl::optional<int64_t> alr_start_time =
+      alr_detector_->GetApplicationLimitedRegionStartTime();
 
   if (previously_in_alr && !alr_start_time.has_value()) {
     int64_t now_ms = report.feedback_time.ms();

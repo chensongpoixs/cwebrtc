@@ -22,8 +22,7 @@ namespace {
 static const uint32_t kTimeOffsetSwitchThreshold = 30;
 }  // namespace
 
-ReceiveSideCongestionController::WrappingBitrateEstimator::
-    WrappingBitrateEstimator(RemoteBitrateObserver* observer, Clock* clock)
+ReceiveSideCongestionController::WrappingBitrateEstimator::WrappingBitrateEstimator(RemoteBitrateObserver* observer, Clock* clock)
     : observer_(observer),
       clock_(clock),
       rbe_(new RemoteBitrateEstimatorSingleStream(observer_, clock_)),
@@ -108,8 +107,7 @@ void ReceiveSideCongestionController::WrappingBitrateEstimator::
 }
 
 // Instantiate RBE for Time Offset or Absolute Send Time extensions.
-void ReceiveSideCongestionController::WrappingBitrateEstimator::
-    PickEstimator() {
+void ReceiveSideCongestionController::WrappingBitrateEstimator:: PickEstimator() {
   if (using_absolute_send_time_) {
     rbe_.reset(new RemoteBitrateEstimatorAbsSendTime(observer_, clock_));
   } else {
