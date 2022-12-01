@@ -469,22 +469,23 @@ void RtpTransportControllerSend::AddPacket(uint32_t ssrc,
       Timestamp::ms(clock_->TimeInMilliseconds()));
 }
 
-void RtpTransportControllerSend::OnTransportFeedback(
-    const rtcp::TransportFeedback& feedback) {
+void RtpTransportControllerSend::OnTransportFeedback(const rtcp::TransportFeedback& feedback) 
+{
   RTC_DCHECK_RUNS_SERIALIZED(&worker_race_);
 
-  absl::optional<TransportPacketsFeedback> feedback_msg =
-      transport_feedback_adapter_.ProcessTransportFeedback(
-          feedback, Timestamp::ms(clock_->TimeInMilliseconds()));
-  if (feedback_msg) {
-    task_queue_.PostTask([this, feedback_msg]() {
+  absl::optional<TransportPacketsFeedback> feedback_msg = transport_feedback_adapter_.ProcessTransportFeedback(feedback, Timestamp::ms(clock_->TimeInMilliseconds()));
+  if (feedback_msg) 
+  {
+    task_queue_.PostTask([this, feedback_msg]() 
+	{
       RTC_DCHECK_RUN_ON(&task_queue_);
       if (controller_)
+      {
         PostUpdates(controller_->OnTransportPacketsFeedback(*feedback_msg));
+	  }
     });
   }
-  pacer_.UpdateOutstandingData(
-      transport_feedback_adapter_.GetOutstandingData().bytes());
+  pacer_.UpdateOutstandingData(transport_feedback_adapter_.GetOutstandingData().bytes());
 }
 
 void RtpTransportControllerSend::MaybeCreateControllers() {

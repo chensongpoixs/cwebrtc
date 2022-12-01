@@ -24,13 +24,22 @@ namespace webrtc {
 
 namespace {
 // TODO@chensong 2022-11-30 线性回归函数最小二乘法
-absl::optional<double> LinearFitSlope(
-    const std::deque<std::pair<double, double>>& points) {
+/*
+ TODO@chensong 2022-11-30 
+ 时间作为                     : x
+ 平滑延迟值smoothed_delay作为  : y
+
+
+ x/y
+*/
+absl::optional<double> LinearFitSlope(const std::deque<std::pair<double, double>>& points) 
+{
   RTC_DCHECK(points.size() >= 2);
   // Compute the "center of mass".
   double sum_x = 0;
   double sum_y = 0;
-  for (const auto& point : points) {
+  for (const auto& point : points) 
+  {
     sum_x += point.first;
     sum_y += point.second;
   }
@@ -87,30 +96,30 @@ TrendlineEstimator::TrendlineEstimator(
 
 TrendlineEstimator::~TrendlineEstimator() {}
 
-void TrendlineEstimator::Update(double recv_delta_ms,
-                                double send_delta_ms,
-                                int64_t send_time_ms,
-                                int64_t arrival_time_ms,
-                                bool calculated_deltas) {
-  if (calculated_deltas) {
+void TrendlineEstimator::Update(double recv_delta_ms, double send_delta_ms, int64_t send_time_ms, int64_t arrival_time_ms, bool calculated_deltas) 
+{
+  if (calculated_deltas) 
+  {
     const double delta_ms = recv_delta_ms - send_delta_ms;
     ++num_of_deltas_;
     num_of_deltas_ = std::min(num_of_deltas_, kDeltaCounterMax /* 1000 */);
-    if (first_arrival_time_ms_ == -1) {
+    if (first_arrival_time_ms_ == -1) 
+	{
       first_arrival_time_ms_ = arrival_time_ms;
     }
 
     // Exponential backoff filter.
     accumulated_delay_ += delta_ms;
-    BWE_TEST_LOGGING_PLOT(1, "accumulated_delay_ms", arrival_time_ms,
-                          accumulated_delay_);
+    BWE_TEST_LOGGING_PLOT(1, "accumulated_delay_ms", arrival_time_ms, accumulated_delay_);
     /*
     TODO@chensong 2022-11-30
         到达时间滤波器(arrival-time filter)
    为减少网络波动影响，使用中会将最近1000个
    包组传输时延进行叠加，计算出一个平滑延迟值 smoothed_delay。 WebRTC
    使用了线性回归进行时延梯度趋势预测，通过最小二乘法求拟合直线的斜率，根据斜率判断增长趋势
-    */
+   
+   平滑延迟公式 = 平滑系数 * 平滑延迟 + (1 - 平滑系数) * 累积的延迟
+   */
     smoothed_delay_ = smoothing_coef_ * smoothed_delay_ + (1 - smoothing_coef_ /*0.9*/) * accumulated_delay_;
     BWE_TEST_LOGGING_PLOT(1, "smoothed_delay_ms", arrival_time_ms,
                           smoothed_delay_);
@@ -136,9 +145,9 @@ void TrendlineEstimator::Update(double recv_delta_ms,
 
     Detect(trend, send_delta_ms, arrival_time_ms);
   }
-  if (network_state_predictor_) {
-    hypothesis_predicted_ = network_state_predictor_->Update(
-        send_time_ms, arrival_time_ms, hypothesis_);
+  if (network_state_predictor_)
+  {
+    hypothesis_predicted_ = network_state_predictor_->Update(send_time_ms, arrival_time_ms, hypothesis_);
   }
 }
 
@@ -146,17 +155,20 @@ BandwidthUsage TrendlineEstimator::State() const {
   return network_state_predictor_ ? hypothesis_predicted_ : hypothesis_;
 }
 
-void TrendlineEstimator::Detect(double trend, double ts_delta, int64_t now_ms) {
-  if (num_of_deltas_ < 2) {
+void TrendlineEstimator::Detect(double trend, double ts_delta, int64_t now_ms) 
+{
+  if (num_of_deltas_ < 2) 
+  {
     hypothesis_ = BandwidthUsage::kBwNormal;
     return;
   }
-  const double modified_trend =
-      std::min(num_of_deltas_, kMinNumDeltas) * trend * threshold_gain_ /*4.0*/;
+  //TODO@chensong 2022-11-30 过载检测器(over-use detector)
+  //实际使用中，由于trend 是一个非常小的值，会乘以包组数量和增益系数进行放大得到modified_trend
+  const double modified_trend = std::min(num_of_deltas_, kMinNumDeltas) * trend * threshold_gain_ /*增益系数 =  4.0*/;
   prev_modified_trend_ = modified_trend;
   BWE_TEST_LOGGING_PLOT(1, "T", now_ms, modified_trend);
   BWE_TEST_LOGGING_PLOT(1, "threshold", now_ms, threshold_);
-  if (modified_trend > threshold_) 
+  if (modified_trend > threshold_) //持续时间超过100ms并且 trend值持续变大，认为此时处于 overuse 状态。
   {
     if (time_over_using_ == -1) 
 	{
@@ -173,17 +185,22 @@ void TrendlineEstimator::Detect(double trend, double ts_delta, int64_t now_ms) {
     overuse_counter_++;
     if (time_over_using_ > overusing_time_threshold_ && overuse_counter_ > 1) 
 	{
-      if (trend >= prev_trend_) {
+      if (trend >= prev_trend_) 
+	  {
         time_over_using_ = 0;
         overuse_counter_ = 0;
         hypothesis_ = BandwidthUsage::kBwOverusing;
       }
     }
-  } else if (modified_trend < -threshold_) {
+  } 
+  else if (modified_trend < -threshold_) //认为此时处于underuse 状态
+  {
     time_over_using_ = -1;
     overuse_counter_ = 0;
     hypothesis_ = BandwidthUsage::kBwUnderusing;
-  } else {
+  }
+  else  //-threshold < modifed_trend < threshold  认为此时处于normal 状态。
+  {
     time_over_using_ = -1;
     overuse_counter_ = 0;
     hypothesis_ = BandwidthUsage::kBwNormal;
@@ -192,12 +209,15 @@ void TrendlineEstimator::Detect(double trend, double ts_delta, int64_t now_ms) {
   UpdateThreshold(modified_trend, now_ms);
 }
 
-void TrendlineEstimator::UpdateThreshold(double modified_trend,
-                                         int64_t now_ms) {
+void TrendlineEstimator::UpdateThreshold(double modified_trend, int64_t now_ms)
+{
   if (last_update_ms_ == -1)
+  {
     last_update_ms_ = now_ms;
+  }
 
-  if (fabs(modified_trend) > threshold_ + kMaxAdaptOffsetMs) {
+  if (fabs(modified_trend) > threshold_ + kMaxAdaptOffsetMs) 
+  {
     // Avoid adapting the threshold to big latency spikes, caused e.g.,
     // by a sudden capacity drop.
     last_update_ms_ = now_ms;

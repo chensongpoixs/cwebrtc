@@ -122,42 +122,49 @@ absl::optional<SentPacket> TransportFeedbackAdapter::ProcessSentPacket(
 }
 
 absl::optional<TransportPacketsFeedback>
-TransportFeedbackAdapter::ProcessTransportFeedback(
-    const rtcp::TransportFeedback& feedback,
-    Timestamp feedback_receive_time) {
+TransportFeedbackAdapter::ProcessTransportFeedback(const rtcp::TransportFeedback& feedback, Timestamp feedback_receive_time) 
+{
   DataSize prior_in_flight = GetOutstandingData();
 
-  last_packet_feedback_vector_ =
-      GetPacketFeedbackVector(feedback, feedback_receive_time);
+  last_packet_feedback_vector_ = GetPacketFeedbackVector(feedback, feedback_receive_time);
   {
     rtc::CritScope cs(&observers_lock_);
-    for (auto* observer : observers_) {
+    for (auto* observer : observers_) 
+	{
       observer->OnPacketFeedbackVector(last_packet_feedback_vector_);
     }
   }
 
   std::vector<PacketFeedback> feedback_vector = last_packet_feedback_vector_;
   if (feedback_vector.empty())
+  {
     return absl::nullopt;
+  }
 
   TransportPacketsFeedback msg;
-  for (const PacketFeedback& rtp_feedback : feedback_vector) {
-    if (rtp_feedback.send_time_ms != PacketFeedback::kNoSendTime) {
+  for (const PacketFeedback& rtp_feedback : feedback_vector) 
+  {
+    if (rtp_feedback.send_time_ms != PacketFeedback::kNoSendTime) 
+	{
       auto feedback = NetworkPacketFeedbackFromRtpPacketFeedback(rtp_feedback);
       msg.packet_feedbacks.push_back(feedback);
-    } else if (rtp_feedback.arrival_time_ms == PacketFeedback::kNotReceived) {
+    } 
+	else if (rtp_feedback.arrival_time_ms == PacketFeedback::kNotReceived) 
+	{
       msg.sendless_arrival_times.push_back(Timestamp::PlusInfinity());
-    } else {
-      msg.sendless_arrival_times.push_back(
-          Timestamp::ms(rtp_feedback.arrival_time_ms));
+    } 
+	else 
+	{
+      msg.sendless_arrival_times.push_back(Timestamp::ms(rtp_feedback.arrival_time_ms));
     }
   }
   {
     rtc::CritScope cs(&lock_);
-    absl::optional<int64_t> first_unacked_send_time_ms =
-        send_time_history_.GetFirstUnackedSendTime();
+    absl::optional<int64_t> first_unacked_send_time_ms = send_time_history_.GetFirstUnackedSendTime();
     if (first_unacked_send_time_ms)
+    {
       msg.first_unacked_send_time = Timestamp::ms(*first_unacked_send_time_ms);
+	}
   }
   msg.feedback_time = feedback_receive_time;
   msg.prior_in_flight = prior_in_flight;

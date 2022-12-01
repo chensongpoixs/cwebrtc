@@ -21,6 +21,9 @@
 
 namespace webrtc {
 
+/*
+TODO@chensong 2022-11-30 中值斜率估算器
+*/
 class MedianSlopeEstimator {
  public:
   // |window_size| is the number of points required to compute a trend line.

@@ -162,8 +162,10 @@ RTCPReceiver::RTCPReceiver(
 
 RTCPReceiver::~RTCPReceiver() {}
 
-void RTCPReceiver::IncomingPacket(const uint8_t* packet, size_t packet_size) {
-  if (packet_size == 0) {
+void RTCPReceiver::IncomingPacket(const uint8_t* packet, size_t packet_size) 
+{
+  if (packet_size == 0) 
+  {
     RTC_LOG(LS_WARNING) << "Incoming empty RTCP packet";
     return;
   }
@@ -332,18 +334,19 @@ int32_t RTCPReceiver::StatisticsReceived(
   return 0;
 }
 
-bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
-                                       const uint8_t* packet_end,
-                                       PacketInformation* packet_information) {
+bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin, const uint8_t* packet_end, PacketInformation* packet_information) 
+{
   rtc::CritScope lock(&rtcp_receiver_lock_);
 
   CommonHeader rtcp_block;
-  for (const uint8_t* next_block = packet_begin; next_block != packet_end;
-       next_block = rtcp_block.NextPacket()) {
+  for (const uint8_t* next_block = packet_begin; next_block != packet_end; next_block = rtcp_block.NextPacket()) 
+  {
     ptrdiff_t remaining_blocks_size = packet_end - next_block;
     RTC_DCHECK_GT(remaining_blocks_size, 0);
-    if (!rtcp_block.Parse(next_block, remaining_blocks_size)) {
-      if (next_block == packet_begin) {
+    if (!rtcp_block.Parse(next_block, remaining_blocks_size)) 
+	{
+      if (next_block == packet_begin) 
+	  {
         // Failed to parse 1st header, nothing was extracted from this packet.
         RTC_LOG(LS_WARNING) << "Incoming invalid RTCP packet";
         return false;
@@ -353,9 +356,12 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
     }
 
     if (packet_type_counter_.first_packet_time_ms == -1)
+    {
       packet_type_counter_.first_packet_time_ms = clock_->TimeInMilliseconds();
+	}
 
-    switch (rtcp_block.type()) {
+    switch (rtcp_block.type()) 
+	{
       case rtcp::SenderReport::kPacketType:
         HandleSenderReport(rtcp_block, packet_information);
         break;
@@ -420,14 +426,15 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
     }
   }
 
-  if (packet_type_counter_observer_) {
-    packet_type_counter_observer_->RtcpPacketTypesCounterUpdated(
-        main_ssrc_, packet_type_counter_);
+  if (packet_type_counter_observer_)
+  {
+    packet_type_counter_observer_->RtcpPacketTypesCounterUpdated(main_ssrc_, packet_type_counter_);
   }
 
   int64_t now_ms = clock_->TimeInMilliseconds();
   if (now_ms - last_skipped_packets_warning_ms_ >= kMaxWarningLogIntervalMs &&
-      num_skipped_packets_ > 0) {
+      num_skipped_packets_ > 0) 
+  {
     last_skipped_packets_warning_ms_ = now_ms;
     RTC_LOG(LS_WARNING)
         << num_skipped_packets_
@@ -1006,11 +1013,12 @@ RtcpStatisticsCallback* RTCPReceiver::GetRtcpStatisticsCallback() {
 }
 
 // Holding no Critical section.
-void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
-    const PacketInformation& packet_information) {
+void RTCPReceiver::TriggerCallbacksFromRtcpPacket(const PacketInformation& packet_information) 
+{
   // Process TMMBR and REMB first to avoid multiple callbacks
   // to OnNetworkChanged.
-  if (packet_information.packet_type_flags & kRtcpTmmbr) {
+  if (packet_information.packet_type_flags & kRtcpTmmbr)
+  {
     // Might trigger a OnReceivedBandwidthEstimateUpdate.
     NotifyTmmbrUpdated();
   }
@@ -1022,11 +1030,13 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
     local_ssrc = main_ssrc_;
     registered_ssrcs = registered_ssrcs_;
   }
-  if (!receiver_only_ && (packet_information.packet_type_flags & kRtcpSrReq)) {
+  if (!receiver_only_ && (packet_information.packet_type_flags & kRtcpSrReq)) 
+  {
     rtp_rtcp_->OnRequestSendReport();
   }
   // TODO@chensong 发送RTX丢包信息
-  if (!receiver_only_ && (packet_information.packet_type_flags & kRtcpNack)) {
+  if (!receiver_only_ && (packet_information.packet_type_flags & kRtcpNack)) 
+  {
     if (!packet_information.nack_sequence_numbers.empty()) 
 	{
       RTC_LOG(LS_VERBOSE) << "Incoming NACK length: "
@@ -1039,33 +1049,37 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
   // can generate a new packet in a conference relay scenario, one received
   // report can generate several RTCP packets, based on number relayed/mixed
   // a send report block should go out to all receivers.
-  if (rtcp_intra_frame_observer_) {
+  if (rtcp_intra_frame_observer_) 
+  {
     RTC_DCHECK(!receiver_only_);
     if ((packet_information.packet_type_flags & kRtcpPli) ||
-        (packet_information.packet_type_flags & kRtcpFir)) {
-      if (packet_information.packet_type_flags & kRtcpPli) {
-        RTC_LOG(LS_VERBOSE)
-            << "Incoming PLI from SSRC " << packet_information.remote_ssrc;
-      } else {
-        RTC_LOG(LS_VERBOSE)
-            << "Incoming FIR from SSRC " << packet_information.remote_ssrc;
+        (packet_information.packet_type_flags & kRtcpFir)) 
+	{
+      if (packet_information.packet_type_flags & kRtcpPli) 
+	  {
+        RTC_LOG(LS_VERBOSE) << "Incoming PLI from SSRC " << packet_information.remote_ssrc;
+      } 
+	  else 
+	  {
+        RTC_LOG(LS_VERBOSE) << "Incoming FIR from SSRC " << packet_information.remote_ssrc;
       }
       rtcp_intra_frame_observer_->OnReceivedIntraFrameRequest(local_ssrc);
     }
   }
-  if (rtcp_loss_notification_observer_ &&
-      (packet_information.packet_type_flags & kRtcpLossNotification)) {
-    rtcp::LossNotification* loss_notification =
-        packet_information.loss_notification.get();
+  if (rtcp_loss_notification_observer_ && (packet_information.packet_type_flags & kRtcpLossNotification)) 
+  {
+    rtcp::LossNotification* loss_notification = packet_information.loss_notification.get();
     RTC_DCHECK(loss_notification);
-    if (loss_notification->media_ssrc() == local_ssrc) {
+    if (loss_notification->media_ssrc() == local_ssrc) 
+	{
       rtcp_loss_notification_observer_->OnReceivedLossNotification(
           loss_notification->media_ssrc(), loss_notification->last_decoded(),
           loss_notification->last_received(),
           loss_notification->decodability_flag());
     }
   }
-  if (rtcp_bandwidth_observer_) {
+  if (rtcp_bandwidth_observer_) 
+  {
     RTC_DCHECK(!receiver_only_);
     if (packet_information.packet_type_flags & kRtcpRemb) {
       RTC_LOG(LS_VERBOSE)
@@ -1090,10 +1104,9 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
       (packet_information.packet_type_flags & kRtcpTransportFeedback)) {
     uint32_t media_source_ssrc =
         packet_information.transport_feedback->media_ssrc();
-    if (media_source_ssrc == local_ssrc ||
-        registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) {
-      transport_feedback_observer_->OnTransportFeedback(
-          *packet_information.transport_feedback);
+    if (media_source_ssrc == local_ssrc || registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) 
+	{
+      transport_feedback_observer_->OnTransportFeedback(*packet_information.transport_feedback);
     }
   }
 

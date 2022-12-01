@@ -27,10 +27,12 @@ constexpr size_t CommonHeader::kHeaderSizeBytes;
 //   --------------------------------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 // Common header for all RTCP packets, 4 octets.
-bool CommonHeader::Parse(const uint8_t* buffer, size_t size_bytes) {
+bool CommonHeader::Parse(const uint8_t* buffer, size_t size_bytes) 
+{
   const uint8_t kVersion = 2;
 
-  if (size_bytes < kHeaderSizeBytes) {
+  if (size_bytes < kHeaderSizeBytes) 
+  {
     RTC_LOG(LS_WARNING)
         << "Too little data (" << size_bytes << " byte"
         << (size_bytes != 1 ? "s" : "")
@@ -39,7 +41,8 @@ bool CommonHeader::Parse(const uint8_t* buffer, size_t size_bytes) {
   }
 
   uint8_t version = buffer[0] >> 6;
-  if (version != kVersion) {
+  if (version != kVersion) 
+  {
     RTC_LOG(LS_WARNING) << "Invalid RTCP header: Version must be "
                         << static_cast<int>(kVersion) << " but was "
                         << static_cast<int>(version);
@@ -53,15 +56,18 @@ bool CommonHeader::Parse(const uint8_t* buffer, size_t size_bytes) {
   payload_ = buffer + kHeaderSizeBytes;
   padding_size_ = 0;
 
-  if (size_bytes < kHeaderSizeBytes + payload_size_) {
+  if (size_bytes < kHeaderSizeBytes + payload_size_) 
+  {
     RTC_LOG(LS_WARNING) << "Buffer too small (" << size_bytes
                         << " bytes) to fit an RtcpPacket with a header and "
                         << payload_size_ << " bytes.";
     return false;
   }
 
-  if (has_padding) {
-    if (payload_size_ == 0) {
+  if (has_padding) 
+  {
+    if (payload_size_ == 0) 
+	{
       RTC_LOG(LS_WARNING)
           << "Invalid RTCP header: Padding bit set but 0 payload "
              "size specified.";
@@ -69,13 +75,15 @@ bool CommonHeader::Parse(const uint8_t* buffer, size_t size_bytes) {
     }
 
     padding_size_ = payload_[payload_size_ - 1];
-    if (padding_size_ == 0) {
+    if (padding_size_ == 0) 
+	{
       RTC_LOG(LS_WARNING)
           << "Invalid RTCP header: Padding bit set but 0 padding "
              "size specified.";
       return false;
     }
-    if (padding_size_ > payload_size_) {
+    if (padding_size_ > payload_size_) 
+	{
       RTC_LOG(LS_WARNING) << "Invalid RTCP header: Too many padding bytes ("
                           << padding_size_ << ") for a packet payload size of "
                           << payload_size_ << " bytes.";

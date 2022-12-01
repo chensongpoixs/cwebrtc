@@ -43,11 +43,13 @@ constexpr TimeDelta kLossUpdateInterval = TimeDelta::Millis<1000>();
 // overshoots from the encoder.
 const float kDefaultPaceMultiplier = 2.5f;
 
-std::vector<PacketFeedback> ReceivedPacketsFeedbackAsRtp(
-    const TransportPacketsFeedback report) {
+std::vector<PacketFeedback> ReceivedPacketsFeedbackAsRtp(const TransportPacketsFeedback report) 
+{
   std::vector<PacketFeedback> packet_feedback_vector;
-  for (auto& fb : report.PacketsWithFeedback()) {
-    if (fb.receive_time.IsFinite()) {
+  for (auto& fb : report.PacketsWithFeedback()) 
+  {
+    if (fb.receive_time.IsFinite()) 
+	{
       PacketFeedback pf(fb.receive_time.ms(), 0);
       pf.creation_time_ms = report.feedback_time.ms();
       pf.payload_size = fb.sent_packet.size.bytes();
@@ -57,8 +59,7 @@ std::vector<PacketFeedback> ReceivedPacketsFeedbackAsRtp(
       packet_feedback_vector.push_back(pf);
     }
   }
-  std::sort(packet_feedback_vector.begin(), packet_feedback_vector.end(),
-            PacketFeedbackComparator());
+  std::sort(packet_feedback_vector.begin(), packet_feedback_vector.end(), PacketFeedbackComparator());
   return packet_feedback_vector;
 }
 
@@ -488,72 +489,77 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportLossReport(
   return NetworkControlUpdate();
 }
 
-NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
-    TransportPacketsFeedback report) {
-  if (report.packet_feedbacks.empty()) {
+NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(TransportPacketsFeedback report) 
+{
+  if (report.packet_feedbacks.empty()) 
+  {
     // TODO(bugs.webrtc.org/10125): Design a better mechanism to safe-guard
     // against building very large network queues.
     return NetworkControlUpdate();
   }
 
-  if (congestion_window_pushback_controller_) {
-    congestion_window_pushback_controller_->UpdateOutstandingData(
-        report.data_in_flight.bytes());
+  if (congestion_window_pushback_controller_) 
+  {
+    congestion_window_pushback_controller_->UpdateOutstandingData(report.data_in_flight.bytes());
   }
   TimeDelta max_feedback_rtt = TimeDelta::MinusInfinity();
   TimeDelta min_propagation_rtt = TimeDelta::PlusInfinity();
   Timestamp max_recv_time = Timestamp::MinusInfinity();
 
   std::vector<PacketResult> feedbacks = report.ReceivedWithSendInfo();
-  for (const auto& feedback : feedbacks) {
+  for (const auto& feedback : feedbacks)
+  {
     max_recv_time = std::max(max_recv_time, feedback.receive_time);
   }
 
-  for (const auto& feedback : feedbacks) {
-    TimeDelta feedback_rtt =
-        report.feedback_time - feedback.sent_packet.send_time;
+  for (const auto& feedback : feedbacks) 
+  {
+    TimeDelta feedback_rtt = report.feedback_time - feedback.sent_packet.send_time;
     TimeDelta min_pending_time = feedback.receive_time - max_recv_time;
     TimeDelta propagation_rtt = feedback_rtt - min_pending_time;
     max_feedback_rtt = std::max(max_feedback_rtt, feedback_rtt);
     min_propagation_rtt = std::min(min_propagation_rtt, propagation_rtt);
   }
 
-  if (max_feedback_rtt.IsFinite()) {
+  if (max_feedback_rtt.IsFinite()) 
+  {
     feedback_max_rtts_.push_back(max_feedback_rtt.ms());
     const size_t kMaxFeedbackRttWindow = 32;
-    if (feedback_max_rtts_.size() > kMaxFeedbackRttWindow) {
+    if (feedback_max_rtts_.size() > kMaxFeedbackRttWindow) 
+	{
       feedback_max_rtts_.pop_front();
     }
     // TODO(srte): Use time since last unacknowledged packet.
-    bandwidth_estimation_->UpdatePropagationRtt(report.feedback_time,
-                                                min_propagation_rtt);
+    bandwidth_estimation_->UpdatePropagationRtt(report.feedback_time, min_propagation_rtt);
 #if _DEBUG
 
     NORMAL_EX_LOG(
         "[bandwidth_estimation_->UpdatePropagationRtt][report.feedback_time = "
-        "%s][min_propagation_rtt = %s]",
-        webrtc::ToString(report.feedback_time).c_str(),
-        webrtc::ToString(min_propagation_rtt).c_str());
+        "%s][min_propagation_rtt = %s]", webrtc::ToString(report.feedback_time).c_str(), webrtc::ToString(min_propagation_rtt).c_str());
 #endif  // _DEBUG
   }
-  if (packet_feedback_only_) {
-    if (!feedback_max_rtts_.empty()) {
-      int64_t sum_rtt_ms = std::accumulate(feedback_max_rtts_.begin(),
-                                           feedback_max_rtts_.end(), 0);
+  if (packet_feedback_only_) 
+  {
+    if (!feedback_max_rtts_.empty()) 
+	{
+      int64_t sum_rtt_ms = std::accumulate(feedback_max_rtts_.begin(), feedback_max_rtts_.end(), 0);
       int64_t mean_rtt_ms = sum_rtt_ms / feedback_max_rtts_.size();
       if (delay_based_bwe_)
+      {
         delay_based_bwe_->OnRttUpdate(TimeDelta::ms(mean_rtt_ms));
+	  }
     }
 
     TimeDelta feedback_min_rtt = TimeDelta::PlusInfinity();
-    for (const auto& packet_feedback : feedbacks) {
+    for (const auto& packet_feedback : feedbacks) 
+	{
       TimeDelta pending_time = packet_feedback.receive_time - max_recv_time;
-      TimeDelta rtt = report.feedback_time -
-                      packet_feedback.sent_packet.send_time - pending_time;
+      TimeDelta rtt = report.feedback_time - packet_feedback.sent_packet.send_time - pending_time;
       // Value used for predicting NACK round trip time in FEC controller.
       feedback_min_rtt = std::min(rtt, feedback_min_rtt);
     }
-    if (feedback_min_rtt.IsFinite()) {
+    if (feedback_min_rtt.IsFinite()) 
+	{
       bandwidth_estimation_->UpdateRtt(feedback_min_rtt, report.feedback_time);
 #if _DEBUG
 
@@ -565,13 +571,14 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
 #endif  // _DEBUG
     }
 
-    expected_packets_since_last_loss_update_ +=
-        report.PacketsWithFeedback().size();
-    for (const auto& packet_feedback : report.PacketsWithFeedback()) {
+    expected_packets_since_last_loss_update_ += report.PacketsWithFeedback().size();
+    for (const auto& packet_feedback : report.PacketsWithFeedback()) 
+	{
       if (packet_feedback.receive_time.IsInfinite())
         lost_packets_since_last_loss_update_ += 1;
     }
-    if (report.feedback_time > next_loss_update_) {
+    if (report.feedback_time > next_loss_update_)
+	{
       next_loss_update_ = report.feedback_time + kLossUpdateInterval;
       bandwidth_estimation_->UpdatePacketsLost(
           lost_packets_since_last_loss_update_,
@@ -591,35 +598,34 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
       lost_packets_since_last_loss_update_ = 0;
     }
   }
+  // TODO@chensong 2022-11-30 接受的feedback信息包数组
+  std::vector<PacketFeedback> received_feedback_vector = ReceivedPacketsFeedbackAsRtp(report);
 
-  std::vector<PacketFeedback> received_feedback_vector =
-      ReceivedPacketsFeedbackAsRtp(report);
+  absl::optional<int64_t> alr_start_time = alr_detector_->GetApplicationLimitedRegionStartTime();
 
-  absl::optional<int64_t> alr_start_time =
-      alr_detector_->GetApplicationLimitedRegionStartTime();
-
-  if (previously_in_alr && !alr_start_time.has_value()) {
+  if (previously_in_alr && !alr_start_time.has_value())
+  {
     int64_t now_ms = report.feedback_time.ms();
     acknowledged_bitrate_estimator_->SetAlrEndedTimeMs(now_ms);
     probe_controller_->SetAlrEndedTimeMs(now_ms);
   }
   previously_in_alr = alr_start_time.has_value();
-  acknowledged_bitrate_estimator_->IncomingPacketFeedbackVector(
-      received_feedback_vector);
-  absl::optional<DataRate> acknowledged_bitrate =
-      acknowledged_bitrate_estimator_->bitrate();
-  for (const auto& feedback : received_feedback_vector) {
-    if (feedback.pacing_info.probe_cluster_id != PacedPacketInfo::kNotAProbe) {
+  acknowledged_bitrate_estimator_->IncomingPacketFeedbackVector(received_feedback_vector);
+  absl::optional<DataRate> acknowledged_bitrate = acknowledged_bitrate_estimator_->bitrate();
+  for (const auto& feedback : received_feedback_vector)
+  {
+    if (feedback.pacing_info.probe_cluster_id != PacedPacketInfo::kNotAProbe) 
+	{
       probe_bitrate_estimator_->HandleProbeAndEstimateBitrate(feedback);
     }
   }
 
-  absl::optional<DataRate> probe_bitrate =
-      probe_bitrate_estimator_->FetchAndResetLastEstimatedBitrate();
+  absl::optional<DataRate> probe_bitrate = probe_bitrate_estimator_->FetchAndResetLastEstimatedBitrate();
   if (fall_back_to_probe_rate_ && !acknowledged_bitrate)
+  {
     acknowledged_bitrate = probe_bitrate_estimator_->last_estimate();
-  bandwidth_estimation_->SetAcknowledgedRate(acknowledged_bitrate,
-                                             report.feedback_time);
+  }
+  bandwidth_estimation_->SetAcknowledgedRate(acknowledged_bitrate, report.feedback_time);
 
 #if _DEBUG
 
@@ -650,12 +656,13 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(
   bool backoff_in_alr = false;
   // TODO@chensong 2022-11-30  基于延迟（delay-based）的拥塞控制算法
   DelayBasedBwe::Result result;
-  result = delay_based_bwe_->IncomingPacketFeedbackVector(
-      received_feedback_vector, acknowledged_bitrate, probe_bitrate,
+  result = delay_based_bwe_->IncomingPacketFeedbackVector( received_feedback_vector, acknowledged_bitrate, probe_bitrate,
       alr_start_time.has_value(), report.feedback_time);
 
-  if (result.updated) {
-    if (result.probe) {
+  if (result.updated)
+  {
+    if (result.probe) 
+	{
       bandwidth_estimation_->SetSendBitrate(result.target_bitrate,
                                             report.feedback_time);
 #if _DEBUG
