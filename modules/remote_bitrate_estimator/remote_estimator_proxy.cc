@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -181,6 +181,7 @@ void RemoteEstimatorProxy::SendPeriodicFeedbacks() {
        begin_iterator =
            packet_arrival_times_.lower_bound(*periodic_window_start_seq_)) {
     rtcp::TransportFeedback feedback_packet;
+	// TODO@chensong 2022-12-01  发送feedback packet check data size
     periodic_window_start_seq_ = BuildFeedbackPacket(
         feedback_packet_count_++, media_ssrc_, *periodic_window_start_seq_,
         begin_iterator, packet_arrival_times_.cend(), &feedback_packet);

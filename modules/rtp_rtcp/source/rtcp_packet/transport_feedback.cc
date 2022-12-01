@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -164,9 +164,9 @@ void TransportFeedback::LastChunk::AppendTo(
 }
 
 void TransportFeedback::LastChunk::Decode(uint16_t chunk, size_t max_size) {
-  if ((chunk & 0x8000) == 0) {
+  if ((chunk & 0x8000 /*1000 0000 0000 0000*/) == 0) {
     DecodeRunLength(chunk, max_size);
-  } else if ((chunk & 0x4000) == 0) {
+  } else if ((chunk & 0x4000 /*0100 0000 0000 0000*/) == 0) {
     DecodeOneBit(chunk, max_size);
   } else {
     DecodeTwoBit(chunk, max_size);
@@ -196,11 +196,12 @@ uint16_t TransportFeedback::LastChunk::EncodeOneBit() const {
 void TransportFeedback::LastChunk::DecodeOneBit(uint16_t chunk,
                                                 size_t max_size) {
   RTC_DCHECK_EQ(chunk & 0xc000, 0x8000);
-  size_ = std::min(kMaxOneBitCapacity, max_size);
+  size_ = std::min(kMaxOneBitCapacity /*14*/, max_size);
   has_large_delta_ = false;
   all_same_ = false;
-  for (size_t i = 0; i < size_; ++i)
+  for (size_t i = 0; i < size_; ++i) {
     delta_sizes_[i] = (chunk >> (kMaxOneBitCapacity - 1 - i)) & 0x01;
+  }
 }
 
 //  Two Bit Status Vector Chunk
@@ -228,8 +229,9 @@ void TransportFeedback::LastChunk::DecodeTwoBit(uint16_t chunk,
   size_ = std::min(kMaxTwoBitCapacity, max_size);
   has_large_delta_ = true;
   all_same_ = false;
-  for (size_t i = 0; i < size_; ++i)
+  for (size_t i = 0; i < size_; ++i) {
     delta_sizes_[i] = (chunk >> 2 * (kMaxTwoBitCapacity - 1 - i)) & 0x03;
+  }
 }
 
 //  Run Length Status Vector Chunk
@@ -257,8 +259,10 @@ void TransportFeedback::LastChunk::DecodeRunLength(uint16_t chunk,
   has_large_delta_ = delta_size >= kLarge;
   all_same_ = true;
   // To make it consistent with Add function, populate delta_sizes_ beyound 1st.
-  for (size_t i = 0; i < std::min<size_t>(size_, kMaxVectorCapacity); ++i)
+  for (size_t i = 0; i < std::min<size_t>(size_, kMaxVectorCapacity /*14*/);
+       ++i) {
     delta_sizes_[i] = delta_size;
+  }
 }
 
 TransportFeedback::TransportFeedback()
@@ -564,18 +568,22 @@ bool TransportFeedback::Create(uint8_t* packet,
                                size_t* position,
                                size_t max_length,
                                PacketReadyCallback callback) const {
-  if (num_seq_no_ == 0)
+  if (num_seq_no_ == 0) {
     return false;
+  }
 
-  while (*position + BlockLength() > max_length) {
-    if (!OnBufferFull(packet, position, callback))
+  while (*position + BlockLength() > max_length)
+  {
+    if (!OnBufferFull(packet, position, callback)) 
+	{
       return false;
+    }
   }
   const size_t position_end = *position + BlockLength();
   const size_t padding_length = PaddingLength();
   bool has_padding = padding_length > 0;
-  CreateHeader(kFeedbackMessageType, kPacketType, HeaderLength(), has_padding,
-               packet, position);
+  // TODO@chensong 2022-12-01  创建rtcp中feedback fb的fmt = 15 的内容 
+  CreateHeader(kFeedbackMessageType, kPacketType, HeaderLength(), has_padding, packet, position);
   CreateCommonFeedback(packet + *position);
   *position += kCommonFeedbackLength;
 
@@ -590,22 +598,29 @@ bool TransportFeedback::Create(uint8_t* packet,
 
   packet[(*position)++] = feedback_seq_;
 
-  for (uint16_t chunk : encoded_chunks_) {
+  for (uint16_t chunk : encoded_chunks_) 
+  {
     ByteWriter<uint16_t>::WriteBigEndian(&packet[*position], chunk);
     *position += 2;
   }
-  if (!last_chunk_.Empty()) {
+  if (!last_chunk_.Empty())
+  {
     uint16_t chunk = last_chunk_.EncodeLast();
     ByteWriter<uint16_t>::WriteBigEndian(&packet[*position], chunk);
     *position += 2;
   }
 
-  if (include_timestamps_) {
-    for (const auto& received_packet : packets_) {
+  if (include_timestamps_) 
+  {
+    for (const auto& received_packet : packets_) 
+	{
       int16_t delta = received_packet.delta_ticks();
-      if (delta >= 0 && delta <= 0xFF) {
+      if (delta >= 0 && delta <= 0xFF)
+	  {
         packet[(*position)++] = delta;
-      } else {
+      } 
+	  else 
+	  {
         ByteWriter<int16_t>::WriteBigEndian(&packet[*position], delta);
         *position += 2;
       }

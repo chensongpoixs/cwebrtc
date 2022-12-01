@@ -34,7 +34,9 @@ bool RtcpPacket::Build(size_t max_length, PacketReadyCallback callback) const {
   uint8_t buffer[IP_PACKET_SIZE];
   size_t index = 0;
   if (!Create(buffer, &index, max_length, callback))
+  {
     return false;
+  }
   return OnBufferFull(buffer, &index, callback);
 }
 
@@ -76,19 +78,14 @@ void RtcpPacket::CreateHeader(
                pos);
 }
 
-void RtcpPacket::CreateHeader(
-    size_t count_or_format,  // Depends on packet type.
-    uint8_t packet_type,
-    size_t length,
-    bool padding,
-    uint8_t* buffer,
-    size_t* pos) {
+void RtcpPacket::CreateHeader(size_t count_or_format,  // Depends on packet type.
+    uint8_t packet_type, size_t length, bool padding, uint8_t* buffer, size_t* pos) 
+{
   RTC_DCHECK_LE(length, 0xffffU);
   RTC_DCHECK_LE(count_or_format, 0x1f);
   constexpr uint8_t kVersionBits = 2 << 6;
   uint8_t padding_bit = padding ? 1 << 5 : 0;
-  buffer[*pos + 0] =
-      kVersionBits | padding_bit | static_cast<uint8_t>(count_or_format);
+  buffer[*pos + 0] = kVersionBits | padding_bit | static_cast<uint8_t>(count_or_format);
   buffer[*pos + 1] = packet_type;
   buffer[*pos + 2] = (length >> 8) & 0xff;
   buffer[*pos + 3] = length & 0xff;

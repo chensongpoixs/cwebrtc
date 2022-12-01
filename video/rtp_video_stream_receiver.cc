@@ -147,7 +147,8 @@ RtpVideoStreamReceiver::RtpVideoStreamReceiver(
   rtp_rtcp_->RegisterRtcpStatisticsCallback(receive_stats_proxy);
 
   process_thread_->RegisterModule(rtp_rtcp_.get(), RTC_FROM_HERE);
-
+  // TODO@chensong 2022-11-30 RTCP LOSS 通知事件 掉包处理 
+  // webrtc 中针对两种掉包处理方式 有什么区别呢 [默认使用nackmodule通知]
   if (webrtc::field_trial::IsEnabled("WebRTC-RtcpLossNotification")) {
     loss_notification_controller_ =
         absl::make_unique<LossNotificationController>(keyframe_request_sender_,
