@@ -308,46 +308,58 @@ void TransportFeedback::SetFeedbackSequenceNumber(uint8_t feedback_sequence) {
   feedback_seq_ = feedback_sequence;
 }
 
-bool TransportFeedback::AddReceivedPacket(uint16_t sequence_number,
-                                          int64_t timestamp_us) {
+bool TransportFeedback::AddReceivedPacket(uint16_t sequence_number, int64_t timestamp_us) 
+{
   // Set delta to zero if timestamps are not included, this will simplify the
   // encoding process.
   int16_t delta = 0;
-  if (include_timestamps_) {
+  if (include_timestamps_) 
+  {
     // Convert to ticks and round.
-    int64_t delta_full =
-        (timestamp_us - last_timestamp_us_) % kTimeWrapPeriodUs;
-    if (delta_full > kTimeWrapPeriodUs / 2)
+    int64_t delta_full = (timestamp_us - last_timestamp_us_) % kTimeWrapPeriodUs;
+    if (delta_full > kTimeWrapPeriodUs / 2) 
+	{
       delta_full -= kTimeWrapPeriodUs;
-    delta_full +=
-        delta_full < 0 ? -(kDeltaScaleFactor / 2) : kDeltaScaleFactor / 2;
+    }
+    delta_full += delta_full < 0 ? -(kDeltaScaleFactor / 2) : kDeltaScaleFactor / 2;
     delta_full /= kDeltaScaleFactor;
 
     delta = static_cast<int16_t>(delta_full);
     // If larger than 16bit signed, we can't represent it - need new fb packet.
-    if (delta != delta_full) {
+    if (delta != delta_full) 
+	{
       RTC_LOG(LS_WARNING) << "Delta value too large ( >= 2^16 ticks )";
       return false;
     }
   }
 
   uint16_t next_seq_no = base_seq_no_ + num_seq_no_;
-  if (sequence_number != next_seq_no) {
+  if (sequence_number != next_seq_no) 
+  {
     uint16_t last_seq_no = next_seq_no - 1;
-    if (!IsNewerSequenceNumber(sequence_number, last_seq_no))
+    if (!IsNewerSequenceNumber(sequence_number, last_seq_no)) 
+	{
       return false;
-    for (; next_seq_no != sequence_number; ++next_seq_no)
-      if (!AddDeltaSize(0))
+    }
+    for (; next_seq_no != sequence_number; ++next_seq_no) 
+	{
+      if (!AddDeltaSize(0)) 
+	  {
         return false;
+      }
+    }
   }
 
   DeltaSize delta_size = (delta >= 0 && delta <= 0xff) ? 1 : 2;
-  if (!AddDeltaSize(delta_size))
+  if (!AddDeltaSize(delta_size)) 
+  {
     return false;
+  }
 
   packets_.emplace_back(sequence_number, delta);
   last_timestamp_us_ += delta * kDeltaScaleFactor;
-  if (include_timestamps_) {
+  if (include_timestamps_)
+  {
     size_bytes_ += delta_size;
   }
   return true;
@@ -436,14 +448,14 @@ bool TransportFeedback::Parse(const CommonHeader& packet) {
         case 1: {
           int16_t delta = payload[index];
           packets_.emplace_back(seq_no, delta);
-          last_timestamp_us_ += delta * kDeltaScaleFactor;
+          last_timestamp_us_ += delta * kDeltaScaleFactor /*default 250 */;
           index += delta_size;
           break;
         }
         case 2: {
           int16_t delta = ByteReader<int16_t>::ReadBigEndian(&payload[index]);
           packets_.emplace_back(seq_no, delta);
-          last_timestamp_us_ += delta * kDeltaScaleFactor;
+          last_timestamp_us_ += delta * kDeltaScaleFactor /*default 250*/;
           index += delta_size;
           break;
         }
@@ -572,55 +584,53 @@ bool TransportFeedback::Create(uint8_t* packet,
     return false;
   }
 
-  while (*position + BlockLength() > max_length)
-  {
-    if (!OnBufferFull(packet, position, callback)) 
-	{
+  while (*position + BlockLength() > max_length) {
+    if (!OnBufferFull(packet, position, callback)) {
       return false;
     }
   }
   const size_t position_end = *position + BlockLength();
   const size_t padding_length = PaddingLength();
   bool has_padding = padding_length > 0;
-  // TODO@chensong 2022-12-01  创建rtcp中feedback fb的fmt = 15 的内容 
-  CreateHeader(kFeedbackMessageType, kPacketType, HeaderLength(), has_padding, packet, position);
+  // TODO@chensong 2022-12-01  创建rtcp中feedback fb的fmt = 15 的内容
+  // TODO@chensong 2022-12-02  [ Generic RTP Feedback ]
+  CreateHeader(kFeedbackMessageType, kPacketType, HeaderLength(), has_padding,
+               packet, position);
   CreateCommonFeedback(packet + *position);
   *position += kCommonFeedbackLength;
 
+  // 2. [Transport-cc]
+  //    2.1 [ Base Sequence Number ]
   ByteWriter<uint16_t>::WriteBigEndian(&packet[*position], base_seq_no_);
   *position += 2;
-
+  //    2.2 [ Packet Status Count ]
   ByteWriter<uint16_t>::WriteBigEndian(&packet[*position], num_seq_no_);
   *position += 2;
-
+  //    2.3 [ Reference Time ]
   ByteWriter<int32_t, 3>::WriteBigEndian(&packet[*position], base_time_ticks_);
   *position += 3;
 
+  //    2.4 [ Feedback Packets Count ]
   packet[(*position)++] = feedback_seq_;
 
-  for (uint16_t chunk : encoded_chunks_) 
-  {
+  //    2.5 [ Packet Chunks ]
+  for (uint16_t chunk : encoded_chunks_) {
+    // 2.5.1 [ Packet Chunk index ]
     ByteWriter<uint16_t>::WriteBigEndian(&packet[*position], chunk);
     *position += 2;
   }
-  if (!last_chunk_.Empty())
-  {
+  if (!last_chunk_.Empty()) {
     uint16_t chunk = last_chunk_.EncodeLast();
     ByteWriter<uint16_t>::WriteBigEndian(&packet[*position], chunk);
     *position += 2;
   }
 
-  if (include_timestamps_) 
-  {
-    for (const auto& received_packet : packets_) 
-	{
+  if (include_timestamps_) {
+    for (const auto& received_packet : packets_) {
       int16_t delta = received_packet.delta_ticks();
-      if (delta >= 0 && delta <= 0xFF)
-	  {
+      if (delta >= 0 && delta <= 0xFF) {
         packet[(*position)++] = delta;
-      } 
-	  else 
-	  {
+      } else {
         ByteWriter<int16_t>::WriteBigEndian(&packet[*position], delta);
         *position += 2;
       }
@@ -646,21 +656,29 @@ void TransportFeedback::Clear() {
   size_bytes_ = kTransportFeedbackHeaderSizeBytes;
 }
 
-bool TransportFeedback::AddDeltaSize(DeltaSize delta_size) {
+bool TransportFeedback::AddDeltaSize(DeltaSize delta_size) 
+{
   if (num_seq_no_ == kMaxReportedPackets)
+  {
     return false;
+  }
   size_t add_chunk_size = last_chunk_.Empty() ? kChunkSizeBytes : 0;
   if (size_bytes_ + delta_size + add_chunk_size > kMaxSizeBytes)
+  {
     return false;
+  }
 
-  if (last_chunk_.CanAdd(delta_size)) {
+  if (last_chunk_.CanAdd(delta_size)) 
+  {
     size_bytes_ += add_chunk_size;
     last_chunk_.Add(delta_size);
     ++num_seq_no_;
     return true;
   }
   if (size_bytes_ + delta_size + kChunkSizeBytes > kMaxSizeBytes)
+  {
     return false;
+  }
 
   encoded_chunks_.push_back(last_chunk_.Emit());
   size_bytes_ += kChunkSizeBytes;

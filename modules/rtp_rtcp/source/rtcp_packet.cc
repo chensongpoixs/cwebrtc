@@ -68,12 +68,9 @@ size_t RtcpPacket::HeaderLength() const {
 //  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //  |V=2|P| RC/FMT  |      PT       |             length            |
 //  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RtcpPacket::CreateHeader(
-    size_t count_or_format,  // Depends on packet type.
-    uint8_t packet_type,
-    size_t length,
-    uint8_t* buffer,
-    size_t* pos) {
+void RtcpPacket::CreateHeader(size_t count_or_format,  // Depends on packet type. 
+	uint8_t packet_type, size_t length, uint8_t* buffer, size_t* pos)
+{
   CreateHeader(count_or_format, packet_type, length, /*padding=*/false, buffer,
                pos);
 }

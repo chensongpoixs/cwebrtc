@@ -2778,3 +2778,4 @@ modules/congestion_controller/goog_cc/*.h.bak
 modules/rtp_rtcp/source/rtcp_packet/*.cc.bak
 modules/remote_bitrate_estimator/*.cc.bak
 .gitignore.bak
+modules/rtp_rtcp/source/rtcp_packet/transport_feedback.h.bak

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -147,7 +147,7 @@ class TransportFeedback : public Rtpfb {
   uint16_t base_seq_no_;
   uint16_t num_seq_no_;
   int32_t base_time_ticks_;
-  uint8_t feedback_seq_;
+  uint8_t feedback_seq_; // Packet Chunks 的数量  -> 即encoded_chunks_中有多少个
   bool include_timestamps_;
 
   int64_t last_timestamp_us_;

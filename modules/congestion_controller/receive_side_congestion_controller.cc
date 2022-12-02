@@ -30,13 +30,10 @@ ReceiveSideCongestionController::WrappingBitrateEstimator::WrappingBitrateEstima
       packets_since_absolute_send_time_(0),
       min_bitrate_bps_(congestion_controller::GetMinBitrateBps()) {}
 
-ReceiveSideCongestionController::WrappingBitrateEstimator::
-    ~WrappingBitrateEstimator() = default;
+ReceiveSideCongestionController::WrappingBitrateEstimator::~WrappingBitrateEstimator() = default;
 
-void ReceiveSideCongestionController::WrappingBitrateEstimator::IncomingPacket(
-    int64_t arrival_time_ms,
-    size_t payload_size,
-    const RTPHeader& header) {
+void ReceiveSideCongestionController::WrappingBitrateEstimator::IncomingPacket(int64_t arrival_time_ms, size_t payload_size, const RTPHeader& header) 
+{
   rtc::CritScope cs(&crit_sect_);
   PickEstimatorFromHeader(header);
   rbe_->IncomingPacket(arrival_time_ms, payload_size, header);

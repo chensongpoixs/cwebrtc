@@ -198,64 +198,46 @@ class Call final : public webrtc::Call,
                    public TargetTransferRateObserver,
                    public BitrateAllocator::LimitObserver {
  public:
-  Call(Clock* clock,
-       const Call::Config& config,
+  Call(Clock* clock, const Call::Config& config,
        std::unique_ptr<RtpTransportControllerSendInterface> transport_send,
-       std::unique_ptr<ProcessThread> module_process_thread,
-       TaskQueueFactory* task_queue_factory);
+       std::unique_ptr<ProcessThread> module_process_thread, TaskQueueFactory* task_queue_factory);
   ~Call() override;
 
   // Implements webrtc::Call.
   PacketReceiver* Receiver() override;
 
-  webrtc::AudioSendStream* CreateAudioSendStream(
-      const webrtc::AudioSendStream::Config& config) override;
+  webrtc::AudioSendStream* CreateAudioSendStream(const webrtc::AudioSendStream::Config& config) override;
   void DestroyAudioSendStream(webrtc::AudioSendStream* send_stream) override;
 
-  webrtc::AudioReceiveStream* CreateAudioReceiveStream(
-      const webrtc::AudioReceiveStream::Config& config) override;
-  void DestroyAudioReceiveStream(
-      webrtc::AudioReceiveStream* receive_stream) override;
+  webrtc::AudioReceiveStream* CreateAudioReceiveStream(const webrtc::AudioReceiveStream::Config& config) override;
+  void DestroyAudioReceiveStream(webrtc::AudioReceiveStream* receive_stream) override;
 
-  webrtc::VideoSendStream* CreateVideoSendStream(
-      webrtc::VideoSendStream::Config config,
-      VideoEncoderConfig encoder_config) override;
-  webrtc::VideoSendStream* CreateVideoSendStream(
-      webrtc::VideoSendStream::Config config,
-      VideoEncoderConfig encoder_config,
-      std::unique_ptr<FecController> fec_controller) override;
+  webrtc::VideoSendStream* CreateVideoSendStream(webrtc::VideoSendStream::Config config,VideoEncoderConfig encoder_config) override;
+  webrtc::VideoSendStream* CreateVideoSendStream(webrtc::VideoSendStream::Config config,
+      VideoEncoderConfig encoder_config, std::unique_ptr<FecController> fec_controller) override;
   void DestroyVideoSendStream(webrtc::VideoSendStream* send_stream) override;
 
-  webrtc::VideoReceiveStream* CreateVideoReceiveStream(
-      webrtc::VideoReceiveStream::Config configuration) override;
-  void DestroyVideoReceiveStream(
-      webrtc::VideoReceiveStream* receive_stream) override;
+  webrtc::VideoReceiveStream* CreateVideoReceiveStream(webrtc::VideoReceiveStream::Config configuration) override;
+  void DestroyVideoReceiveStream(webrtc::VideoReceiveStream* receive_stream) override;
 
-  FlexfecReceiveStream* CreateFlexfecReceiveStream(
-      const FlexfecReceiveStream::Config& config) override;
-  void DestroyFlexfecReceiveStream(
-      FlexfecReceiveStream* receive_stream) override;
+  FlexfecReceiveStream* CreateFlexfecReceiveStream(const FlexfecReceiveStream::Config& config) override;
+  void DestroyFlexfecReceiveStream(FlexfecReceiveStream* receive_stream) override;
 
   RtpTransportControllerSendInterface* GetTransportControllerSend() override;
 
   Stats GetStats() const override;
 
   // Implements PacketReceiver.
-  DeliveryStatus DeliverPacket(MediaType media_type,
-                               rtc::CopyOnWriteBuffer packet,
-                               int64_t packet_time_us) override;
+  DeliveryStatus DeliverPacket(MediaType media_type, rtc::CopyOnWriteBuffer packet, int64_t packet_time_us) override;
 
   // Implements RecoveredPacketReceiver.
   void OnRecoveredPacket(const uint8_t* packet, size_t length) override;
 
-  void SetBitrateAllocationStrategy(
-      std::unique_ptr<rtc::BitrateAllocationStrategy>
-          bitrate_allocation_strategy) override;
+  void SetBitrateAllocationStrategy(std::unique_ptr<rtc::BitrateAllocationStrategy> bitrate_allocation_strategy) override;
 
   void SignalChannelNetworkState(MediaType media, NetworkState state) override;
 
-  void OnAudioTransportOverheadChanged(
-      int transport_overhead_per_packet) override;
+  void OnAudioTransportOverheadChanged(int transport_overhead_per_packet) override;
 
   void OnSentPacket(const rtc::SentPacket& sent_packet) override;
 
@@ -264,9 +246,7 @@ class Call final : public webrtc::Call,
   void OnStartRateUpdate(DataRate start_rate) override;
 
   // Implements BitrateAllocator::LimitObserver.
-  void OnAllocationLimitsChanged(uint32_t min_send_bitrate_bps,
-                                 uint32_t max_padding_bitrate_bps,
-                                 uint32_t total_bitrate_bps) override;
+  void OnAllocationLimitsChanged(uint32_t min_send_bitrate_bps, uint32_t max_padding_bitrate_bps, uint32_t total_bitrate_bps) override;
 
   // This method is invoked when the media transport is created and when the
   // media transport is being destructed.
@@ -280,14 +260,9 @@ class Call final : public webrtc::Call,
   void SetClientBitratePreferences(const BitrateSettings& preferences) override;
 
  private:
-  DeliveryStatus DeliverRtcp(MediaType media_type,
-                             const uint8_t* packet,
-                             size_t length);
-  DeliveryStatus DeliverRtp(MediaType media_type,
-                            rtc::CopyOnWriteBuffer packet,
-                            int64_t packet_time_us);
-  void ConfigureSync(const std::string& sync_group)
-      RTC_EXCLUSIVE_LOCKS_REQUIRED(receive_crit_);
+  DeliveryStatus DeliverRtcp(MediaType media_type, const uint8_t* packet, size_t length);
+  DeliveryStatus DeliverRtp(MediaType media_type, rtc::CopyOnWriteBuffer packet, int64_t packet_time_us);
+  void ConfigureSync(const std::string& sync_group) RTC_EXCLUSIVE_LOCKS_REQUIRED(receive_crit_);
 
   void NotifyBweOfReceivedPacket(const RtpPacketReceived& packet,
                                  MediaType media_type)
@@ -541,8 +516,7 @@ Call::~Call() {
   RTC_CHECK(video_receive_streams_.empty());
 
   if (!media_transport_) {
-    module_process_thread_->DeRegisterModule(
-        receive_side_cc_.GetRemoteBitrateEstimator(true));
+    module_process_thread_->DeRegisterModule(receive_side_cc_.GetRemoteBitrateEstimator(true));
     module_process_thread_->DeRegisterModule(&receive_side_cc_);
     module_process_thread_->DeRegisterModule(call_stats_.get());
     module_process_thread_->Stop();
@@ -579,8 +553,7 @@ void Call::RegisterRateObserver() {
 
     call_stats_->RegisterStatsObserver(&receive_side_cc_);
 
-    module_process_thread_->RegisterModule(
-        receive_side_cc_.GetRemoteBitrateEstimator(true), RTC_FROM_HERE);
+    module_process_thread_->RegisterModule(receive_side_cc_.GetRemoteBitrateEstimator(true), RTC_FROM_HERE);
     module_process_thread_->RegisterModule(call_stats_.get(), RTC_FROM_HERE);
     module_process_thread_->RegisterModule(&receive_side_cc_, RTC_FROM_HERE);
     module_process_thread_->Start();
@@ -853,8 +826,7 @@ void Call::DestroyAudioReceiveStream(
     WriteLockScoped write_lock(*receive_crit_);
     const AudioReceiveStream::Config& config = audio_receive_stream->config();
     uint32_t ssrc = config.rtp.remote_ssrc;
-    receive_side_cc_.GetRemoteBitrateEstimator(UseSendSideBwe(config))
-        ->RemoveStream(ssrc);
+    receive_side_cc_.GetRemoteBitrateEstimator(UseSendSideBwe(config))->RemoveStream(ssrc);
     audio_receive_streams_.erase(audio_receive_stream);
     const std::string& sync_group = audio_receive_stream->config().sync_group;
     const auto it = sync_stream_mapping_.find(sync_group);
@@ -965,13 +937,12 @@ void Call::DestroyVideoSendStream(webrtc::VideoSendStream* send_stream) {
   delete send_stream_impl;
 }
 
-webrtc::VideoReceiveStream* Call::CreateVideoReceiveStream(
-    webrtc::VideoReceiveStream::Config configuration) {
+webrtc::VideoReceiveStream* Call::CreateVideoReceiveStream(webrtc::VideoReceiveStream::Config configuration)
+{
   TRACE_EVENT0("webrtc", "Call::CreateVideoReceiveStream");
   RTC_DCHECK_RUN_ON(&configuration_sequence_checker_);
 
-  receive_side_cc_.SetSendPeriodicFeedback(
-      SendPeriodicFeedback(configuration.rtp.extensions));
+  receive_side_cc_.SetSendPeriodicFeedback(SendPeriodicFeedback(configuration.rtp.extensions));
 
   RegisterRateObserver();
 
@@ -1023,15 +994,14 @@ void Call::DestroyVideoReceiveStream(
     ConfigureSync(config.sync_group);
   }
 
-  receive_side_cc_.GetRemoteBitrateEstimator(UseSendSideBwe(config))
-      ->RemoveStream(config.rtp.remote_ssrc);
+  receive_side_cc_.GetRemoteBitrateEstimator(UseSendSideBwe(config))->RemoveStream(config.rtp.remote_ssrc);
 
   UpdateAggregateNetworkState();
   delete receive_stream_impl;
 }
 
-FlexfecReceiveStream* Call::CreateFlexfecReceiveStream(
-    const FlexfecReceiveStream::Config& config) {
+FlexfecReceiveStream* Call::CreateFlexfecReceiveStream(const FlexfecReceiveStream::Config& config) 
+{
   TRACE_EVENT0("webrtc", "Call::CreateFlexfecReceiveStream");
   RTC_DCHECK_RUN_ON(&configuration_sequence_checker_);
 
@@ -1049,8 +1019,7 @@ FlexfecReceiveStream* Call::CreateFlexfecReceiveStream(
     // object is in a valid state.
     // TODO(nisse): Fix constructor so that it can be moved outside of
     // this locked scope.
-    receive_stream = new FlexfecReceiveStreamImpl(
-        clock_, &video_receiver_controller_, config, recovered_packet_receiver,
+    receive_stream = new FlexfecReceiveStreamImpl(clock_, &video_receiver_controller_, config, recovered_packet_receiver,
         call_stats_.get(), module_process_thread_.get());
 
     RTC_DCHECK(receive_rtp_config_.find(config.remote_ssrc) ==
@@ -1063,7 +1032,8 @@ FlexfecReceiveStream* Call::CreateFlexfecReceiveStream(
   return receive_stream;
 }
 
-void Call::DestroyFlexfecReceiveStream(FlexfecReceiveStream* receive_stream) {
+void Call::DestroyFlexfecReceiveStream(FlexfecReceiveStream* receive_stream) 
+{
   TRACE_EVENT0("webrtc", "Call::DestroyFlexfecReceiveStream");
   RTC_DCHECK_RUN_ON(&configuration_sequence_checker_);
 
@@ -1077,14 +1047,14 @@ void Call::DestroyFlexfecReceiveStream(FlexfecReceiveStream* receive_stream) {
 
     // Remove all SSRCs pointing to the FlexfecReceiveStreamImpl to be
     // destroyed.
-    receive_side_cc_.GetRemoteBitrateEstimator(UseSendSideBwe(config))
-        ->RemoveStream(ssrc);
+    receive_side_cc_.GetRemoteBitrateEstimator(UseSendSideBwe(config))->RemoveStream(ssrc);
   }
 
   delete receive_stream;
 }
 
-RtpTransportControllerSendInterface* Call::GetTransportControllerSend() {
+RtpTransportControllerSendInterface* Call::GetTransportControllerSend() 
+{
   return transport_send_ptr_;
 }
 
@@ -1096,8 +1066,7 @@ Call::Stats Call::GetStats() const {
   // Fetch available send/receive bitrates.
   std::vector<unsigned int> ssrcs;
   uint32_t recv_bandwidth = 0;
-  receive_side_cc_.GetRemoteBitrateEstimator(false)->LatestEstimate(
-      &ssrcs, &recv_bandwidth);
+  receive_side_cc_.GetRemoteBitrateEstimator(false)->LatestEstimate(&ssrcs, &recv_bandwidth);
 
   {
     rtc::CritScope cs(&last_bandwidth_bps_crit_);
@@ -1108,9 +1077,7 @@ Call::Stats Call::GetStats() const {
   // available.
   {
     rtc::CritScope cs(&aggregate_network_up_crit_);
-    stats.pacer_delay_ms = aggregate_network_up_
-                               ? transport_send_ptr_->GetPacerQueuingDelayMs()
-                               : 0;
+    stats.pacer_delay_ms = aggregate_network_up_ ? transport_send_ptr_->GetPacerQueuingDelayMs() : 0;
   }
 
   stats.rtt_ms = call_stats_->LastProcessedRtt();
