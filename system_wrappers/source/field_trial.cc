@@ -27,12 +27,16 @@ static const char* trials_init_string =  NULL;
 
 
 static FILE* out_argv_file_ptr = NULL;
-#define FILE_WRITE_ARGS(name)	\
-if (!out_argv_file_ptr) {		\
+#define FILE_WRITE_ARGS(name)	                                       \
+if (!out_argv_file_ptr) {											   \
 	out_argv_file_ptr = ::fopen("./debug/rtc_trials_init.log", "wb+"); \
-}																		\
- ::fprintf(out_argv_file_ptr, "%s\n", name); \
-	::fflush(out_argv_file_ptr);
+}																	   \
+if (out_argv_file_ptr)												   \
+{																	   \
+	::fprintf(out_argv_file_ptr, "%s\n", name);						   \
+		::fflush(out_argv_file_ptr);								   \
+}
+
 
 
 

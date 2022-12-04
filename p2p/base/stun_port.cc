@@ -50,9 +50,10 @@ static void rtc_stun_port_log() {
 
 #define NORMAL_LOG(format, ...)                                      \
   rtc_stun_port_log();                                   \
+  if ( out_rtc_stun_port_ptr)	{ 		 			\
   fprintf(out_rtc_stun_port_ptr, format, ##__VA_ARGS__); \
   fprintf(out_rtc_stun_port_ptr, "\n");                  \
-  fflush(out_rtc_stun_port_ptr);
+  fflush(out_rtc_stun_port_ptr); }
 
 #define NORMAL_EX_LOG(format, ...) \
   NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)

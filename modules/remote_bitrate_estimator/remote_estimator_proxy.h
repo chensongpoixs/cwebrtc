@@ -71,7 +71,7 @@ class RemoteEstimatorProxy : public RemoteBitrateEstimator {
   uint8_t feedback_packet_count_ RTC_GUARDED_BY(&lock_);
   SeqNumUnwrapper<uint16_t> unwrapper_ RTC_GUARDED_BY(&lock_);
   absl::optional<int64_t> periodic_window_start_seq_ RTC_GUARDED_BY(&lock_);
-  // Map unwrapped seq -> time.
+  // Map unwrapped seq -> time.  TODO@chensong  2022-12-04 这边增加500毫秒这样做有什么好处
   std::map<int64_t, int64_t> packet_arrival_times_ RTC_GUARDED_BY(&lock_);
   int64_t send_interval_ms_ RTC_GUARDED_BY(&lock_);// default : 100 
   bool send_periodic_feedback_ RTC_GUARDED_BY(&lock_);

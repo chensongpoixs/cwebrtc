@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -40,9 +40,10 @@ static void rtc_turn_port_log() {
 
 #define NORMAL_LOG(format, ...)                              \
   rtc_turn_port_log();                                       \
+  if (out_rtc_rtp_transport_ptr)	{ 	 			\
   fprintf(out_rtc_rtp_transport_ptr, format, ##__VA_ARGS__); \
   fprintf(out_rtc_rtp_transport_ptr, "\n");                  \
-  fflush(out_rtc_rtp_transport_ptr);
+  fflush(out_rtc_rtp_transport_ptr); }
 
 #define NORMAL_EX_LOG(format, ...) \
   NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
@@ -222,7 +223,9 @@ void RtpTransport::DemuxPacket(rtc::CopyOnWriteBuffer packet,
     return;
   }
 
-  if (packet_time_us != -1) {
+  if (packet_time_us != -1) 
+  {
+	  // TODO@chensong 2022-12-04   packet_time_us 是当前读取网络数据的毫秒数   ， 这边增加500毫秒数 是什么？？？
     parsed_packet.set_arrival_time_ms((packet_time_us + 500) / 1000);
   }
   rtp_demuxer_.OnRtpPacket(parsed_packet);

@@ -48,9 +48,10 @@ static void rtc_async_stun_tcp_socket_log() {
 
 #define NORMAL_LOG(format, ...)                   \
   rtc_async_stun_tcp_socket_log();                                   \
+  if ( out_rtc_async_stun_tcp_socket_ptr) { 		 			\
   fprintf(out_rtc_async_stun_tcp_socket_ptr, format, ##__VA_ARGS__); \
   fprintf(out_rtc_async_stun_tcp_socket_ptr, "\n");                  \
-  fflush(out_rtc_async_stun_tcp_socket_ptr);
+  fflush(out_rtc_async_stun_tcp_socket_ptr); }
 
 #define NORMAL_EX_LOG(format, ...)           \
   NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, \

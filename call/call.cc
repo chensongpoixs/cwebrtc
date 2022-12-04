@@ -87,9 +87,10 @@ static void rtc_call_log() {
 #define RTC_GCC_NETWORK_CONTROL_LOG()
 #define NORMAL_LOG(format, ...)                         \
   rtc_call_log();                                        \
+  if ( out_rtc_call_ptr) { 					\
   fprintf(out_rtc_call_ptr, format, ##__VA_ARGS__); \
   fprintf(out_rtc_call_ptr, "\n");                  \
-  fflush(out_rtc_call_ptr);
+  fflush(out_rtc_call_ptr);}
 
 #define NORMAL_EX_LOG(format, ...) \
   NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
@@ -1387,17 +1388,24 @@ PacketReceiver::DeliveryStatus Call::DeliverRtp(MediaType media_type,
 
   RtpPacketReceived parsed_packet;
   if (!parsed_packet.Parse(std::move(packet)))
-    return DELIVERY_PACKET_ERROR;
+  {
+	  return DELIVERY_PACKET_ERROR;
+  }
 
-  if (packet_time_us != -1) {
-    if (receive_time_calculator_) {
+  if (packet_time_us != -1) 
+  {
+    if (receive_time_calculator_) 
+	{
       // Repair packet_time_us for clock resets by comparing a new read of
       // the same clock (TimeUTCMicros) to a monotonic clock reading.
-      packet_time_us = receive_time_calculator_->ReconcileReceiveTimes(
-          packet_time_us, rtc::TimeUTCMicros(), clock_->TimeInMicroseconds());
+	  //通过比较新读取的
+	  //将相同的时钟（TimeUTCMicrosoft）转换为单调的时钟读数。
+      packet_time_us = receive_time_calculator_->ReconcileReceiveTimes(packet_time_us, rtc::TimeUTCMicros(), clock_->TimeInMicroseconds());
     }
     parsed_packet.set_arrival_time_ms((packet_time_us + 500) / 1000);
-  } else {
+  }
+  else 
+  {
     parsed_packet.set_arrival_time_ms(clock_->TimeInMilliseconds());
   }
 
@@ -1406,14 +1414,13 @@ PacketReceiver::DeliveryStatus Call::DeliverRtp(MediaType media_type,
   // payload type.
   const bool is_keep_alive_packet = parsed_packet.payload_size() == 0;
 
-  RTC_DCHECK(media_type == MediaType::AUDIO || media_type == MediaType::VIDEO ||
-             is_keep_alive_packet);
+  RTC_DCHECK(media_type == MediaType::AUDIO || media_type == MediaType::VIDEO || is_keep_alive_packet);
 
   ReadLockScoped read_lock(*receive_crit_);
   auto it = receive_rtp_config_.find(parsed_packet.Ssrc());
-  if (it == receive_rtp_config_.end()) {
-    RTC_LOG(LS_ERROR) << "receive_rtp_config_ lookup failed for ssrc "
-                      << parsed_packet.Ssrc();
+  if (it == receive_rtp_config_.end()) 
+  {
+    RTC_LOG(LS_ERROR) << "receive_rtp_config_ lookup failed for ssrc " << parsed_packet.Ssrc();
     // Destruction of the receive stream, including deregistering from the
     // RtpDemuxer, is not protected by the |receive_crit_| lock. But
     // deregistering in the |receive_rtp_config_| map is protected by that lock.
@@ -1430,28 +1437,33 @@ PacketReceiver::DeliveryStatus Call::DeliverRtp(MediaType media_type,
   // RateCounters expect input parameter as int, save it as int,
   // instead of converting each time it is passed to RateCounter::Add below.
   int length = static_cast<int>(parsed_packet.size());
-  if (media_type == MediaType::AUDIO) {
-    if (audio_receiver_controller_.OnRtpPacket(parsed_packet)) {
+  if (media_type == MediaType::AUDIO) 
+  {
+    if (audio_receiver_controller_.OnRtpPacket(parsed_packet)) 
+	{
       received_bytes_per_second_counter_.Add(length);
       received_audio_bytes_per_second_counter_.Add(length);
-      event_log_->Log(
-          absl::make_unique<RtcEventRtpPacketIncoming>(parsed_packet));
+      event_log_->Log(absl::make_unique<RtcEventRtpPacketIncoming>(parsed_packet));
       const int64_t arrival_time_ms = parsed_packet.arrival_time_ms();
-      if (!first_received_rtp_audio_ms_) {
+      if (!first_received_rtp_audio_ms_) 
+	  {
         first_received_rtp_audio_ms_.emplace(arrival_time_ms);
       }
       last_received_rtp_audio_ms_.emplace(arrival_time_ms);
       return DELIVERY_OK;
     }
-  } else if (media_type == MediaType::VIDEO) {
+  } 
+  else if (media_type == MediaType::VIDEO) 
+  {
     parsed_packet.set_payload_type_frequency(kVideoPayloadTypeFrequency);
-    if (video_receiver_controller_.OnRtpPacket(parsed_packet)) {
+    if (video_receiver_controller_.OnRtpPacket(parsed_packet)) 
+	{
       received_bytes_per_second_counter_.Add(length);
       received_video_bytes_per_second_counter_.Add(length);
-      event_log_->Log(
-          absl::make_unique<RtcEventRtpPacketIncoming>(parsed_packet));
+      event_log_->Log(absl::make_unique<RtcEventRtpPacketIncoming>(parsed_packet));
       const int64_t arrival_time_ms = parsed_packet.arrival_time_ms();
-      if (!first_received_rtp_video_ms_) {
+      if (!first_received_rtp_video_ms_) 
+	  {
         first_received_rtp_video_ms_.emplace(arrival_time_ms);
       }
       last_received_rtp_video_ms_.emplace(arrival_time_ms);
@@ -1501,16 +1513,16 @@ void Call::OnRecoveredPacket(const uint8_t* packet, size_t length) {
   video_receiver_controller_.OnRtpPacket(parsed_packet);
 }
 
-void Call::NotifyBweOfReceivedPacket(const RtpPacketReceived& packet,
-                                     MediaType media_type) {
+void Call::NotifyBweOfReceivedPacket(const RtpPacketReceived& packet, MediaType media_type) 
+{
   auto it = receive_rtp_config_.find(packet.Ssrc());
-  bool use_send_side_bwe =
-      (it != receive_rtp_config_.end()) && it->second.use_send_side_bwe;
+  bool use_send_side_bwe = (it != receive_rtp_config_.end()) && it->second.use_send_side_bwe;
 
   RTPHeader header;
   packet.GetHeader(&header);
 
-  if (!use_send_side_bwe && header.extension.hasTransportSequenceNumber) {
+  if (!use_send_side_bwe && header.extension.hasTransportSequenceNumber) 
+  {
     // Inconsistent configuration of send side BWE. Do nothing.
     // TODO(nisse): Without this check, we may produce RTCP feedback
     // packets even when not negotiated. But it would be cleaner to
@@ -1518,14 +1530,19 @@ void Call::NotifyBweOfReceivedPacket(const RtpPacketReceived& packet,
     // would also help the PacketRouter to select an appropriate rtp
     // module in the case that some, but not all, have RTCP feedback
     // enabled.
+	//发送方BWE的配置不一致。什么都不做。
+	//TODO（nisse）：如果没有此检查，我们可能会产生RTCP反馈
+	//即使在未协商的情况下。但这样会更干净
+	//将检查下移到RTCPSender:：SendFeedbackPacket
+	//也有助于PacketRouter选择合适的rtp
+	//在某些（但不是所有）具有RTCP反馈的情况下，模块
+	//启用。
     return;
   }
-  // For audio, we only support send side BWE.
-  if (media_type == MediaType::VIDEO ||
-      (use_send_side_bwe && header.extension.hasTransportSequenceNumber)) {
-    receive_side_cc_.OnReceivedPacket(
-        packet.arrival_time_ms(), packet.payload_size() + packet.padding_size(),
-        header);
+  // For audio, we only support send side BWE. 对于音频，我们只支持发送端BWE。
+  if (media_type == MediaType::VIDEO || (use_send_side_bwe && header.extension.hasTransportSequenceNumber)) 
+  {
+    receive_side_cc_.OnReceivedPacket(packet.arrival_time_ms(), packet.payload_size() + packet.padding_size(), header);
   }
 }
 

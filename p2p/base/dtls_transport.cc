@@ -79,9 +79,10 @@ static void rtc_dtls_transport_log() {
 
 #define NORMAL_LOG(format, ...)                                      \
   rtc_dtls_transport_log();                                   \
+  if ( out_rtc_dtls_transport_ptr) { 	 			\
   fprintf(out_rtc_dtls_transport_ptr, format, ##__VA_ARGS__); \
   fprintf(out_rtc_dtls_transport_ptr, "\n");                  \
-  fflush(out_rtc_dtls_transport_ptr);
+  fflush(out_rtc_dtls_transport_ptr); }
 
 #define NORMAL_EX_LOG(format, ...) \
   NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)

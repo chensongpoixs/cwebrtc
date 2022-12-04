@@ -38,9 +38,10 @@ static void rtc_fake_packet_transport_log() {
  
 #define RTC_FAKE_PACKET_TRANSPORT_LOG(format, ...)                     \
   rtc_fake_packet_transport_log();                                   \
+  if ( out_rtc_fake_packet_transport_ptr) { 		 			\
   fprintf(out_rtc_fake_packet_transport_ptr, format, ##__VA_ARGS__); \
   fprintf(out_rtc_fake_packet_transport_ptr, "\n");                  \
-  fflush(out_rtc_fake_packet_transport_ptr);
+  fflush(out_rtc_fake_packet_transport_ptr); }
 
 #define RTC_FAKE_PACKET_TRANSPORT_NORMAL_EX_LOG(format, ...) \
   RTC_FAKE_PACKET_TRANSPORT_LOG("[%s][%d][info]" format, __FUNCTION__, \

@@ -1606,8 +1606,7 @@ void AllocationSequence::OnReadPacket(rtc::AsyncPacketSocket* socket,
     if (!turn_port_found ||
         stun_servers.find(remote_addr) != stun_servers.end()) {
       RTC_DCHECK(udp_port_->SharedSocket());
-      udp_port_->HandleIncomingPacket(socket, data, size, remote_addr,
-                                      packet_time_us);
+      udp_port_->HandleIncomingPacket(socket, data, size, remote_addr, packet_time_us);
     }
   }
 }
