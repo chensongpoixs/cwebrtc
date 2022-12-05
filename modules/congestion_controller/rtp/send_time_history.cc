@@ -55,57 +55,68 @@ void SendTimeHistory::AddUntracked(size_t packet_size, int64_t send_time_ms) {
       std::max(last_untracked_send_time_ms_, send_time_ms);
 }
 
-bool SendTimeHistory::OnSentPacket(uint16_t sequence_number,
-                                   int64_t send_time_ms) {
+bool SendTimeHistory::OnSentPacket(uint16_t sequence_number, int64_t send_time_ms) 
+{
   int64_t unwrapped_seq_num = seq_num_unwrapper_.Unwrap(sequence_number);
   auto it = history_.find(unwrapped_seq_num);
-  if (it == history_.end())
+  if (it == history_.end()) 
+  {
     return false;
+  }
   bool packet_retransmit = it->second.send_time_ms >= 0;
   it->second.send_time_ms = send_time_ms;
   last_send_time_ms_ = std::max(last_send_time_ms_, send_time_ms);
-  if (!packet_retransmit)
+  if (!packet_retransmit) 
+  {
     AddPacketBytes(it->second);
-  if (pending_untracked_size_ > 0) {
-    if (send_time_ms < last_untracked_send_time_ms_)
+  }
+  if (pending_untracked_size_ > 0) 
+  {
+    if (send_time_ms < last_untracked_send_time_ms_) 
+	{
       RTC_LOG(LS_WARNING)
           << "appending acknowledged data for out of order packet. (Diff: "
           << last_untracked_send_time_ms_ - send_time_ms << " ms.)";
+    }
     it->second.unacknowledged_data += pending_untracked_size_;
     pending_untracked_size_ = 0;
   }
   return true;
 }
 
-absl::optional<PacketFeedback> SendTimeHistory::GetPacket(
-    uint16_t sequence_number) const {
-  int64_t unwrapped_seq_num =
-      seq_num_unwrapper_.UnwrapWithoutUpdate(sequence_number);
+absl::optional<PacketFeedback> SendTimeHistory::GetPacket(uint16_t sequence_number) const 
+{
+  int64_t unwrapped_seq_num = seq_num_unwrapper_.UnwrapWithoutUpdate(sequence_number);
   absl::optional<PacketFeedback> optional_feedback;
   auto it = history_.find(unwrapped_seq_num);
-  if (it != history_.end())
+  if (it != history_.end()) 
+  {
     optional_feedback.emplace(it->second);
+  }
   return optional_feedback;
 }
 
 bool SendTimeHistory::GetFeedback(PacketFeedback* packet_feedback,
                                   bool remove) {
   RTC_DCHECK(packet_feedback);
-  int64_t unwrapped_seq_num =
-      seq_num_unwrapper_.Unwrap(packet_feedback->sequence_number);
+  int64_t unwrapped_seq_num = seq_num_unwrapper_.Unwrap(packet_feedback->sequence_number);
   UpdateAckedSeqNum(unwrapped_seq_num);
   RTC_DCHECK_GE(*last_ack_seq_num_, 0);
   auto it = history_.find(unwrapped_seq_num);
   if (it == history_.end())
+  {
     return false;
+  }
 
   // Save arrival_time not to overwrite it.
   int64_t arrival_time_ms = packet_feedback->arrival_time_ms;
   *packet_feedback = it->second;
   packet_feedback->arrival_time_ms = arrival_time_ms;
 
-  if (remove)
+  if (remove) 
+  {
     history_.erase(it);
+  }
   return true;
 }
 
@@ -131,8 +142,10 @@ absl::optional<int64_t> SendTimeHistory::GetFirstUnackedSendTime() const {
 
 void SendTimeHistory::AddPacketBytes(const PacketFeedback& packet) {
   if (packet.send_time_ms < 0 || packet.payload_size == 0 ||
-      (last_ack_seq_num_ && *last_ack_seq_num_ >= packet.long_sequence_number))
+      (last_ack_seq_num_ &&
+       *last_ack_seq_num_ >= packet.long_sequence_number)) {
     return;
+  }
   auto it = in_flight_bytes_.find({packet.local_net_id, packet.remote_net_id});
   if (it != in_flight_bytes_.end()) {
     it->second += packet.payload_size;
@@ -144,23 +157,28 @@ void SendTimeHistory::AddPacketBytes(const PacketFeedback& packet) {
 
 void SendTimeHistory::RemovePacketBytes(const PacketFeedback& packet) {
   if (packet.send_time_ms < 0 || packet.payload_size == 0 ||
-      (last_ack_seq_num_ && *last_ack_seq_num_ >= packet.long_sequence_number))
+      (last_ack_seq_num_ &&
+       *last_ack_seq_num_ >= packet.long_sequence_number)) {
     return;
+  }
   auto it = in_flight_bytes_.find({packet.local_net_id, packet.remote_net_id});
   if (it != in_flight_bytes_.end()) {
     it->second -= packet.payload_size;
-    if (it->second == 0)
+    if (it->second == 0) {
       in_flight_bytes_.erase(it);
+    }
   }
 }
 
 void SendTimeHistory::UpdateAckedSeqNum(int64_t acked_seq_num) {
-  if (last_ack_seq_num_ && *last_ack_seq_num_ >= acked_seq_num)
+  if (last_ack_seq_num_ && *last_ack_seq_num_ >= acked_seq_num) {
     return;
+  }
 
   auto unacked_it = history_.begin();
-  if (last_ack_seq_num_)
+  if (last_ack_seq_num_) {
     unacked_it = history_.lower_bound(*last_ack_seq_num_);
+  }
 
   auto newly_acked_end = history_.upper_bound(acked_seq_num);
   for (; unacked_it != newly_acked_end; ++unacked_it) {

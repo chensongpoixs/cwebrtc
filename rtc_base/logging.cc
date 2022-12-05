@@ -559,10 +559,7 @@ void Log(const LogArgType* fmt, ...) {
 }  // namespace webrtc_logging_impl
 }  // namespace rtc
 
-
-
 #if _DEBUG
-
 
 #include <cstdio>
 #include <cstdlib>
@@ -571,40 +568,36 @@ void Log(const LogArgType* fmt, ...) {
 #include <stdio.h>
 static FILE* out_rtc_ptr = NULL;
 static rtc::CriticalSection g_rtc_log;
-static void rtc_check_file()
-{
-  if (!out_rtc_ptr) 
-  {
-    out_rtc_ptr = ::fopen("./debug/chensong_rtc_logging.log", "wb+");
+static void rtc_check_file() {
+  if (!out_rtc_ptr) {
+    std::string out_rtc_file_name = "./debug/chensong_rtc_logging_" + std::to_string(::time (NULL)) + ".log" ;
+    out_rtc_ptr = ::fopen(out_rtc_file_name.c_str(), "wb+");
   }
 }
 
-//if (out_rtc_ptr) {
+// if (out_rtc_ptr) {
 //  fprintf(out_rtc_ptr, format, ##__VA_ARGS__);
 //  fprintf(out_rtc_ptr, "\n");
 //  fflush(out_rtc_ptr);
 //}
-void rtc_var_log(const char* format, ...) 
-{
+void rtc_var_log(const char* format, ...) {
   rtc::CritScope cs(&g_rtc_log);
   rtc_check_file();
-  if (!out_rtc_ptr) 
-  {
+  if (!out_rtc_ptr) {
     return;
   }
   va_list argptr;
-  va_start(argptr, format); 
-  static char *buffer_ptr = NULL;
-  if (!buffer_ptr)
-  {
-    buffer_ptr = (char * )::malloc(sizeof(char ) * (1024 * 1024));
+  va_start(argptr, format);
+  static char* buffer_ptr = NULL;
+  if (!buffer_ptr) {
+    buffer_ptr = (char*)::malloc(sizeof(char) * (1024 * 1024));
   }
   ::memset(buffer_ptr, 0x00, (1024 * 1024));
   ::vsnprintf(buffer_ptr, (1024 * 1024), format, argptr);
   ::fprintf(out_rtc_ptr, "%s", buffer_ptr);
   //::fprintf(out_rtc_ptr, format, argptr);
   ::fprintf(out_rtc_ptr, "\n");
-  ::fflush(out_rtc_ptr); 
+  ::fflush(out_rtc_ptr);
   va_end(argptr);
 }
 #endif  // _DEBUG

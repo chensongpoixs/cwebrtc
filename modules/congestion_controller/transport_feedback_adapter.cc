@@ -59,23 +59,19 @@ void LegacyTransportFeedbackAdapter::DeRegisterPacketFeedbackObserver(
   observers_.erase(it);
 }
 
-void LegacyTransportFeedbackAdapter::AddPacket(
-    uint32_t ssrc,
-    uint16_t sequence_number,
-    size_t length,
-    const PacedPacketInfo& pacing_info) {
+void LegacyTransportFeedbackAdapter::AddPacket(uint32_t ssrc, uint16_t sequence_number, size_t length, const PacedPacketInfo& pacing_info) 
+{
   {
     rtc::CritScope cs(&lock_);
     const int64_t creation_time_ms = clock_->TimeInMilliseconds();
     send_time_history_.AddAndRemoveOld(
-        PacketFeedback(creation_time_ms, sequence_number, length, local_net_id_,
-                       remote_net_id_, pacing_info),
-        creation_time_ms);
+        PacketFeedback(creation_time_ms, sequence_number, length, local_net_id_, remote_net_id_, pacing_info), creation_time_ms);
   }
 
   {
     rtc::CritScope cs(&observers_lock_);
-    for (auto* observer : observers_) {
+    for (auto* observer : observers_) 
+	{
       observer->OnPacketAdded(ssrc, sequence_number);
     }
   }

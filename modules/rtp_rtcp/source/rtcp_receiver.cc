@@ -1088,14 +1088,13 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(const PacketInformation& packe
     rtp_rtcp_->OnReceivedRtcpReportBlocks(packet_information.report_blocks);
   }
 
-  if (transport_feedback_observer_ &&
-      (packet_information.packet_type_flags & kRtcpTransportFeedback)) {
-    uint32_t media_source_ssrc =
-        packet_information.transport_feedback->media_ssrc();
-    if (media_source_ssrc == local_ssrc ||
-        registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) {
-      transport_feedback_observer_->OnTransportFeedback(
-          *packet_information.transport_feedback);
+  if (transport_feedback_observer_ && (packet_information.packet_type_flags & kRtcpTransportFeedback))
+  {
+    uint32_t media_source_ssrc = packet_information.transport_feedback->media_ssrc();
+    if (media_source_ssrc == local_ssrc ||registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) 
+	{
+		// TODO@chensong 2022-12-05    接受端反馈过来的接受包seq和时间戳统计数据 remb 
+      transport_feedback_observer_->OnTransportFeedback(*packet_information.transport_feedback);
     }
   }
 

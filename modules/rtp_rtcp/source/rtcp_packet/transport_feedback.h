@@ -86,7 +86,10 @@ class TransportFeedback : public Rtpfb {
               size_t* position,
               size_t max_length,
               PacketReadyCallback callback) const override;
-
+  const std::vector<ReceivedPacket>& GetPacket() const { return packets_; }
+  const std::vector<uint16_t>& GetEncodedChunks() const { return encoded_chunks_; }
+  const std::string ToString() const;
+  std::string ToString();
  private:
   // Size in bytes of a delta time in rtcp packet.
   // Valid values are 0 (packet wasn't received), 1 or 2.
@@ -116,6 +119,8 @@ class TransportFeedback : public Rtpfb {
     void Decode(uint16_t chunk, size_t max_size);
     // Appends content of the Lastchunk to |deltas|.
     void AppendTo(std::vector<DeltaSize>* deltas) const;
+
+    std::string ToString() const;
 
    private:
     static constexpr size_t kMaxRunLengthCapacity = 0x1fff;
@@ -147,7 +152,8 @@ class TransportFeedback : public Rtpfb {
   uint16_t base_seq_no_;
   uint16_t num_seq_no_;
   int32_t base_time_ticks_;
-  uint8_t feedback_seq_; // Packet Chunks 的数量  -> 即encoded_chunks_中有多少个
+  uint8_t
+      feedback_seq_;  // Packet Chunks 的数量  -> 即encoded_chunks_中有多少个
   bool include_timestamps_;
 
   int64_t last_timestamp_us_;
@@ -159,5 +165,9 @@ class TransportFeedback : public Rtpfb {
 };
 
 }  // namespace rtcp
+
+std::string ToString(
+    const webrtc::rtcp::TransportFeedback::ReceivedPacket& packet);
+//std::string ToString(const webrtc::rtcp::TransportFeedback& feedback);
 }  // namespace webrtc
 #endif  // MODULES_RTP_RTCP_SOURCE_RTCP_PACKET_TRANSPORT_FEEDBACK_H_

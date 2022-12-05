@@ -221,12 +221,12 @@ void RtpTransportControllerSend::SetPacingFactor(float pacing_factor) {
 void RtpTransportControllerSend::SetQueueTimeLimit(int limit_ms) {
   pacer_.SetQueueTimeLimit(limit_ms);
 }
-void RtpTransportControllerSend::RegisterPacketFeedbackObserver(
-    PacketFeedbackObserver* observer) {
+void RtpTransportControllerSend::RegisterPacketFeedbackObserver(PacketFeedbackObserver* observer) 
+{
   transport_feedback_adapter_.RegisterPacketFeedbackObserver(observer);
 }
-void RtpTransportControllerSend::DeRegisterPacketFeedbackObserver(
-    PacketFeedbackObserver* observer) {
+void RtpTransportControllerSend::DeRegisterPacketFeedbackObserver(PacketFeedbackObserver* observer)
+{
   transport_feedback_adapter_.DeRegisterPacketFeedbackObserver(observer);
 }
 
@@ -482,6 +482,7 @@ void RtpTransportControllerSend::OnTransportFeedback(const rtcp::TransportFeedba
       RTC_DCHECK_RUN_ON(&task_queue_);
       if (controller_)
       {
+		  // TODO@chensong 2022-12-05 gcc算法输入数据
         PostUpdates(controller_->OnTransportPacketsFeedback(*feedback_msg));
 	  }
     });
