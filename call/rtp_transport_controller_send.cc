@@ -31,39 +31,39 @@ namespace webrtc {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29  googcc  算法
 
-#if _DEBUG
-
-static FILE* out_rtc_rtp_transport_send_file_ptr = NULL;
-static void rtc_rtp_transport_send_log() {
-  if (!out_rtc_rtp_transport_send_file_ptr) {
-    out_rtc_rtp_transport_send_file_ptr =
-        ::fopen("./debug/rtp_transport_controller_send.log", "wb+");
-  }
-
-  // va_list argptr;
-  // va_start(argptr, format);
-  // ::fprintf(out_rtc_gcc_file_ptr, format, ##__VA_ARGS__);
-  // ::fprintf(out_rtc_gcc_file_ptr, "\n");
-  // ::fflush(out_rtc_gcc_file_ptr);
-
-  // va_end(argptr);
-}
-
- 
-#define NORMAL_LOG(format, ...)                         \
-  rtc_rtp_transport_send_log();                                        \
-    if ( out_rtc_rtp_transport_send_file_ptr) { 								\
-  fprintf(out_rtc_rtp_transport_send_file_ptr, format, ##__VA_ARGS__); \
-  fprintf(out_rtc_rtp_transport_send_file_ptr, "\n");                  \
-  fflush(out_rtc_rtp_transport_send_file_ptr);}
-
-#define NORMAL_EX_LOG(format, ...) \
-  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define ERROR_EX_LOG(format, ...) \
-  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#define WARNING_EX_LOG(format, ...) \
-  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-#endif  // _DEBUG
+//#if _DEBUG
+//
+//static FILE* out_rtc_rtp_transport_send_file_ptr = NULL;
+//static void rtc_rtp_transport_send_log() {
+//  if (!out_rtc_rtp_transport_send_file_ptr) {
+//    out_rtc_rtp_transport_send_file_ptr =
+//        ::fopen("./debug/rtp_transport_controller_send.log", "wb+");
+//  }
+//
+//  // va_list argptr;
+//  // va_start(argptr, format);
+//  // ::fprintf(out_rtc_gcc_file_ptr, format, ##__VA_ARGS__);
+//  // ::fprintf(out_rtc_gcc_file_ptr, "\n");
+//  // ::fflush(out_rtc_gcc_file_ptr);
+//
+//  // va_end(argptr);
+//}
+//
+// 
+//#define NORMAL_LOG(format, ...)                         \
+//  rtc_rtp_transport_send_log();                                        \
+//    if ( out_rtc_rtp_transport_send_file_ptr) { 								\
+//  fprintf(out_rtc_rtp_transport_send_file_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_rtp_transport_send_file_ptr, "\n");                  \
+//  fflush(out_rtc_rtp_transport_send_file_ptr);}
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define ERROR_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define WARNING_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#endif  // _DEBUG
 
 namespace {
 static const int64_t kRetransmitWindowSizeMs = 500;

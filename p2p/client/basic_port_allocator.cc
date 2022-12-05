@@ -1604,9 +1604,13 @@ void AllocationSequence::OnReadPacket(rtc::AsyncPacketSocket* socket,
     // Pass the packet to the UdpPort if there is no matching TurnPort, or if
     // the TURN server is also a STUN server.
     if (!turn_port_found ||
-        stun_servers.find(remote_addr) != stun_servers.end()) {
+        stun_servers.find(remote_addr) != stun_servers.end()) 
+	{
       RTC_DCHECK(udp_port_->SharedSocket());
-      udp_port_->HandleIncomingPacket(socket, data, size, remote_addr, packet_time_us);
+     
+	  NORMAL_EX_LOG("[remote_addr = %s][packet_time_us = %llu]",
+                    remote_addr.ToString().c_str(), packet_time_us);
+	  udp_port_->HandleIncomingPacket(socket, data, size, remote_addr, packet_time_us);
     }
   }
 }

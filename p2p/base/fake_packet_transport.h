@@ -25,29 +25,29 @@ namespace rtc {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29   
 
-#if _DEBUG
-
-static FILE* out_rtc_fake_packet_transport_ptr = NULL;
-static void rtc_fake_packet_transport_log() {
-  if (!out_rtc_fake_packet_transport_ptr) {
-    out_rtc_fake_packet_transport_ptr =
-        ::fopen("./debug/fake_packet_transport.log", "wb+");
-  }
-}
-
- 
-#define RTC_FAKE_PACKET_TRANSPORT_LOG(format, ...)                     \
-  rtc_fake_packet_transport_log();                                   \
-  if ( out_rtc_fake_packet_transport_ptr) { 		 			\
-  fprintf(out_rtc_fake_packet_transport_ptr, format, ##__VA_ARGS__); \
-  fprintf(out_rtc_fake_packet_transport_ptr, "\n");                  \
-  fflush(out_rtc_fake_packet_transport_ptr); }
-
-#define RTC_FAKE_PACKET_TRANSPORT_NORMAL_EX_LOG(format, ...) \
-  RTC_FAKE_PACKET_TRANSPORT_LOG("[%s][%d][info]" format, __FUNCTION__, \
-                                __LINE__, ##__VA_ARGS__)
- 
-#endif  // _DEBUG
+//#if _DEBUG
+//
+//static FILE* out_rtc_fake_packet_transport_ptr = NULL;
+//static void rtc_fake_packet_transport_log() {
+//  if (!out_rtc_fake_packet_transport_ptr) {
+//    out_rtc_fake_packet_transport_ptr =
+//        ::fopen("./debug/fake_packet_transport.log", "wb+");
+//  }
+//}
+//
+// 
+//#define RTC_FAKE_PACKET_TRANSPORT_LOG(format, ...)                     \
+//  rtc_fake_packet_transport_log();                                   \
+//  if ( out_rtc_fake_packet_transport_ptr) { 		 			\
+//  fprintf(out_rtc_fake_packet_transport_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_fake_packet_transport_ptr, "\n");                  \
+//  fflush(out_rtc_fake_packet_transport_ptr); }
+//
+//#define RTC_FAKE_PACKET_TRANSPORT_NORMAL_EX_LOG(format, ...) \
+//  RTC_FAKE_PACKET_TRANSPORT_LOG("[%s][%d][info]" format, __FUNCTION__, \
+//                                __LINE__, ##__VA_ARGS__)
+// 
+//#endif  // _DEBUG
 
 
 // Used to simulate a packet-based transport.

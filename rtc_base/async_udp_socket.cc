@@ -26,28 +26,28 @@ namespace rtc {
 
 			////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
-
-#if _DEBUG
-
-static FILE* out_rtc_async_udp_socket_ptr = NULL;
-static void rtc_turn_port_log() {
-  if (!out_rtc_async_udp_socket_ptr) {
-    out_rtc_async_udp_socket_ptr =
-        ::fopen("./debug/async_udp_socket.log", "wb+");
-  }
-}
-
-#define NORMAL_LOG(format, ...)                                 \
-  rtc_turn_port_log();                                          \
-  if (out_rtc_async_udp_socket_ptr)	{ 		 			\
-  fprintf(out_rtc_async_udp_socket_ptr, format, ##__VA_ARGS__); \
-  fprintf(out_rtc_async_udp_socket_ptr, "\n");                  \
-  fflush(out_rtc_async_udp_socket_ptr); }
-
-#define NORMAL_EX_LOG(format, ...) \
-  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-
-#endif  // _DEBUG
+//
+//#if _DEBUG
+//
+//static FILE* out_rtc_async_udp_socket_ptr = NULL;
+//static void rtc_turn_port_log() {
+//  if (!out_rtc_async_udp_socket_ptr) {
+//    out_rtc_async_udp_socket_ptr =
+//        ::fopen("./debug/async_udp_socket.log", "wb+");
+//  }
+//}
+//
+//#define NORMAL_LOG(format, ...)                                 \
+//  rtc_turn_port_log();                                          \
+//  if (out_rtc_async_udp_socket_ptr)	{ 		 			\
+//  fprintf(out_rtc_async_udp_socket_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_async_udp_socket_ptr, "\n");                  \
+//  fflush(out_rtc_async_udp_socket_ptr); }
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//
+//#endif  // _DEBUG
 
 
 static const int BUF_SIZE = 64 * 1024;

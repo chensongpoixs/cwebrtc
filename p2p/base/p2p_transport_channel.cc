@@ -104,28 +104,28 @@ using webrtc::RTCError;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
-
-#if _DEBUG
-
-static FILE* out_rtc_p2p_transport_channel_ptr = NULL;
-static void rtc_p2p_transport_channel_log() {
-  if (!out_rtc_p2p_transport_channel_ptr) {
-    out_rtc_p2p_transport_channel_ptr =
-        ::fopen("./debug/p2p_transport_channel.log", "wb+");
-  }
-}
-
-#define NORMAL_LOG(format, ...)                               \
-  rtc_p2p_transport_channel_log();                                   \
-  if ( out_rtc_p2p_transport_channel_ptr)	{ 		 			\
-  fprintf(out_rtc_p2p_transport_channel_ptr, format, ##__VA_ARGS__); \
-  fprintf(out_rtc_p2p_transport_channel_ptr, "\n");                  \
-  fflush(out_rtc_p2p_transport_channel_ptr); }
-
-#define NORMAL_EX_LOG(format, ...) \
-  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
-
-#endif  // _DEBUG
+//
+//#if _DEBUG
+//
+//static FILE* out_rtc_p2p_transport_channel_ptr = NULL;
+//static void rtc_p2p_transport_channel_log() {
+//  if (!out_rtc_p2p_transport_channel_ptr) {
+//    out_rtc_p2p_transport_channel_ptr =
+//        ::fopen("./debug/p2p_transport_channel.log", "wb+");
+//  }
+//}
+//
+//#define NORMAL_LOG(format, ...)                               \
+//  rtc_p2p_transport_channel_log();                                   \
+//  if ( out_rtc_p2p_transport_channel_ptr)	{ 		 			\
+//  fprintf(out_rtc_p2p_transport_channel_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_p2p_transport_channel_ptr, "\n");                  \
+//  fflush(out_rtc_p2p_transport_channel_ptr); }
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//
+//#endif  // _DEBUG
 
 
 bool IceCredentialsChanged(const std::string& old_ufrag,

@@ -21,6 +21,45 @@
 
 namespace webrtc {
 
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29  googcc  算法
+
+//#if _DEBUG
+//
+//static FILE* out_rtc_remote_estimator_proxy_file_ptr = NULL;
+//static void rtc_gcc_log() {
+//  if (!out_rtc_remote_estimator_proxy_file_ptr) {
+//    out_rtc_remote_estimator_proxy_file_ptr =
+//        ::fopen("./debug/remote_estimator_proxy.log", "wb+");
+//  }
+//
+//  // va_list argptr;
+//  // va_start(argptr, format);
+//  // ::fprintf(out_rtc_gcc_file_ptr, format, ##__VA_ARGS__);
+//  // ::fprintf(out_rtc_gcc_file_ptr, "\n");
+//  // ::fflush(out_rtc_gcc_file_ptr);
+//
+//  // va_end(argptr);
+//}
+//
+//#define RTC_GCC_NETWORK_CONTROL_LOG()
+//#define NORMAL_LOG(out_file, format, ...)                           \
+//  rtc_gcc_log();                                          \
+//  if (out_file) {                             \
+//    fprintf(out_file, format, ##__VA_ARGS__); \
+//    fprintf(out_file, "\n");                  \
+//    fflush(out_file);                         \
+//  }
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG(out_rtc_remote_estimator_proxy_file_ptr, "[%s][%d][info]" format, \
+//             __FUNCTION__, __LINE__, \
+//             ##__VA_ARGS__)
+// 
+//#endif  // _DEBUG
+
+
 // TODO(sprang): Tune these!
 const int RemoteEstimatorProxy::kBackWindowMs = 500;
 const int RemoteEstimatorProxy::kMinSendIntervalMs = 50;
@@ -90,7 +129,7 @@ void RemoteEstimatorProxy::Process()
     return;
   }
   last_process_time_ms_ = clock_->TimeInMilliseconds();
-
+  // TODO@chensong 2022-12-05 单独模块发送接受数据的信息
   SendPeriodicFeedbacks();
 }
 
@@ -211,7 +250,10 @@ void RemoteEstimatorProxy::SendFeedbackOnRequest(int64_t sequence_number, const 
   int64_t first_sequence_number = sequence_number - feedback_request.sequence_count + 1;
   auto begin_iterator = packet_arrival_times_.lower_bound(first_sequence_number);
   auto end_iterator = packet_arrival_times_.upper_bound(sequence_number);
-
+#if _DEBUG
+  NORMAL_EX_LOG("[first_sequence_number = %llu][sequence_number = %llu]",
+                first_sequence_number, sequence_number);
+  #endif
   BuildFeedbackPacket(feedback_packet_count_++, media_ssrc_, first_sequence_number, begin_iterator, end_iterator, &feedback_packet);
 
   // Clear up to the first packet that is included in this feedback packet.
@@ -237,8 +279,19 @@ int64_t RemoteEstimatorProxy::BuildFeedbackPacket(uint8_t feedback_packet_count,
   // TODO@chensong 2022-12-02 RTCP的反馈信息 中 feedback_packet_number
   feedback_packet->SetFeedbackSequenceNumber(feedback_packet_count);
   int64_t next_sequence_number = base_sequence_number;
+
+  #if _DEBUG
+
+  NORMAL_EX_LOG("[base_sequence_number = %llu]", base_sequence_number);
+#endif  // _DEBUG
+
+
   for (auto it = begin_iterator; it != end_iterator; ++it) 
   {
+#if _DEBUG
+
+    NORMAL_EX_LOG("[it->first = %llu][it->second == %llu]", it->first, it->second);
+#endif  // _DEBUG
     if (!feedback_packet->AddReceivedPacket(static_cast<uint16_t>(it->first & 0xFFFF), it->second * 1000)) 
 	{
       // If we can't even add the first seq to the feedback packet, we won't be
