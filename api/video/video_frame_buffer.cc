@@ -67,9 +67,9 @@ int I420BufferInterface::ChromaHeight() const {
   return (height() + 1) / 2;
 }
 bool I420BufferInterface::set_texture(void* texture) {
-  if (!texture) {
+  /*if (!texture) {
     return false;
-  }
+  }*/
   m_texture = texture;
   return true;
 }

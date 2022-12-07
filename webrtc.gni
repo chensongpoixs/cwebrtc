@@ -97,7 +97,7 @@ declare_args() {
   apm_debug_dump = false
 
   # Set this to true to enable BWE test logging.
-  rtc_enable_bwe_test_logging = true
+  rtc_enable_bwe_test_logging = false
 
   # Set this to false to skip building examples.
   rtc_build_examples = true

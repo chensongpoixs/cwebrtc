@@ -50,6 +50,8 @@ webrtc默认编译器是Clang，所以使用VS进行编译时，需要在VS中�
 //is_component_build=false proprietary_codecs=true rtc_use_h264=true ffmpeg_branding=\"Chrome\" rtc_build_ssl=true
 gn gen --ide=vs2017 --winsdk=10.0.19041.0 --args='target_os=\"win\" target_cpu=\"x64\" is_debug=true is_clang=true use_lld=false is_component_build=false rtc_use_h264=true ffmpeg_branding=\"Chrome\" rtc_build_ssl=true'  out/test_vs2017_debug
 
+gn gen --ide=vs2017 --winsdk=10.0.19041.0 --args='is_debug=true is_clang=true proprietary_codecs=true rtc_use_h264=true rtc_build_ssl=true ffmpeg_branding=\"Chrome\" target_cpu=\"x64\"' out/vs2017_test_debug
+
 PS D:\Work\cmedia_server\webrtc_google\src> gn gen --ide=vs2017 --args='target_os=\"win\" target_cpu=\"x64
 ue is_clang=false use_lld=false is_component_build=false'  out/test_vs2017_debug
 
@@ -80,6 +82,8 @@ gn gen out/linux --args='target_os="linux" target_cpu="x64" is_debug=false is_cl
  
  
  gn gen out/linux_include --args='target_os="linux" target_cpu="x64" is_debug=false is_clang=false treat_warnings_as_errors=false rtc_include_tests=true is_component_build=false use_custom_libcxx=false rtc_enable_protobuf=false'
+ 
+ 
  
   tar -czvf  mediasoup.tar.gz  /root/mediasoup
   
