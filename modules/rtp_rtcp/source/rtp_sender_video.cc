@@ -525,6 +525,10 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
 
   // Maximum size of packet including rtp headers.
   // Extra space left in case packet will be resent using fec or rtx.
+ // 其实封包的过程，就是计算一帧数据需要封多少个包、每个包放多少载荷，为此我们需要知道各种封包模式下，每个包的最大载荷（包大小减去头部大小）。
+
+   //   首先计算一个包的最大容量，这个容量是指可以用来容纳 RTP
+     //     头部和载荷的容量，FEC、重传的开销排除在外：
   int packet_capacity = rtp_sender_->MaxRtpPacketSize() - fec_packet_overhead -
                         (rtp_sender_->RtxStatus() ? kRtxHeaderSize : 0);
 
@@ -534,6 +538,11 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
   single_packet->SetTimestamp(rtp_timestamp);
   single_packet->set_capture_time_ms(capture_time_ms);
 
+  // 接着准备四种包的模板：
+  // single_packet: 对应 NAL unit 和 STAP-A 的包；
+  // first_packet: 对应 FU-A 的首个包；
+  // middle_packet: 对应 FU-A 的中间包；
+  // last_packet: 对应 FU-A 的最后一个包；
   auto first_packet = absl::make_unique<RtpPacketToSend>(*single_packet);
   auto middle_packet = absl::make_unique<RtpPacketToSend>(*single_packet);
   auto last_packet = absl::make_unique<RtpPacketToSend>(*single_packet);
@@ -560,36 +569,32 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
   limits.max_payload_len = packet_capacity - middle_packet->headers_size();
 
   RTC_DCHECK_GE(single_packet->headers_size(), middle_packet->headers_size());
-  limits.single_packet_reduction_len =
-      single_packet->headers_size() - middle_packet->headers_size();
+  limits.single_packet_reduction_len = single_packet->headers_size() - middle_packet->headers_size();
 
   RTC_DCHECK_GE(first_packet->headers_size(), middle_packet->headers_size());
-  limits.first_packet_reduction_len =
-      first_packet->headers_size() - middle_packet->headers_size();
+  limits.first_packet_reduction_len = first_packet->headers_size() - middle_packet->headers_size();
 
   RTC_DCHECK_GE(last_packet->headers_size(), middle_packet->headers_size());
-  limits.last_packet_reduction_len =
-      last_packet->headers_size() - middle_packet->headers_size();
+  limits.last_packet_reduction_len = last_packet->headers_size() - middle_packet->headers_size();
 
   RTPVideoHeader minimized_video_header;
   const RTPVideoHeader* packetize_video_header = video_header;
 
-  rtc::ArrayView<const uint8_t> generic_descriptor_raw_00 =
-      first_packet->GetRawExtension<RtpGenericFrameDescriptorExtension00>();
-  rtc::ArrayView<const uint8_t> generic_descriptor_raw_01 =
-      first_packet->GetRawExtension<RtpGenericFrameDescriptorExtension01>();
+  rtc::ArrayView<const uint8_t> generic_descriptor_raw_00 = first_packet->GetRawExtension<RtpGenericFrameDescriptorExtension00>();
+  rtc::ArrayView<const uint8_t> generic_descriptor_raw_01 = first_packet->GetRawExtension<RtpGenericFrameDescriptorExtension01>();
 
-  if (!generic_descriptor_raw_00.empty() &&
-      !generic_descriptor_raw_01.empty()) {
+  if (!generic_descriptor_raw_00.empty() && !generic_descriptor_raw_01.empty()) 
+  {
     RTC_LOG(LS_WARNING) << "Two versions of GFD extension used.";
     return false;
   }
 
-  rtc::ArrayView<const uint8_t> generic_descriptor_raw =
-      !generic_descriptor_raw_01.empty() ? generic_descriptor_raw_01
+  rtc::ArrayView<const uint8_t> generic_descriptor_raw = !generic_descriptor_raw_01.empty() ? generic_descriptor_raw_01
                                          : generic_descriptor_raw_00;
-  if (!generic_descriptor_raw.empty()) {
-    if (MinimizeDescriptor(*video_header, &minimized_video_header)) {
+  if (!generic_descriptor_raw.empty()) 
+  {
+    if (MinimizeDescriptor(*video_header, &minimized_video_header))
+	{
       packetize_video_header = &minimized_video_header;
     }
   }
@@ -597,14 +602,14 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
   // 如果帧加密了，对payload和header进行加密
   // TODO(benwright@webrtc.org) - Allocate enough to always encrypt inline.
   rtc::Buffer encrypted_video_payload;
-  if (frame_encryptor_ != nullptr) {
-    if (generic_descriptor_raw.empty()) {
+  if (frame_encryptor_ != nullptr) 
+  {
+    if (generic_descriptor_raw.empty()) 
+	{
       return false;
     }
     // 获取帧加密后最大的长度
-    const size_t max_ciphertext_size =
-        frame_encryptor_->GetMaxCiphertextByteSize(cricket::MEDIA_TYPE_VIDEO,
-                                                   payload_size);
+    const size_t max_ciphertext_size = frame_encryptor_->GetMaxCiphertextByteSize(cricket::MEDIA_TYPE_VIDEO, payload_size);
     encrypted_video_payload.SetSize(max_ciphertext_size);
 
     size_t bytes_written = 0;
@@ -618,14 +623,17 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
     if (frame_encryptor_->Encrypt(
             cricket::MEDIA_TYPE_VIDEO, first_packet->Ssrc(), additional_data,
             rtc::MakeArrayView(payload_data, payload_size),
-            encrypted_video_payload, &bytes_written) != 0) {
+            encrypted_video_payload, &bytes_written) != 0) 
+	{
       return false;
     }
 
     encrypted_video_payload.SetSize(bytes_written);
     payload_data = encrypted_video_payload.data();
     payload_size = encrypted_video_payload.size();
-  } else if (require_frame_encryption_) {
+  }
+  else if (require_frame_encryption_) 
+  {
     RTC_LOG(LS_WARNING)
         << "No FrameEncryptor is attached to this video sending stream but "
         << "one is required since require_frame_encryptor is set";
