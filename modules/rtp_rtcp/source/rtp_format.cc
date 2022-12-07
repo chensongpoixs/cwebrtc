@@ -30,7 +30,8 @@ std::unique_ptr<RtpPacketizer> RtpPacketizer::Create(
     // Codec-specific details.
     const RTPVideoHeader& rtp_video_header,
     VideoFrameType frame_type,
-    const RTPFragmentationHeader* fragmentation) {
+    const RTPFragmentationHeader* fragmentation) 
+{
   switch (type) {
     case kVideoCodecH264: {
       RTC_CHECK(fragmentation);

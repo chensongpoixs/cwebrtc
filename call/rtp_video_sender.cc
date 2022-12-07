@@ -425,7 +425,10 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
   RTC_DCHECK_LT(stream_index, rtp_streams_.size());
   // TODO@chensong 20220805  rtp_header
   RTPVideoHeader rtp_video_header = params_[stream_index].GetRtpVideoHeader(encoded_image, codec_specific_info, shared_frame_id_);
-
+#if _DEBUG
+  NORMAL_EX_LOG("[rtp_video_header = %s]",
+                webrtc::ToString(rtp_video_header).c_str());
+  #endif
   uint32_t rtp_timestamp = encoded_image.Timestamp() + rtp_streams_[stream_index].rtp_rtcp->StartTimestamp();
 
   // RTCPSender has it's own copy of the timestamp offset, added in
@@ -477,7 +480,9 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
                                              rtp_config_.ssrcs[stream_index]);
   }
   if (!send_result)
+  {
     return Result(Result::ERROR_SEND_FAILED);
+  }
 
   return Result(Result::OK, rtp_timestamp);
 }

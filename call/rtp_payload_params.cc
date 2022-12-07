@@ -109,9 +109,11 @@ void PopulateRtpWithCodecSpecifics(const CodecSpecificInfo& info,
   }
 }
 
-void SetVideoTiming(const EncodedImage& image, VideoSendTiming* timing) {
+void SetVideoTiming(const EncodedImage& image, VideoSendTiming* timing) 
+{
   if (image.timing_.flags == VideoSendTiming::TimingFrameFlags::kInvalid ||
-      image.timing_.flags == VideoSendTiming::TimingFrameFlags::kNotTriggered) {
+      image.timing_.flags == VideoSendTiming::TimingFrameFlags::kNotTriggered) 
+  {
     timing->flags = VideoSendTiming::TimingFrameFlags::kInvalid;
     return;
   }
@@ -148,10 +150,8 @@ RtpPayloadParams::RtpPayloadParams(const RtpPayloadParams& other) = default;
 
 RtpPayloadParams::~RtpPayloadParams() {}
 
-RTPVideoHeader RtpPayloadParams::GetRtpVideoHeader(
-    const EncodedImage& image,
-    const CodecSpecificInfo* codec_specific_info,
-    int64_t shared_frame_id) {
+RTPVideoHeader RtpPayloadParams::GetRtpVideoHeader(const EncodedImage& image, const CodecSpecificInfo* codec_specific_info, int64_t shared_frame_id) 
+{
   RTPVideoHeader rtp_video_header;
   if (codec_specific_info) 
   {
@@ -162,16 +162,13 @@ RTPVideoHeader RtpPayloadParams::GetRtpVideoHeader(
   rtp_video_header.playout_delay = image.playout_delay_;
   rtp_video_header.width = image._encodedWidth;
   rtp_video_header.height = image._encodedHeight;
-  rtp_video_header.color_space = image.ColorSpace()
-                                     ? absl::make_optional(*image.ColorSpace())
-                                     : absl::nullopt;
+  rtp_video_header.color_space = image.ColorSpace() ? absl::make_optional(*image.ColorSpace()) : absl::nullopt;
   SetVideoTiming(image, &rtp_video_header.video_timing);
 
   const bool is_keyframe = image._frameType == VideoFrameType::kVideoFrameKey;
   const bool first_frame_in_picture =
       (codec_specific_info && codec_specific_info->codecType == kVideoCodecVP9)
-          ? codec_specific_info->codecSpecific.VP9.first_frame_in_picture
-          : true;
+          ? codec_specific_info->codecSpecific.VP9.first_frame_in_picture : true;
 
   SetCodecSpecific(&rtp_video_header, first_frame_in_picture);
 
@@ -190,8 +187,8 @@ RtpPayloadState RtpPayloadParams::state() const {
   return state_;
 }
 
-void RtpPayloadParams::SetCodecSpecific(RTPVideoHeader* rtp_video_header,
-                                        bool first_frame_in_picture) {
+void RtpPayloadParams::SetCodecSpecific(RTPVideoHeader* rtp_video_header, bool first_frame_in_picture) 
+{
   // Always set picture id. Set tl0_pic_idx iff temporal index is set.
   if (first_frame_in_picture)
   {
@@ -229,9 +226,12 @@ void RtpPayloadParams::SetCodecSpecific(RTPVideoHeader* rtp_video_header,
       vp9_header.tl0_pic_idx = state_.tl0_pic_idx;
     }
   }
-  if (rtp_video_header->codec == kVideoCodecH264) {
-    if (rtp_video_header->frame_marking.temporal_id != kNoTemporalIdx) {
-      if (rtp_video_header->frame_marking.temporal_id == 0) {
+  if (rtp_video_header->codec == kVideoCodecH264) 
+  {
+    if (rtp_video_header->frame_marking.temporal_id != kNoTemporalIdx) 
+	{
+      if (rtp_video_header->frame_marking.temporal_id == 0) 
+	  {
         ++state_.tl0_pic_idx;
       }
       rtp_video_header->frame_marking.tl0_pic_idx = state_.tl0_pic_idx;
@@ -243,8 +243,8 @@ void RtpPayloadParams::SetCodecSpecific(RTPVideoHeader* rtp_video_header,
   // until the old generic format can be removed.
   // TODO(philipel): Remove this when the new generic format has been fully
   //                 implemented.
-  if (generic_picture_id_experiment_ &&
-      rtp_video_header->codec == kVideoCodecGeneric) {
+  if (generic_picture_id_experiment_ && rtp_video_header->codec == kVideoCodecGeneric) 
+  {
     rtp_video_header->generic.emplace().frame_id = state_.picture_id;
   }
 }

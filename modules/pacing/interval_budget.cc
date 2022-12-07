@@ -27,11 +27,11 @@ IntervalBudget::IntervalBudget(int initial_target_rate_kbps,
   set_target_rate_kbps(initial_target_rate_kbps);
 }
 
-void IntervalBudget::set_target_rate_kbps(int target_rate_kbps) {
+void IntervalBudget::set_target_rate_kbps(int target_rate_kbps) 
+{
   target_rate_kbps_ = target_rate_kbps;
   max_bytes_in_budget_ = (kWindowMs * target_rate_kbps_) / 8;
-  bytes_remaining_ = std::min(std::max(-max_bytes_in_budget_, bytes_remaining_),
-                              max_bytes_in_budget_);
+  bytes_remaining_ = std::min(std::max(-max_bytes_in_budget_, bytes_remaining_), max_bytes_in_budget_);
 }
 
 void IntervalBudget::IncreaseBudget(int64_t delta_time_ms) {

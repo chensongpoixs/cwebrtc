@@ -189,16 +189,22 @@ int64_t RoundRobinPacketQueue::OldestEnqueueTimeMs() const {
   return *enqueue_times_.begin();
 }
 
-void RoundRobinPacketQueue::UpdateQueueTime(int64_t timestamp_ms) {
+void RoundRobinPacketQueue::UpdateQueueTime(int64_t timestamp_ms) 
+{
   RTC_CHECK_GE(timestamp_ms, time_last_updated_ms_);
   if (timestamp_ms == time_last_updated_ms_)
+  {
     return;
+  }
 
   int64_t delta_ms = timestamp_ms - time_last_updated_ms_;
 
-  if (paused_) {
+  if (paused_) 
+  {
     pause_time_sum_ms_ += delta_ms;
-  } else {
+  }
+  else
+  {
     queue_time_sum_ms_ += delta_ms * size_packets_;
   }
 

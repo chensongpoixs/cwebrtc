@@ -110,6 +110,10 @@ struct TimingFrameInfo {
   uint8_t flags;  // Flags indicating validity and/or why tracing was triggered.
 };
 
+
+
+std::string ToString(const webrtc::VideoSendTiming &  sendTiming);
+
 }  // namespace webrtc
 
 #endif  // API_VIDEO_VIDEO_TIMING_H_

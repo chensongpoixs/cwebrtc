@@ -70,7 +70,7 @@ bool I420BufferInterface::set_texture(void* texture) {
 //<<<<<<< HEAD
   /*if (!texture) {
 =======
-  /*if (!texture)
+  if (!texture)
   {
 >>>>>>> 3cd35d9d942cb8f0ec5d7a93b13be81b33cd410b
     return false;
