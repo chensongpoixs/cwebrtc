@@ -2779,3 +2779,5 @@ modules/rtp_rtcp/source/rtcp_packet/*.cc.bak
 modules/remote_bitrate_estimator/*.cc.bak
 .gitignore.bak
 modules/rtp_rtcp/source/rtcp_packet/transport_feedback.h.bak
+modules/video_coding/codecs/h264/h264.cc.bak
+modules/video_coding/codecs/h264/h264_encoder_impl.cc.bak

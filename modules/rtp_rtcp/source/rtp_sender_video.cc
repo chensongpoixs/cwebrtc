@@ -443,18 +443,12 @@ absl::optional<uint32_t> RTPSenderVideo::FlexfecSsrc() const {
   return absl::nullopt;
 }
 
-bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
-                               int8_t payload_type,
-                               uint32_t rtp_timestamp,
-                               int64_t capture_time_ms,
-                               const uint8_t* payload_data,
-                               size_t payload_size,
-                               const RTPFragmentationHeader* fragmentation,
-                               const RTPVideoHeader* video_header,
-                               int64_t expected_retransmission_time_ms) {
+bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, uint32_t rtp_timestamp, int64_t capture_time_ms, const uint8_t* payload_data, 
+	size_t payload_size, const RTPFragmentationHeader* fragmentation, const RTPVideoHeader* video_header, int64_t expected_retransmission_time_ms) 
+{
   TRACE_EVENT_ASYNC_STEP1("webrtc", "Video", capture_time_ms, "Send", "type",
                           FrameTypeToString(frame_type));
-
+  // TODO@chensong 2022-12-07 rtp拼接H264 数据包发送拼接
   if (frame_type == VideoFrameType::kEmptyFrame)
   {
 	  return true;

@@ -202,8 +202,8 @@ RtpVideoStreamReceiver::~RtpVideoStreamReceiver() {
 }
 
 void RtpVideoStreamReceiver::AddReceiveCodec(
-    const VideoCodec& video_codec,
-    const std::map<std::string, std::string>& codec_params) {
+    const VideoCodec& video_codec, const std::map<std::string, std::string>& codec_params) 
+{
   pt_codec_type_.emplace(video_codec.plType, video_codec.codecType);
   pt_codec_params_.emplace(video_codec.plType, codec_params);
 }
@@ -228,36 +228,39 @@ absl::optional<Syncable::Info> RtpVideoStreamReceiver::GetSyncInfo() const {
   return info;
 }
 
-int32_t RtpVideoStreamReceiver::OnReceivedPayloadData(
-    const uint8_t* payload_data,
-    size_t payload_size,
-    const RTPHeader& rtp_header,
-    const RTPVideoHeader& video_header,
-    VideoFrameType frame_type,
-    const absl::optional<RtpGenericFrameDescriptor>& generic_descriptor,
-    bool is_recovered) {
+int32_t RtpVideoStreamReceiver::OnReceivedPayloadData(const uint8_t* payload_data, size_t payload_size, const RTPHeader& rtp_header,
+    const RTPVideoHeader& video_header, VideoFrameType frame_type,
+    const absl::optional<RtpGenericFrameDescriptor>& generic_descriptor, bool is_recovered)
+{
   VCMPacket packet(payload_data, payload_size, rtp_header, video_header,
                    frame_type, ntp_estimator_.Estimate(rtp_header.timestamp));
   packet.generic_descriptor = generic_descriptor;
 
-  if (nack_module_) {
+  if (nack_module_) 
+  {
     const bool is_keyframe = video_header.is_first_packet_in_frame &&
                              frame_type == VideoFrameType::kVideoFrameKey;
 
     packet.timesNacked = nack_module_->OnReceivedPacket(
         rtp_header.sequenceNumber, is_keyframe, is_recovered);
 
-  } else {
+  }
+  else 
+  {
     packet.timesNacked = -1;
   }
   packet.receive_time_ms = clock_->TimeInMilliseconds();
 
-  if (loss_notification_controller_) {
-    if (is_recovered) {
+  if (loss_notification_controller_) 
+  {
+    if (is_recovered) 
+	{
       // TODO(bugs.webrtc.org/10336): Implement support for reordering.
       RTC_LOG(LS_WARNING)
           << "LossNotificationController does not support reordering.";
-    } else {
+    }
+	else 
+	{
       loss_notification_controller_->OnReceivedPacket(packet);
     }
   }
@@ -271,22 +274,32 @@ int32_t RtpVideoStreamReceiver::OnReceivedPayloadData(
     // Only when we start to receive packets will we know what payload type
     // that will be used. When we know the payload type insert the correct
     // sps/pps into the tracker.
-    if (packet.payloadType != last_payload_type_) {
+    if (packet.payloadType != last_payload_type_) 
+	{
       last_payload_type_ = packet.payloadType;
       InsertSpsPpsIntoTracker(packet.payloadType);
     }
 
-    switch (tracker_.CopyAndFixBitstream(&packet)) {
+    switch (tracker_.CopyAndFixBitstream(&packet)) 
+	{
       case video_coding::H264SpsPpsTracker::kRequestKeyframe:
+      {
         keyframe_request_sender_->RequestKeyFrame();
         RTC_FALLTHROUGH();
+	  }
       case video_coding::H264SpsPpsTracker::kDrop:
-        return 0;
+      {
+            return 0;
+	  }
       case video_coding::H264SpsPpsTracker::kInsert:
-        break;
+      {
+            break;
+	  }
     }
 
-  } else {
+  } 
+  else 
+  {
     uint8_t* data = new uint8_t[packet.sizeBytes];
     memcpy(data, packet.dataPtr, packet.sizeBytes);
     packet.dataPtr = data;
@@ -764,23 +777,27 @@ void RtpVideoStreamReceiver::UpdateHistograms() {
 void RtpVideoStreamReceiver::InsertSpsPpsIntoTracker(uint8_t payload_type) {
   auto codec_params_it = pt_codec_params_.find(payload_type);
   if (codec_params_it == pt_codec_params_.end())
+  {
     return;
+  }
 
   RTC_LOG(LS_INFO) << "Found out of band supplied codec parameters for"
                    << " payload type: " << static_cast<int>(payload_type);
 
   H264SpropParameterSets sprop_decoder;
-  auto sprop_base64_it =
-      codec_params_it->second.find(cricket::kH264FmtpSpropParameterSets);
+  auto sprop_base64_it = codec_params_it->second.find(cricket::kH264FmtpSpropParameterSets);
 
   if (sprop_base64_it == codec_params_it->second.end())
+  {
     return;
+  }
 
   if (!sprop_decoder.DecodeSprop(sprop_base64_it->second.c_str()))
+  {
     return;
+  }
 
-  tracker_.InsertSpsPpsNalus(sprop_decoder.sps_nalu(),
-                             sprop_decoder.pps_nalu());
+  tracker_.InsertSpsPpsNalus(sprop_decoder.sps_nalu(), sprop_decoder.pps_nalu());
 }
 
 std::vector<webrtc::RtpSource> RtpVideoStreamReceiver::GetSources() const {

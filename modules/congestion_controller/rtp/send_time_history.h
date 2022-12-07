@@ -60,6 +60,7 @@ class SendTimeHistory {
   int64_t last_untracked_send_time_ms_ = -1;
   SequenceNumberUnwrapper seq_num_unwrapper_;
   std::map<int64_t, PacketFeedback> history_;
+  // TODO@chensong 2022-12-07 上一次接受到接受端包收到确认包的序号
   absl::optional<int64_t> last_ack_seq_num_;
   std::map<RemoteAndLocalNetworkId, size_t> in_flight_bytes_;
 

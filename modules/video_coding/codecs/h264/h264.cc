@@ -1,4 +1,4 @@
-/*
+Ôªø/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -54,7 +54,8 @@ SdpVideoFormat CreateH264Format(H264::Profile profile,
       cricket::kH264CodecName,
       {{cricket::kH264FmtpProfileLevelId, *profile_string},
        {cricket::kH264FmtpLevelAsymmetryAllowed, "1"},
-       {cricket::kH264FmtpPacketizationMode, packetization_mode}});
+       {cricket::kH264FmtpPacketizationMode, packetization_mode}/*,
+       {cricket::kH264FmtpSpropParameterSets, "1"}*/});
 }
 
 }  // namespace
@@ -65,12 +66,10 @@ void DisableRtcUseH264() {
 #endif
 }
 /**
-* WebRTC ÷–÷ß≥÷H264µƒ∏Ò Ω
-*/
-std::vector<SdpVideoFormat> SupportedH264Codecs() 
-{
-  if (!IsH264CodecSupported()) 
-  {
+ * WebRTC ‰∏≠ÊîØÊåÅH264ÁöÑÊ†ºÂºè
+ */
+std::vector<SdpVideoFormat> SupportedH264Codecs() {
+  if (!IsH264CodecSupported()) {
     return std::vector<SdpVideoFormat>();
   }
   // We only support encoding Constrained Baseline Profile (CBP), but the
@@ -86,7 +85,8 @@ std::vector<SdpVideoFormat> SupportedH264Codecs()
       CreateH264Format(H264::kProfileBaseline, H264::kLevel3_1, "1"),
       CreateH264Format(H264::kProfileBaseline, H264::kLevel3_1, "0"),
       CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1, "1"),
-      CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1, "0")};
+      CreateH264Format(H264::kProfileConstrainedBaseline, H264::kLevel3_1,
+                       "0")};
 }
 
 std::unique_ptr<H264Encoder> H264Encoder::Create(
