@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -60,7 +60,7 @@ class SendTimeHistory {
   int64_t last_untracked_send_time_ms_ = -1;
   SequenceNumberUnwrapper seq_num_unwrapper_;
   std::map<int64_t, PacketFeedback> history_;
-  // TODO@chensong 2022-12-07 ÉÏÒ»´Î½ÓÊÜµ½½ÓÊÜ¶Ë°üÊÕµ½È·ÈÏ°üµÄĞòºÅ
+  // TODO@chensong 2022-12-07 ä¸Šä¸€æ¬¡æ¥å—åˆ°æ¥å—ç«¯åŒ…æ”¶åˆ°ç¡®è®¤åŒ…çš„åºå·
   absl::optional<int64_t> last_ack_seq_num_;
   std::map<RemoteAndLocalNetworkId, size_t> in_flight_bytes_;
 
