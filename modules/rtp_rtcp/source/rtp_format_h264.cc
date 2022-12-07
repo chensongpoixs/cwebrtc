@@ -83,12 +83,10 @@ bool ParseStapAStartOffsets(const uint8_t* nalu_ptr,
 
 }  // namespace
 
-RtpPacketizerH264::RtpPacketizerH264(
-    rtc::ArrayView<const uint8_t> payload,
-    PayloadSizeLimits limits,
-    H264PacketizationMode packetization_mode,
-    const RTPFragmentationHeader& fragmentation)
-    : limits_(limits), num_packets_left_(0) {
+RtpPacketizerH264::RtpPacketizerH264(rtc::ArrayView<const uint8_t> payload, PayloadSizeLimits limits,
+    H264PacketizationMode packetization_mode, const RTPFragmentationHeader& fragmentation)
+    : limits_(limits), num_packets_left_(0) 
+{
   // Guard against uninitialized memory in packetization_mode.
   RTC_CHECK(packetization_mode == H264PacketizationMode::NonInterleaved ||
             packetization_mode == H264PacketizationMode::SingleNalUnit);
@@ -148,7 +146,9 @@ RtpPacketizerH264::RtpPacketizerH264(
     }
 
     if (!updated_sps)
+    {
       input_fragments_.push_back(Fragment(buffer, length));
+	}
   }
   // TODO@chensong 2022-04-04    RTP发送NALU 两种模式  
   if (!GeneratePackets(packetization_mode)) {
