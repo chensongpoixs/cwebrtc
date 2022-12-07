@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -32,15 +32,16 @@ constexpr TimeDelta kStreamTimeOut = TimeDelta::Seconds<2>();
 constexpr int kTimestampGroupLengthMs = 5;
 constexpr int kAbsSendTimeFraction = 18;
 constexpr int kAbsSendTimeInterArrivalUpshift = 8;
-constexpr int kInterArrivalShift =
-    kAbsSendTimeFraction + kAbsSendTimeInterArrivalUpshift;
-constexpr double kTimestampToMs =
-    1000.0 / static_cast<double>(1 << kInterArrivalShift);
+constexpr int kInterArrivalShift = kAbsSendTimeFraction + kAbsSendTimeInterArrivalUpshift; // 18+ 8 = 26 
+//constexpr int kDoublekInterArrivalShift = 1 << kInterArrivalShift;
+ // TODO@chensong 2022-11-30    ----> interarrival ===> 2^26 为什么是这个数呢
+constexpr double kTimestampToMs = 1000.0 / static_cast<double>(1 << kInterArrivalShift);
 // This ssrc is used to fulfill the current API but will be removed
 // after the API has been changed.
 constexpr uint32_t kFixedSsrc = 0;
 
 // Parameters for linear least squares fit of regression line to noisy data.
+// TODO@chensong 2022-11-30 回归线对噪声数据的线性最小二乘拟合参数
 constexpr size_t kDefaultTrendlineWindowSize = 20;
 constexpr double kDefaultTrendlineSmoothingCoeff = 0.9;
 constexpr double kDefaultTrendlineThresholdGain = 4.0;
@@ -106,19 +107,17 @@ DelayBasedBwe::DelayBasedBwe(const WebRtcKeyValueConfig* key_value_config,
   RTC_LOG(LS_INFO)
       << "Using Trendline filter for delay change estimation with window size "
       << trendline_window_size_;
-  delay_detector_.reset(new TrendlineEstimator(
-      trendline_window_size_, trendline_smoothing_coeff_,
+  // TODO@chensong 2022-11-30 延迟的探测器   --->> [3. 过载检测器]
+  delay_detector_.reset(new TrendlineEstimator(trendline_window_size_, trendline_smoothing_coeff_,
       trendline_threshold_gain_, network_state_predictor_));
 }
 
 DelayBasedBwe::~DelayBasedBwe() {}
 
 DelayBasedBwe::Result DelayBasedBwe::IncomingPacketFeedbackVector(
-    const std::vector<PacketFeedback>& packet_feedback_vector,
-    absl::optional<DataRate> acked_bitrate,
-    absl::optional<DataRate> probe_bitrate,
-    bool in_alr,
-    Timestamp at_time) {
+    const std::vector<PacketFeedback>& packet_feedback_vector, absl::optional<DataRate> acked_bitrate,
+    absl::optional<DataRate> probe_bitrate, bool in_alr, Timestamp at_time) 
+{
   RTC_DCHECK(std::is_sorted(packet_feedback_vector.begin(),
                             packet_feedback_vector.end(),
                             PacketFeedbackComparator()));
@@ -141,19 +140,23 @@ DelayBasedBwe::Result DelayBasedBwe::IncomingPacketFeedbackVector(
   bool delayed_feedback = true;
   bool recovered_from_overuse = false;
   BandwidthUsage prev_detector_state = delay_detector_->State();
-  for (const auto& packet_feedback : packet_feedback_vector) {
+  for (const auto& packet_feedback : packet_feedback_vector) 
+  {
     if (packet_feedback.send_time_ms < 0)
+    {
       continue;
+	}
     delayed_feedback = false;
     IncomingPacketFeedback(packet_feedback, at_time);
-    if (prev_detector_state == BandwidthUsage::kBwUnderusing &&
-        delay_detector_->State() == BandwidthUsage::kBwNormal) {
+    if (prev_detector_state == BandwidthUsage::kBwUnderusing && delay_detector_->State() == BandwidthUsage::kBwNormal) 
+	{
       recovered_from_overuse = true;
     }
     prev_detector_state = delay_detector_->State();
   }
 
-  if (delayed_feedback) {
+  if (delayed_feedback)
+  {
     // TODO(bugs.webrtc.org/10125): Design a better mechanism to safe-guard
     // against building very large network queues.
     return Result();
@@ -162,41 +165,37 @@ DelayBasedBwe::Result DelayBasedBwe::IncomingPacketFeedbackVector(
                              recovered_from_overuse, in_alr, at_time);
 }
 
-void DelayBasedBwe::IncomingPacketFeedback(
-    const PacketFeedback& packet_feedback,
-    Timestamp at_time) {
+void DelayBasedBwe::IncomingPacketFeedback(const PacketFeedback& packet_feedback, Timestamp at_time) 
+{
   // Reset if the stream has timed out.
-  if (last_seen_packet_.IsInfinite() ||
-      at_time - last_seen_packet_ > kStreamTimeOut) {
-    inter_arrival_.reset(
-        new InterArrival((kTimestampGroupLengthMs << kInterArrivalShift) / 1000,
-                         kTimestampToMs, true));
-    delay_detector_.reset(new TrendlineEstimator(
-        trendline_window_size_, trendline_smoothing_coeff_,
-        trendline_threshold_gain_, network_state_predictor_));
+  if (last_seen_packet_.IsInfinite() || at_time - last_seen_packet_ > kStreamTimeOut) 
+  {
+    inter_arrival_.reset(new InterArrival((kTimestampGroupLengthMs << kInterArrivalShift) / 1000, kTimestampToMs, true));
+
+    delay_detector_.reset(new TrendlineEstimator(trendline_window_size_, trendline_smoothing_coeff_, trendline_threshold_gain_, network_state_predictor_));
   }
   last_seen_packet_ = at_time;
 
-  uint32_t send_time_24bits =
-      static_cast<uint32_t>(
-          ((static_cast<uint64_t>(packet_feedback.send_time_ms)
-            << kAbsSendTimeFraction) +
-           500) /
-          1000) &
-      0x00FFFFFF;
+  uint32_t send_time_24bits = static_cast<uint32_t>(((static_cast<uint64_t>(packet_feedback.send_time_ms) << kAbsSendTimeFraction) + 500) / 1000) & 0x00FFFFFF;
   // Shift up send time to use the full 32 bits that inter_arrival works with,
   // so wrapping works properly.
   uint32_t timestamp = send_time_24bits << kAbsSendTimeInterArrivalUpshift;
 
-  uint32_t ts_delta = 0;
-  int64_t t_delta = 0;
-  int size_delta = 0;
-  bool calculated_deltas = inter_arrival_->ComputeDeltas(
-      timestamp, packet_feedback.arrival_time_ms, at_time.ms(),
+
+
+  // TODO@chensong 2022-11-30 因此我们可以计算出 Trendline滤波器需要的三个参数：
+  // 1. 发送时间差值 delta_times、
+  // 2. 到达时间差值 delta_arrival、
+  // 3. 包组大小差值 delta_size。
+  uint32_t ts_delta = 0;  // 发送时间差值
+  int64_t t_delta = 0;   // 到达时间差值
+  int size_delta = 0;    // 包组大小差值
+
+  bool calculated_deltas = inter_arrival_->ComputeDeltas(timestamp, packet_feedback.arrival_time_ms, at_time.ms(),
       packet_feedback.payload_size, &ts_delta, &t_delta, &size_delta);
   double ts_delta_ms = (1000.0 * ts_delta) / (1 << kInterArrivalShift);
-  delay_detector_->Update(t_delta, ts_delta_ms, packet_feedback.send_time_ms,
-                          packet_feedback.arrival_time_ms, calculated_deltas);
+  // TODO@chensong 2022-11-30 更新一下过载检测器中的数据
+  delay_detector_->Update(t_delta, ts_delta_ms, packet_feedback.send_time_ms, packet_feedback.arrival_time_ms, calculated_deltas);
 }
 
 DelayBasedBwe::Result DelayBasedBwe::MaybeUpdateEstimate(

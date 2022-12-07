@@ -39,7 +39,8 @@ class TransportFeedback;
 class PacketRouter : public PacedSender::PacketSender,
                      public TransportSequenceNumberAllocator,
                      public RemoteBitrateObserver,
-                     public TransportFeedbackSenderInterface {
+                     public TransportFeedbackSenderInterface 
+{
  public:
   PacketRouter();
   ~PacketRouter() override;
@@ -47,19 +48,14 @@ class PacketRouter : public PacedSender::PacketSender,
   void AddSendRtpModule(RtpRtcp* rtp_module, bool remb_candidate);
   void RemoveSendRtpModule(RtpRtcp* rtp_module);
 
-  void AddReceiveRtpModule(RtcpFeedbackSenderInterface* rtcp_sender,
-                           bool remb_candidate);
+  void AddReceiveRtpModule(RtcpFeedbackSenderInterface* rtcp_sender, bool remb_candidate);
   void RemoveReceiveRtpModule(RtcpFeedbackSenderInterface* rtcp_sender);
 
   // Implements PacedSender::Callback.
-  bool TimeToSendPacket(uint32_t ssrc,
-                        uint16_t sequence_number,
-                        int64_t capture_timestamp,
-                        bool retransmission,
-                        const PacedPacketInfo& packet_info) override;
+  bool TimeToSendPacket(uint32_t ssrc, uint16_t sequence_number, int64_t capture_timestamp,
+                        bool retransmission, const PacedPacketInfo& packet_info) override;
 
-  size_t TimeToSendPadding(size_t bytes,
-                           const PacedPacketInfo& packet_info) override;
+  size_t TimeToSendPadding(size_t bytes, const PacedPacketInfo& packet_info) override;
 
   void SetTransportWideSequenceNumber(uint16_t sequence_number);
   uint16_t AllocateSequenceNumber() override;
@@ -69,8 +65,7 @@ class PacketRouter : public PacedSender::PacketSender,
   // estimate has decreased or if no RTCP REMB packet has been sent for
   // a certain time interval.
   // Implements RtpReceiveBitrateUpdate.
-  void OnReceiveBitrateChanged(const std::vector<uint32_t>& ssrcs,
-                               uint32_t bitrate_bps) override;
+  void OnReceiveBitrateChanged(const std::vector<uint32_t>& ssrcs, uint32_t bitrate_bps) override;
 
   // Ensures remote party notified of the receive bitrate limit no larger than
   // |bitrate_bps|.
@@ -83,12 +78,9 @@ class PacketRouter : public PacedSender::PacketSender,
   bool SendTransportFeedback(rtcp::TransportFeedback* packet) override;
 
  private:
-  void AddRembModuleCandidate(RtcpFeedbackSenderInterface* candidate_module,
-                              bool media_sender)
-      RTC_EXCLUSIVE_LOCKS_REQUIRED(modules_crit_);
+  void AddRembModuleCandidate(RtcpFeedbackSenderInterface* candidate_module, bool media_sender) RTC_EXCLUSIVE_LOCKS_REQUIRED(modules_crit_);
   void MaybeRemoveRembModuleCandidate(
-      RtcpFeedbackSenderInterface* candidate_module,
-      bool media_sender) RTC_EXCLUSIVE_LOCKS_REQUIRED(modules_crit_);
+      RtcpFeedbackSenderInterface* candidate_module, bool media_sender) RTC_EXCLUSIVE_LOCKS_REQUIRED(modules_crit_);
   void UnsetActiveRembModule() RTC_EXCLUSIVE_LOCKS_REQUIRED(modules_crit_);
   void DetermineActiveRembModule() RTC_EXCLUSIVE_LOCKS_REQUIRED(modules_crit_);
 
@@ -98,8 +90,7 @@ class PacketRouter : public PacedSender::PacketSender,
   // The last module used to send media.
   RtpRtcp* last_send_module_ RTC_GUARDED_BY(modules_crit_);
   // Rtcp modules of the rtp receivers.
-  std::vector<RtcpFeedbackSenderInterface*> rtcp_feedback_senders_
-      RTC_GUARDED_BY(modules_crit_);
+  std::vector<RtcpFeedbackSenderInterface*> rtcp_feedback_senders_ RTC_GUARDED_BY(modules_crit_);
 
   // TODO(eladalon): remb_crit_ only ever held from one function, and it's not
   // clear if that function can actually be called from more than one thread.
@@ -113,12 +104,9 @@ class PacketRouter : public PacedSender::PacketSender,
 
   // Candidates for the REMB module can be RTP sender/receiver modules, with
   // the sender modules taking precedence.
-  std::vector<RtcpFeedbackSenderInterface*> sender_remb_candidates_
-      RTC_GUARDED_BY(modules_crit_);
-  std::vector<RtcpFeedbackSenderInterface*> receiver_remb_candidates_
-      RTC_GUARDED_BY(modules_crit_);
-  RtcpFeedbackSenderInterface* active_remb_module_
-      RTC_GUARDED_BY(modules_crit_);
+  std::vector<RtcpFeedbackSenderInterface*> sender_remb_candidates_ RTC_GUARDED_BY(modules_crit_);
+  std::vector<RtcpFeedbackSenderInterface*> receiver_remb_candidates_ RTC_GUARDED_BY(modules_crit_);
+  RtcpFeedbackSenderInterface* active_remb_module_ RTC_GUARDED_BY(modules_crit_);
 
   volatile int transport_seq_;
 

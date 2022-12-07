@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -371,7 +371,10 @@ int32_t AudioCodingModuleImpl::Encode(const InputData& input_data) {
       &encode_buffer_);
 
   bitrate_logger_.MaybeLog(encoder_stack_->GetTargetBitrate() / 1000);
-  if (encode_buffer_.size() == 0 && !encoded_info.send_even_if_empty) {
+  // TODO@chensong 2022-10-25 这边采集线程 10ms采集一帧的数据  编码需要20ms编码为最小单位， 
+  // 所以奇数次编码时编码器是返回数据大小是0，尔数时编码器返回数据大于0的 
+  if (encode_buffer_.size() == 0 && !encoded_info.send_even_if_empty) 
+  {
     // Not enough data.
     return 0;
   }
@@ -385,7 +388,8 @@ int32_t AudioCodingModuleImpl::Encode(const InputData& input_data) {
     codec_histogram_bins_log_[codec_type] +=
         number_of_consecutive_empty_packets_ + 1;
     number_of_consecutive_empty_packets_ = 0;
-    if (codec_histogram_bins_log_[codec_type] >= 500) {
+    if (codec_histogram_bins_log_[codec_type] >= 500) 
+	{
       codec_histogram_bins_log_[codec_type] -= 500;
       UpdateCodecTypeHistogram(codec_type);
     }
@@ -405,7 +409,10 @@ int32_t AudioCodingModuleImpl::Encode(const InputData& input_data) {
 
   {
     rtc::CritScope lock(&callback_crit_sect_);
-    if (packetization_callback_) {
+	// TODO@chensong 2022-10-15 音频传输层是否创建好了 
+    if (packetization_callback_) 
+	{
+		// TODO@chensong 2022-10-25 发送音频数据  -> ChannelSend::SendData
       packetization_callback_->SendData(
           frame_type, encoded_info.payload_type, encoded_info.encoded_timestamp,
           encode_buffer_.data(), encode_buffer_.size(),
@@ -418,7 +425,7 @@ int32_t AudioCodingModuleImpl::Encode(const InputData& input_data) {
       vad_callback_->InFrameType(frame_type);
     }
   }
-  previous_pltype_ = encoded_info.payload_type;
+  previous_pltype_ = encoded_info  .payload_type;
   return static_cast<int32_t>(encode_buffer_.size());
 }
 

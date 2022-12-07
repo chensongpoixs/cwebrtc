@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -60,22 +60,24 @@ class TrendlineEstimator : public DelayIncreaseDetectorInterface {
   void UpdateThreshold(double modified_offset, int64_t now_ms);
 
   // Parameters.
+  // TODO@chensong 2022-11-30   回归线对噪声数据的线性最小二乘拟合参数默认值 [ window_size_ = 20]
   const size_t window_size_;
-  const double smoothing_coef_;
-  const double threshold_gain_;
+  // TODO@chensong 2022-11-30 平滑系数de默认值[ smoothing_coef_ = 0.9]
+  const double smoothing_coef_; 
+  const double threshold_gain_;  // 阈值_增益
   // Used by the existing threshold.
   int num_of_deltas_;
   // Keep the arrival times small by using the change from the first packet.
   int64_t first_arrival_time_ms_;
-  // Exponential backoff filtering.
-  double accumulated_delay_;
-  double smoothed_delay_;
+  // Exponential backoff filtering. 指数后退过滤
+  double accumulated_delay_; // 累积的延迟
+  double smoothed_delay_; //平滑延迟_
   // Linear least squares regression.
   std::deque<std::pair<double, double>> delay_hist_;
 
   const double k_up_;
   const double k_down_;
-  double overusing_time_threshold_;
+  double overusing_time_threshold_;// 过度使用时间阈值 默认值[10.0]
   double threshold_;
   double prev_modified_trend_;
   int64_t last_update_ms_;

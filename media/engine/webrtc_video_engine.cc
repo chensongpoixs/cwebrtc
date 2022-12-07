@@ -1247,8 +1247,8 @@ bool WebRtcVideoChannel::AddRecvStream(const StreamParams& sp) {
   return AddRecvStream(sp, false);
 }
 
-bool WebRtcVideoChannel::AddRecvStream(const StreamParams& sp,
-                                       bool default_stream) {
+bool WebRtcVideoChannel::AddRecvStream(const StreamParams& sp, bool default_stream) 
+{
   RTC_DCHECK_RUN_ON(&thread_checker_);
 
   RTC_LOG(LS_INFO) << "AddRecvStream"
@@ -1523,7 +1523,7 @@ void WebRtcVideoChannel::OnPacketReceived(rtc::CopyOnWriteBuffer packet,
   if (payload_type == recv_flexfec_payload_type_) {
     return;
   }
-
+  // TODO@chensong 2022-11-28 接收端 创建videorecvStream 
   switch (unsignalled_ssrc_handler_->OnUnsignalledSsrc(this, ssrc)) {
     case UnsignalledSsrcHandler::kDropPacket:
       return;
@@ -2536,8 +2536,7 @@ void WebRtcVideoChannel::WebRtcVideoReceiveStream::ConfigureFlexfecCodec(
   flexfec_config_.payload_type = flexfec_payload_type;
 }
 
-void WebRtcVideoChannel::WebRtcVideoReceiveStream::SetLocalSsrc(
-    uint32_t local_ssrc) {
+void WebRtcVideoChannel::WebRtcVideoReceiveStream::SetLocalSsrc(uint32_t local_ssrc) {
   // TODO(pbos): Consider turning this sanity check into a RTC_DCHECK. You
   // should not be able to create a sender with the same SSRC as a receiver, but
   // right now this can't be done due to unittests depending on receiving what
@@ -2646,8 +2645,8 @@ void WebRtcVideoChannel::WebRtcVideoReceiveStream::RecreateWebRtcVideoStream() {
   }
 }
 
-void WebRtcVideoChannel::WebRtcVideoReceiveStream::
-    MaybeRecreateWebRtcFlexfecStream() {
+void WebRtcVideoChannel::WebRtcVideoReceiveStream::MaybeRecreateWebRtcFlexfecStream() 
+{
   if (flexfec_stream_) {
     MaybeDissociateFlexfecFromVideo();
     call_->DestroyFlexfecReceiveStream(flexfec_stream_);

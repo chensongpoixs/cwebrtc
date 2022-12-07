@@ -187,15 +187,15 @@ bool TransportSequenceNumberV2::Parse(
   *transport_sequence_number = ByteReader<uint16_t>::ReadBigEndian(data.data());
 
   *feedback_request = absl::nullopt;
-  if (data.size() == kValueSizeBytes) {
-    uint16_t feedback_request_raw =
-        ByteReader<uint16_t>::ReadBigEndian(data.data() + 2);
-    bool include_timestamps =
-        (feedback_request_raw & kIncludeTimestampsBit) != 0;
+  if (data.size() == kValueSizeBytes) 
+  {
+    uint16_t feedback_request_raw = ByteReader<uint16_t>::ReadBigEndian(data.data() + 2);
+    bool include_timestamps = (feedback_request_raw & kIncludeTimestampsBit) != 0;
     uint16_t sequence_count = feedback_request_raw & ~kIncludeTimestampsBit;
 
     // If |sequence_count| is zero no feedback is requested.
-    if (sequence_count != 0) {
+    if (sequence_count != 0) 
+	{
       *feedback_request = {include_timestamps, sequence_count};
     }
   }

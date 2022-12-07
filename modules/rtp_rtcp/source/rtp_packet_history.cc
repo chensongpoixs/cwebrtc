@@ -157,10 +157,11 @@ std::unique_ptr<RtpPacketToSend> RtpPacketHistory::GetPacketAndSetSendTime(
   return absl::make_unique<RtpPacketToSend>(*packet.packet);
 }
 
-absl::optional<RtpPacketHistory::PacketState> RtpPacketHistory::GetPacketState(
-    uint16_t sequence_number) const {
+absl::optional<RtpPacketHistory::PacketState> RtpPacketHistory::GetPacketState(uint16_t sequence_number) const 
+{
   rtc::CritScope cs(&lock_);
-  if (mode_ == StorageMode::kDisabled) {
+  if (mode_ == StorageMode::kDisabled) 
+  {
     return absl::nullopt;
   }
 

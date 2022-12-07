@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -101,7 +101,7 @@ std::string VideoReceiveStream::Config::ToString() const {
 VideoReceiveStream::Config::Rtp::Rtp() = default;
 VideoReceiveStream::Config::Rtp::Rtp(const Rtp&) = default;
 VideoReceiveStream::Config::Rtp::~Rtp() = default;
-
+// TODO@chensong 2022-10-19 RTP 详细
 std::string VideoReceiveStream::Config::Rtp::ToString() const {
   char buf[2 * 1024];
   rtc::SimpleStringBuilder ss(buf);

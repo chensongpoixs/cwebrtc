@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -118,32 +118,37 @@ void DecoderDatabase::Reset() {
   active_cng_decoder_type_ = -1;
 }
 
-std::vector<int> DecoderDatabase::SetCodecs(
-    const std::map<int, SdpAudioFormat>& codecs) {
+std::vector<int> DecoderDatabase::SetCodecs(const std::map<int, SdpAudioFormat>& codecs) 
+{
   // First collect all payload types that we'll remove or reassign, then remove
   // them from the database.
   std::vector<int> changed_payload_types;
-  for (const std::pair<uint8_t, const DecoderInfo&> kv : decoders_) {
+  for (const std::pair<uint8_t, const DecoderInfo&> kv : decoders_) 
+  {
     auto i = codecs.find(kv.first);
-    if (i == codecs.end() || i->second != kv.second.GetFormat()) {
+    if (i == codecs.end() || i->second != kv.second.GetFormat()) 
+	{
       changed_payload_types.push_back(kv.first);
     }
   }
-  for (int pl_type : changed_payload_types) {
+  for (int pl_type : changed_payload_types)
+  {
     Remove(pl_type);
   }
 
   // Enter the new and changed payload type mappings into the database.
-  for (const auto& kv : codecs) {
+  for (const auto& kv : codecs) 
+  {
     const int& rtp_payload_type = kv.first;
     const SdpAudioFormat& audio_format = kv.second;
     RTC_DCHECK_GE(rtp_payload_type, 0);
     RTC_DCHECK_LE(rtp_payload_type, 0x7f);
-    if (decoders_.count(rtp_payload_type) == 0) {
-      decoders_.insert(std::make_pair(
-          rtp_payload_type,
-          DecoderInfo(audio_format, codec_pair_id_, decoder_factory_.get())));
-    } else {
+    if (decoders_.count(rtp_payload_type) == 0) 
+	{
+      decoders_.insert(std::make_pair( rtp_payload_type, DecoderInfo(audio_format, codec_pair_id_, decoder_factory_.get())));
+    }
+	else 
+	{
       // The mapping for this payload type hasn't changed.
     }
   }

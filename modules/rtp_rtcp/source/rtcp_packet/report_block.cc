@@ -45,9 +45,11 @@ ReportBlock::ReportBlock()
       last_sr_(0),
       delay_since_last_sr_(0) {}
 
-bool ReportBlock::Parse(const uint8_t* buffer, size_t length) {
+bool ReportBlock::Parse(const uint8_t* buffer, size_t length) 
+{
   RTC_DCHECK(buffer != nullptr);
-  if (length < ReportBlock::kLength) {
+  if (length < ReportBlock::kLength)
+  {
     RTC_LOG(LS_ERROR) << "Report Block should be 24 bytes long";
     return false;
   }

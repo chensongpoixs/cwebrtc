@@ -44,51 +44,59 @@ H264SpsPpsTracker::SpsInfo& H264SpsPpsTracker::SpsInfo::operator=(
     SpsInfo&& rhs) = default;
 H264SpsPpsTracker::SpsInfo::~SpsInfo() = default;
 
-H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(
-    VCMPacket* packet) {
+H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(VCMPacket* packet) 
+{
   RTC_DCHECK(packet->codec() == kVideoCodecH264);
 
   const uint8_t* data = packet->dataPtr;
   const size_t data_size = packet->sizeBytes;
   const RTPVideoHeader& video_header = packet->video_header;
-  auto& h264_header =
-      absl::get<RTPVideoHeaderH264>(packet->video_header.video_type_header);
+  auto& h264_header = absl::get<RTPVideoHeaderH264>(packet->video_header.video_type_header);
 
   bool append_sps_pps = false;
   auto sps = sps_data_.end();
   auto pps = pps_data_.end();
 
-  for (size_t i = 0; i < h264_header.nalus_length; ++i) {
+  for (size_t i = 0; i < h264_header.nalus_length; ++i) 
+  {
     const NaluInfo& nalu = h264_header.nalus[i];
-    switch (nalu.type) {
-      case H264::NaluType::kSps: {
+    switch (nalu.type) 
+	{
+      case H264::NaluType::kSps: 
+	  {
         sps_data_[nalu.sps_id].width = packet->width();
         sps_data_[nalu.sps_id].height = packet->height();
         break;
       }
-      case H264::NaluType::kPps: {
+      case H264::NaluType::kPps: 
+	  {
         pps_data_[nalu.pps_id].sps_id = nalu.sps_id;
         break;
       }
-      case H264::NaluType::kIdr: {
+      case H264::NaluType::kIdr: 
+	  {
         // If this is the first packet of an IDR, make sure we have the required
         // SPS/PPS and also calculate how much extra space we need in the buffer
         // to prepend the SPS/PPS to the bitstream with start codes.
-        if (video_header.is_first_packet_in_frame) {
-          if (nalu.pps_id == -1) {
+        if (video_header.is_first_packet_in_frame) 
+		{
+          if (nalu.pps_id == -1) 
+		  {
             RTC_LOG(LS_WARNING) << "No PPS id in IDR nalu.";
             return kRequestKeyframe;
           }
 
           pps = pps_data_.find(nalu.pps_id);
-          if (pps == pps_data_.end()) {
+          if (pps == pps_data_.end()) 
+		  {
             RTC_LOG(LS_WARNING)
                 << "No PPS with id << " << nalu.pps_id << " received";
             return kRequestKeyframe;
           }
 
           sps = sps_data_.find(pps->second.sps_id);
-          if (sps == sps_data_.end()) {
+          if (sps == sps_data_.end()) 
+		  {
             RTC_LOG(LS_WARNING)
                 << "No SPS with id << " << pps->second.sps_id << " received";
             return kRequestKeyframe;
@@ -102,7 +110,8 @@ H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(
 
           // If the SPS/PPS was supplied out of band then we will have saved
           // the actual bitstream in |data|.
-          if (sps->second.data && pps->second.data) {
+          if (sps->second.data && pps->second.data) 
+		  {
             RTC_DCHECK_GT(sps->second.size, 0);
             RTC_DCHECK_GT(pps->second.size, 0);
             append_sps_pps = true;
@@ -115,20 +124,22 @@ H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(
     }
   }
 
-  RTC_CHECK(!append_sps_pps ||
-            (sps != sps_data_.end() && pps != pps_data_.end()));
+  RTC_CHECK(!append_sps_pps || (sps != sps_data_.end() && pps != pps_data_.end()));
 
   // Calculate how much space we need for the rest of the bitstream.
   size_t required_size = 0;
 
-  if (append_sps_pps) {
+  if (append_sps_pps) 
+  {
     required_size += sps->second.size + sizeof(start_code_h264);
     required_size += pps->second.size + sizeof(start_code_h264);
   }
 
-  if (h264_header.packetization_type == kH264StapA) {
+  if (h264_header.packetization_type == kH264StapA) 
+  {
     const uint8_t* nalu_ptr = data + 1;
-    while (nalu_ptr < data + data_size) {
+    while (nalu_ptr < data + data_size) 
+	{
       RTC_DCHECK(video_header.is_first_packet_in_frame);
       required_size += sizeof(start_code_h264);
 
@@ -139,9 +150,13 @@ H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(
       required_size += segment_length;
       nalu_ptr += segment_length;
     }
-  } else {
-    if (video_header.is_first_packet_in_frame)
+  } 
+  else 
+  {
+    if (video_header.is_first_packet_in_frame) 
+	{
       required_size += sizeof(start_code_h264);
+    }
     required_size += data_size;
   }
 
@@ -149,7 +164,8 @@ H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(
   uint8_t* buffer = new uint8_t[required_size];
   uint8_t* insert_at = buffer;
 
-  if (append_sps_pps) {
+  if (append_sps_pps)
+  {
     // Insert SPS.
     memcpy(insert_at, start_code_h264, sizeof(start_code_h264));
     insert_at += sizeof(start_code_h264);
@@ -171,19 +187,24 @@ H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(
     pps_info.type = H264::NaluType::kPps;
     pps_info.sps_id = sps->first;
     pps_info.pps_id = pps->first;
-    if (h264_header.nalus_length + 2 <= kMaxNalusPerPacket) {
+    if (h264_header.nalus_length + 2 <= kMaxNalusPerPacket)
+	{
       h264_header.nalus[h264_header.nalus_length++] = sps_info;
       h264_header.nalus[h264_header.nalus_length++] = pps_info;
-    } else {
+    }
+	else 
+	{
       RTC_LOG(LS_WARNING) << "Not enough space in H.264 codec header to insert "
                              "SPS/PPS provided out-of-band.";
     }
   }
 
   // Copy the rest of the bitstream and insert start codes.
-  if (h264_header.packetization_type == kH264StapA) {
+  if (h264_header.packetization_type == kH264StapA)
+  {
     const uint8_t* nalu_ptr = data + 1;
-    while (nalu_ptr < data + data_size) {
+    while (nalu_ptr < data + data_size) 
+	{
       memcpy(insert_at, start_code_h264, sizeof(start_code_h264));
       insert_at += sizeof(start_code_h264);
 
@@ -192,7 +213,8 @@ H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(
       nalu_ptr += 2;
 
       size_t copy_end = nalu_ptr - data + segment_length;
-      if (copy_end > data_size) {
+      if (copy_end > data_size) 
+	  {
         delete[] buffer;
         return kDrop;
       }
@@ -201,8 +223,11 @@ H264SpsPpsTracker::PacketAction H264SpsPpsTracker::CopyAndFixBitstream(
       insert_at += segment_length;
       nalu_ptr += segment_length;
     }
-  } else {
-    if (video_header.is_first_packet_in_frame) {
+  } 
+  else 
+  {
+    if (video_header.is_first_packet_in_frame) 
+	{
       memcpy(insert_at, start_code_h264, sizeof(start_code_h264));
       insert_at += sizeof(start_code_h264);
     }

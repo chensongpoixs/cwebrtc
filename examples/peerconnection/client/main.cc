@@ -64,8 +64,17 @@ int PASCAL wWinMain(HINSTANCE instance,
   // Main loop.
   MSG msg;
   BOOL gm;
-  while ((gm = ::GetMessage(&msg, NULL, 0, 0)) != 0 && gm != -1) {
-    if (!wnd.PreTranslateMessage(&msg)) {
+  static FILE  * out_file_ptr = fopen("./keydown.log", "wb+");
+  while ((gm = ::GetMessage(&msg, NULL, 0, 0)) != 0 && gm != -1) 
+  {
+	 
+    if (!wnd.PreTranslateMessage(&msg)) 
+	{
+		if (WM_KEYUP == msg.message || msg.message == WM_KEYDOWN || WM_KEYFIRST == msg.message)
+		{
+			fprintf(out_file_ptr, "[type = %u][ wParam = %llu][lParam = %llu]\n", msg.message, msg.wParam, msg.lParam);
+			fflush(out_file_ptr);
+		}
       ::TranslateMessage(&msg);
       ::DispatchMessage(&msg);
     }
@@ -74,7 +83,14 @@ int PASCAL wWinMain(HINSTANCE instance,
   if (conductor->connection_active() || client.is_connected()) {
     while ((conductor->connection_active() || client.is_connected()) &&
            (gm = ::GetMessage(&msg, NULL, 0, 0)) != 0 && gm != -1) {
-      if (!wnd.PreTranslateMessage(&msg)) {
+		
+      if (!wnd.PreTranslateMessage(&msg)) 
+	  {
+		  if (WM_KEYUP == msg.message || msg.message == WM_KEYDOWN || WM_KEYFIRST == msg.message)
+		  {
+			  fprintf(out_file_ptr, "[type = %u][ wParam = %llu][lParam = %llu]\n", msg.message, msg.wParam, msg.lParam);
+			  fflush(out_file_ptr);
+		  }
         ::TranslateMessage(&msg);
         ::DispatchMessage(&msg);
       }

@@ -37,18 +37,11 @@ class TransportFeedbackAdapter {
   void RegisterPacketFeedbackObserver(PacketFeedbackObserver* observer);
   void DeRegisterPacketFeedbackObserver(PacketFeedbackObserver* observer);
 
-  void AddPacket(uint32_t ssrc,
-                 uint16_t sequence_number,
-                 size_t length,
-                 const PacedPacketInfo& pacing_info,
-                 Timestamp creation_time);
+  void AddPacket(uint32_t ssrc,uint16_t sequence_number, size_t length, const PacedPacketInfo& pacing_info, Timestamp creation_time);
 
-  absl::optional<SentPacket> ProcessSentPacket(
-      const rtc::SentPacket& sent_packet);
+  absl::optional<SentPacket> ProcessSentPacket(const rtc::SentPacket& sent_packet);
 
-  absl::optional<TransportPacketsFeedback> ProcessTransportFeedback(
-      const rtcp::TransportFeedback& feedback,
-      Timestamp feedback_time);
+  absl::optional<TransportPacketsFeedback> ProcessTransportFeedback(const rtcp::TransportFeedback& feedback, Timestamp feedback_time);
 
   std::vector<PacketFeedback> GetTransportFeedbackVector() const;
 
@@ -59,9 +52,7 @@ class TransportFeedbackAdapter {
  private:
   void OnTransportFeedback(const rtcp::TransportFeedback& feedback);
 
-  std::vector<PacketFeedback> GetPacketFeedbackVector(
-      const rtcp::TransportFeedback& feedback,
-      Timestamp feedback_time);
+  std::vector<PacketFeedback> GetPacketFeedbackVector(const rtcp::TransportFeedback& feedback, Timestamp feedback_time);
 
   rtc::CriticalSection lock_;
   SendTimeHistory send_time_history_ RTC_GUARDED_BY(&lock_);
@@ -72,8 +63,7 @@ class TransportFeedbackAdapter {
   uint16_t remote_net_id_ RTC_GUARDED_BY(&lock_);
 
   rtc::CriticalSection observers_lock_;
-  std::vector<PacketFeedbackObserver*> observers_
-      RTC_GUARDED_BY(&observers_lock_);
+  std::vector<PacketFeedbackObserver*> observers_ RTC_GUARDED_BY(&observers_lock_);
 };
 
 }  // namespace webrtc

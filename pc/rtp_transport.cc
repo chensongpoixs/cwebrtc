@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -25,6 +25,30 @@
 #include "rtc_base/trace_event.h"
 
 namespace webrtc {
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29
+//
+//#if _DEBUG
+//
+//static FILE* out_rtc_rtp_transport_ptr = NULL;
+//static void rtc_turn_port_log() {
+//  if (!out_rtc_rtp_transport_ptr) {
+//    out_rtc_rtp_transport_ptr = ::fopen("./debug/rtp_transport.log", "wb+");
+//  }
+//}
+//
+//#define NORMAL_LOG(format, ...)                              \
+//  rtc_turn_port_log();                                       \
+//  if (out_rtc_rtp_transport_ptr)	{ 	 			\
+//  fprintf(out_rtc_rtp_transport_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_rtp_transport_ptr, "\n");                  \
+//  fflush(out_rtc_rtp_transport_ptr); }
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//
+//#endif  // _DEBUG
 
 void RtpTransport::SetRtcpMuxEnabled(bool enable) {
   rtcp_mux_enabled_ = enable;
@@ -129,6 +153,12 @@ bool RtpTransport::SendPacket(bool rtcp,
   rtc::PacketTransportInternal* transport = rtcp && !rtcp_mux_enabled_
                                                 ? rtcp_packet_transport_
                                                 : rtp_packet_transport_;
+#if _DEBUG
+
+	NORMAL_EX_LOG("[transport->SendPacket] [options = %s]",
+                webrtc::ToString(options).c_str());
+#endif
+
   int ret = transport->SendPacket(packet->cdata<char>(), packet->size(),
                                   options, flags);
   if (ret != static_cast<int>(packet->size())) {
@@ -193,7 +223,9 @@ void RtpTransport::DemuxPacket(rtc::CopyOnWriteBuffer packet,
     return;
   }
 
-  if (packet_time_us != -1) {
+  if (packet_time_us != -1) 
+  {
+	  // TODO@chensong 2022-12-04   packet_time_us 是当前读取网络数据的毫秒数   ， 这边增加500毫秒数 是什么？？？
     parsed_packet.set_arrival_time_ms((packet_time_us + 500) / 1000);
   }
   rtp_demuxer_.OnRtpPacket(parsed_packet);
@@ -226,6 +258,13 @@ void RtpTransport::OnSentPacket(rtc::PacketTransportInternal* packet_transport,
                                 const rtc::SentPacket& sent_packet) {
   RTC_DCHECK(packet_transport == rtp_packet_transport_ ||
              packet_transport == rtcp_packet_transport_);
+
+#if _DEBUG
+
+  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+                webrtc::ToString(sent_packet).c_str());
+#endif  // _DEBUG
+
   SignalSentPacket(sent_packet);
 }
 
@@ -245,7 +284,7 @@ void RtpTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
                                 const int64_t& packet_time_us,
                                 int flags) {
   TRACE_EVENT0("webrtc", "RtpTransport::OnReadPacket");
-  // TODO@chensong 2022-10-19   rtp-RTCP   data 
+  // TODO@chensong 2022-10-19   rtp-RTCP   data
   // When using RTCP multiplexing we might get RTCP packets on the RTP
   // transport. We check the RTP payload type to determine if it is RTCP.
   auto array_view = rtc::MakeArrayView(data, len);

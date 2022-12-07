@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -38,6 +38,14 @@ struct ReceiveTimeCalculatorConfig {
 // this they are combined with a safe clock source that is guaranteed to be
 // consistent, but it will not be able to measure the exact time when a packet
 // is received.
+//接收时间计算器用于组合分组时间
+//使用安全递增时钟标记。这假设数据包时间
+//时间戳基于具有更精确时间的较低层时间戳
+//因为它们基于准确的接收时间。他们可能会
+//但是由于系统中的时钟重置。补偿
+//它们与安全的时钟源相结合
+//一致，但无法测量数据包的确切时间
+//接收到。
 class ReceiveTimeCalculator {
  public:
   static std::unique_ptr<ReceiveTimeCalculator> CreateFromFieldTrial();

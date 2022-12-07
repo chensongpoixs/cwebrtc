@@ -21,6 +21,35 @@
 
 namespace rtc {
 
+
+
+
+			////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29
+//
+//#if _DEBUG
+//
+//static FILE* out_rtc_async_udp_socket_ptr = NULL;
+//static void rtc_turn_port_log() {
+//  if (!out_rtc_async_udp_socket_ptr) {
+//    out_rtc_async_udp_socket_ptr =
+//        ::fopen("./debug/async_udp_socket.log", "wb+");
+//  }
+//}
+//
+//#define NORMAL_LOG(format, ...)                                 \
+//  rtc_turn_port_log();                                          \
+//  if (out_rtc_async_udp_socket_ptr)	{ 		 			\
+//  fprintf(out_rtc_async_udp_socket_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_async_udp_socket_ptr, "\n");                  \
+//  fflush(out_rtc_async_udp_socket_ptr); }
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//
+//#endif  // _DEBUG
+
+
 static const int BUF_SIZE = 64 * 1024;
 
 AsyncUDPSocket* AsyncUDPSocket::Create(AsyncSocket* socket,
@@ -70,6 +99,15 @@ int AsyncUDPSocket::Send(const void* pv,
                               options.info_signaled_after_sent);
   CopySocketInformationToPacketInfo(cb, *this, false, &sent_packet.info);
   int ret = socket_->Send(pv, cb);
+
+
+  #if _DEBUG
+
+	NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+                webrtc::ToString(sent_packet).c_str());
+#endif  // _DEBUG
+
+
   SignalSentPacket(this, sent_packet);
   return ret;
 }
@@ -82,6 +120,13 @@ int AsyncUDPSocket::SendTo(const void* pv,
                               options.info_signaled_after_sent);
   CopySocketInformationToPacketInfo(cb, *this, true, &sent_packet.info);
   int ret = socket_->SendTo(pv, cb, addr);
+
+    #if _DEBUG
+
+  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+                webrtc::ToString(sent_packet).c_str());
+#endif  // _DEBUG
+
   SignalSentPacket(this, sent_packet);
   return ret;
 }
@@ -130,8 +175,7 @@ void AsyncUDPSocket::OnReadEvent(AsyncSocket* socket) {
   // TODO: Make sure that we got all of the packet.
   // If we did not, then we should resize our buffer to be large enough.
   // TODO@chensong 2022-10-19  udp --> app -> 
-  SignalReadPacket(this, buf_, static_cast<size_t>(len), remote_addr,
-                   (timestamp > -1 ? timestamp : TimeMicros()));
+  SignalReadPacket(this, buf_, static_cast<size_t>(len), remote_addr, (timestamp > -1 ? timestamp : TimeMicros()));
 }
 
 void AsyncUDPSocket::OnWriteEvent(AsyncSocket* socket) {

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -99,6 +99,34 @@ namespace cricket {
 
 using webrtc::RTCErrorType;
 using webrtc::RTCError;
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29
+//
+//#if _DEBUG
+//
+//static FILE* out_rtc_p2p_transport_channel_ptr = NULL;
+//static void rtc_p2p_transport_channel_log() {
+//  if (!out_rtc_p2p_transport_channel_ptr) {
+//    out_rtc_p2p_transport_channel_ptr =
+//        ::fopen("./debug/p2p_transport_channel.log", "wb+");
+//  }
+//}
+//
+//#define NORMAL_LOG(format, ...)                               \
+//  rtc_p2p_transport_channel_log();                                   \
+//  if ( out_rtc_p2p_transport_channel_ptr)	{ 		 			\
+//  fprintf(out_rtc_p2p_transport_channel_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_p2p_transport_channel_ptr, "\n");                  \
+//  fflush(out_rtc_p2p_transport_channel_ptr); }
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//
+//#endif  // _DEBUG
+
 
 bool IceCredentialsChanged(const std::string& old_ufrag,
                            const std::string& old_pwd,
@@ -1479,7 +1507,7 @@ void P2PTransportChannel::RequestSortAndStateUpdate(
     sort_dirty_ = true;
   }
 }
-
+// TODO@chensong 2022-10-25启动stun心跳包保持开始函数
 void P2PTransportChannel::MaybeStartPinging() {
   if (started_pinging_) {
     return;
@@ -2014,6 +2042,8 @@ bool P2PTransportChannel::ReadyToSend(Connection* connection) const {
 }
 
 // Handle queued up check-and-ping request
+// TODO@chensong 2022-10-25  
+// MaybeStartPinging ->[CheckAndPing <-> CheckAndPing] stun 心跳包 一直在发送
 void P2PTransportChannel::CheckAndPing() {
   // Make sure the states of the connections are up-to-date (since this affects
   // which ones are pingable).
@@ -2420,7 +2450,10 @@ void P2PTransportChannel::OnReadPacket(Connection* connection,
 
 void P2PTransportChannel::OnSentPacket(const rtc::SentPacket& sent_packet) {
   RTC_DCHECK(network_thread_ == rtc::Thread::Current());
+#if _DEBUG
+  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
 
+#endif 
   SignalSentPacket(this, sent_packet);
 }
 

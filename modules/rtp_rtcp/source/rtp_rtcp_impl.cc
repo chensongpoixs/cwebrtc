@@ -790,10 +790,12 @@ void ModuleRtpRtcpImpl::OnRequestSendReport() {
   SendRTCP(kRtcpSr);
 }
 
-void ModuleRtpRtcpImpl::OnReceivedNack(
-    const std::vector<uint16_t>& nack_sequence_numbers) {
+void ModuleRtpRtcpImpl::OnReceivedNack(const std::vector<uint16_t>& nack_sequence_numbers) 
+{
   if (!rtp_sender_)
+  {
     return;
+  }
 
   for (uint16_t nack_sequence_number : nack_sequence_numbers)
   {

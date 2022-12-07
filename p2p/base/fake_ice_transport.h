@@ -23,6 +23,46 @@
 
 namespace cricket {
 
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29  call
+//
+//#if _DEBUG
+//
+//static FILE* out_rtc_fake_ice_transport_ptr = NULL;
+//static void rtc_fake_ice_transport_log() {
+//  if (!out_rtc_fake_ice_transport_ptr) {
+//    out_rtc_fake_ice_transport_ptr =
+//        ::fopen("./debug/fake_ice_transport.log", "wb+");
+//  }
+//
+//  // va_list argptr;
+//  // va_start(argptr, format);
+//  // ::fprintf(out_rtc_gcc_file_ptr, format, ##__VA_ARGS__);
+//  // ::fprintf(out_rtc_gcc_file_ptr, "\n");
+//  // ::fflush(out_rtc_gcc_file_ptr);
+//
+//  // va_end(argptr);
+//}
+//
+//#define RTC_GCC_NETWORK_CONTROL_LOG()
+//#define NORMAL_LOG(format, ...)                     \
+//  rtc_fake_ice_transport_log();                                   \
+//    if ( out_rtc_fake_ice_transport_ptr) { 									\
+//  fprintf(out_rtc_fake_ice_transport_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_fake_ice_transport_ptr, "\n");                  \
+//  fflush(out_rtc_fake_ice_transport_ptr); }
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define ERROR_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define WARNING_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#endif  // _DEBUG
+
+
+
 class FakeIceTransport : public IceTransportInternal {
  public:
   explicit FakeIceTransport(const std::string& name,
@@ -237,6 +277,12 @@ class FakeIceTransport : public IceTransportInternal {
       }
     }
     rtc::SentPacket sent_packet(options.packet_id, rtc::TimeMillis());
+#if _DEBUG
+
+	NORMAL_EX_LOG("[SignalSentPacket] [sent_packet = %s]",
+                  webrtc::ToString(sent_packet).c_str());
+#endif  // _DEBUG
+
     SignalSentPacket(this, sent_packet);
     return static_cast<int>(len);
   }

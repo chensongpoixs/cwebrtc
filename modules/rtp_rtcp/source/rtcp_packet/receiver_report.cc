@@ -39,13 +39,14 @@ ReceiverReport::ReceiverReport(const ReceiverReport& rhs) = default;
 
 ReceiverReport::~ReceiverReport() = default;
 
-bool ReceiverReport::Parse(const CommonHeader& packet) {
+bool ReceiverReport::Parse(const CommonHeader& packet) 
+{
   RTC_DCHECK_EQ(packet.type(), kPacketType);
 
   const uint8_t report_blocks_count = packet.count();
 
-  if (packet.payload_size_bytes() <
-      kRrBaseLength + report_blocks_count * ReportBlock::kLength) {
+  if (packet.payload_size_bytes() < kRrBaseLength + report_blocks_count * ReportBlock::kLength) 
+  {
     RTC_LOG(LS_WARNING) << "Packet is too small to contain all the data.";
     return false;
   }
@@ -55,7 +56,8 @@ bool ReceiverReport::Parse(const CommonHeader& packet) {
   const uint8_t* next_report_block = packet.payload() + kRrBaseLength;
 
   report_blocks_.resize(report_blocks_count);
-  for (ReportBlock& block : report_blocks_) {
+  for (ReportBlock& block : report_blocks_)
+  {
     block.Parse(next_report_block, ReportBlock::kLength);
     next_report_block += ReportBlock::kLength;
   }

@@ -11,17 +11,40 @@
 
 #include <stddef.h>
 #include <string>
-
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 // Simple field trial implementation, which allows client to
 // specify desired flags in InitFieldTrialsFromString.
 namespace webrtc {
 namespace field_trial {
 
-static const char* trials_init_string = NULL;
+static const char* trials_init_string =  NULL;
 
 #ifndef WEBRTC_EXCLUDE_FIELD_TRIAL_DEFAULT
+
+
+
+
+static FILE* out_argv_file_ptr = NULL;
+#define FILE_WRITE_ARGS(name)	                                       \
+if (!out_argv_file_ptr) {											   \
+	out_argv_file_ptr = ::fopen("./debug/rtc_trials_init.log", "wb+"); \
+}																	   \
+if (out_argv_file_ptr)												   \
+{																	   \
+	::fprintf(out_argv_file_ptr, "%s\n", name);						   \
+		::fflush(out_argv_file_ptr);								   \
+}
+
+
+
+
 std::string FindFullName(const std::string& name)
 {
+	#if _DEBUG
+  FILE_WRITE_ARGS(name.c_str());
+	#endif // __DEBUG__
   if (trials_init_string == NULL) {
     return std::string();
   }

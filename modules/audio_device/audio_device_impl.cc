@@ -118,6 +118,7 @@ rtc::scoped_refptr<AudioDeviceModuleForTest> AudioDeviceModule::CreateForTest(
 
   // Ensure that the generic audio buffer can communicate with the platform
   // specific parts.
+  // TODO@chensong 2022-10-30 audioBuffer 的创建 
   if (audioDevice->AttachAudioBuffer() == -1) 
   {
     return nullptr;

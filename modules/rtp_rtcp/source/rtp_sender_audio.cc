@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -229,19 +229,20 @@ bool RTPSenderAudio::SendAudio(AudioFrameType frame_type,
     }
     return false;
   }
-
+  //////////////////////////////TODO@chensong 2022-10-25 设置音频的RTP信息////////////////////////////////////////////////////////////////////////////
   std::unique_ptr<RtpPacketToSend> packet = rtp_sender_->AllocatePacket();
   packet->SetMarker(MarkerBit(frame_type, payload_type));
   packet->SetPayloadType(payload_type);
   packet->SetTimestamp(rtp_timestamp);
   packet->set_capture_time_ms(clock_->TimeInMilliseconds());
   // Update audio level extension, if included.
-  packet->SetExtension<AudioLevel>(
-      frame_type == AudioFrameType::kAudioFrameSpeech, audio_level_dbov);
+  packet->SetExtension<AudioLevel>( frame_type == AudioFrameType::kAudioFrameSpeech, audio_level_dbov);
 
   uint8_t* payload = packet->AllocatePayload(payload_size);
   if (!payload)  // Too large payload buffer.
-    return false;
+  {
+	  return false;
+  }
   memcpy(payload, payload_data, payload_size);
 
   if (!rtp_sender_->AssignSequenceNumber(packet.get()))

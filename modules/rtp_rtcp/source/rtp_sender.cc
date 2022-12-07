@@ -437,9 +437,9 @@ bool RTPSender::StorePackets() const {
 int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
   // Try to find packet in RTP packet history. Also verify RTT here, so that we
   // don't retransmit too often.
-  absl::optional<RtpPacketHistory::PacketState> stored_packet =
-      packet_history_.GetPacketState(packet_id);
-  if (!stored_packet) {
+  absl::optional<RtpPacketHistory::PacketState> stored_packet = packet_history_.GetPacketState(packet_id);
+  if (!stored_packet) 
+  {
     // Packet not found.
     return 0;
   }
@@ -447,10 +447,12 @@ int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
   const int32_t packet_size = static_cast<int32_t>(stored_packet->packet_size);
 
   // Skip retransmission rate check if not configured.
-  if (retransmission_rate_limiter_) {
+  if (retransmission_rate_limiter_) 
+  {
     // Check if we're overusing retransmission bitrate.
     // TODO(sprang): Add histograms for nack success or failure reasons.
-    if (!retransmission_rate_limiter_->TryUseRate(packet_size)) {
+    if (!retransmission_rate_limiter_->TryUseRate(packet_size)) 
+	{
       return -1;
     }
   }
@@ -459,8 +461,7 @@ int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
   {
     // Convert from TickTime to Clock since capture_time_ms is based on
     // TickTime.
-    int64_t corrected_capture_tims_ms =
-        stored_packet->capture_time_ms + clock_delta_ms_;
+    int64_t corrected_capture_tims_ms = stored_packet->capture_time_ms + clock_delta_ms_;
     paced_sender_->InsertPacket(
         RtpPacketSender::kNormalPriority, stored_packet->ssrc,
         stored_packet->rtp_sequence_number, corrected_capture_tims_ms,
@@ -469,8 +470,7 @@ int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
     return packet_size;
   }
 
-  std::unique_ptr<RtpPacketToSend> packet =
-      packet_history_.GetPacketAndSetSendTime(packet_id);
+  std::unique_ptr<RtpPacketToSend> packet = packet_history_.GetPacketAndSetSendTime(packet_id);
   if (!packet) {
     // Packet could theoretically time out between the first check and this one.
     return 0;
@@ -478,7 +478,9 @@ int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
 
   const bool rtx = (RtxStatus() & kRtxRetransmitted) > 0;
   if (!PrepareAndSendPacket(std::move(packet), rtx, true, PacedPacketInfo()))
+  {
     return -1;
+  }
 
   return packet_size;
 }
@@ -505,9 +507,7 @@ bool RTPSender::SendPacketToNetwork(const RtpPacketToSend& packet,
   return true;
 }
 
-void RTPSender::OnReceivedNack(
-    const std::vector<uint16_t>& nack_sequence_numbers,
-    int64_t avg_rtt) 
+void RTPSender::OnReceivedNack( const std::vector<uint16_t>& nack_sequence_numbers, int64_t avg_rtt) 
 {
   packet_history_.SetRtt(5 + avg_rtt);
   for (uint16_t seq_no : nack_sequence_numbers) 
@@ -578,13 +578,16 @@ bool RTPSender::PrepareAndSendPacket(std::unique_ptr<RtpPacketToSend> packet,
   int64_t diff_ms = now_ms - capture_time_ms;
   packet_to_send->SetExtension<TransmissionOffset>(kTimestampTicksPerMs *
                                                    diff_ms);
-  packet_to_send->SetExtension<AbsoluteSendTime>(
-      AbsoluteSendTime::MsTo24Bits(now_ms));
+  packet_to_send->SetExtension<AbsoluteSendTime>(AbsoluteSendTime::MsTo24Bits(now_ms));
 
-  if (packet_to_send->HasExtension<VideoTimingExtension>()) {
-    if (populate_network2_timestamp_) {
+  if (packet_to_send->HasExtension<VideoTimingExtension>()) 
+  {
+    if (populate_network2_timestamp_) 
+	{
       packet_to_send->set_network2_time_ms(now_ms);
-    } else {
+    }
+	else 
+	{
       packet_to_send->set_pacer_exit_time_ms(now_ms);
     }
   }
@@ -675,8 +678,7 @@ bool RTPSender::SendToNetwork(std::unique_ptr<RtpPacketToSend> packet,
     // Correct offset between implementations of millisecond time stamps in
     // TickTime and Clock.
     int64_t corrected_time_ms = packet->capture_time_ms() + clock_delta_ms_;
-    size_t packet_size =
-        send_side_bwe_with_overhead_ ? packet->size() : packet->payload_size();
+    size_t packet_size = send_side_bwe_with_overhead_ ? packet->size() : packet->payload_size();
     if (ssrc == FlexfecSsrc()) {
       // Store FlexFEC packets in the history here, so they can be found
       // when the pacer calls TimeToSendPacket.
@@ -687,8 +689,7 @@ bool RTPSender::SendToNetwork(std::unique_ptr<RtpPacketToSend> packet,
       packet_history_.PutRtpPacket(std::move(packet), storage, absl::nullopt);
     }
     // TODO@chensong 20220803   将packet投入[F:\Work\20220719_webrtc\src\modules\pacing\paced_sender.cc]PacedSender的发送队列中
-    paced_sender_->InsertPacket(priority, ssrc, seq_no, corrected_time_ms,
-                                packet_size, false);
+    paced_sender_->InsertPacket(priority, ssrc, seq_no, corrected_time_ms, packet_size, false);
     return true;
   }
 

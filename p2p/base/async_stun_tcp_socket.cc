@@ -20,6 +20,7 @@
 #include "rtc_base/network/sent_packet.h"
 #include "rtc_base/third_party/sigslot/sigslot.h"
 #include "rtc_base/time_utils.h"
+#include "rtc_base/logging.h"
 
 namespace cricket {
 
@@ -30,6 +31,39 @@ static const size_t kPacketLenSize = sizeof(PacketLength);
 static const size_t kPacketLenOffset = 2;
 static const size_t kBufSize = kMaxPacketSize + kStunHeaderSize;
 static const size_t kTurnChannelDataHdrSize = 4;
+
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29
+//
+//#if _DEBUG
+//
+//static FILE* out_rtc_async_stun_tcp_socket_ptr = NULL;
+//static void rtc_async_stun_tcp_socket_log() {
+//  if (!out_rtc_async_stun_tcp_socket_ptr) {
+//    out_rtc_async_stun_tcp_socket_ptr =
+//        ::fopen("./debug/async_stun_tcp_socket.log", "wb+");
+//  }
+//}
+//
+//#define NORMAL_LOG(format, ...)                   \
+//  rtc_async_stun_tcp_socket_log();                                   \
+//  if ( out_rtc_async_stun_tcp_socket_ptr) { 		 			\
+//  fprintf(out_rtc_async_stun_tcp_socket_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_async_stun_tcp_socket_ptr, "\n");                  \
+//  fflush(out_rtc_async_stun_tcp_socket_ptr); }
+//
+//#define NORMAL_EX_LOG(format, ...)           \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, \
+//                                __LINE__, ##__VA_ARGS__)
+//
+//#endif  // _DEBUG
+
+
+
+
+
 
 inline bool IsStunMessage(uint16_t msg_type) {
   // The first two bits of a channel data message are 0b01.
@@ -85,6 +119,12 @@ int AsyncStunTCPSocket::Send(const void* pv,
   }
 
   rtc::SentPacket sent_packet(options.packet_id, rtc::TimeMillis());
+  
+  #if _DEBUG
+
+  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+                webrtc::ToString(sent_packet).c_str());
+#endif  // _DEBUG
   SignalSentPacket(this, sent_packet);
 
   // We claim to have sent the whole thing, even if we only sent partial

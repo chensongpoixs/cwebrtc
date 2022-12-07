@@ -41,11 +41,15 @@ void ValidateFieldTrialsStringOrDie(const std::string& trials_string) {
   while (next_item < trials_string.length()) {
     size_t name_end = trials_string.find(kPersistentStringSeparator, next_item);
     if (name_end == trials_string.npos || next_item == name_end)
+    {
       break;
+	}
     size_t group_name_end =
         trials_string.find(kPersistentStringSeparator, name_end + 1);
     if (group_name_end == trials_string.npos || name_end + 1 == group_name_end)
+    {
       break;
+	}
     std::string name(trials_string, next_item, name_end - next_item);
     std::string group_name(trials_string, name_end + 1,
                            group_name_end - name_end - 1);

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -20,7 +20,9 @@
 
 namespace webrtc {
 class RtcEventLog;
-
+/*
+TODO@chensong 2022-11-30 探针比特率估计器
+*/
 class ProbeBitrateEstimator {
  public:
   explicit ProbeBitrateEstimator(RtcEventLog* event_log);

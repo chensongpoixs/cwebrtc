@@ -37,7 +37,7 @@ WEBRTC_DEFINE_bool(
 
 WEBRTC_DEFINE_string(
     force_fieldtrials,
-    "",
+    "WebRTC-Bwe-StableBandwidthEstimate/Enabled/WebRTC-Bwe-ProbeRateFallback/Enabled/", //WebRTC-RtcpLossNotification/Enabled/
     "Field trials control experimental features. This flag specifies the field "
     "trials in effect. E.g. running with "
     "--force_fieldtrials=WebRTC-FooFeature/Enabled/ "

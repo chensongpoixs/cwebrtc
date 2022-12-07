@@ -664,11 +664,11 @@ AudioCodecs WebRtcVoiceEngine::CollectCodecs(const std::vector<webrtc::AudioCode
   AudioCodecs out;
 
   // Only generate CN payload types for these clockrates:
-  // TODO@chensong 20220905  产生噪声的设置
+  // TODO@chensong 2022-09-05  产生噪声的设置
   std::map<int, bool, std::greater<int>> generate_cn = {
       {8000, false}, {16000, false}, {32000, false}};
   // Only generate telephone-event payload types for these clockrates:
-  // TODO@chensong 20220905 音频的设置
+  // TODO@chensong 2022-09-05 音频的设置 ----> [拨号音 例如：通话过程中按下`1键`拨号音]
   std::map<int, bool, std::greater<int>> generate_dtmf = {
       {8000, false}, {16000, false}, {32000, false}, {48000, false}};
 
@@ -948,6 +948,7 @@ class WebRtcVoiceMediaChannel::WebRtcAudioSendStream
         audio_frame->timestamp_, static_cast<const int16_t*>(audio_data),
         number_of_frames, sample_rate, audio_frame->speech_type_,
         audio_frame->vad_activity_, number_of_channels);
+	// TODO@chensong 2022-10-25 发送音频数据
     stream_->SendAudioData(std::move(audio_frame));
   }
 
@@ -2155,7 +2156,7 @@ void WebRtcVoiceMediaChannel::OnPacketReceived(rtc::CopyOnWriteBuffer packet,
     return;
   }
   RTC_DCHECK(!absl::c_linear_search(unsignaled_recv_ssrcs_, ssrc));
-
+  // TODO@chensong 2022-11-28 接收到端 创建 RecvStream ->  audio 
   // Add new stream.
   StreamParams sp = unsignaled_stream_params_;
   sp.ssrcs.push_back(ssrc);

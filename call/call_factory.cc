@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -33,7 +33,7 @@ bool ParseConfigParam(std::string exp_name, int* field)
 	}
   return (sscanf(group.c_str(), "%d", field) == 1);
 }
-// TODO@chensong 2022-09-29 ÍøÂçµÄÄ¬ÈÏ²ÎÊı
+// TODO@chensong 2022-09-29 ç½‘ç»œçš„é»˜è®¤å‚æ•°
 absl::optional<webrtc::BuiltInNetworkBehaviorConfig> ParseDegradationConfig(bool send) 
 {
   std::string exp_prefix = "WebRTCFakeNetwork";
@@ -48,7 +48,7 @@ absl::optional<webrtc::BuiltInNetworkBehaviorConfig> ParseDegradationConfig(bool
 
   webrtc::BuiltInNetworkBehaviorConfig config;
   bool configured = false;
-  // TODO@chensong 20220929 ÑÓ³ÙÉèÖÃ
+  // TODO@chensong 20220929 å»¶è¿Ÿè®¾ç½®
   configured |= ParseConfigParam(exp_prefix + "DelayMs", &config.queue_delay_ms);
   configured |= ParseConfigParam(exp_prefix + "DelayStdDevMs", &config.delay_standard_deviation_ms);
   int queue_length = 0;

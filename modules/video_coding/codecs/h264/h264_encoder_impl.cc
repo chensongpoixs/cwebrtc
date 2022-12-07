@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -82,6 +82,19 @@ VideoFrameType ConvertToVideoFrameType(EVideoFrameType type) {
 
 }  // namespace
 
+
+//static std::string hexmem(const void* buf, size_t len) {
+//  std::string ret;
+//  char tmp[8];
+//  const uint8_t* data = (const uint8_t*)buf;
+//  for (size_t i = 0; i < len; ++i) {
+//    int sz = sprintf(tmp, "%.2x ", data[i]);
+//    ret.append(tmp, sz);
+//  }
+//  return ret;
+//}
+
+
 // Helper method used by H264EncoderImpl::Encode.
 // Copies the encoded bytes from |info| to |encoded_image| and updates the
 // fragmentation information of |frag_header|. The |encoded_image->_buffer| may
@@ -98,13 +111,15 @@ static void RtpFragmentize(EncodedImage* encoded_image,
                            SFrameBSInfo* info,
                            RTPFragmentationHeader* frag_header) {
   // Calculate minimum buffer size required to hold encoded data.
-	// TODO@chensong 2022-03-29  ¼ì²éÒ»ÕÅÍ¼Æ¬µÄ»º³åÇø´óĞ¡ ÊÇ·ñ·ûºÏÒªÇó
+	// TODO@chensong 2022-03-29  æ£€æŸ¥ä¸€å¼ å›¾ç‰‡çš„ç¼“å†²åŒºå¤§å° æ˜¯å¦ç¬¦åˆè¦æ±‚
   size_t required_capacity = 0;
-  // nalµÄ¸öÊıÂğ£¿
+  // nalçš„ä¸ªæ•°å—ï¼Ÿ
   size_t fragments_count = 0;
-  for (int layer = 0; layer < info->iLayerNum; ++layer) {
+  for (int layer = 0; layer < info->iLayerNum; ++layer) 
+  {
     const SLayerBSInfo& layerInfo = info->sLayerInfo[layer];
-    for (int nal = 0; nal < layerInfo.iNalCount; ++nal, ++fragments_count) {
+    for (int nal = 0; nal < layerInfo.iNalCount; ++nal, ++fragments_count) 
+	{
       RTC_CHECK_GE(layerInfo.pNalLengthInByte[nal], 0);
       // Ensure |required_capacity| will not overflow.
       RTC_CHECK_LE(layerInfo.pNalLengthInByte[nal],
@@ -112,14 +127,15 @@ static void RtpFragmentize(EncodedImage* encoded_image,
       required_capacity += layerInfo.pNalLengthInByte[nal];
     }
   }
-  if (encoded_image->capacity() < required_capacity) {
+  if (encoded_image->capacity() < required_capacity) 
+  {
     // Increase buffer size. Allocate enough to hold an unencoded image, this
     // should be more than enough to hold any encoded data of future frames of
     // the same size (avoiding possible future reallocation due to variations in
     // required size).
-    size_t new_capacity = CalcBufferSize(VideoType::kI420, frame_buffer.width(),
-                                         frame_buffer.height());
-    if (new_capacity < required_capacity) {
+    size_t new_capacity = CalcBufferSize(VideoType::kI420, frame_buffer.width(), frame_buffer.height());
+    if (new_capacity < required_capacity) 
+	{
       // Encoded data > unencoded data. Allocate required bytes.
       RTC_LOG(LS_WARNING)
           << "Encoding produced more bytes than the original image "
@@ -136,30 +152,40 @@ static void RtpFragmentize(EncodedImage* encoded_image,
   frag_header->VerifyAndAllocateFragmentationHeader(fragments_count);
   size_t frag = 0;
   encoded_image->set_size(0);
-  for (int layer = 0; layer < info->iLayerNum; ++layer) {
+  for (int layer = 0; layer < info->iLayerNum; ++layer) 
+  {
     const SLayerBSInfo& layerInfo = info->sLayerInfo[layer];
     // Iterate NAL units making up this layer, noting fragments.
     size_t layer_len = 0;
-    for (int nal = 0; nal < layerInfo.iNalCount; ++nal, ++frag) {
+    for (int nal = 0; nal < layerInfo.iNalCount; ++nal, ++frag) 
+	{
       // Because the sum of all layer lengths, |required_capacity|, fits in a
       // |size_t|, we know that any indices in-between will not overflow.
-      //  ¼ì²éh264 µÄNALµÄ¸ñÊ½  [00 00 00 01] ¿ªÍ·¹ş
+      //  æ£€æŸ¥h264 çš„NALçš„æ ¼å¼  [00 00 00 01] å¼€å¤´å“ˆ
 	  RTC_DCHECK_GE(layerInfo.pNalLengthInByte[nal], 4);
       RTC_DCHECK_EQ(layerInfo.pBsBuf[layer_len + 0], start_code[0]);
       RTC_DCHECK_EQ(layerInfo.pBsBuf[layer_len + 1], start_code[1]);
       RTC_DCHECK_EQ(layerInfo.pBsBuf[layer_len + 2], start_code[2]);
       RTC_DCHECK_EQ(layerInfo.pBsBuf[layer_len + 3], start_code[3]);
-	  // ÉèÖÃµ±Ç°Êı¾İÆ«ÒÆÁ¿
-      frag_header->fragmentationOffset[frag] =
-          encoded_image->size() + layer_len + sizeof(start_code);
-	  // µ±Ç°Êı¾İµÄ´óĞ¡
-	  frag_header->fragmentationLength[frag] =
-          layerInfo.pNalLengthInByte[nal] - sizeof(start_code);
+	  // è®¾ç½®å½“å‰æ•°æ®åç§»é‡
+      frag_header->fragmentationOffset[frag] = encoded_image->size() + layer_len + sizeof(start_code);
+	  // å½“å‰æ•°æ®çš„å¤§å°
+	  frag_header->fragmentationLength[frag] = layerInfo.pNalLengthInByte[nal] - sizeof(start_code);
       layer_len += layerInfo.pNalLengthInByte[nal];
+        /*  NORMAL_EX_LOG(
+          " fragmentationOffset[%d] = %llu, fragmentationLength[%d] = %llu",
+          frag, frag_header->fragmentationOffset[frag], frag,
+          frag_header->fragmentationLength[frag]);*/
+	
     }
     // Copy the entire layer's data (including start codes).
-    memcpy(encoded_image->data() + encoded_image->size(), layerInfo.pBsBuf,
-           layer_len);
+    memcpy(encoded_image->data() + encoded_image->size(), layerInfo.pBsBuf, layer_len);
+
+	 /* NORMAL_EX_LOG(
+   "[encoder] = [%s]",
+              hexmem(layerInfo.pBsBuf, layer_len).c_str());
+*/
+
     encoded_image->set_size(encoded_image->size() + layer_len);
   }
 }
@@ -242,7 +268,7 @@ int32_t H264EncoderImpl::InitEncode(const VideoCodec* inst,
   for (int i = 0, idx = number_of_streams - 1; i < number_of_streams;
        ++i, --idx) {
     ISVCEncoder* openh264_encoder;
-    // Create encoder. ´´½¨±àÂëÆ÷
+    // Create encoder. åˆ›å»ºç¼–ç å™¨
     if (WelsCreateSVCEncoder(&openh264_encoder) != 0) {
       // Failed to create encoder.
       RTC_LOG(LS_ERROR) << "Failed to create OpenH264 encoder";
@@ -282,10 +308,10 @@ int32_t H264EncoderImpl::InitEncode(const VideoCodec* inst,
     configurations_[i].max_bps = codec_.maxBitrate * 1000;
     configurations_[i].target_bps = codec_.startBitrate * 1000;
 
-    // Create encoder parameters based on the layer configuration. ±àÂëÆ÷ÅäÖÃ
+    // Create encoder parameters based on the layer configuration. ç¼–ç å™¨é…ç½®
     SEncParamExt encoder_params = CreateEncoderParams(i);
 
-    // Initialize. ±àÂëÆ÷³õÊ¼»¯
+    // Initialize. ç¼–ç å™¨åˆå§‹åŒ–
     if (openh264_encoder->InitializeExt(&encoder_params) != 0) {
       RTC_LOG(LS_ERROR) << "Failed to initialize OpenH264 encoder";
       Release();
@@ -510,10 +536,7 @@ int32_t H264EncoderImpl::Encode(
     encoded_images_[i].capture_time_ms_ = input_frame.render_time_ms();
     encoded_images_[i].rotation_ = input_frame.rotation();
     encoded_images_[i].SetColorSpace(input_frame.color_space());
-    encoded_images_[i].content_type_ =
-            (codec_.mode == VideoCodecMode::kScreensharing)
-            ? VideoContentType::SCREENSHARE
-            : VideoContentType::UNSPECIFIED;
+    encoded_images_[i].content_type_ = (codec_.mode == VideoCodecMode::kScreensharing) ? VideoContentType::SCREENSHARE : VideoContentType::UNSPECIFIED;
     encoded_images_[i].timing_.flags = VideoSendTiming::kInvalid;
     encoded_images_[i]._frameType = ConvertToVideoFrameType(info.eFrameType);
     encoded_images_[i].SetSpatialIndex(configurations_[i].simulcast_idx);

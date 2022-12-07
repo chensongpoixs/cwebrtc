@@ -6422,10 +6422,10 @@ cricket::VoiceChannel* PeerConnection::CreateVoiceChannel(const std::string& mid
   if (!voice_channel) {
     return nullptr;
   }
-  voice_channel->SignalDtlsSrtpSetupFailure.connect(
-      this, &PeerConnection::OnDtlsSrtpSetupFailure);
-  voice_channel->SignalSentPacket.connect(this,
-                                          &PeerConnection::OnSentPacket_w);
+  voice_channel->SignalDtlsSrtpSetupFailure.connect(this, &PeerConnection::OnDtlsSrtpSetupFailure);
+
+  // TODO@chensong 2022-11-29 发送数据包 
+  voice_channel->SignalSentPacket.connect(this, &PeerConnection::OnSentPacket_w);
   voice_channel->SetRtpTransport(rtp_transport);
 
   return voice_channel;
@@ -6451,6 +6451,7 @@ cricket::VideoChannel* PeerConnection::CreateVideoChannel( const std::string& mi
     return nullptr;
   }
   video_channel->SignalDtlsSrtpSetupFailure.connect(this, &PeerConnection::OnDtlsSrtpSetupFailure);
+  // TODO@chensong 2022-11-29 发送数据包 
   video_channel->SignalSentPacket.connect(this, &PeerConnection::OnSentPacket_w);
   video_channel->SetRtpTransport(rtp_transport);
 
@@ -6495,10 +6496,10 @@ bool PeerConnection::CreateDataChannel(const std::string& mid) {
       if (!rtp_data_channel_) {
         return false;
       }
-      rtp_data_channel_->SignalDtlsSrtpSetupFailure.connect(
-          this, &PeerConnection::OnDtlsSrtpSetupFailure);
-      rtp_data_channel_->SignalSentPacket.connect(
-          this, &PeerConnection::OnSentPacket_w);
+      rtp_data_channel_->SignalDtlsSrtpSetupFailure.connect(this, &PeerConnection::OnDtlsSrtpSetupFailure);
+
+	  // TODO@chensong 2022-11-29 发送数据包 
+      rtp_data_channel_->SignalSentPacket.connect( this, &PeerConnection::OnSentPacket_w);
       rtp_data_channel_->SetRtpTransport(rtp_transport);
       return true;
   }

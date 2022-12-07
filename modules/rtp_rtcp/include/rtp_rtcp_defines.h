@@ -139,15 +139,16 @@ struct RTCPReportBlock {
         last_sender_report_timestamp(last_sender_report_timestamp),
         delay_since_last_sender_report(delay_since_last_sender_report) {}
 
+  // TODO@chensong 2022-11-30
   // Fields as described by RFC 3550 6.4.2.
-  uint32_t sender_ssrc;  // SSRC of sender of this report.
-  uint32_t source_ssrc;  // SSRC of the RTP packet sender.
-  uint8_t fraction_lost;
-  int32_t packets_lost;  // 24 bits valid.
-  uint32_t extended_highest_sequence_number;
-  uint32_t jitter;
-  uint32_t last_sender_report_timestamp;
-  uint32_t delay_since_last_sender_report;
+  uint32_t sender_ssrc;  // SSRC of sender of this report. 32位， 接收到的每个媒体源
+  uint32_t source_ssrc;  // SSRC of the RTP packet sender. 媒体源的ssrc
+  uint8_t fraction_lost;                     // 8位 上一次报告之后从sender_ssrc 来包的掉包比例
+  int32_t packets_lost;  // 24 bits valid.   // 24位， 自接收开始掉包总数， 迟到包不算掉包， 重传有可以导致负数
+  uint32_t extended_highest_sequence_number; // 低16位表示收到的最大seq， 高16位表示seq循环次数
+  uint32_t jitter;                           // RTP包到达时间间隔的统计方差
+  uint32_t last_sender_report_timestamp;     // 32位， NTP时间戳的中间32位
+  uint32_t delay_since_last_sender_report;   // 记录上一个接收SR的时间与上一个发送SR的时间差
 };
 
 typedef std::list<RTCPReportBlock> ReportBlockList;
@@ -278,11 +279,16 @@ struct PacketFeedback {
 
 class PacketFeedbackComparator {
  public:
-  inline bool operator()(const PacketFeedback& lhs, const PacketFeedback& rhs) {
+  inline bool operator()(const PacketFeedback& lhs, const PacketFeedback& rhs) 
+  {
     if (lhs.arrival_time_ms != rhs.arrival_time_ms)
+    {
       return lhs.arrival_time_ms < rhs.arrival_time_ms;
+	}
     if (lhs.send_time_ms != rhs.send_time_ms)
-      return lhs.send_time_ms < rhs.send_time_ms;
+    {
+          return lhs.send_time_ms < rhs.send_time_ms;
+	}
     return lhs.sequence_number < rhs.sequence_number;
   }
 };

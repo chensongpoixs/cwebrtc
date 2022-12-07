@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -21,6 +21,9 @@
 
 namespace webrtc {
 
+/*
+TODO@chensong 2022-11-30 中值斜率估算器
+*/
 class MedianSlopeEstimator {
  public:
   // |window_size| is the number of points required to compute a trend line.
@@ -56,6 +59,7 @@ class MedianSlopeEstimator {
   };
   // Parameters.
   const size_t window_size_;
+  // TODO@chensong 2022-11-30  默认值 [threshold_gain_ = 4.0]
   const double threshold_gain_;
   // Used by the existing threshold.
   unsigned int num_of_deltas_;

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -114,6 +114,7 @@ int AcmReceiver::InsertPacket(const RTPHeader& rtp_header,
   }  // |crit_sect_| is released.
 
   uint32_t receive_timestamp = NowInTimestamp(format->clockrate_hz);
+  // TODO@chensong 2022-10-29 弄到 neteq队列中去处理
   if (neteq_->InsertPacket(rtp_header, incoming_payload, receive_timestamp) <
       0) {
     RTC_LOG(LERROR) << "AcmReceiver::InsertPacket "

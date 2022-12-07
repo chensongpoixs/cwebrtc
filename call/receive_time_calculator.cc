@@ -50,19 +50,22 @@ ReceiveTimeCalculator::CreateFromFieldTrial() {
   return absl::make_unique<ReceiveTimeCalculator>();
 }
 
-int64_t ReceiveTimeCalculator::ReconcileReceiveTimes(int64_t packet_time_us,
-                                                     int64_t system_time_us,
-                                                     int64_t safe_time_us) {
+int64_t ReceiveTimeCalculator::ReconcileReceiveTimes(int64_t packet_time_us, int64_t system_time_us, int64_t safe_time_us) 
+{
   int64_t stall_time_us = system_time_us - packet_time_us;
-  if (total_system_time_passed_us_ < config_.stall_threshold->us()) {
+  if (total_system_time_passed_us_ < config_.stall_threshold->us()) 
+  {
     stall_time_us = rtc::SafeMin(stall_time_us, config_.max_stall->us());
   }
   int64_t corrected_time_us = safe_time_us - stall_time_us;
 
-  if (last_packet_time_us_ == -1 && stall_time_us < 0) {
+  if (last_packet_time_us_ == -1 && stall_time_us < 0) 
+  {
     static_clock_offset_us_ = stall_time_us;
     corrected_time_us += static_clock_offset_us_;
-  } else if (last_packet_time_us_ > 0) {
+  }
+  else if (last_packet_time_us_ > 0) 
+  {
     // All repairs depend on variables being intialized
     int64_t packet_time_delta_us = packet_time_us - last_packet_time_us_;
     int64_t system_time_delta_us = system_time_us - last_system_time_us_;
@@ -70,10 +73,14 @@ int64_t ReceiveTimeCalculator::ReconcileReceiveTimes(int64_t packet_time_us,
 
     // Repair backwards clock resets during initial stall. In this case, the
     // reset is observed only in packet time but never in system time.
-    if (system_time_delta_us < 0)
-      total_system_time_passed_us_ += config_.stall_threshold->us();
-    else
-      total_system_time_passed_us_ += system_time_delta_us;
+	if (system_time_delta_us < 0)
+	{
+		total_system_time_passed_us_ += config_.stall_threshold->us();
+	}
+	else
+	{
+		total_system_time_passed_us_ += system_time_delta_us;
+	}
     if (packet_time_delta_us < 0 &&
         total_system_time_passed_us_ < config_.stall_threshold->us()) {
       static_clock_offset_us_ -= packet_time_delta_us;

@@ -167,11 +167,11 @@ void RTCPReceiver::IncomingPacket(const uint8_t* packet, size_t packet_size) {
     RTC_LOG(LS_WARNING) << "Incoming empty RTCP packet";
     return;
   }
- //<<<<<<< HEAD
-  //TODO@chensong 20220909 根据对端反馈信息处理 
-//=======
+  //<<<<<<< HEAD
+  // TODO@chensong 20220909 根据对端反馈信息处理
+  //=======
   // TODO@chensong 2022-10-19   解析RTCP 数据包的格式
-//>>>>>>> 67440ed5685ad65ebc1189c57a80c365ade99266
+  //>>>>>>> 67440ed5685ad65ebc1189c57a80c365ade99266
   PacketInformation packet_information;
   if (!ParseCompoundPacket(packet, packet + packet_size, &packet_information))
   {
@@ -211,44 +211,37 @@ int32_t RTCPReceiver::RTT(uint32_t remote_ssrc,
                           int64_t* max_rtt_ms) const {
   rtc::CritScope lock(&rtcp_receiver_lock_);
 
-  //TODO@chensong 2022-04-04  RTCP 的反馈信息查询
+  // TODO@chensong 2022-04-04  RTCP 的反馈信息查询
   auto it = received_report_blocks_.find(main_ssrc_);
-  if (it == received_report_blocks_.end())
-  {
-	  return -1;
+  if (it == received_report_blocks_.end()) {
+    return -1;
   }
 
   auto it_info = it->second.find(remote_ssrc);
-  if (it_info == it->second.end())
-  {
-	  return -1;
+  if (it_info == it->second.end()) {
+    return -1;
   }
 
   const ReportBlockWithRtt* report_block = &it_info->second;
 
-  if (report_block->num_rtts == 0)
-  {
-	  return -1;
+  if (report_block->num_rtts == 0) {
+    return -1;
   }
 
-  if (last_rtt_ms)
-  {
-	  *last_rtt_ms = report_block->last_rtt_ms;
+  if (last_rtt_ms) {
+    *last_rtt_ms = report_block->last_rtt_ms;
   }
 
-  if (avg_rtt_ms)
-  {
-	  *avg_rtt_ms = report_block->sum_rtt_ms / report_block->num_rtts;
+  if (avg_rtt_ms) {
+    *avg_rtt_ms = report_block->sum_rtt_ms / report_block->num_rtts;
   }
 
-  if (min_rtt_ms)
-  {
-	  *min_rtt_ms = report_block->min_rtt_ms;
+  if (min_rtt_ms) {
+    *min_rtt_ms = report_block->min_rtt_ms;
   }
 
-  if (max_rtt_ms)
-  {
-	  *max_rtt_ms = report_block->max_rtt_ms;
+  if (max_rtt_ms) {
+    *max_rtt_ms = report_block->max_rtt_ms;
   }
 
   return 0;
@@ -352,16 +345,18 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
       break;
     }
 
-    if (packet_type_counter_.first_packet_time_ms == -1)
+    if (packet_type_counter_.first_packet_time_ms == -1) {
       packet_type_counter_.first_packet_time_ms = clock_->TimeInMilliseconds();
+    }
 
     switch (rtcp_block.type()) {
       case rtcp::SenderReport::kPacketType:
         HandleSenderReport(rtcp_block, packet_information);
         break;
-      case rtcp::ReceiverReport::kPacketType:
+      case rtcp::ReceiverReport::kPacketType: {
         HandleReceiverReport(rtcp_block, packet_information);
         break;
+      }
       case rtcp::Sdes::kPacketType:
         HandleSdes(rtcp_block, packet_information);
         break;
@@ -373,12 +368,11 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
         break;
       case rtcp::Rtpfb::kPacketType:
         switch (rtcp_block.fmt()) {
-          case rtcp::Nack::kFeedbackMessageType:
-          {
-			  // TODO@chensong 处理Nack信息包 丢包的处理
+          case rtcp::Nack::kFeedbackMessageType: {
+            // TODO@chensong 处理Nack信息包 丢包的处理
             HandleNack(rtcp_block, packet_information);
             break;
-		  }
+          }
           case rtcp::Tmmbr::kFeedbackMessageType:
             HandleTmmbr(rtcp_block, packet_information);
             break;
@@ -404,9 +398,12 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
           case rtcp::Fir::kFeedbackMessageType:
             HandleFir(rtcp_block, packet_information);
             break;
-          case rtcp::Psfb::kAfbMessageType:
+          case rtcp::Psfb::kAfbMessageType:  // TODO@chensong 2022-11-28
+                                             // 接受网络带宽bps [goole old net ]
+          {
             HandlePsfbApp(rtcp_block, packet_information);
             break;
+          }
           default:
             ++num_skipped_packets_;
             break;
@@ -485,8 +482,9 @@ void RTCPReceiver::HandleReceiverReport(const CommonHeader& rtcp_block,
 
   packet_information->packet_type_flags |= kRtcpRr;
 
-  for (const ReportBlock& report_block : receiver_report.report_blocks())
+  for (const ReportBlock& report_block : receiver_report.report_blocks()) {
     HandleReportBlock(report_block, packet_information, remote_ssrc);
+  }
 }
 
 void RTCPReceiver::HandleReportBlock(const ReportBlock& report_block,
@@ -502,8 +500,9 @@ void RTCPReceiver::HandleReportBlock(const ReportBlock& report_block,
   // which the information in this reception report block pertains.
 
   // Filter out all report blocks that are not for us.
-  if (registered_ssrcs_.count(report_block.source_ssrc()) == 0)
+  if (registered_ssrcs_.count(report_block.source_ssrc()) == 0) {
     return;
+  }
 
   last_received_rb_ms_ = clock_->TimeInMilliseconds();
 
@@ -551,12 +550,14 @@ void RTCPReceiver::HandleReportBlock(const ReportBlock& report_block,
     uint32_t rtt_ntp = receive_time_ntp - delay_ntp - send_time_ntp;
     // Convert to 1/1000 seconds (milliseconds).
     rtt_ms = CompactNtpRttToMs(rtt_ntp);
-    if (rtt_ms > report_block_info->max_rtt_ms)
+    if (rtt_ms > report_block_info->max_rtt_ms) {
       report_block_info->max_rtt_ms = rtt_ms;
+    }
 
-    if (report_block_info->num_rtts == 0 ||
-        rtt_ms < report_block_info->min_rtt_ms)
+    if (report_block_info->num_rtts == 0 || rtt_ms < report_block_info->min_rtt_ms) 
+	{
       report_block_info->min_rtt_ms = rtt_ms;
+    }
 
     report_block_info->last_rtt_ms = rtt_ms;
     report_block_info->sum_rtt_ms += rtt_ms;
@@ -695,12 +696,14 @@ void RTCPReceiver::HandleNack(const CommonHeader& rtcp_block,
   }
 
   if (receiver_only_ || main_ssrc_ != nack.media_ssrc())  // Not to us.
-    return;
-
-  packet_information->nack_sequence_numbers.insert( packet_information->nack_sequence_numbers.end(),
-      nack.packet_ids().begin(), nack.packet_ids().end());
-  for (uint16_t packet_id : nack.packet_ids())
   {
+    return;
+  }
+
+  packet_information->nack_sequence_numbers.insert(
+      packet_information->nack_sequence_numbers.end(),
+      nack.packet_ids().begin(), nack.packet_ids().end());
+  for (uint16_t packet_id : nack.packet_ids()) {
     nack_stats_.ReportRequest(packet_id);
   }
 
@@ -843,26 +846,30 @@ void RTCPReceiver::HandlePli(const CommonHeader& rtcp_block,
 void RTCPReceiver::HandleTmmbr(const CommonHeader& rtcp_block,
                                PacketInformation* packet_information) {
   rtcp::Tmmbr tmmbr;
-  if (!tmmbr.Parse(rtcp_block)) {
+  if (!tmmbr.Parse(rtcp_block))
+  {
     ++num_skipped_packets_;
     return;
   }
 
   uint32_t sender_ssrc = tmmbr.sender_ssrc();
-  if (tmmbr.media_ssrc()) {
+  if (tmmbr.media_ssrc()) 
+  {
     // media_ssrc() SHOULD be 0 if same as SenderSSRC.
     // In relay mode this is a valid number.
     sender_ssrc = tmmbr.media_ssrc();
   }
 
-  for (const rtcp::TmmbItem& request : tmmbr.requests()) {
+  for (const rtcp::TmmbItem& request : tmmbr.requests()) 
+  {
     if (main_ssrc_ != request.ssrc() || request.bitrate_bps() == 0)
+    {
       continue;
+	}
 
     TmmbrInformation* tmmbr_info = FindOrCreateTmmbrInfo(tmmbr.sender_ssrc());
     auto* entry = &tmmbr_info->tmmbr[sender_ssrc];
-    entry->tmmbr_item = rtcp::TmmbItem(sender_ssrc, request.bitrate_bps(),
-                                       request.packet_overhead());
+    entry->tmmbr_item = rtcp::TmmbItem(sender_ssrc, request.bitrate_bps(), request.packet_overhead());
     entry->last_updated_ms = clock_->TimeInMilliseconds();
 
     packet_information->packet_type_flags |= kRtcpTmmbr;
@@ -902,6 +909,7 @@ void RTCPReceiver::HandlePsfbApp(const CommonHeader& rtcp_block,
     rtcp::Remb remb;
     if (remb.Parse(rtcp_block)) {
       packet_information->packet_type_flags |= kRtcpRemb;
+      // TODO@chensong 2022-11-28 faackback 中 Remb反馈网络带宽 bps
       packet_information->receiver_estimated_max_bitrate_bps =
           remb.bitrate_bps();
       return;
@@ -959,12 +967,11 @@ void RTCPReceiver::HandleFir(const CommonHeader& rtcp_block,
   }
 }
 
-void RTCPReceiver::HandleTransportFeedback(
-    const CommonHeader& rtcp_block,
-    PacketInformation* packet_information) {
-  std::unique_ptr<rtcp::TransportFeedback> transport_feedback(
-      new rtcp::TransportFeedback());
-  if (!transport_feedback->Parse(rtcp_block)) {
+void RTCPReceiver::HandleTransportFeedback(const CommonHeader& rtcp_block, PacketInformation* packet_information) 
+{
+  std::unique_ptr<rtcp::TransportFeedback> transport_feedback(new rtcp::TransportFeedback());
+  if (!transport_feedback->Parse(rtcp_block)) 
+  {
     ++num_skipped_packets_;
     return;
   }
@@ -1001,11 +1008,12 @@ RtcpStatisticsCallback* RTCPReceiver::GetRtcpStatisticsCallback() {
 }
 
 // Holding no Critical section.
-void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
-    const PacketInformation& packet_information) {
+void RTCPReceiver::TriggerCallbacksFromRtcpPacket(const PacketInformation& packet_information) 
+{
   // Process TMMBR and REMB first to avoid multiple callbacks
   // to OnNetworkChanged.
-  if (packet_information.packet_type_flags & kRtcpTmmbr) {
+  if (packet_information.packet_type_flags & kRtcpTmmbr) 
+  {
     // Might trigger a OnReceivedBandwidthEstimateUpdate.
     NotifyTmmbrUpdated();
   }
@@ -1022,8 +1030,7 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
   }
   // TODO@chensong 发送RTX丢包信息
   if (!receiver_only_ && (packet_information.packet_type_flags & kRtcpNack)) {
-    if (!packet_information.nack_sequence_numbers.empty()) 
-	{
+    if (!packet_information.nack_sequence_numbers.empty()) {
       RTC_LOG(LS_VERBOSE) << "Incoming NACK length: "
                           << packet_information.nack_sequence_numbers.size();
       rtp_rtcp_->OnReceivedNack(packet_information.nack_sequence_numbers);
@@ -1081,14 +1088,13 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
     rtp_rtcp_->OnReceivedRtcpReportBlocks(packet_information.report_blocks);
   }
 
-  if (transport_feedback_observer_ &&
-      (packet_information.packet_type_flags & kRtcpTransportFeedback)) {
-    uint32_t media_source_ssrc =
-        packet_information.transport_feedback->media_ssrc();
-    if (media_source_ssrc == local_ssrc ||
-        registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) {
-      transport_feedback_observer_->OnTransportFeedback(
-          *packet_information.transport_feedback);
+  if (transport_feedback_observer_ && (packet_information.packet_type_flags & kRtcpTransportFeedback))
+  {
+    uint32_t media_source_ssrc = packet_information.transport_feedback->media_ssrc();
+    if (media_source_ssrc == local_ssrc ||registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) 
+	{
+		// TODO@chensong 2022-12-05    接受端反馈过来的接受包seq和时间戳统计数据 remb 
+      transport_feedback_observer_->OnTransportFeedback(*packet_information.transport_feedback);
     }
   }
 

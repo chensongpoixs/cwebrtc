@@ -22,8 +22,7 @@ namespace {
 static const uint32_t kTimeOffsetSwitchThreshold = 30;
 }  // namespace
 
-ReceiveSideCongestionController::WrappingBitrateEstimator::
-    WrappingBitrateEstimator(RemoteBitrateObserver* observer, Clock* clock)
+ReceiveSideCongestionController::WrappingBitrateEstimator::WrappingBitrateEstimator(RemoteBitrateObserver* observer, Clock* clock)
     : observer_(observer),
       clock_(clock),
       rbe_(new RemoteBitrateEstimatorSingleStream(observer_, clock_)),
@@ -31,13 +30,10 @@ ReceiveSideCongestionController::WrappingBitrateEstimator::
       packets_since_absolute_send_time_(0),
       min_bitrate_bps_(congestion_controller::GetMinBitrateBps()) {}
 
-ReceiveSideCongestionController::WrappingBitrateEstimator::
-    ~WrappingBitrateEstimator() = default;
+ReceiveSideCongestionController::WrappingBitrateEstimator::~WrappingBitrateEstimator() = default;
 
-void ReceiveSideCongestionController::WrappingBitrateEstimator::IncomingPacket(
-    int64_t arrival_time_ms,
-    size_t payload_size,
-    const RTPHeader& header) {
+void ReceiveSideCongestionController::WrappingBitrateEstimator::IncomingPacket(int64_t arrival_time_ms, size_t payload_size, const RTPHeader& header) 
+{
   rtc::CritScope cs(&crit_sect_);
   PickEstimatorFromHeader(header);
   rbe_->IncomingPacket(arrival_time_ms, payload_size, header);
@@ -108,8 +104,7 @@ void ReceiveSideCongestionController::WrappingBitrateEstimator::
 }
 
 // Instantiate RBE for Time Offset or Absolute Send Time extensions.
-void ReceiveSideCongestionController::WrappingBitrateEstimator::
-    PickEstimator() {
+void ReceiveSideCongestionController::WrappingBitrateEstimator:: PickEstimator() {
   if (using_absolute_send_time_) {
     rbe_.reset(new RemoteBitrateEstimatorAbsSendTime(observer_, clock_));
   } else {

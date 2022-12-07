@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -26,6 +26,45 @@
 #include "system_wrappers/include/field_trial.h"
 
 namespace webrtc {
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////      TODO@chensong  2022-11-29  googcc  ç®—æ³•
+
+//#if _DEBUG
+//
+//static FILE* out_rtc_rtp_transport_send_file_ptr = NULL;
+//static void rtc_rtp_transport_send_log() {
+//  if (!out_rtc_rtp_transport_send_file_ptr) {
+//    out_rtc_rtp_transport_send_file_ptr =
+//        ::fopen("./debug/rtp_transport_controller_send.log", "wb+");
+//  }
+//
+//  // va_list argptr;
+//  // va_start(argptr, format);
+//  // ::fprintf(out_rtc_gcc_file_ptr, format, ##__VA_ARGS__);
+//  // ::fprintf(out_rtc_gcc_file_ptr, "\n");
+//  // ::fflush(out_rtc_gcc_file_ptr);
+//
+//  // va_end(argptr);
+//}
+//
+// 
+//#define NORMAL_LOG(format, ...)                         \
+//  rtc_rtp_transport_send_log();                                        \
+//    if ( out_rtc_rtp_transport_send_file_ptr) { 								\
+//  fprintf(out_rtc_rtp_transport_send_file_ptr, format, ##__VA_ARGS__); \
+//  fprintf(out_rtc_rtp_transport_send_file_ptr, "\n");                  \
+//  fflush(out_rtc_rtp_transport_send_file_ptr);}
+//
+//#define NORMAL_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define ERROR_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define WARNING_EX_LOG(format, ...) \
+//  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#endif  // _DEBUG
+
 namespace {
 static const int64_t kRetransmitWindowSizeMs = 500;
 static const size_t kMaxOverheadBytes = 500;
@@ -90,7 +129,7 @@ RtpTransportControllerSend::RtpTransportControllerSend(
   RTC_DCHECK(bitrate_config.start_bitrate_bps > 0);
 
   pacer_.SetPacingRates(bitrate_config.start_bitrate_bps, 0);
-  // TODO@chensong 2022-09-29 ×¢²áÍøÂç·¢ËÍ°ü  »á²»Í£µ÷ÓÃ pacer_ÖÐ·½·¨Process
+  // TODO@chensong 2022-09-29 æ³¨å†Œç½‘ç»œå‘é€åŒ…  ä¼šä¸åœè°ƒç”¨ pacer_ä¸­æ–¹æ³•Process
   process_thread_->RegisterModule(&pacer_, RTC_FROM_HERE);
   process_thread_->Start();
 }
@@ -182,12 +221,12 @@ void RtpTransportControllerSend::SetPacingFactor(float pacing_factor) {
 void RtpTransportControllerSend::SetQueueTimeLimit(int limit_ms) {
   pacer_.SetQueueTimeLimit(limit_ms);
 }
-void RtpTransportControllerSend::RegisterPacketFeedbackObserver(
-    PacketFeedbackObserver* observer) {
+void RtpTransportControllerSend::RegisterPacketFeedbackObserver(PacketFeedbackObserver* observer) 
+{
   transport_feedback_adapter_.RegisterPacketFeedbackObserver(observer);
 }
-void RtpTransportControllerSend::DeRegisterPacketFeedbackObserver(
-    PacketFeedbackObserver* observer) {
+void RtpTransportControllerSend::DeRegisterPacketFeedbackObserver(PacketFeedbackObserver* observer)
+{
   transport_feedback_adapter_.DeRegisterPacketFeedbackObserver(observer);
 }
 
@@ -306,17 +345,29 @@ void RtpTransportControllerSend::EnablePeriodicAlrProbing(bool enable) {
 }
 void RtpTransportControllerSend::OnSentPacket(
     const rtc::SentPacket& sent_packet) {
-  absl::optional<SentPacket> packet_msg =
-      transport_feedback_adapter_.ProcessSentPacket(sent_packet);
-  if (packet_msg) {
-    task_queue_.PostTask([this, packet_msg]() {
+  absl::optional<SentPacket> packet_msg = transport_feedback_adapter_.ProcessSentPacket(sent_packet);
+#if _DEBUG
+
+  if (packet_msg)
+  {
+    NORMAL_EX_LOG(
+        "[transport_feedback_adapter_.ProcessSentPacket][sent_packet = %s]  [packet_msg = %s]",
+        webrtc::ToString(sent_packet) .c_str(),
+        webrtc::ToString(packet_msg.value()).c_str());
+  }
+#endif // _DEBUG
+  if (packet_msg) 
+  {
+    task_queue_.PostTask([this, packet_msg]() 
+	{
       RTC_DCHECK_RUN_ON(&task_queue_);
       if (controller_)
+      {
         PostUpdates(controller_->OnSentPacket(*packet_msg));
+	  }
     });
   }
-  pacer_.UpdateOutstandingData(
-      transport_feedback_adapter_.GetOutstandingData().bytes());
+  pacer_.UpdateOutstandingData( transport_feedback_adapter_.GetOutstandingData().bytes());
 }
 
 void RtpTransportControllerSend::SetSdpBitrateParameters(
@@ -419,22 +470,24 @@ void RtpTransportControllerSend::AddPacket(uint32_t ssrc,
       Timestamp::ms(clock_->TimeInMilliseconds()));
 }
 
-void RtpTransportControllerSend::OnTransportFeedback(
-    const rtcp::TransportFeedback& feedback) {
+void RtpTransportControllerSend::OnTransportFeedback(const rtcp::TransportFeedback& feedback) 
+{
   RTC_DCHECK_RUNS_SERIALIZED(&worker_race_);
 
-  absl::optional<TransportPacketsFeedback> feedback_msg =
-      transport_feedback_adapter_.ProcessTransportFeedback(
-          feedback, Timestamp::ms(clock_->TimeInMilliseconds()));
-  if (feedback_msg) {
-    task_queue_.PostTask([this, feedback_msg]() {
+  absl::optional<TransportPacketsFeedback> feedback_msg = transport_feedback_adapter_.ProcessTransportFeedback(feedback, Timestamp::ms(clock_->TimeInMilliseconds()));
+  if (feedback_msg) 
+  {
+    task_queue_.PostTask([this, feedback_msg]() 
+	{
       RTC_DCHECK_RUN_ON(&task_queue_);
       if (controller_)
+      {
+		  // TODO@chensong 2022-12-05 gccç®—æ³•è¾“å…¥æ•°æ®
         PostUpdates(controller_->OnTransportPacketsFeedback(*feedback_msg));
+	  }
     });
   }
-  pacer_.UpdateOutstandingData(
-      transport_feedback_adapter_.GetOutstandingData().bytes());
+  pacer_.UpdateOutstandingData(transport_feedback_adapter_.GetOutstandingData().bytes());
 }
 
 void RtpTransportControllerSend::MaybeCreateControllers() {

@@ -39,10 +39,7 @@ class LegacyTransportFeedbackAdapter {
   void RegisterPacketFeedbackObserver(PacketFeedbackObserver* observer);
   void DeRegisterPacketFeedbackObserver(PacketFeedbackObserver* observer);
 
-  void AddPacket(uint32_t ssrc,
-                 uint16_t sequence_number,
-                 size_t length,
-                 const PacedPacketInfo& pacing_info);
+  void AddPacket(uint32_t ssrc, uint16_t sequence_number, size_t length, const PacedPacketInfo& pacing_info);
   void OnSentPacket(uint16_t sequence_number, int64_t send_time_ms);
 
   // TODO(holmer): This method should return DelayBasedBwe::Result so that we
@@ -59,8 +56,7 @@ class LegacyTransportFeedbackAdapter {
   size_t GetOutstandingBytes() const;
 
  private:
-  std::vector<PacketFeedback> GetPacketFeedbackVector(
-      const rtcp::TransportFeedback& feedback);
+  std::vector<PacketFeedback> GetPacketFeedbackVector(const rtcp::TransportFeedback& feedback);
 
   rtc::CriticalSection lock_;
   SendTimeHistory send_time_history_ RTC_GUARDED_BY(&lock_);
@@ -74,8 +70,7 @@ class LegacyTransportFeedbackAdapter {
   absl::optional<int64_t> min_feedback_rtt_ RTC_GUARDED_BY(&lock_);
 
   rtc::CriticalSection observers_lock_;
-  std::vector<PacketFeedbackObserver*> observers_
-      RTC_GUARDED_BY(&observers_lock_);
+  std::vector<PacketFeedbackObserver*> observers_ RTC_GUARDED_BY(&observers_lock_);
 };
 
 }  // namespace webrtc

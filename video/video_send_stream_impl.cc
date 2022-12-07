@@ -592,10 +592,8 @@ void VideoSendStreamImpl::OnEncoderConfigurationChanged(
 将编好的帧和相关信息转到RtpVideoSender处理
 检查码率分配是否已经改变，通知下层
 */
-EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(
-    const EncodedImage& encoded_image,
-    const CodecSpecificInfo* codec_specific_info,
-    const RTPFragmentationHeader* fragmentation) {
+EncodedImageCallback::Result VideoSendStreamImpl::OnEncodedImage(const EncodedImage& encoded_image, const CodecSpecificInfo* codec_specific_info, const RTPFragmentationHeader* fragmentation) 
+{
   // Encoded is called on whatever thread the real encoder implementation run
   // on. In the case of hardware encoders, there might be several encoders
   // running in parallel on different threads.

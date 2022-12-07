@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -92,7 +92,7 @@ void PlatformThread::Start() {
   // See bug 2902 for background on STACK_SIZE_PARAM_IS_A_RESERVATION.
   // Set the reserved stack stack size to 1M, which is the default on Windows
   // and Linux.
-  // TODO@chensong 20220803  ·¢ËÍÍøÂçĞÅÏ¢°üµÄÏß³Ì paced_sender
+  // TODO@chensong 20220803  å‘é€ç½‘ç»œä¿¡æ¯åŒ…çš„çº¿ç¨‹ paced_sender
   thread_ = ::CreateThread(nullptr, 1024 * 1024, &StartThread, this,
                            STACK_SIZE_PARAM_IS_A_RESERVATION, &thread_id_);
   RTC_CHECK(thread_) << "CreateThread failed";
@@ -189,7 +189,7 @@ void PlatformThread::Run() {
     // The interface contract of Start/Stop is that for a successful call to
     // Start, there should be at least one call to the run function.  So we
     // call the function before checking |stop_|.
-	// TODO@chensong 2022-09-29 ÔÚ´´½¨Ïß³ÌÀàÖĞÄ¬ÈÏ»Øµ÷º¯ÊıÒÑ¾­×¢²áºÃÁË 
+	// TODO@chensong 2022-09-29 åœ¨åˆ›å»ºçº¿ç¨‹ç±»ä¸­é»˜è®¤å›è°ƒå‡½æ•°å·²ç»æ³¨å†Œå¥½äº† 
     if (!run_function_deprecated_(obj_)) 
 	{
       break;
