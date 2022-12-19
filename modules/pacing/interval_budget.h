@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -22,29 +22,29 @@ class IntervalBudget {
  public:
   explicit IntervalBudget(int initial_target_rate_kbps);
   IntervalBudget(int initial_target_rate_kbps, bool can_build_up_underuse);
-  // ÉèÖÃÄ¿±ê·¢ËÍÂëÂÊ
+  // è®¾ç½®ç›®æ ‡å‘é€ç ç‡
   void set_target_rate_kbps(int target_rate_kbps);
 
   // TODO(tschumim): Unify IncreaseBudget and UseBudget to one function.
-  // Ê±¼äÁ÷ÊÅºóÔö¼Óbudget
+  // æ—¶é—´æµé€åå¢åŠ budget
   void IncreaseBudget(int64_t delta_time_ms);
-  // ·¢ËÍÊı¾İºó¼õÉÙbudget
+  // å‘é€æ•°æ®åå‡å°‘budget
   void UseBudget(size_t bytes);
-  // Ê£Óàbudget
+  // å‰©ä½™budget
   size_t bytes_remaining() const;
-  // Ê£ÓàbudgetÕ¼µ±Ç°´°¿ÚÊı¾İÁ¿±ÈÀı
+  // å‰©ä½™budgetå å½“å‰çª—å£æ•°æ®é‡æ¯”ä¾‹
   int budget_level_percent() const;
-  // Ä¿±ê·¢ËÍÂëÂÊ
+  // ç›®æ ‡å‘é€ç ç‡
   int target_rate_kbps() const;
 
  private:
-  // ÉèÖÃµÄÄ¿±êÂëÂÊ£¬°´ÕÕÕâ¸öÂëÂÊ¿ØÖÆÊı¾İ·¢ËÍ
+  // è®¾ç½®çš„ç›®æ ‡ç ç‡ï¼ŒæŒ‰ç…§è¿™ä¸ªç ç‡æ§åˆ¶æ•°æ®å‘é€
   int target_rate_kbps_;
-  // ´°¿ÚÄÚ£¨500ms£©¶ÔÓ¦µÄ×î´ó×Ö½ÚÊı=´°¿Ú´óĞ¡*target_rate_kbps_/8
+  // çª—å£å†…ï¼ˆ500msï¼‰å¯¹åº”çš„æœ€å¤§å­—èŠ‚æ•°=çª—å£å¤§å°*target_rate_kbps_/8
   int max_bytes_in_budget_;
-  // Ê£Óà¿É·¢ËÍ×Ö½ÚÊı£¬ÏŞÖÆ·¶Î§:[-max_bytes_in_budget_, max_bytes_in_budget_]
+  // å‰©ä½™å¯å‘é€å­—èŠ‚æ•°ï¼Œé™åˆ¶èŒƒå›´:[-max_bytes_in_budget_, max_bytes_in_budget_]
   int bytes_remaining_;
-  // ÉÏ¸öÖÜÆÚunderuse£¬±¾ÖÜÆÚÊÇ·ñ¿ÉÒÔ½èÓÃÉÏ¸öÖÜÆÚµÄÊ£ÓàÁ¿
+  // ä¸Šä¸ªå‘¨æœŸunderuseï¼Œæœ¬å‘¨æœŸæ˜¯å¦å¯ä»¥å€Ÿç”¨ä¸Šä¸ªå‘¨æœŸçš„å‰©ä½™é‡
   bool can_build_up_underuse_;
 };
 

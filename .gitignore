@@ -2785,3 +2785,7 @@ modules/congestion_controller/rtp/send_time_history.h.bak
 test/linux/新文件 1.txt
 examples/html/simple_demo/package.json
 modules/pacing/paced_sender.cc.bak
+/modules/pacing/interval_budget.h.bak
+/modules/pacing/paced_sender.cc.bak
+modules/pacing/bitrate_prober.h.bak
+modules/pacing/interval_budget.cc.bak

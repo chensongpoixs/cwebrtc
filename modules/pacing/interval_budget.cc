@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -16,12 +16,12 @@
 namespace webrtc {
 namespace {
 /*
-ÕâÀïµÄ´°¿ÚÄ¿Ç°Ö÷ÒªÊÇÓÃÀ´¿ØÖÆcan_build_up_underuse_¿ª¹Ø´ò¿ªÏÂ£¬build_upµÄÉÏÏŞ¡£
-¿¼ÂÇµ½´æÔÚÕâÑùµÄÇé¿ö£¬Ëæ×ÅÊ±¼äÁ÷ÊÅ£¬ÎÒÃÇÃ¿5ms¶¼ÓĞ5msµÄbudget¿É¹©Ê¹ÓÃ£¬µ«ÊÇ²¢²»ÊÇÃ¿Ò»¸ö5msÎÒÃÇ¶¼ÄÜ¹»ÍêÈ«Ê¹ÓÃµôÕâ5msµÄbudget£¬ÕâÀï³Æ×÷underuse¡£
-Òò´Ë£¬can_build_up_underuse_¿ª¹ØÔÊĞíÎÒÃÇ½«ÕâĞ©Ã»ÓĞÓÃÍêµÄÔ¤ËãÀÛ¼ÆÆğÀ´£¬ÒÔ¹©ºóĞøÊ¹ÓÃ¡£kWindowMs = 500msÒâÎ¶×ÅÎÒÃÇ¿ÉÒÔÀÛ»ı500msÕâÃ´¶àÃ»ÓĞÓÃÍêµÄÔ¤Ëã¡£
+è¿™é‡Œçš„çª—å£ç›®å‰ä¸»è¦æ˜¯ç”¨æ¥æ§åˆ¶can_build_up_underuse_å¼€å…³æ‰“å¼€ä¸‹ï¼Œbuild_upçš„ä¸Šé™ã€‚
+è€ƒè™‘åˆ°å­˜åœ¨è¿™æ ·çš„æƒ…å†µï¼Œéšç€æ—¶é—´æµé€ï¼Œæˆ‘ä»¬æ¯5mséƒ½æœ‰5msçš„budgetå¯ä¾›ä½¿ç”¨ï¼Œä½†æ˜¯å¹¶ä¸æ˜¯æ¯ä¸€ä¸ª5msæˆ‘ä»¬éƒ½èƒ½å¤Ÿå®Œå…¨ä½¿ç”¨æ‰è¿™5msçš„budgetï¼Œè¿™é‡Œç§°ä½œunderuseã€‚
+å› æ­¤ï¼Œcan_build_up_underuse_å¼€å…³å…è®¸æˆ‘ä»¬å°†è¿™äº›æ²¡æœ‰ç”¨å®Œçš„é¢„ç®—ç´¯è®¡èµ·æ¥ï¼Œä»¥ä¾›åç»­ä½¿ç”¨ã€‚kWindowMs = 500msæ„å‘³ç€æˆ‘ä»¬å¯ä»¥ç´¯ç§¯500msè¿™ä¹ˆå¤šæ²¡æœ‰ç”¨å®Œçš„é¢„ç®—ã€‚
 
-´ò¿ªÕâ¸ö¿ª¹ØºÃ´¦ÔÚÓÚÄ³Ğ©Ê±¿Ì£¬ÎÒÃÇ¶ÌÊ±¼äÄÚ¿É¹©·¢ËÍµÄÔ¤Ëã¸ü¶à£¬ÔÚÂëÂÊ¶¶¶¯½Ï´óµÄÊ±ºò£¬ÎÒÃÇ¿ÉÒÔ¸ü¿ìµØ½«Êı¾İ·¢ËÍ³öÈ¥¡£
-´øÀ´µÄÈ±ÏİÊÇ£¬¶ÌÊ±¼äÄÚµÄÂëÂÊ¿ØÖÆ²»¹»Æ½»¬£¬ÔÚÒ»Ğ©µÍ´ø¿í³¡¾°Ó°Ïì¸ü´ó¡£
+æ‰“å¼€è¿™ä¸ªå¼€å…³å¥½å¤„åœ¨äºæŸäº›æ—¶åˆ»ï¼Œæˆ‘ä»¬çŸ­æ—¶é—´å†…å¯ä¾›å‘é€çš„é¢„ç®—æ›´å¤šï¼Œåœ¨ç ç‡æŠ–åŠ¨è¾ƒå¤§çš„æ—¶å€™ï¼Œæˆ‘ä»¬å¯ä»¥æ›´å¿«åœ°å°†æ•°æ®å‘é€å‡ºå»ã€‚
+å¸¦æ¥çš„ç¼ºé™·æ˜¯ï¼ŒçŸ­æ—¶é—´å†…çš„ç ç‡æ§åˆ¶ä¸å¤Ÿå¹³æ»‘ï¼Œåœ¨ä¸€äº›ä½å¸¦å®½åœºæ™¯å½±å“æ›´å¤§ã€‚
 */
 constexpr int kWindowMs = 500;
 }
@@ -45,24 +45,24 @@ void IntervalBudget::set_target_rate_kbps(int target_rate_kbps)
 
 void IntervalBudget::IncreaseBudget(int64_t delta_time_ms) 
 {
-  // Ò»°ãÀ´Ëµ£¬can_build_up_underuse_ ¶¼»á¹Ø±Õ£¬¹ØÓÚÕâ¸ö¿ª¹ØµÄ½éÉÜ¼û×îºóÒ»²¿·Ö½éÉÜ
+  // ä¸€èˆ¬æ¥è¯´ï¼Œcan_build_up_underuse_ éƒ½ä¼šå…³é—­ï¼Œå…³äºè¿™ä¸ªå¼€å…³çš„ä»‹ç»è§æœ€åä¸€éƒ¨åˆ†ä»‹ç»
   int bytes = rtc::dchecked_cast<int>(target_rate_kbps_ * delta_time_ms / 8);
   if (bytes_remaining_ < 0 || can_build_up_underuse_) 
   {
     // We overused last interval, compensate this interval.
-    // Èç¹ûÉÏ´Î·¢ËÍµÄ¹ı¶à£¨bytes_remaining_ < 0£©£¬ÄÇÃ´±¾´Î·¢ËÍµÄÊı¾İÁ¿»á±äÉÙ
-    // Èç¹û¿ªÆôcan_build_up_underuse_£¬Ôò±íÃ÷¿ÉÒÔÀÛ»ıÖ®Ç°Ã»ÓĞÓÃÍêµÄÔ¤Ëã
+    // å¦‚æœä¸Šæ¬¡å‘é€çš„è¿‡å¤šï¼ˆbytes_remaining_ < 0ï¼‰ï¼Œé‚£ä¹ˆæœ¬æ¬¡å‘é€çš„æ•°æ®é‡ä¼šå˜å°‘
+    // å¦‚æœå¼€å¯can_build_up_underuse_ï¼Œåˆ™è¡¨æ˜å¯ä»¥ç´¯ç§¯ä¹‹å‰æ²¡æœ‰ç”¨å®Œçš„é¢„ç®—
     bytes_remaining_ = std::min(bytes_remaining_ + bytes, max_bytes_in_budget_);
   }
   else 
   {
     // If we underused last interval we can't use it this interval.
-    // 1£© Èç¹ûÉÏ´ÎµÄbudgetÃ»ÓĞÓÃÍê£¨bytes_remaining_ >
-    // 0£©£¬Èç¹ûÃ»ÓĞÉèÖÃcan_build_up_underuse_
-    // ²»»á¶ÔÉÏ´ÎµÄ²¹³¥£¬Ö±½ÓÇå¿ÕËùÓĞÔ¤Ëã£¬¿ªÊ¼ĞÂµÄÒ»ÂÖ
+    // 1ï¼‰ å¦‚æœä¸Šæ¬¡çš„budgetæ²¡æœ‰ç”¨å®Œï¼ˆbytes_remaining_ >
+    // 0ï¼‰ï¼Œå¦‚æœæ²¡æœ‰è®¾ç½®can_build_up_underuse_
+    // ä¸ä¼šå¯¹ä¸Šæ¬¡çš„è¡¥å¿ï¼Œç›´æ¥æ¸…ç©ºæ‰€æœ‰é¢„ç®—ï¼Œå¼€å§‹æ–°çš„ä¸€è½®
 
-    // 2£© Èç¹ûÉèÖÃÁËcan_build_up_underuse_±êÖ¾£¬ÄÇÒâÎ¶×ÅÒª¿¼ÂÇÉÏ´ÎµÄunderuse£¬
-    // Èç¹ûÉÏ´ÎÃ»ÓĞ·¢ËÍÍê£¬Ôò±¾´ÎĞèÒª²¹³¥£¬¼ûÉÏÃæifÂß¼­
+    // 2ï¼‰ å¦‚æœè®¾ç½®äº†can_build_up_underuse_æ ‡å¿—ï¼Œé‚£æ„å‘³ç€è¦è€ƒè™‘ä¸Šæ¬¡çš„underuseï¼Œ
+    // å¦‚æœä¸Šæ¬¡æ²¡æœ‰å‘é€å®Œï¼Œåˆ™æœ¬æ¬¡éœ€è¦è¡¥å¿ï¼Œè§ä¸Šé¢ifé€»è¾‘
     bytes_remaining_ = std::min(bytes, max_bytes_in_budget_);
   }
 }
