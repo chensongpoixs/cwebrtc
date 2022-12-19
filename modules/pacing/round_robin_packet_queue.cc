@@ -192,7 +192,9 @@ int64_t RoundRobinPacketQueue::OldestEnqueueTimeMs() const {
 void RoundRobinPacketQueue::UpdateQueueTime(int64_t timestamp_ms) {
   RTC_CHECK_GE(timestamp_ms, time_last_updated_ms_);
   if (timestamp_ms == time_last_updated_ms_)
+  {
     return;
+  }
 
   int64_t delta_ms = timestamp_ms - time_last_updated_ms_;
 

@@ -242,7 +242,7 @@ bool RtpPacketizerH264::PacketizeFuA(size_t fragment_index) {
   // Strip out the original header.
   size_t payload_left = fragment.length - kNalHeaderSize;
   int offset = kNalHeaderSize;
-
+  // TODO@chensong 2022-12-19 mtu最大单元 分片发送 [max packet size = 1172, |===>>>>> 1063]
   std::vector<int> payload_sizes = SplitAboutEqually(payload_left, limits);
   if (payload_sizes.empty())
     return false;

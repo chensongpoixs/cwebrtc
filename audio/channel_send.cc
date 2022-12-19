@@ -649,7 +649,7 @@ ChannelSend::ChannelSend(Clock* clock,
       rtcp_observer_(new VoERtcpObserver(this)),
       feedback_observer_proxy_(new TransportFeedbackProxy()),
       seq_num_allocator_proxy_(new TransportSequenceNumberProxy()),
-      rtp_packet_sender_proxy_(new RtpPacketSenderProxy()),
+      rtp_packet_sender_proxy_(new RtpPacketSenderProxy()), // TODO@chensong 2022-12-19 发送模块的队列
       retransmission_rate_limiter_(
           new RateLimiter(clock, kMaxRetransmissionWindowMs)),
       use_twcc_plr_for_ana_(

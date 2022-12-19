@@ -79,23 +79,23 @@ void BitrateProber::OnIncomingPacket(size_t packet_size) {
   // Don't initialize probing unless we have something large enough to start
   // probing.
   if (probing_state_ == ProbingState::kInactive && !clusters_.empty() &&
-      packet_size >=
-          std::min<size_t>(RecommendedMinProbeSize(), kMinProbePacketSize)) {
+      packet_size >= std::min<size_t>(RecommendedMinProbeSize(), kMinProbePacketSize)) 
+  {
     // Send next probe right away.
     next_probe_time_ms_ = -1;
     probing_state_ = ProbingState::kActive;
   }
 }
 
-void BitrateProber::CreateProbeCluster(int bitrate_bps,
-                                       int64_t now_ms,
-                                       int cluster_id) {
+void BitrateProber::CreateProbeCluster(int bitrate_bps, int64_t now_ms, int cluster_id)
+{
   RTC_DCHECK(probing_state_ != ProbingState::kDisabled);
   RTC_DCHECK_GT(bitrate_bps, 0);
 
   total_probe_count_++;
   while (!clusters_.empty() &&
-         now_ms - clusters_.front().time_created_ms > kProbeClusterTimeoutMs) {
+         now_ms - clusters_.front().time_created_ms > kProbeClusterTimeoutMs) 
+  {
     clusters_.pop();
     total_failed_probe_count_++;
   }

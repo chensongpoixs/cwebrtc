@@ -367,16 +367,15 @@ void PacedSender::Process()
       // has avg_time_left_ms left to get queue_size_bytes out of the queue, if
       // time constraint shall be met. Determine bitrate needed for that.
       packets_.UpdateQueueTime(TimeMilliseconds());
-      if (drain_large_queues_) {
-        int64_t avg_time_left_ms = std::max<int64_t>(
-            1, queue_time_limit - packets_.AverageQueueTimeMs());
+      if (drain_large_queues_) 
+	  {
+        int64_t avg_time_left_ms = std::max<int64_t>( 1, queue_time_limit - packets_.AverageQueueTimeMs());
         // 根据队列大小计算最小目标码率
-        int min_bitrate_needed_kbps =
-            static_cast<int>(queue_size_bytes * 8 / avg_time_left_ms);
-        if (min_bitrate_needed_kbps > target_bitrate_kbps) {
+        int min_bitrate_needed_kbps = static_cast<int>(queue_size_bytes * 8 / avg_time_left_ms);
+        if (min_bitrate_needed_kbps > target_bitrate_kbps) 
+		{
           target_bitrate_kbps = min_bitrate_needed_kbps;
-          RTC_LOG(LS_VERBOSE) << "bwe:large_pacing_queue pacing_rate_kbps="
-                              << target_bitrate_kbps;
+          RTC_LOG(LS_VERBOSE) << "bwe:large_pacing_queue pacing_rate_kbps="  << target_bitrate_kbps;
         }
       }
     }
@@ -389,44 +388,54 @@ void PacedSender::Process()
   PacedPacketInfo pacing_info;
   size_t bytes_sent = 0;
   size_t recommended_probe_size = 0;
-  if (is_probing) {
+  if (is_probing) 
+  {
     // 从当前探测包簇中获取探测码率
     pacing_info = prober_.CurrentCluster();
     recommended_probe_size = prober_.RecommendedMinProbeSize();
   }
   // The paused state is checked in the loop since it leaves the critical
   // section allowing the paused state to be changed from other code.
-  while (!packets_.Empty() && !paused_) {
+  while (!packets_.Empty() && !paused_) 
+  {
     const auto* packet = GetPendingPacket(pacing_info);
-    if (packet == nullptr)
+	if (packet == nullptr)
+	{
       break;
+	}
 
     critsect_.Leave();
-    bool success = packet_sender_->TimeToSendPacket(
-        packet->ssrc, packet->sequence_number, packet->capture_time_ms,
+    bool success = packet_sender_->TimeToSendPacket( packet->ssrc, packet->sequence_number, packet->capture_time_ms,
         packet->retransmission, pacing_info);
     critsect_.Enter();
-    if (success) {
+    if (success)
+	{
       bytes_sent += packet->bytes;
       // Send succeeded, remove it from the queue.
       OnPacketSent(packet);
-      if (is_probing && bytes_sent > recommended_probe_size)
+	  if (is_probing && bytes_sent > recommended_probe_size)
+	  {
         break;
-    } else {
+	  }
+    } 
+	else 
+	{
       // Send failed, put it back into the queue.
       packets_.CancelPop(*packet);
       break;
     }
   }
 
-  if (packets_.Empty() && !Congested()) {
+  if (packets_.Empty() && !Congested()) 
+  {
     // We can not send padding unless a normal packet has first been sent. If we
     // do, timestamps get messed up.
-    if (packet_counter_ > 0) {
+    if (packet_counter_ > 0)
+	{
       int padding_needed =
-          static_cast<int>(is_probing ? (recommended_probe_size - bytes_sent)
-                                      : padding_budget_.bytes_remaining());
-      if (padding_needed > 0) {
+          static_cast<int>(is_probing ? (recommended_probe_size - bytes_sent) : padding_budget_.bytes_remaining());
+      if (padding_needed > 0) 
+	  {
         critsect_.Leave();
         size_t padding_sent =
             packet_sender_->TimeToSendPadding(padding_needed, pacing_info);

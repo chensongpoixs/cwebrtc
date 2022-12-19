@@ -412,6 +412,39 @@ int32_t H264EncoderImpl::SetRateAllocation(
   return WEBRTC_VIDEO_CODEC_OK;
 }
 
+ static const char* get_video_frame_type(EVideoFrameType type) {
+  switch (type) {
+    case videoFrameTypeInvalid: {
+      return "videoFrameTypeInvalid";
+      break;
+    }
+    case videoFrameTypeIDR: {
+      return "videoFrameTypeIDR";
+      break;
+    }
+    case videoFrameTypeI: {
+      return "videoFrameTypeI";
+      break;
+    }
+    case videoFrameTypeP: {
+      return "videoFrameTypeP";
+      break;
+    }
+    case videoFrameTypeSkip: {
+      return "videoFrameTypeSkip";
+      break;
+    }
+    case videoFrameTypeIPMixed: {
+      return "videoFrameTypeIPMixed";
+      break;
+    }
+    default:
+      return "videoFrameTypeUNKNOWN";
+      break;
+  }
+  return "videoFrameTypeUNKNOWN";
+}
+
 int32_t H264EncoderImpl::Encode(
     const VideoFrame& input_frame,
     const std::vector<VideoFrameType>* frame_types) {
@@ -562,6 +595,15 @@ int32_t H264EncoderImpl::Encode(
       codec_specific.codecSpecific.H264.packetization_mode = packetization_mode_;
       codec_specific.codecSpecific.H264.temporal_idx = kNoTemporalIdx;
       codec_specific.codecSpecific.H264.idr_frame = info.eFrameType == videoFrameTypeIDR;
+
+
+	  //get_video_frame_type#define FRAMETYPE(FrameType) (#FrameType)
+      RTC_LOG(LS_INFO) << "[" << __FUNCTION__ << "][" << __LINE__
+                       << "] [FrameType = "
+                       << get_video_frame_type(info.eFrameType)
+                       << "][encoded_images_["<<i<<"].size() ="
+                       << encoded_images_[i].size() << "]";
+
       codec_specific.codecSpecific.H264.base_layer_sync = false;
       if (num_temporal_layers_ > 1) 
       {

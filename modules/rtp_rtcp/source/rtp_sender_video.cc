@@ -687,16 +687,19 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
     // Choose right packet template:
     if (num_packets == 1) 
 	{
+		// TODO@chensong 2022-12-19 nal rtp 不需要分包啦
       packet = std::move(single_packet);
       expected_payload_capacity = limits.max_payload_len - limits.single_packet_reduction_len;
     } 
 	else if (i == 0) 
 	{
+		// TODO@chensong 2022-12-19 nal rtp 开始发送位置
       packet = std::move(first_packet);
       expected_payload_capacity = limits.max_payload_len - limits.first_packet_reduction_len;
     }
 	else if (i == num_packets - 1) 
 	{
+		// TODO@chensong 2022-12-19 nal 分包 rtp 结束标记 记录
       packet = std::move(last_packet);
       expected_payload_capacity = limits.max_payload_len - limits.last_packet_reduction_len;
     } 

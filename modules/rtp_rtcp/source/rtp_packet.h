@@ -168,7 +168,7 @@ class RtpPacket {
   void WriteAt(size_t offset, uint8_t byte) { buffer_.data()[offset] = byte; }
 
   // Header.
-  bool marker_;
+  bool marker_;  // TODO@chensong  2022-12-19 是否包的结束标记
   uint8_t payload_type_;
   uint8_t padding_size_;
   uint16_t sequence_number_;
