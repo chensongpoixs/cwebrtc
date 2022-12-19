@@ -2782,3 +2782,6 @@ modules/rtp_rtcp/source/rtcp_packet/transport_feedback.h.bak
 modules/video_coding/codecs/h264/h264.cc.bak
 modules/video_coding/codecs/h264/h264_encoder_impl.cc.bak
 modules/congestion_controller/rtp/send_time_history.h.bak
+test/linux/新文件 1.txt
+examples/html/simple_demo/package.json
+modules/pacing/paced_sender.cc.bak

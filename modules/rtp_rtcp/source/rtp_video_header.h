@@ -69,6 +69,10 @@ struct RTPVideoHeader {
   RTPVideoTypeHeader video_type_header;
 };
 
+
+	std::string ToString(const webrtc::RTPVideoHeader::GenericDescriptorInfo & desc_info);
+	std::string ToString(const webrtc::RTPVideoHeader & rtpvideoheader);
+
 }  // namespace webrtc
 
 #endif  // MODULES_RTP_RTCP_SOURCE_RTP_VIDEO_HEADER_H_

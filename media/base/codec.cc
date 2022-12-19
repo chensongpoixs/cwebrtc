@@ -260,12 +260,16 @@ VideoCodec::VideoCodec(VideoCodec&& c) = default;
 VideoCodec& VideoCodec::operator=(const VideoCodec& c) = default;
 VideoCodec& VideoCodec::operator=(VideoCodec&& c) = default;
 
-void VideoCodec::SetDefaultParameters() {
-  if (absl::EqualsIgnoreCase(kH264CodecName, name)) {
+void VideoCodec::SetDefaultParameters() 
+{
+  if (absl::EqualsIgnoreCase(kH264CodecName, name)) 
+  {
     // This default is set for all H.264 codecs created because
     // that was the default before packetization mode support was added.
     // TODO(hta): Move this to the places that create VideoCodecs from
     // SDP or from knowledge of implementation capabilities.
+    //SetParam(kH264FmtpPacketizationMode, "1");
+	  // TODO@chensong 2022-12-08 设置H264 编码NAL的格式
     SetParam(kH264FmtpPacketizationMode, "1");
   }
 }

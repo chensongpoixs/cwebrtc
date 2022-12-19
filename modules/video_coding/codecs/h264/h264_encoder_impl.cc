@@ -203,9 +203,10 @@ H264EncoderImpl::H264EncoderImpl(const cricket::VideoCodec& codec)
   std::string packetization_mode_string;
   if (codec.GetParam(cricket::kH264FmtpPacketizationMode,
                      &packetization_mode_string) &&
-      packetization_mode_string == "1") {
+      packetization_mode_string == "1") 
+  {
     packetization_mode_ = H264PacketizationMode::NonInterleaved;
-  }
+  } 
   downscaled_buffers_.reserve(kMaxSimulcastStreams - 1);
   encoded_images_.reserve(kMaxSimulcastStreams);
   encoders_.reserve(kMaxSimulcastStreams);

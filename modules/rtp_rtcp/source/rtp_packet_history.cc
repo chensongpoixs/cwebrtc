@@ -82,8 +82,8 @@ void RtpPacketHistory::SetRtt(int64_t rtt_ms) {
 }
 
 void RtpPacketHistory::PutRtpPacket(std::unique_ptr<RtpPacketToSend> packet,
-                                    StorageType type,
-                                    absl::optional<int64_t> send_time_ms) {
+                                    StorageType type, absl::optional<int64_t> send_time_ms) 
+{
   RTC_DCHECK(packet);
   rtc::CritScope cs(&lock_);
   int64_t now_ms = clock_->TimeInMilliseconds();
@@ -97,29 +97,34 @@ void RtpPacketHistory::PutRtpPacket(std::unique_ptr<RtpPacketToSend> packet,
   const uint16_t rtp_seq_no = packet->SequenceNumber();
   StoredPacket& stored_packet = packet_history_[rtp_seq_no];
   RTC_DCHECK(stored_packet.packet == nullptr);
-  if (stored_packet.packet) {
+  if (stored_packet.packet)
+  {
     // It is an error if this happen. But it can happen if the sequence numbers
     // for some reason restart without that the history has been reset.
     auto size_iterator = packet_size_.find(stored_packet.packet->size());
     if (size_iterator != packet_size_.end() &&
-        size_iterator->second == stored_packet.packet->SequenceNumber()) {
+        size_iterator->second == stored_packet.packet->SequenceNumber()) 
+	{
       packet_size_.erase(size_iterator);
     }
   }
   stored_packet.packet = std::move(packet);
 
-  if (stored_packet.packet->capture_time_ms() <= 0) {
+  if (stored_packet.packet->capture_time_ms() <= 0) 
+  {
     stored_packet.packet->set_capture_time_ms(now_ms);
   }
   stored_packet.send_time_ms = send_time_ms;
   stored_packet.storage_type = type;
   stored_packet.times_retransmitted = 0;
 
-  if (!start_seqno_) {
+  if (!start_seqno_) 
+  {
     start_seqno_ = rtp_seq_no;
   }
   // Store the sequence number of the last send packet with this size.
-  if (type != StorageType::kDontRetransmit) {
+  if (type != StorageType::kDontRetransmit)
+  {
     packet_size_[stored_packet.packet->size()] = rtp_seq_no;
   }
 }
@@ -239,14 +244,16 @@ void RtpPacketHistory::Reset() {
   start_seqno_.reset();
 }
 
-void RtpPacketHistory::CullOldPackets(int64_t now_ms) {
-  int64_t packet_duration_ms =
-      std::max(kMinPacketDurationRtt * rtt_ms_, kMinPacketDurationMs);
-  while (!packet_history_.empty()) {
+void RtpPacketHistory::CullOldPackets(int64_t now_ms) 
+{
+  int64_t packet_duration_ms = std::max(kMinPacketDurationRtt * rtt_ms_, kMinPacketDurationMs);
+  while (!packet_history_.empty())
+  {
     auto stored_packet_it = packet_history_.find(*start_seqno_);
     RTC_DCHECK(stored_packet_it != packet_history_.end());
 
-    if (packet_history_.size() >= kMaxCapacity) {
+    if (packet_history_.size() >= kMaxCapacity /* 9600*/) 
+	{
       // We have reached the absolute max capacity, remove one packet
       // unconditionally.
       RemovePacket(stored_packet_it);
@@ -254,55 +261,60 @@ void RtpPacketHistory::CullOldPackets(int64_t now_ms) {
     }
 
     const StoredPacket& stored_packet = stored_packet_it->second;
-    if (!stored_packet.send_time_ms) {
+    if (!stored_packet.send_time_ms) 
+	{
       // Don't remove packets that have not been sent.
       return;
     }
 
-    if (*stored_packet.send_time_ms + packet_duration_ms > now_ms) {
+    if (*stored_packet.send_time_ms + packet_duration_ms > now_ms) 
+	{
       // Don't cull packets too early to avoid failed retransmission requests.
       return;
     }
 
     if (packet_history_.size() >= number_to_store_ ||
-        (mode_ == StorageMode::kStoreAndCull &&
-         *stored_packet.send_time_ms +
-                 (packet_duration_ms * kPacketCullingDelayFactor) <=
-             now_ms)) {
+        (mode_ == StorageMode::kStoreAndCull && *stored_packet.send_time_ms + (packet_duration_ms * kPacketCullingDelayFactor) <= now_ms)) 
+	{
       // Too many packets in history, or this packet has timed out. Remove it
       // and continue.
       RemovePacket(stored_packet_it);
-    } else {
+    }
+	else 
+	{
       // No more packets can be removed right now.
       return;
     }
   }
 }
 
-std::unique_ptr<RtpPacketToSend> RtpPacketHistory::RemovePacket(
-    StoredPacketIterator packet_it) {
+std::unique_ptr<RtpPacketToSend> RtpPacketHistory::RemovePacket(StoredPacketIterator packet_it) 
+{
   // Move the packet out from the StoredPacket container.
-  std::unique_ptr<RtpPacketToSend> rtp_packet =
-      std::move(packet_it->second.packet);
+  std::unique_ptr<RtpPacketToSend> rtp_packet = std::move(packet_it->second.packet);
   // Erase the packet from the map, and capture iterator to the next one.
   StoredPacketIterator next_it = packet_history_.erase(packet_it);
 
   // |next_it| now points to the next element, or to the end. If the end,
   // check if we can wrap around.
-  if (next_it == packet_history_.end()) {
+  if (next_it == packet_history_.end()) 
+  {
     next_it = packet_history_.begin();
   }
 
   // Update |start_seq_no| to the new oldest item.
-  if (next_it != packet_history_.end()) {
+  if (next_it != packet_history_.end()) 
+  {
     start_seqno_ = next_it->first;
-  } else {
+  }
+  else 
+  {
     start_seqno_.reset();
   }
 
   auto size_iterator = packet_size_.find(rtp_packet->size());
-  if (size_iterator != packet_size_.end() &&
-      size_iterator->second == rtp_packet->SequenceNumber()) {
+  if (size_iterator != packet_size_.end() && size_iterator->second == rtp_packet->SequenceNumber()) 
+  {
     packet_size_.erase(size_iterator);
   }
 

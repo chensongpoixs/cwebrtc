@@ -226,11 +226,12 @@ void PacedSender::InsertPacket(RtpPacketSender::Priority priority,
   prober_.OnIncomingPacket(bytes);
 
   if (capture_time_ms < 0)
+  {
     capture_time_ms = now_ms;
-
+  }
+  // TODO@chensong 2022-12-08  发送包的序号 队列 
   packets_.Push(RoundRobinPacketQueue::Packet(
-      priority, ssrc, sequence_number, capture_time_ms, now_ms, bytes,
-      retransmission, packet_counter_++));
+      priority, ssrc, sequence_number, capture_time_ms, now_ms, bytes, retransmission, packet_counter_++));
 }
 
 void PacedSender::SetAccountForAudioPackets(bool account_for_audio) {
@@ -308,12 +309,14 @@ int64_t PacedSender::UpdateTimeAndGetElapsedMs(int64_t now_us) {
 }
 
 bool PacedSender::ShouldSendKeepalive(int64_t now_us) const {
-  if (send_padding_if_silent_ || paused_ || Congested()) {
+  if (send_padding_if_silent_ || paused_ || Congested()) 
+  {
     // We send a padding packet every 500 ms to ensure we won't get stuck in
     // congested state due to no feedback being received.
     //  没有feedback过来就处于congested状态，则每500ms就会有一个keepalive探测包
     int64_t elapsed_since_last_send_us = now_us - last_send_time_us_;
-    if (elapsed_since_last_send_us >= kCongestedPacketIntervalMs * 1000) {
+    if (elapsed_since_last_send_us >= kCongestedPacketIntervalMs * 1000)
+	{
       // We can not send padding unless a normal packet has first been sent. If
       // we do, timestamps get messed up.
       if (packet_counter_ > 0) {
@@ -369,13 +372,21 @@ void PacedSender::Process()
       packets_.UpdateQueueTime(TimeMilliseconds());
       if (drain_large_queues_) 
 	  {
-        int64_t avg_time_left_ms = std::max<int64_t>( 1, queue_time_limit - packets_.AverageQueueTimeMs());
+//<<<<<<< HEAD
+ //       int64_t avg_time_left_ms = std::max<int64_t>( 1, queue_time_limit - packets_.AverageQueueTimeMs());
+//=======
+        int64_t avg_time_left_ms = std::max<int64_t>(1, queue_time_limit - packets_.AverageQueueTimeMs());
+//>>>>>>> 400fbc6232e2881b208dd76136e19a6ecf5adcd4
         // 根据队列大小计算最小目标码率
         int min_bitrate_needed_kbps = static_cast<int>(queue_size_bytes * 8 / avg_time_left_ms);
         if (min_bitrate_needed_kbps > target_bitrate_kbps) 
 		{
           target_bitrate_kbps = min_bitrate_needed_kbps;
+//<<<<<<< HEAD
           RTC_LOG(LS_VERBOSE) << "bwe:large_pacing_queue pacing_rate_kbps="  << target_bitrate_kbps;
+//=======
+       //   RTC_LOG(LS_VERBOSE) << "bwe:large_pacing_queue pacing_rate_kbps=" << target_bitrate_kbps;
+//>>>>>>> 400fbc6232e2881b208dd76136e19a6ecf5adcd4
         }
       }
     }
@@ -408,7 +419,12 @@ void PacedSender::Process()
     bool success = packet_sender_->TimeToSendPacket( packet->ssrc, packet->sequence_number, packet->capture_time_ms,
         packet->retransmission, pacing_info);
     critsect_.Enter();
-    if (success)
+//<<<<<<< HEAD
+ //   if (success)
+//=======
+   
+//>>>>>>> 400fbc6232e2881b208dd76136e19a6ecf5adcd4
+    if (success) 
 	{
       bytes_sent += packet->bytes;
       // Send succeeded, remove it from the queue.
@@ -463,8 +479,8 @@ void PacedSender::ProcessThreadAttached(ProcessThread* process_thread) {
   process_thread_ = process_thread;
 }
 
-const RoundRobinPacketQueue::Packet* PacedSender::GetPendingPacket(
-    const PacedPacketInfo& pacing_info) {
+const RoundRobinPacketQueue::Packet* PacedSender::GetPendingPacket(const PacedPacketInfo& pacing_info) 
+{
   // Since we need to release the lock in order to send, we first pop the
   // element from the priority queue but keep it in storage, so that we can
   // reinsert it if send fails.

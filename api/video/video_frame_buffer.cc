@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -67,8 +67,12 @@ int I420BufferInterface::ChromaHeight() const {
   return (height() + 1) / 2;
 }
 bool I420BufferInterface::set_texture(void* texture) {
-  /*if (!texture)
+//<<<<<<< HEAD
+  /*if (!texture) {
+=======
+  if (!texture)
   {
+>>>>>>> 3cd35d9d942cb8f0ec5d7a93b13be81b33cd410b
     return false;
   }*/
   m_texture = texture;

@@ -685,7 +685,10 @@ bool RTPSender::SendToNetwork(std::unique_ptr<RtpPacketToSend> packet,
 		//统计打包后的payload的码率开销
       flexfec_packet_history_.PutRtpPacket(std::move(packet), storage,
                                            absl::nullopt);
-    } else {
+    } 
+	else 
+	{
+		// TODO@chensong 2022-12-08 rtpVideoHeader 包放到发送队列中去
       packet_history_.PutRtpPacket(std::move(packet), storage, absl::nullopt);
     }
     // TODO@chensong 20220803   将packet投入[F:\Work\20220719_webrtc\src\modules\pacing\paced_sender.cc]PacedSender的发送队列中

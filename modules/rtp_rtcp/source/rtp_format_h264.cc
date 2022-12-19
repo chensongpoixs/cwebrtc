@@ -119,13 +119,11 @@ RtpPacketizerH264::RtpPacketizerH264(rtc::ArrayView<const uint8_t> payload, Payl
       // can append modified payload on top of that.
       output_buffer->AppendData(buffer[0]);
       SpsVuiRewriter::ParseResult result = SpsVuiRewriter::ParseAndRewriteSps(
-          buffer + H264::kNaluTypeSize, length - H264::kNaluTypeSize, &sps,
-          output_buffer.get());
+          buffer + H264::kNaluTypeSize, length - H264::kNaluTypeSize, &sps, output_buffer.get());
 
       switch (result) {
         case SpsVuiRewriter::ParseResult::kVuiRewritten:
-          input_fragments_.push_back(
-              Fragment(output_buffer->data(), output_buffer->size()));
+          input_fragments_.push_back(Fragment(output_buffer->data(), output_buffer->size()));
           input_fragments_.rbegin()->tmp_buffer = std::move(output_buffer);
           updated_sps = true;
           RTC_HISTOGRAM_ENUMERATION(kSpsValidHistogramName,
@@ -151,12 +149,14 @@ RtpPacketizerH264::RtpPacketizerH264(rtc::ArrayView<const uint8_t> payload, Payl
 	}
   }
   // TODO@chensong 2022-04-04    RTP发送NALU 两种模式  
-  if (!GeneratePackets(packetization_mode)) {
+  if (!GeneratePackets(packetization_mode)) 
+  {
     // If failed to generate all the packets, discard already generated
     // packets in case the caller would ignore return value and still try to
     // call NextPacket().
     num_packets_left_ = 0;
-    while (!packets_.empty()) {
+    while (!packets_.empty()) 
+	{
       packets_.pop();
     }
   }
@@ -175,10 +175,12 @@ size_t RtpPacketizerH264::NumPackets() const {
   return num_packets_left_;
 }
 
-bool RtpPacketizerH264::GeneratePackets(
-    H264PacketizationMode packetization_mode) {
-  for (size_t i = 0; i < input_fragments_.size();) {
-    switch (packetization_mode) {
+bool RtpPacketizerH264::GeneratePackets(H264PacketizationMode packetization_mode) 
+{
+  for (size_t i = 0; i < input_fragments_.size();) 
+  {
+    switch (packetization_mode) 
+	{
       case H264PacketizationMode::SingleNalUnit:
 	  {
 		  if (!PacketizeSingleNalu(i))
@@ -193,18 +195,26 @@ bool RtpPacketizerH264::GeneratePackets(
 		  int fragment_len = input_fragments_[i].length;
 		  int single_packet_capacity = limits_.max_payload_len;
 		  if (input_fragments_.size() == 1)
-			  single_packet_capacity -= limits_.single_packet_reduction_len;
+		  {
+              single_packet_capacity -= limits_.single_packet_reduction_len;
+		  }
 		  else if (i == 0)
-			  single_packet_capacity -= limits_.first_packet_reduction_len;
+		  {
+              single_packet_capacity -= limits_.first_packet_reduction_len;
+		  }
 		  else if (i + 1 == input_fragments_.size())
-			  single_packet_capacity -= limits_.last_packet_reduction_len;
+		  {
+              single_packet_capacity -= limits_.last_packet_reduction_len;
+		  }
 
-		  if (fragment_len > single_packet_capacity) {
+		  if (fragment_len > single_packet_capacity) 
+		  {
 			  if (!PacketizeFuA(i))
 				  return false;
 			  ++i;
 		  }
-		  else {
+		  else 
+		  {
 			  i = PacketizeStapA(i);
 		  }
 		  break;
@@ -315,7 +325,8 @@ size_t RtpPacketizerH264::PacketizeStapA(size_t fragment_index) {
   return fragment_index;
 }
 
-bool RtpPacketizerH264::PacketizeSingleNalu(size_t fragment_index) {
+bool RtpPacketizerH264::PacketizeSingleNalu(size_t fragment_index) 
+{
   // Add a single NALU to the queue, no aggregation.
   size_t payload_size_left = limits_.max_payload_len;
   if (input_fragments_.size() == 1)
@@ -341,29 +352,35 @@ bool RtpPacketizerH264::PacketizeSingleNalu(size_t fragment_index) {
     return false;
   }
   RTC_CHECK_GT(fragment->length, 0u);
-  packets_.push(PacketUnit(*fragment, true /* first */, true /* last */,
-                           false /* aggregated */, fragment->buffer[0]));
+  packets_.push(PacketUnit(*fragment, true /* first */, true /* last */, false /* aggregated */, fragment->buffer[0]));
   ++num_packets_left_;
   return true;
 }
 
-bool RtpPacketizerH264::NextPacket(RtpPacketToSend* rtp_packet) {
+bool RtpPacketizerH264::NextPacket(RtpPacketToSend* rtp_packet) 
+{
   RTC_DCHECK(rtp_packet);
-  if (packets_.empty()) {
+  if (packets_.empty()) 
+  {
     return false;
   }
 
   PacketUnit packet = packets_.front();
-  if (packet.first_fragment && packet.last_fragment) {
+  if (packet.first_fragment && packet.last_fragment) 
+  {
     // Single NAL unit packet.
     size_t bytes_to_send = packet.source_fragment.length;
     uint8_t* buffer = rtp_packet->AllocatePayload(bytes_to_send);
     memcpy(buffer, packet.source_fragment.buffer, bytes_to_send);
     packets_.pop();
     input_fragments_.pop_front();
-  } else if (packet.aggregated) {
+  }
+  else if (packet.aggregated) 
+  {
     NextAggregatePacket(rtp_packet);
-  } else {
+  }
+  else 
+  {
     NextFragmentPacket(rtp_packet);
   }
   rtp_packet->SetMarker(packets_.empty());

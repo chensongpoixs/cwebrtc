@@ -366,10 +366,8 @@ void RTPSenderVideo::SendVideoPacketWithFlexfec(
   }
 }
 
-bool RTPSenderVideo::LogAndSendToNetwork(
-    std::unique_ptr<RtpPacketToSend> packet,
-    StorageType storage,
-    RtpPacketSender::Priority priority) {
+bool RTPSenderVideo::LogAndSendToNetwork(std::unique_ptr<RtpPacketToSend> packet, StorageType storage, RtpPacketSender::Priority priority) 
+{
 #if BWE_TEST_LOGGING_COMPILE_TIME_ENABLE
   int64_t now_ms = clock_->TimeInMilliseconds();
   BWE_TEST_LOGGING_PLOT_WITH_SSRC(1, "VideoTotBitrate_kbps", now_ms,
@@ -663,12 +661,16 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
   const size_t num_packets = packetizer->NumPackets();
 
   size_t unpacketized_payload_size;
-  if (fragmentation && fragmentation->fragmentationVectorSize > 0) {
+  if (fragmentation && fragmentation->fragmentationVectorSize > 0) 
+  {
     unpacketized_payload_size = 0;
-    for (uint16_t i = 0; i < fragmentation->fragmentationVectorSize; ++i) {
+    for (uint16_t i = 0; i < fragmentation->fragmentationVectorSize; ++i) 
+	{
       unpacketized_payload_size += fragmentation->fragmentationLength[i];
     }
-  } else {
+  } 
+  else 
+  {
     unpacketized_payload_size = payload_size;
   }
   size_t packetized_payload_size = 0;

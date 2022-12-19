@@ -88,5 +88,24 @@ std::string TimingFrameInfo::ToString() const {
 
   return sb.str();
 }
-
+std::string ToString(const webrtc::VideoSendTiming& sendTiming)
+{
+  char buffer[1024 * 100] = {0};
+  /*
+  uint16_t encode_start_delta_ms;
+  uint16_t encode_finish_delta_ms;
+  uint16_t packetization_finish_delta_ms;
+  uint16_t pacer_exit_delta_ms;
+  uint16_t network_timestamp_delta_ms;
+  uint16_t network2_timestamp_delta_ms;
+  uint8_t flags;
+  */
+  ::sprintf(&buffer[0], "[encode_start_delta_ms = %hu][encode_finish_delta_ms = %hu][packetization_finish_delta_ms = %hu][pacer_exit_delta_ms = %hu][network_timestamp_delta_ms = %hu][network2_timestamp_delta_ms = %hu][flags = %hhu]",
+            sendTiming.encode_start_delta_ms, sendTiming.encode_finish_delta_ms,
+            sendTiming.packetization_finish_delta_ms,
+            sendTiming.pacer_exit_delta_ms,
+            sendTiming.network_timestamp_delta_ms,
+            sendTiming.network2_timestamp_delta_ms, sendTiming.flags);
+	return buffer;
+}
 }  // namespace webrtc
