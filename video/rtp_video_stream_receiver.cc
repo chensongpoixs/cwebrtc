@@ -240,9 +240,8 @@ int32_t RtpVideoStreamReceiver::OnReceivedPayloadData(const uint8_t* payload_dat
   {
     const bool is_keyframe = video_header.is_first_packet_in_frame &&
                              frame_type == VideoFrameType::kVideoFrameKey;
-
-    packet.timesNacked = nack_module_->OnReceivedPacket(
-        rtp_header.sequenceNumber, is_keyframe, is_recovered);
+	// TODO@chensong 2022-12-20 对于掉包处理模块nack重新发送
+    packet.timesNacked = nack_module_->OnReceivedPacket(rtp_header.sequenceNumber, is_keyframe, is_recovered);
 
   }
   else 
@@ -269,7 +268,7 @@ int32_t RtpVideoStreamReceiver::OnReceivedPayloadData(const uint8_t* payload_dat
     NotifyReceiverOfEmptyPacket(packet.seqNum);
     return 0;
   }
-
+  // TODO@chensong 2022-12-20 接受H264 rtp分包 seq放到接受队列中去packet_buffer_
   if (packet.codec() == kVideoCodecH264) {
     // Only when we start to receive packets will we know what payload type
     // that will be used. When we know the payload type insert the correct

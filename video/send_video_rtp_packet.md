@@ -26,7 +26,8 @@ RtpStreamReceiverController::OnRtpPacket --> 视频数据rtp包逻辑
 RtpDemuxer::OnRtpPacket  --> 查找src源
 RtpVideoStreamReceiver::OnRtpPacket
 RtpVideoStreamReceiver::ReceivePacket --> 解析rtp头部信息和rtp扩展信息
-RtpVideoStreamReceiver::OnReceivedPayloadData --》 进入nack模块      ========> NackModule::OnReceivedPacket -->  [rtt statistics]
+RtpVideoStreamReceiver::OnReceivedPayloadData --》 进入nack模块      ========> NackModule::OnReceivedPacket -->  [rtt statistics] 对于掉包处理模块nack重新发送
+PacketBuffer::InsertPacket --> 接受rtp包插入接受队列中去
 
 
 ```
