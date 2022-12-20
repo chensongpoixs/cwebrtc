@@ -120,8 +120,10 @@ void RoundRobinPacketQueue::CancelPop(const Packet& packet) {
   pop_stream_.reset();
 }
 
-void RoundRobinPacketQueue::FinalizePop(const Packet& packet) {
-  if (!Empty()) {
+void RoundRobinPacketQueue::FinalizePop(const Packet& packet) 
+{
+  if (!Empty()) 
+  {
     RTC_CHECK(pop_packet_ && pop_stream_);
     Stream* stream = *pop_stream_;
     stream_priorities_.erase(stream->priority_it);
@@ -132,8 +134,7 @@ void RoundRobinPacketQueue::FinalizePop(const Packet& packet) {
     // subtracted from |packet.enqueue_time_ms| when the packet was pushed, and
     // by subtracting it now we effectively remove the time spent in in the
     // queue while in a paused state.
-    int64_t time_in_non_paused_state_ms =
-        time_last_updated_ms_ - packet.enqueue_time_ms - pause_time_sum_ms_;
+    int64_t time_in_non_paused_state_ms = time_last_updated_ms_ - packet.enqueue_time_ms - pause_time_sum_ms_;
     queue_time_sum_ms_ -= time_in_non_paused_state_ms;
 
     RTC_CHECK(packet.enqueue_time_it != enqueue_times_.end());
@@ -145,8 +146,7 @@ void RoundRobinPacketQueue::FinalizePop(const Packet& packet) {
     // case a "budget" will be built up for the stream sending at the lower
     // rate. To avoid building a too large budget we limit |bytes| to be within
     // kMaxLeading bytes of the stream that has sent the most amount of bytes.
-    stream->bytes =
-        std::max(stream->bytes + packet.bytes, max_bytes_ - kMaxLeadingBytes);
+    stream->bytes = std::max(stream->bytes + packet.bytes, max_bytes_ - kMaxLeadingBytes);
     max_bytes_ = std::max(max_bytes_, stream->bytes);
 
     size_bytes_ -= packet.bytes;
@@ -155,12 +155,14 @@ void RoundRobinPacketQueue::FinalizePop(const Packet& packet) {
 
     // If there are packets left to be sent, schedule the stream again.
     RTC_CHECK(!IsSsrcScheduled(stream->ssrc));
-    if (stream->packet_queue.empty()) {
+    if (stream->packet_queue.empty()) 
+	{
       stream->priority_it = stream_priorities_.end();
-    } else {
+    }
+	else 
+	{
       RtpPacketSender::Priority priority = stream->packet_queue.top().priority;
-      stream->priority_it = stream_priorities_.emplace(
-          StreamPrioKey(priority, stream->bytes), stream->ssrc);
+      stream->priority_it = stream_priorities_.emplace(StreamPrioKey(priority, stream->bytes), stream->ssrc);
     }
 
     pop_packet_.reset();

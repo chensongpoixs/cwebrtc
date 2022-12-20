@@ -968,20 +968,28 @@ void SendStatisticsProxy::OnSendEncodedImage(
   uma_container_->key_frame_counter_.Add(encoded_image._frameType ==
                                          VideoFrameType::kVideoFrameKey);
 
-  if (encoded_image.qp_ != -1) {
-    if (!stats_.qp_sum) {
+  if (encoded_image.qp_ != -1) 
+  {
+    if (!stats_.qp_sum) 
+	{
       stats_.qp_sum = 0;
     }
     *stats_.qp_sum += encoded_image.qp_;
 
-    if (codec_info) {
-      if (codec_info->codecType == kVideoCodecVP8) {
+    if (codec_info)
+	{
+      if (codec_info->codecType == kVideoCodecVP8) 
+	  {
         int spatial_idx = (rtp_config_.ssrcs.size() == 1) ? -1 : simulcast_idx;
         uma_container_->qp_counters_[spatial_idx].vp8.Add(encoded_image.qp_);
-      } else if (codec_info->codecType == kVideoCodecVP9) {
+      }
+	  else if (codec_info->codecType == kVideoCodecVP9) 
+	  {
         int spatial_idx = encoded_image.SpatialIndex().value_or(-1);
         uma_container_->qp_counters_[spatial_idx].vp9.Add(encoded_image.qp_);
-      } else if (codec_info->codecType == kVideoCodecH264) {
+      } 
+	  else if (codec_info->codecType == kVideoCodecH264) 
+	  {
         // TODO@chensong  2022-07-26 把simulcat的idx作为key值或者-1
         // 作为索引值保持QP的值
         int spatial_idx = (rtp_config_.ssrcs.size() == 1) ? -1 : simulcast_idx;
@@ -995,9 +1003,10 @@ void SendStatisticsProxy::OnSendEncodedImage(
   // https://w3c.github.io/webrtc-stats/#dom-rtcvideosenderstats-hugeframessent
   // TODO@chensong 2022-07-26  输入一帧特别的大的时候设置这个参数flags [simulcat
   // 模式]
-  if (encoded_image.timing_.flags & VideoSendTiming::kTriggeredBySize) {
-    if (!last_outlier_timestamp_ ||
-        *last_outlier_timestamp_ < encoded_image.capture_time_ms_) {
+  if (encoded_image.timing_.flags & VideoSendTiming::kTriggeredBySize)
+  {
+    if (!last_outlier_timestamp_ || *last_outlier_timestamp_ < encoded_image.capture_time_ms_) 
+	{
       last_outlier_timestamp_.emplace(encoded_image.capture_time_ms_);
       ++stats_.huge_frames_sent;
     }
@@ -1008,8 +1017,8 @@ void SendStatisticsProxy::OnSendEncodedImage(
   // Initialize to current since |is_limited_in_resolution| is only updated
   // when an encoded frame is removed from the EncodedFrameMap.
   bool is_limited_in_resolution = stats_.bw_limited_resolution;
-  if (uma_container_->InsertEncodedFrame(encoded_image, simulcast_idx,
-                                         &is_limited_in_resolution)) {
+  if (uma_container_->InsertEncodedFrame(encoded_image, simulcast_idx, &is_limited_in_resolution)) 
+  {
     encoded_frame_rate_tracker_.AddSamples(1);
   }
 
@@ -1025,8 +1034,7 @@ void SendStatisticsProxy::OnSendEncodedImage(
   }
 
   // TODO@chensong 2022-07-25 video statistics info write file 
-  if (m_send_video_statistics_info_ptr &&
-      clock_->TimeInMilliseconds() - m_pre_send_video_info_time > 400) 
+  if (m_send_video_statistics_info_ptr && clock_->TimeInMilliseconds() - m_pre_send_video_info_time > 400) 
   {
     m_pre_send_video_info_time = clock_->TimeInMilliseconds();
     uma_container_->UpdateHistograms(rtp_config_, stats_, m_send_video_statistics_info_ptr);

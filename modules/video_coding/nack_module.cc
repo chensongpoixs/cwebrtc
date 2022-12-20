@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -76,19 +76,19 @@ int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe) {
   return OnReceivedPacket(seq_num, is_keyframe, false);
 }
 
-int NackModule::OnReceivedPacket(uint16_t seq_num,
-                                 bool is_keyframe,
-                                 bool is_recovered) {
+int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe, bool is_recovered) 
+{
   rtc::CritScope lock(&crit_);
   // TODO(philipel): When the packet includes information whether it is
   //                 retransmitted or not, use that value instead. For
   //                 now set it to true, which will cause the reordering
   //                 statistics to never be updated.
   bool is_retransmitted = true;
-  // 1. ÅĞ¶ÏÊÇ·ñµÚÒ»´Î£¬ ³õÊ¼»¯  Íê³É¾ÍÍË³ö
+  // TODO@chensong 2022-05-30 
+  // 1. åˆ¤æ–­æ˜¯å¦ç¬¬ä¸€æ¬¡ï¼Œ åˆå§‹åŒ–  å®Œæˆå°±é€€å‡º
   if (!initialized_) {
     newest_seq_num_ = seq_num;
-    if (is_keyframe)// Õâ¸ö°üÊÇ·ñ¹Ø¼üÖ¡===¡·¡· ÎªÊ²Ã´ÒªÊ¶±ğ¹Ø¼üÖ¡£¿£¿£¿
+    if (is_keyframe)// è¿™ä¸ªåŒ…æ˜¯å¦å…³é”®å¸§===ã€‹ã€‹ ä¸ºä»€ä¹ˆè¦è¯†åˆ«å…³é”®å¸§ï¼Ÿï¼Ÿï¼Ÿ
       keyframe_list_.insert(seq_num);
     initialized_ = true;
     return 0;
@@ -96,64 +96,87 @@ int NackModule::OnReceivedPacket(uint16_t seq_num,
 
   // Since the |newest_seq_num_| is a packet we have actually received we know
   // that packet has never been Nacked.
-  // 2. Èç¹ûÕâ´ÎÀ´µÄseqÓëÉÏ´ÎÒ»Ñù£¬ÊÇÖØ¸´°ü£¬ ÍË³ö
+  //TODO@chensong 2022-05-30  
+  // 2. å¦‚æœè¿™æ¬¡æ¥çš„seqä¸ä¸Šæ¬¡ä¸€æ ·ï¼Œæ˜¯é‡å¤åŒ…ï¼Œ é€€å‡º
   if (seq_num == newest_seq_num_)
+  {
     return 0;
-  // ¼´²»ÊÇµÚÒ»¸ö°üºÍÖØ¸´°ü¾ÍÅĞ¶Ï°üË³Ğò¹ş seq_numÔÚnewest_seq_numÖ®Ç°¾ÍÒªÉ¾³ıÁË¹ş  
-  // 3. Èç¹ûÊÇÉÏ´Î´¦ÀíÇ°ÃæµÄ°ü£¬ Õâ¸ö°üÒÑ¾­Ê§Ğ§ÁË£¬ Èç¹û»¹ÔÚnackÁĞ±íÖĞ£¬ ĞèÒªÉ¾³ıµÄ
-  // ËµÃ÷Õâ¸ö°üÍíµ½´ïÁË 
-  if (AheadOf(newest_seq_num_, seq_num)) {
+  }
+  //TODO@chensong 2022-05-30  
+  // å³ä¸æ˜¯ç¬¬ä¸€ä¸ªåŒ…å’Œé‡å¤åŒ…å°±åˆ¤æ–­åŒ…é¡ºåºå“ˆ seq_numåœ¨newest_seq_numä¹‹å‰å°±è¦åˆ é™¤äº†å“ˆ  
+  // 3. å¦‚æœæ˜¯ä¸Šæ¬¡å¤„ç†å‰é¢çš„åŒ…ï¼Œ è¿™ä¸ªåŒ…å·²ç»å¤±æ•ˆäº†ï¼Œ å¦‚æœè¿˜åœ¨nackåˆ—è¡¨ä¸­ï¼Œ éœ€è¦åˆ é™¤çš„
+  // è¯´æ˜è¿™ä¸ªåŒ…æ™šåˆ°è¾¾äº† 
+  if (AheadOf(newest_seq_num_, seq_num)) 
+  {
     // An out of order packet has been received.
     auto nack_list_it = nack_list_.find(seq_num);
     int nacks_sent_for_packet = 0;
-    if (nack_list_it != nack_list_.end()) {
+    if (nack_list_it != nack_list_.end())
+	{
       nacks_sent_for_packet = nack_list_it->second.retries;
       nack_list_.erase(nack_list_it);
     }
-    if (!is_retransmitted)
+	if (!is_retransmitted)
+	{
       UpdateReorderingStatistics(seq_num);
+	}
     return nacks_sent_for_packet;
   }
 
   // Keep track of new keyframes.
-  // 4. Èç¹ûÅĞ¶ÏÊÇ·ñÊÇkeyÖ¡£¿£¿£¿ ¹ş
+  // TODO@chensong 2022-05-30 
+  // 4. å¦‚æœåˆ¤æ–­æ˜¯å¦æ˜¯keyå¸§ï¼Ÿï¼Ÿï¼Ÿ å“ˆ
   if (is_keyframe)
-    keyframe_list_.insert(seq_num); // Èç¹û¸Ã±¨ÊôÓÚkeyÖ¡£¬ ±£³ÖÆğÀ´
+  {
+    keyframe_list_.insert(seq_num);  // å¦‚æœè¯¥æŠ¥å±äºkeyå¸§ï¼Œ ä¿æŒèµ·æ¥
+  }
 
   // And remove old ones so we don't accumulate keyframes.
-  // 5. ÕÒµ½×îĞ¡±ß½çµã£¬   ³¬³ö10000¸ö¾ÍÒªÉ¾³ıÖ®Ç°µÄÊı¾İ £¬ Õâ¸öÊÇÊµÊ±ÏµÍ³
+  // TODO@chensong 2022-05-30 
+  // 5. æ‰¾åˆ°æœ€å°è¾¹ç•Œç‚¹ï¼Œ   è¶…å‡º10000ä¸ªå°±è¦åˆ é™¤ä¹‹å‰çš„æ•°æ® ï¼Œ è¿™ä¸ªæ˜¯å®æ—¶ç³»ç»Ÿ
   auto it = keyframe_list_.lower_bound(seq_num - kMaxPacketAge);
   if (it != keyframe_list_.begin())
+  {
     keyframe_list_.erase(keyframe_list_.begin(), it);
-  // 6. ÈçºÎÅĞ¶ÏÊÇ·ñÕÒ»ØÀ´µÄ°ü£¿£¿£¿  »Ö¸´°ü
-  if (is_recovered) {
-    recovered_list_.insert(seq_num); // Èç¹û¸Ã°üÊÇÊôÓÚkeyÖ¡£¬±£³ÖÆğÀ´
+  }
+  // TODO@chensong 2022-05-30 
+  // 6. å¦‚ä½•åˆ¤æ–­æ˜¯å¦æ‰¾å›æ¥çš„åŒ…ï¼Ÿï¼Ÿï¼Ÿ  æ¢å¤åŒ…
+  if (is_recovered) 
+  {
+    recovered_list_.insert(seq_num);   // TODO@chensong 2022-05-30 // å¦‚æœè¯¥åŒ…æ˜¯å±äºkeyå¸§ï¼Œä¿æŒèµ·æ¥
 
     // Remove old ones so we don't accumulate recovered packets.
-	//  ÊÇ·ñ³¬³öÏî ³¬³öÏîÒ²É¾³ıÁË  £¬ ×î´óÏîÒ²ÊÇ10000¹ş
+    // TODO@chensong 2022-05-30
+	//  æ˜¯å¦è¶…å‡ºé¡¹ è¶…å‡ºé¡¹ä¹Ÿåˆ é™¤äº†  ï¼Œ æœ€å¤§é¡¹ä¹Ÿæ˜¯10000å“ˆ
     auto it = recovered_list_.lower_bound(seq_num - kMaxPacketAge);
-    if (it != recovered_list_.begin())
+	if (it != recovered_list_.begin())
+	{
       recovered_list_.erase(recovered_list_.begin(), it);
+	}
 
     // Do not send nack for packets recovered by FEC or RTX.
     return 0;
   }
-  // 7. Ê²Ã´Çé¿ö»á×ßµ½Õâ±ßÄØ 
-  //     1¡¢²»ÊÇµÚÒ»¸ö°ü
-  //     2. ²»ÊÇÒ»¸öÖØ¸´µÄ°ü
-  //     3¡¢ ²»ÊÇÔÚnew_seq_numÖ®Ç°µÄ°ü
-  //     4¡¢ ²»ÊÇÒ»¸ö»Ö¸´°ü
-  //   ÓĞÁ½ÖÖÇé¿ö»á×ßµ½Õâ±ß
-  //     1¡¢  ÉÏÒ»´Î´¦ÀíµÄ°üµÄºóÃæµÄÒ»¸ö°ü¹ş   ÓĞĞòµÄ°ü
-  //     2¡¢  ÉÏÒ»´Î´¦ÀíµÄ°ü ºóÃæ¸ôºÃ¼¸¸ö°ü   
+  // TODO@chensong 2022-05-30
+  // 7. ä»€ä¹ˆæƒ…å†µä¼šèµ°åˆ°è¿™è¾¹å‘¢ 
+  //     1ã€ä¸æ˜¯ç¬¬ä¸€ä¸ªåŒ…
+  //     2. ä¸æ˜¯ä¸€ä¸ªé‡å¤çš„åŒ…
+  //     3ã€ ä¸æ˜¯åœ¨new_seq_numä¹‹å‰çš„åŒ…
+  //     4ã€ ä¸æ˜¯ä¸€ä¸ªæ¢å¤åŒ…
+  //   æœ‰ä¸¤ç§æƒ…å†µä¼šèµ°åˆ°è¿™è¾¹
+  //     1ã€  ä¸Šä¸€æ¬¡å¤„ç†çš„åŒ…çš„åé¢çš„ä¸€ä¸ªåŒ…å“ˆ   æœ‰åºçš„åŒ…
+  //     2ã€  ä¸Šä¸€æ¬¡å¤„ç†çš„åŒ… åé¢éš”å¥½å‡ ä¸ªåŒ…   
   AddPacketsToNack(newest_seq_num_ + 1, seq_num);
   newest_seq_num_ = seq_num;
 
   // Are there any nacks that are waiting for this seq_num.
-  // 8. ÄÄĞ©°üÊÇÕæÕæ¶ª°üµÄ  ¾Í¸æËß¶Ô·½´ÓĞÂ·¢ËÍ°ü¹ş
+  // TODO@chensong 2022-05-30
+  // 8. å“ªäº›åŒ…æ˜¯çœŸçœŸä¸¢åŒ…çš„  å°±å‘Šè¯‰å¯¹æ–¹ä»æ–°å‘é€åŒ…å“ˆ
   std::vector<uint16_t> nack_batch = GetNackBatch(kSeqNumOnly);
-  if (!nack_batch.empty()) 
-    nack_sender_->SendNack(nack_batch);  //  ĞèÒªÖØ´«¹ş   ·Åµ½»º³åÇøÁË ??????
+  if (!nack_batch.empty())
+  {
+    nack_sender_->SendNack(nack_batch);   // TODO@chensong 2022-05-30 //  éœ€è¦é‡ä¼ å“ˆ   æ”¾åˆ°ç¼“å†²åŒºäº† ??????
+  }
 
   return 0;
 }
@@ -228,8 +251,8 @@ bool NackModule::RemovePacketsUntilKeyFrame() {
   return false;
 }
 
-void NackModule::AddPacketsToNack(uint16_t seq_num_start,
-                                  uint16_t seq_num_end) {
+void NackModule::AddPacketsToNack(uint16_t seq_num_start, uint16_t seq_num_end) 
+{
   // Remove old packets.
   auto it = nack_list_.lower_bound(seq_num_end - kMaxPacketAge);
   nack_list_.erase(nack_list_.begin(), it);
@@ -237,14 +260,17 @@ void NackModule::AddPacketsToNack(uint16_t seq_num_start,
   // If the nack list is too large, remove packets from the nack list until
   // the latest first packet of a keyframe. If the list is still too large,
   // clear it and request a keyframe.
-  // 1. ¿ªÊ¼µ½½áÊøÖ®¼äÓĞ¶à´ó¾àÀë 
+  // TODO@chensong 2022-05-30
+  // 1. å¼€å§‹åˆ°ç»“æŸä¹‹é—´æœ‰å¤šå¤§è·ç¦» 
   uint16_t num_new_nacks = ForwardDiff(seq_num_start, seq_num_end);
-  if (nack_list_.size() + num_new_nacks > kMaxNackPackets) {
-    while (RemovePacketsUntilKeyFrame() &&
-           nack_list_.size() + num_new_nacks > kMaxNackPackets) {
-    }
-	// 1.1¡¢ ¼«¶ËÇé¿ö  Ã»ÓĞÉ¾³ı£¬ ¾ÍÒªÇå³ınack£¬ È»ºó·¢ËÍÇëÇó¹Ø¼üÖ¡¸ø¶Ô·½  ÈÃ½âÂëÆ÷´ÓĞÂ¹¤×÷¹ş
-    if (nack_list_.size() + num_new_nacks > kMaxNackPackets) {
+  if (nack_list_.size() + num_new_nacks > kMaxNackPackets) 
+  {
+    while (RemovePacketsUntilKeyFrame() && nack_list_.size() + num_new_nacks > kMaxNackPackets)
+	{ }
+    // TODO@chensong 2022-05-30
+	// 1.1ã€ æç«¯æƒ…å†µ  æ²¡æœ‰åˆ é™¤ï¼Œ å°±è¦æ¸…é™¤nackï¼Œ ç„¶åå‘é€è¯·æ±‚å…³é”®å¸§ç»™å¯¹æ–¹  è®©è§£ç å™¨ä»æ–°å·¥ä½œå“ˆ
+    if (nack_list_.size() + num_new_nacks > kMaxNackPackets) 
+	{
       nack_list_.clear();
       RTC_LOG(LS_WARNING) << "NACK list full, clearing NACK"
                              " list and requesting keyframe.";
@@ -252,48 +278,65 @@ void NackModule::AddPacketsToNack(uint16_t seq_num_start,
       return;
     }
   }
-  // 2¡¢ ±éÀúseq_num_start µ½seq_num_end Ö®¼ä ÊÇ·ñÓĞ¶ª°ü ÓĞµÄ»° ¾Í·Åµ½nack_list_ÖĞ¹ş
-  for (uint16_t seq_num = seq_num_start; seq_num != seq_num_end; ++seq_num) {
+  // TODO@chensong 2022-05-30
+  // 2ã€ éå†seq_num_start åˆ°seq_num_end ä¹‹é—´ æ˜¯å¦æœ‰ä¸¢åŒ… æœ‰çš„è¯ å°±æ”¾åˆ°nack_list_ä¸­å“ˆ
+  for (uint16_t seq_num = seq_num_start; seq_num != seq_num_end; ++seq_num) 
+  {
     // Do not send nack for packets that are already recovered by FEC or RTX
-	// 2.1 ÊÇ·ñÒÑ¾­Í¨¹ıFEC»òÕßRTX»Ö¸´ÁË ¸Ã°ü »Ö¸´ÁË ¾Í²»ĞèÒª·Åµ½nack_list_ÁĞ±íÖĞÈ¥¹ş
-    if (recovered_list_.find(seq_num) != recovered_list_.end())
+    // TODO@chensong 2022-05-30
+	// 2.1 æ˜¯å¦å·²ç»é€šè¿‡FECæˆ–è€…RTXæ¢å¤äº† è¯¥åŒ… æ¢å¤äº† å°±ä¸éœ€è¦æ”¾åˆ°nack_list_åˆ—è¡¨ä¸­å»å“ˆ
+	if (recovered_list_.find(seq_num) != recovered_list_.end())
+	{
       continue;
-    NackInfo nack_info(seq_num, seq_num + WaitNumberOfPackets(0.5),
-                       clock_->TimeInMilliseconds());
+	}
+    NackInfo nack_info(seq_num, seq_num + WaitNumberOfPackets(0.5), clock_->TimeInMilliseconds());
     RTC_DCHECK(nack_list_.find(seq_num) == nack_list_.end());
     nack_list_[seq_num] = nack_info;
   }
 }
-// ±éÀúËùÓĞ¿ÉÒÉ°ü Èç¹û°ü·ûºÏÌõ¼ş ¾Í²åÈënack_batchÖĞ
-std::vector<uint16_t> NackModule::GetNackBatch(NackFilterOptions options) {
-	// 1. ±êÊ¶ÒÔseq_numÎªÅĞ¶ÏÌõ¼ş
+// TODO@chensong 2022-05-30
+// éå†æ‰€æœ‰å¯ç–‘åŒ… å¦‚æœåŒ…ç¬¦åˆæ¡ä»¶ å°±æ’å…¥nack_batchä¸­
+std::vector<uint16_t> NackModule::GetNackBatch(NackFilterOptions options) 
+{
+  // TODO@chensong 2022-05-30
+	// 1. æ ‡è¯†ä»¥seq_numä¸ºåˆ¤æ–­æ¡ä»¶
   bool consider_seq_num = options != kTimeOnly;
-  // 2. ±êÊ¶ÒÔtimestampÎªÅĞ¶ÏÌõ¼ş 
+  // TODO@chensong 2022-05-30
+  // 2. æ ‡è¯†ä»¥timestampä¸ºåˆ¤æ–­æ¡ä»¶ 
   bool consider_timestamp = options != kSeqNumOnly;
   int64_t now_ms = clock_->TimeInMilliseconds();
   std::vector<uint16_t> nack_batch;
   auto it = nack_list_.begin();
-  while (it != nack_list_.end()) {
-	  // 1. send_nack_delay_ms_ Ä¬ÈÏÎª0 £¬ ¿ÉĞŞ¸Ä
+  while (it != nack_list_.end()) 
+  {
+    // TODO@chensong 2022-05-30
+	  // 1. send_nack_delay_ms_ é»˜è®¤ä¸º0 ï¼Œ å¯ä¿®æ”¹
     bool delay_timed_out = now_ms - it->second.created_at_time >= send_nack_delay_ms_;
-	// 2. ´ÓÒ»´Î·¢ËÍ¿ªÊ¼µ½ÏÖÔÚ£¬ ÊÇ·ñ³¬¹ıÁËÒ»¸öRTTµÄ»ØÂ·µÄÊ±³¤ Ê±¼ä  
-	// ĞèÒªµÃµ½Ò»¸öRTT·ÀÖ¹ÖØ¸´´«ËÍµÄÇé¿ö 
+    // TODO@chensong 2022-05-30
+	// 2. ä»ä¸€æ¬¡å‘é€å¼€å§‹åˆ°ç°åœ¨ï¼Œ æ˜¯å¦è¶…è¿‡äº†ä¸€ä¸ªRTTçš„å›è·¯çš„æ—¶é•¿ æ—¶é—´  
+	// éœ€è¦å¾—åˆ°ä¸€ä¸ªRTTé˜²æ­¢é‡å¤ä¼ é€çš„æƒ…å†µ 
     bool nack_on_rtt_passed = now_ms - it->second.sent_at_time >= rtt_ms_;
-	// 3¡¢ µÚÒ»´Î·¢ËÍºÍ×îºó´¦Àí°üÖ®Ç°µÄ
-    bool nack_on_seq_num_passed = it->second.sent_at_time /*Èç¹ûÊÇµÚÒ»´Î·¢ËÍ*/== -1 &&
-        AheadOrAt(newest_seq_num_, it->second.send_at_seq_num)/*¸Ã°üÔÚ×îºó´¦ÀíµÄ°üÖ®Ç°*/;
-	// ·ûºÏÌõ¼ş
-    if (delay_timed_out && ((consider_seq_num && nack_on_seq_num_passed) ||
-                            (consider_timestamp && nack_on_rtt_passed))) {
+    // TODO@chensong 2022-05-30
+	// 3ã€ ç¬¬ä¸€æ¬¡å‘é€å’Œæœ€åå¤„ç†åŒ…ä¹‹å‰çš„
+    bool nack_on_seq_num_passed = it->second.sent_at_time /*TODO@chensong 2022-05-30 å¦‚æœæ˜¯ç¬¬ä¸€æ¬¡å‘é€*/== -1 &&
+        AheadOrAt(newest_seq_num_, it->second.send_at_seq_num)/*TODO@chensong 2022-05-30 è¯¥åŒ…åœ¨æœ€åå¤„ç†çš„åŒ…ä¹‹å‰*/;
+    // TODO@chensong 2022-05-30
+	// ç¬¦åˆæ¡ä»¶
+    if (delay_timed_out && ((consider_seq_num && nack_on_seq_num_passed) || (consider_timestamp && nack_on_rtt_passed))) 
+	{
       nack_batch.emplace_back(it->second.seq_num);
       ++it->second.retries;
       it->second.sent_at_time = now_ms;
-	  // ³¢ÊÔ10´Î ÔÚnack_listÁĞ±íÖĞÃ»ÓĞ·¢ÏÖ ¾ÍÒªÉ¾³ıÁË
-      if (it->second.retries >= kMaxNackRetries/*kMaxNackRetries= 10*/) {
+      // TODO@chensong 2022-05-30
+	  // å°è¯•10æ¬¡ åœ¨nack_liståˆ—è¡¨ä¸­æ²¡æœ‰å‘ç° å°±è¦åˆ é™¤äº†
+      if (it->second.retries >= kMaxNackRetries/*kMaxNackRetries= 10*/) 
+	  {
         RTC_LOG(LS_WARNING) << "Sequence number " << it->second.seq_num
                             << " removed from NACK list due to max retries.";
         it = nack_list_.erase(it);
-      } else {
+      } 
+	  else 
+	  {
         ++it;
       }
       continue;

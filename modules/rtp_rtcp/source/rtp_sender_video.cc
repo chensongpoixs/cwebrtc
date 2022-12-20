@@ -61,54 +61,67 @@ void AddRtpHeaderExtensions(const RTPVideoHeader& video_header,
                             bool set_frame_marking,
                             bool first_packet,
                             bool last_packet,
-                            RtpPacketToSend* packet) {
+                            RtpPacketToSend* packet) 
+{
   // Color space requires two-byte header extensions if HDR metadata is
   // included. Therefore, it's best to add this extension first so that the
   // other extensions in the same packet are written as two-byte headers at
   // once.
-  if (last_packet && set_color_space && video_header.color_space)
+  if (last_packet && set_color_space && video_header.color_space) 
+  {
     packet->SetExtension<ColorSpaceExtension>(video_header.color_space.value());
+  }
 
-  if (last_packet && set_video_rotation)
+  if (last_packet && set_video_rotation) 
+  {
     packet->SetExtension<VideoOrientation>(video_header.rotation);
+  }
 
   // Report content type only for key frames.
   if (last_packet && frame_type == VideoFrameType::kVideoFrameKey &&
-      video_header.content_type != VideoContentType::UNSPECIFIED)
+      video_header.content_type != VideoContentType::UNSPECIFIED) 
+  {
     packet->SetExtension<VideoContentTypeExtension>(video_header.content_type);
+  }
 
   if (last_packet &&
-      video_header.video_timing.flags != VideoSendTiming::kInvalid)
+      video_header.video_timing.flags != VideoSendTiming::kInvalid) 
+  {
     packet->SetExtension<VideoTimingExtension>(video_header.video_timing);
+  }
 
   // If transmitted, add to all packets; ack logic depends on this.
-  if (playout_delay) {
+  if (playout_delay) 
+  {
     packet->SetExtension<PlayoutDelayLimits>(*playout_delay);
   }
 
-  if (set_frame_marking) {
+  if (set_frame_marking) 
+  {
     FrameMarking frame_marking = video_header.frame_marking;
     frame_marking.start_of_frame = first_packet;
     frame_marking.end_of_frame = last_packet;
     packet->SetExtension<FrameMarkingExtension>(frame_marking);
   }
 
-  if (video_header.generic) {
+  if (video_header.generic) 
+  {
     RtpGenericFrameDescriptor generic_descriptor;
     generic_descriptor.SetFirstPacketInSubFrame(first_packet);
     generic_descriptor.SetLastPacketInSubFrame(last_packet);
     generic_descriptor.SetDiscardable(video_header.generic->discardable);
 
-    if (first_packet) {
-      generic_descriptor.SetFrameId(
-          static_cast<uint16_t>(video_header.generic->frame_id));
-      for (int64_t dep : video_header.generic->dependencies) {
-        generic_descriptor.AddFrameDependencyDiff(
-            video_header.generic->frame_id - dep);
+    if (first_packet) 
+	{
+      generic_descriptor.SetFrameId(static_cast<uint16_t>(video_header.generic->frame_id));
+      for (int64_t dep : video_header.generic->dependencies) 
+	  {
+        generic_descriptor.AddFrameDependencyDiff(video_header.generic->frame_id - dep);
       }
 
       uint8_t spatial_bimask = 1 << video_header.generic->spatial_index;
-      for (int layer : video_header.generic->higher_spatial_layers) {
+      for (int layer : video_header.generic->higher_spatial_layers) 
+	  {
         RTC_DCHECK_GT(layer, video_header.generic->spatial_index);
         RTC_DCHECK_LT(layer, 8);
         spatial_bimask |= 1 << layer;
@@ -117,16 +130,15 @@ void AddRtpHeaderExtensions(const RTPVideoHeader& video_header,
 
       generic_descriptor.SetTemporalLayer(video_header.generic->temporal_index);
 
-      if (frame_type == VideoFrameType::kVideoFrameKey) {
-        generic_descriptor.SetResolution(video_header.width,
-                                         video_header.height);
+      if (frame_type == VideoFrameType::kVideoFrameKey) 
+	  {
+        generic_descriptor.SetResolution(video_header.width, video_header.height);
       }
     }
 
-    if (!packet->SetExtension<RtpGenericFrameDescriptorExtension01>(
-            generic_descriptor)) {
-      packet->SetExtension<RtpGenericFrameDescriptorExtension00>(
-          generic_descriptor);
+    if (!packet->SetExtension<RtpGenericFrameDescriptorExtension01>(generic_descriptor)) 
+	{
+      packet->SetExtension<RtpGenericFrameDescriptorExtension00>(generic_descriptor);
     }
   }
 }
@@ -226,29 +238,18 @@ RTPSenderVideo::~RTPSenderVideo() {}
 void RTPSenderVideo::RegisterPayloadType(int8_t payload_type,
                                          absl::string_view payload_name) {
   VideoCodecType video_type;
-  //TODO@chensong 2022-04-04   在rtp_video_sender 中构造函数中进行注册编码器哈
-  if (absl::EqualsIgnoreCase(payload_name, "VP8")) 
-  {
+  // TODO@chensong 2022-04-04   在rtp_video_sender 中构造函数中进行注册编码器哈
+  if (absl::EqualsIgnoreCase(payload_name, "VP8")) {
     video_type = kVideoCodecVP8;
-  } 
-  else if (absl::EqualsIgnoreCase(payload_name, "VP9")) 
-  {
+  } else if (absl::EqualsIgnoreCase(payload_name, "VP9")) {
     video_type = kVideoCodecVP9;
-  } 
-  else if (absl::EqualsIgnoreCase(payload_name, "H264")) 
-  {
+  } else if (absl::EqualsIgnoreCase(payload_name, "H264")) {
     video_type = kVideoCodecH264;
-  } 
-  else if (absl::EqualsIgnoreCase(payload_name, "I420")) 
-  {
+  } else if (absl::EqualsIgnoreCase(payload_name, "I420")) {
     video_type = kVideoCodecGeneric;
-  } 
-  else if (absl::EqualsIgnoreCase(payload_name, "stereo")) 
-  {
+  } else if (absl::EqualsIgnoreCase(payload_name, "stereo")) {
     video_type = kVideoCodecGeneric;
-  } 
-  else 
-  {
+  } else {
     video_type = kVideoCodecGeneric;
   }
 
@@ -257,8 +258,7 @@ void RTPSenderVideo::RegisterPayloadType(int8_t payload_type,
 
   // Backward compatibility for older receivers without temporal layer logic
   // 无时间层逻辑的老式接收机的向后兼容性
-  if (video_type == kVideoCodecH264) 
-  {
+  if (video_type == kVideoCodecH264) {
     rtc::CritScope cs(&crit_);
     retransmission_settings_ = kRetransmitBaseLayer | kRetransmitHigherLayers;
   }
@@ -366,8 +366,10 @@ void RTPSenderVideo::SendVideoPacketWithFlexfec(
   }
 }
 
-bool RTPSenderVideo::LogAndSendToNetwork(std::unique_ptr<RtpPacketToSend> packet, StorageType storage, RtpPacketSender::Priority priority) 
-{
+bool RTPSenderVideo::LogAndSendToNetwork(
+    std::unique_ptr<RtpPacketToSend> packet,
+    StorageType storage,
+    RtpPacketSender::Priority priority) {
 #if BWE_TEST_LOGGING_COMPILE_TIME_ENABLE
   int64_t now_ms = clock_->TimeInMilliseconds();
   BWE_TEST_LOGGING_PLOT_WITH_SSRC(1, "VideoTotBitrate_kbps", now_ms,
@@ -379,7 +381,7 @@ bool RTPSenderVideo::LogAndSendToNetwork(std::unique_ptr<RtpPacketToSend> packet
                                   rtp_sender_->NackOverheadRate() / 1000,
                                   packet->Ssrc());
 #endif
-  //TODO@chensong  发送给RTPSender 对象了然后转发给PacedSender对象
+  // TODO@chensong  发送给RTPSender 对象了然后转发给PacedSender对象
   return rtp_sender_->SendToNetwork(std::move(packet), storage, priority);
 }
 
@@ -441,20 +443,24 @@ absl::optional<uint32_t> RTPSenderVideo::FlexfecSsrc() const {
   return absl::nullopt;
 }
 
-bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, uint32_t rtp_timestamp, int64_t capture_time_ms, const uint8_t* payload_data, 
-	size_t payload_size, const RTPFragmentationHeader* fragmentation, const RTPVideoHeader* video_header, int64_t expected_retransmission_time_ms) 
-{
+bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
+                               int8_t payload_type,
+                               uint32_t rtp_timestamp,
+                               int64_t capture_time_ms,
+                               const uint8_t* payload_data,
+                               size_t payload_size,
+                               const RTPFragmentationHeader* fragmentation,
+                               const RTPVideoHeader* video_header,
+                               int64_t expected_retransmission_time_ms) {
   TRACE_EVENT_ASYNC_STEP1("webrtc", "Video", capture_time_ms, "Send", "type",
                           FrameTypeToString(frame_type));
   // TODO@chensong 2022-12-07 rtp拼接H264 数据包发送拼接
-  if (frame_type == VideoFrameType::kEmptyFrame)
-  {
-	  return true;
+  if (frame_type == VideoFrameType::kEmptyFrame) {
+    return true;
   }
-  
-  if (payload_size == 0)
-  {
-	  return false;
+
+  if (payload_size == 0) {
+    return false;
   }
   RTC_CHECK(video_header);
 
@@ -463,11 +469,12 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
   int32_t retransmission_settings;
   bool set_video_rotation;
   bool set_color_space = false;
-  // TODO@chensong 为什么会对H264单独处理呢  ？？？ 
-  bool set_frame_marking = video_header->codec == kVideoCodecH264 &&
-        video_header->frame_marking.temporal_id != kNoTemporalIdx;
+  // TODO@chensong 为什么会对H264单独处理呢  ？？？
+  bool set_frame_marking =
+      video_header->codec == kVideoCodecH264 &&
+      video_header->frame_marking.temporal_id != kNoTemporalIdx;
 
-   // 根据video_header信息，更新播放延迟(current_playout_delay_)
+  // 根据video_header信息，更新播放延迟(current_playout_delay_)
   const absl::optional<PlayoutDelay> playout_delay = playout_delay_oracle_->PlayoutDelayToSend(video_header->playout_delay);
   {
     rtc::CritScope cs(&crit_);
@@ -491,11 +498,14 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
     // Send color space when changed or if the frame is a key frame. Keep
     // sending color space information until the first base layer frame to
     // guarantee that the information is retrieved by the receiver.
-    if (video_header->color_space != last_color_space_) {
+    if (video_header->color_space != last_color_space_) 
+	{
       last_color_space_ = video_header->color_space;
       set_color_space = true;
       transmit_color_space_next_frame_ = !IsBaseLayer(*video_header);
-    } else {
+    }
+	else 
+	{
       set_color_space = frame_type == VideoFrameType::kVideoFrameKey ||
                         transmit_color_space_next_frame_;
       transmit_color_space_next_frame_ = transmit_color_space_next_frame_
@@ -504,17 +514,15 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
     }
 
     // FEC settings.
-    const FecProtectionParams& fec_params =
-        frame_type == VideoFrameType::kVideoFrameKey ? key_fec_params_
-                                                     : delta_fec_params_;
-    if (flexfec_enabled())
-    {
+    const FecProtectionParams& fec_params = frame_type == VideoFrameType::kVideoFrameKey ? key_fec_params_ : delta_fec_params_;
+    if (flexfec_enabled()) 
+	{
       flexfec_sender_->SetFecParameters(fec_params);
-	}
-    if (ulpfec_enabled())
-    {
-       ulpfec_generator_.SetFecParameters(fec_params);
-	}
+    }
+    if (ulpfec_enabled()) 
+	{
+      ulpfec_generator_.SetFecParameters(fec_params);
+    }
 
     fec_packet_overhead = CalculateFecPacketOverhead();
     red_enabled = this->red_enabled();
@@ -523,10 +531,10 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
 
   // Maximum size of packet including rtp headers.
   // Extra space left in case packet will be resent using fec or rtx.
- // 其实封包的过程，就是计算一帧数据需要封多少个包、每个包放多少载荷，为此我们需要知道各种封包模式下，每个包的最大载荷（包大小减去头部大小）。
+  // 其实封包的过程，就是计算一帧数据需要封多少个包、每个包放多少载荷，为此我们需要知道各种封包模式下，每个包的最大载荷（包大小减去头部大小）。
 
-   //   首先计算一个包的最大容量，这个容量是指可以用来容纳 RTP
-     //     头部和载荷的容量，FEC、重传的开销排除在外：
+  //   首先计算一个包的最大容量，这个容量是指可以用来容纳 RTP
+  //     头部和载荷的容量，FEC、重传的开销排除在外：
   int packet_capacity = rtp_sender_->MaxRtpPacketSize() - fec_packet_overhead -
                         (rtp_sender_->RtxStatus() ? kRtxHeaderSize : 0);
 
@@ -591,7 +599,7 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
                                          : generic_descriptor_raw_00;
   if (!generic_descriptor_raw.empty()) 
   {
-    if (MinimizeDescriptor(*video_header, &minimized_video_header))
+    if (MinimizeDescriptor(*video_header, &minimized_video_header)) 
 	{
       packetize_video_header = &minimized_video_header;
     }
@@ -600,14 +608,14 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
   // 如果帧加密了，对payload和header进行加密
   // TODO(benwright@webrtc.org) - Allocate enough to always encrypt inline.
   rtc::Buffer encrypted_video_payload;
-  if (frame_encryptor_ != nullptr) 
-  {
-    if (generic_descriptor_raw.empty()) 
-	{
+  if (frame_encryptor_ != nullptr) {
+    if (generic_descriptor_raw.empty()) {
       return false;
     }
     // 获取帧加密后最大的长度
-    const size_t max_ciphertext_size = frame_encryptor_->GetMaxCiphertextByteSize(cricket::MEDIA_TYPE_VIDEO, payload_size);
+    const size_t max_ciphertext_size =
+        frame_encryptor_->GetMaxCiphertextByteSize(cricket::MEDIA_TYPE_VIDEO,
+                                                   payload_size);
     encrypted_video_payload.SetSize(max_ciphertext_size);
 
     size_t bytes_written = 0;
@@ -617,21 +625,18 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
     if (generic_descriptor_auth_experiment_) {
       additional_data = generic_descriptor_raw;
     }
-	// 媒体数据进行加密哈  -->>> 
+    // 媒体数据进行加密哈  -->>>
     if (frame_encryptor_->Encrypt(
             cricket::MEDIA_TYPE_VIDEO, first_packet->Ssrc(), additional_data,
             rtc::MakeArrayView(payload_data, payload_size),
-            encrypted_video_payload, &bytes_written) != 0) 
-	{
+            encrypted_video_payload, &bytes_written) != 0) {
       return false;
     }
 
     encrypted_video_payload.SetSize(bytes_written);
     payload_data = encrypted_video_payload.data();
     payload_size = encrypted_video_payload.size();
-  }
-  else if (require_frame_encryption_) 
-  {
+  } else if (require_frame_encryption_) {
     RTC_LOG(LS_WARNING)
         << "No FrameEncryptor is attached to this video sending stream but "
         << "one is required since require_frame_encryptor is set";
@@ -640,8 +645,9 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
   VideoCodecType video_type;
   {
     rtc::CritScope cs(&payload_type_crit_);
-	// payload_type_map_中payload_type编码器id什么时候注册呢 ？？？
-	//TODO@chensong 2022-04-04   在rtp_video_sender 中构造函数中进行注册编码器哈
+    // payload_type_map_中payload_type编码器id什么时候注册呢 ？？？
+    // TODO@chensong 2022-04-04   在rtp_video_sender
+    // 中构造函数中进行注册编码器哈
     const auto it = payload_type_map_.find(payload_type);
     if (it == payload_type_map_.end()) {
       RTC_LOG(LS_ERROR) << "Payload type " << static_cast<int>(payload_type)
@@ -661,82 +667,68 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
   const size_t num_packets = packetizer->NumPackets();
 
   size_t unpacketized_payload_size;
-  if (fragmentation && fragmentation->fragmentationVectorSize > 0) 
-  {
+  if (fragmentation && fragmentation->fragmentationVectorSize > 0) {
     unpacketized_payload_size = 0;
-    for (uint16_t i = 0; i < fragmentation->fragmentationVectorSize; ++i) 
-	{
+    for (uint16_t i = 0; i < fragmentation->fragmentationVectorSize; ++i) {
       unpacketized_payload_size += fragmentation->fragmentationLength[i];
     }
-  } 
-  else 
-  {
+  } else {
     unpacketized_payload_size = payload_size;
   }
   size_t packetized_payload_size = 0;
 
-  if (num_packets == 0)
-  {
-	  return false;
+  if (num_packets == 0) {
+    return false;
   }
 
   uint16_t first_sequence_number;
   bool first_frame = first_frame_sent_();
-  for (size_t i = 0; i < num_packets; ++i) 
-  {
+  for (size_t i = 0; i < num_packets; ++i) {
     std::unique_ptr<RtpPacketToSend> packet;
     int expected_payload_capacity;
     // Choose right packet template:
-    if (num_packets == 1) 
-	{
-		// TODO@chensong 2022-12-19 nal rtp 不需要分包啦
+    if (num_packets == 1) {
+      // TODO@chensong 2022-12-19 nal rtp 不需要分包啦
       packet = std::move(single_packet);
-      expected_payload_capacity = limits.max_payload_len - limits.single_packet_reduction_len;
-    } 
-	else if (i == 0) 
-	{
-		// TODO@chensong 2022-12-19 nal rtp 开始发送位置
+      expected_payload_capacity =
+          limits.max_payload_len - limits.single_packet_reduction_len;
+    } else if (i == 0) {
+      // TODO@chensong 2022-12-19 nal rtp 开始发送位置
       packet = std::move(first_packet);
-      expected_payload_capacity = limits.max_payload_len - limits.first_packet_reduction_len;
-    }
-	else if (i == num_packets - 1) 
-	{
-		// TODO@chensong 2022-12-19 nal 分包 rtp 结束标记 记录
+      expected_payload_capacity =
+          limits.max_payload_len - limits.first_packet_reduction_len;
+    } else if (i == num_packets - 1) {
+      // TODO@chensong 2022-12-19 nal 分包 rtp 结束标记 记录
       packet = std::move(last_packet);
-      expected_payload_capacity = limits.max_payload_len - limits.last_packet_reduction_len;
-    } 
-	else 
-	{
+      expected_payload_capacity =
+          limits.max_payload_len - limits.last_packet_reduction_len;
+    } else {
       packet = absl::make_unique<RtpPacketToSend>(*middle_packet);
       expected_payload_capacity = limits.max_payload_len;
     }
 
-	if (!packetizer->NextPacket(packet.get()))
-	{
+    if (!packetizer->NextPacket(packet.get())) {
       return false;
-	}
+    }
     RTC_DCHECK_LE(packet->payload_size(), expected_payload_capacity);
-	if (!rtp_sender_->AssignSequenceNumber(packet.get()))
-	{
+    if (!rtp_sender_->AssignSequenceNumber(packet.get())) {
       return false;
-	}
+    }
     packetized_payload_size += packet->payload_size();
 
-    if (rtp_sequence_number_map_ && i == 0) 
-	{
+    if (rtp_sequence_number_map_ && i == 0) {
       first_sequence_number = packet->SequenceNumber();
     }
 
-    if (i == 0) 
-	{
-      playout_delay_oracle_->OnSentPacket(packet->SequenceNumber(),  playout_delay);
+    if (i == 0) {
+      playout_delay_oracle_->OnSentPacket(packet->SequenceNumber(),
+                                          playout_delay);
     }
     // No FEC protection for upper temporal layers, if used.
     bool protect_packet = temporal_id == 0 || temporal_id == kNoTemporalIdx;
 
     // Put packetization finish timestamp into extension.
-    if (packet->HasExtension<VideoTimingExtension>()) 
-	{
+    if (packet->HasExtension<VideoTimingExtension>()) {
       packet->set_packetization_finish_time_ms(clock_->TimeInMilliseconds());
       // TODO(ilnik): Due to webrtc:7859, packets with timing extensions are not
       // protected by FEC. It reduces FEC efficiency a bit. When FEC is moved
@@ -746,34 +738,26 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type, int8_t payload_type, u
       // FEC, otherwise recovered by FEC packets will be corrupted.
       protect_packet = false;
     }
-	//////////////////////////////////////////////////////////////////////////
-	//////TODO@chensong ulpfec  2022-09-13  RED %%%
-    if (flexfec_enabled()) 
-	{
+    //////////////////////////////////////////////////////////////////////////
+    //////TODO@chensong ulpfec  2022-09-13  RED %%%
+    if (flexfec_enabled()) {
       // TODO(brandtr): Remove the FlexFEC code path when FlexfecSender
       // is wired up to PacedSender instead.
       SendVideoPacketWithFlexfec(std::move(packet), storage, protect_packet);
-    } 
-	else if (red_enabled) 
-	{
+    } else if (red_enabled) {
       SendVideoPacketAsRedMaybeWithUlpfec(std::move(packet), storage,
                                           protect_packet);
-    }
-	else 
-	{
-		// TODO@chensong   
+    } else {
+      // TODO@chensong
       SendVideoPacket(std::move(packet), storage);
     }
 
-    if (first_frame) 
-	{
-      if (i == 0) 
-	  {
+    if (first_frame) {
+      if (i == 0) {
         RTC_LOG(LS_INFO)
             << "Sent first RTP packet of the first video frame (pre-pacer)";
       }
-      if (i == num_packets - 1) 
-	  {
+      if (i == num_packets - 1) {
         RTC_LOG(LS_INFO)
             << "Sent last RTP packet of the first video frame (pre-pacer)";
       }

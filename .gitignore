@@ -2789,3 +2789,4 @@ modules/pacing/paced_sender.cc.bak
 /modules/pacing/paced_sender.cc.bak
 modules/pacing/bitrate_prober.h.bak
 modules/pacing/interval_budget.cc.bak
+/modules/video_coding/*.bak

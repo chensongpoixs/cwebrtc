@@ -296,10 +296,12 @@ int64_t PacedSender::TimeUntilNextProcess() {
   return std::max<int64_t>(min_packet_limit_ms_ - elapsed_time_ms, 0);
 }
 
-int64_t PacedSender::UpdateTimeAndGetElapsedMs(int64_t now_us) {
+int64_t PacedSender::UpdateTimeAndGetElapsedMs(int64_t now_us) 
+{
   int64_t elapsed_time_ms = (now_us - time_last_process_us_ + 500) / 1000;
   time_last_process_us_ = now_us;
-  if (elapsed_time_ms > kMaxElapsedTimeMs) {
+  if (elapsed_time_ms > kMaxElapsedTimeMs) 
+  {
     RTC_LOG(LS_WARNING) << "Elapsed time (" << elapsed_time_ms
                         << " ms) longer than expected, limiting to "
                         << kMaxElapsedTimeMs << " ms";
@@ -308,7 +310,8 @@ int64_t PacedSender::UpdateTimeAndGetElapsedMs(int64_t now_us) {
   return elapsed_time_ms;
 }
 
-bool PacedSender::ShouldSendKeepalive(int64_t now_us) const {
+bool PacedSender::ShouldSendKeepalive(int64_t now_us) const 
+{
   if (send_padding_if_silent_ || paused_ || Congested()) 
   {
     // We send a padding packet every 500 ms to ensure we won't get stuck in

@@ -37,12 +37,15 @@ inline typename std::enable_if<(M > 0), bool>::type AheadOrAt(T a, T b) {
 }
 
 template <typename T, T M>
-inline typename std::enable_if<(M == 0), bool>::type AheadOrAt(T a, T b) {
+inline typename std::enable_if<(M == 0), bool>::type AheadOrAt(T a, T b) 
+{
   static_assert(std::is_unsigned<T>::value,
                 "Type must be an unsigned integer.");
   const T maxDist = std::numeric_limits<T>::max() / 2 + T(1);
   if (a - b == maxDist)
+  {
     return b < a;
+  }
   return ForwardDiff(b, a) < maxDist;
 }
 
