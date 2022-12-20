@@ -268,7 +268,8 @@ void NackModule::AddPacketsToNack(uint16_t seq_num_start, uint16_t seq_num_end)
     while (RemovePacketsUntilKeyFrame() && nack_list_.size() + num_new_nacks > kMaxNackPackets)
 	{ }
     // TODO@chensong 2022-05-30
-	// 1.1、 极端情况  没有删除， 就要清除nack， 然后发送请求关键帧给对方  让解码器从新工作哈
+	// 1.1、 极端情况  没有删除， 就要清除nack， 然后发送请求关键帧给对方  让解码器从新工作哈  
+	// TODO@chensong 2022-12-20  mediasoup 在业务层做了请求关键帧  ？？？ ====> 需要清除缓存的 和下面一样的步骤 这样的设计挺好的哈 ^_^ 
     if (nack_list_.size() + num_new_nacks > kMaxNackPackets) 
 	{
       nack_list_.clear();
@@ -331,8 +332,7 @@ std::vector<uint16_t> NackModule::GetNackBatch(NackFilterOptions options)
 	  // 尝试10次 在nack_list列表中没有发现 就要删除了
       if (it->second.retries >= kMaxNackRetries/*kMaxNackRetries= 10*/) 
 	  {
-        RTC_LOG(LS_WARNING) << "Sequence number " << it->second.seq_num
-                            << " removed from NACK list due to max retries.";
+        RTC_LOG(LS_WARNING) << "Sequence number " << it->second.seq_num << " removed from NACK list due to max retries.";
         it = nack_list_.erase(it);
       } 
 	  else 

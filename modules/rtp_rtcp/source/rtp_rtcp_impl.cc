@@ -796,11 +796,12 @@ void ModuleRtpRtcpImpl::OnReceivedNack(const std::vector<uint16_t>& nack_sequenc
   {
     return;
   }
-
+  // TODO@chensong 2022-12-20 发送包掉包的数据统计模块
   for (uint16_t nack_sequence_number : nack_sequence_numbers)
   {
     send_loss_stats_.AddLostPacket(nack_sequence_number);
   }
+  // TODO@chensong 2022-12-20  判断是否符合重新发送seq的数据包
   if (!rtp_sender_->StorePackets() || nack_sequence_numbers.size() == 0) 
   {
     return;
@@ -811,18 +812,22 @@ void ModuleRtpRtcpImpl::OnReceivedNack(const std::vector<uint16_t>& nack_sequenc
   {
     rtcp_receiver_.RTT(rtcp_receiver_.RemoteSSRC(), NULL, &rtt, NULL, NULL);
   }
+  // TODO@chensong 2022-12-20 重新发送包插入到发送队列中去 
   rtp_sender_->OnReceivedNack(nack_sequence_numbers, rtt);
 }
 
-void ModuleRtpRtcpImpl::OnReceivedRtcpReportBlocks(
-    const ReportBlockList& report_blocks) {
-  if (ack_observer_) {
+void ModuleRtpRtcpImpl::OnReceivedRtcpReportBlocks(const ReportBlockList& report_blocks) 
+{
+	// TODO@chensong 2022-12-20 ack确认机制
+  if (ack_observer_) 
+  {
     uint32_t ssrc = SSRC();
 
-    for (const RTCPReportBlock& report_block : report_blocks) {
-      if (ssrc == report_block.source_ssrc) {
-        ack_observer_->OnReceivedAck(
-            report_block.extended_highest_sequence_number);
+    for (const RTCPReportBlock& report_block : report_blocks) 
+	{
+      if (ssrc == report_block.source_ssrc) 
+	  {
+        ack_observer_->OnReceivedAck(report_block.extended_highest_sequence_number);
       }
     }
   }

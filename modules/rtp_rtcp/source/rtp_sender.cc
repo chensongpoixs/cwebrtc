@@ -456,16 +456,14 @@ int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
       return -1;
     }
   }
-
+  // TODO@chensong 2022-12-20 发送seq sum包 插入到发送队列中去
   if (paced_sender_) 
   {
     // Convert from TickTime to Clock since capture_time_ms is based on
     // TickTime.
     int64_t corrected_capture_tims_ms = stored_packet->capture_time_ms + clock_delta_ms_;
-    paced_sender_->InsertPacket(
-        RtpPacketSender::kNormalPriority, stored_packet->ssrc,
-        stored_packet->rtp_sequence_number, corrected_capture_tims_ms,
-        stored_packet->packet_size, true);
+    paced_sender_->InsertPacket(RtpPacketSender::kNormalPriority, stored_packet->ssrc,
+        stored_packet->rtp_sequence_number, corrected_capture_tims_ms, stored_packet->packet_size, true);
 
     return packet_size;
   }

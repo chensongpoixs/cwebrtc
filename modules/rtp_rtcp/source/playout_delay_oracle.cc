@@ -78,11 +78,11 @@ void PlayoutDelayOracle::OnSentPacket(uint16_t sequence_number,
 
 // If an ACK is received on the packet containing the playout delay extension,
 // we stop sending the extension on future packets.
-void PlayoutDelayOracle::OnReceivedAck(
-    int64_t extended_highest_sequence_number) {
+void PlayoutDelayOracle::OnReceivedAck(int64_t extended_highest_sequence_number) 
+{
   rtc::CritScope lock(&crit_sect_);
-  if (unacked_sequence_number_ &&
-      extended_highest_sequence_number > *unacked_sequence_number_) {
+  if (unacked_sequence_number_ && extended_highest_sequence_number > *unacked_sequence_number_) 
+  {
     unacked_sequence_number_ = absl::nullopt;
   }
 }

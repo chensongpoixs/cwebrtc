@@ -62,21 +62,20 @@ bool ExtendedReports::Parse(const CommonHeader& packet) {
   target_bitrate_ = absl::nullopt;
 
   const uint8_t* current_block = packet.payload() + kXrBaseLength;
-  const uint8_t* const packet_end =
-      packet.payload() + packet.payload_size_bytes();
+  const uint8_t* const packet_end = packet.payload() + packet.payload_size_bytes();
   constexpr size_t kBlockHeaderSizeBytes = 4;
-  while (current_block + kBlockHeaderSizeBytes <= packet_end) {
+  while (current_block + kBlockHeaderSizeBytes <= packet_end) 
+  {
     uint8_t block_type = ByteReader<uint8_t>::ReadBigEndian(current_block);
-    uint16_t block_length =
-        ByteReader<uint16_t>::ReadBigEndian(current_block + 2);
-    const uint8_t* next_block =
-        current_block + kBlockHeaderSizeBytes + block_length * 4;
-    if (next_block > packet_end) {
-      RTC_LOG(LS_WARNING)
-          << "Report block in extended report packet is too big.";
+    uint16_t block_length = ByteReader<uint16_t>::ReadBigEndian(current_block + 2);
+    const uint8_t* next_block = current_block + kBlockHeaderSizeBytes + block_length * 4;
+    if (next_block > packet_end) 
+	{
+      RTC_LOG(LS_WARNING) << "Report block in extended report packet is too big.";
       return false;
     }
-    switch (block_type) {
+    switch (block_type) 
+	{
       case Rrtr::kBlockType:
         ParseRrtrBlock(current_block, block_length);
         break;

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -17,7 +17,9 @@
 
 namespace webrtc {
 
-namespace {
+namespace 
+{
+	// TODO@chensong 2022-12-20 请求立即刷新帧的时间间隔的毫秒数
 constexpr int kMinKeyframeSendIntervalMs = 300;
 }  // namespace
 

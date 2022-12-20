@@ -54,7 +54,10 @@ congestion_controller: 拥塞控制
 
 ## 1、整体框架
 
-  WebRTC中有得部分码控结构如下图所示，从socket层接收到数据后，到transport解析rtcp包处理得到feedback，通过call将feedback转发到对应sendstream上的rtcp处理模块，最终通过RtpTransportControllerSend将feedback转发到GoogCcNetworkContoller解析码率预估后，把预估的码率（target bitrate），探测策略（probe config），congestion  windows给pacer，pacer转发给pacingContrller去使用进行发送码率控制
+[H264的数据包分组发送与接受H264数据包组包的流程](video/send_video_rtp_packet.md)
+
+
+WebRTC中有得部分码控结构如下图所示，从socket层接收到数据后，到transport解析rtcp包处理得到feedback，通过call将feedback转发到对应sendstream上的rtcp处理模块，最终通过RtpTransportControllerSend将feedback转发到GoogCcNetworkContoller解析码率预估后，把预估的码率（target bitrate），探测策略（probe config），congestion  windows给pacer，pacer转发给pacingContrller去使用进行发送码率控制
 
 
 ![webrtc_transport_cc_framework](img/webrtc_transport_cc_framework.jpg)

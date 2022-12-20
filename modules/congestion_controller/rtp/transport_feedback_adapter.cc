@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -141,27 +141,33 @@ absl::optional<TransportPacketsFeedback> TransportFeedbackAdapter::ProcessTransp
   }
 
   std::vector<PacketFeedback> feedback_vector = last_packet_feedback_vector_;
-  if (feedback_vector.empty()) {
+  if (feedback_vector.empty()) 
+  {
     return absl::nullopt;
   }
 
   TransportPacketsFeedback msg;
-  for (const PacketFeedback& rtp_feedback : feedback_vector) {
-    if (rtp_feedback.send_time_ms != PacketFeedback::kNoSendTime) {
+  for (const PacketFeedback& rtp_feedback : feedback_vector) 
+  {
+    if (rtp_feedback.send_time_ms != PacketFeedback::kNoSendTime) 
+	{
       auto feedback = NetworkPacketFeedbackFromRtpPacketFeedback(rtp_feedback);
       msg.packet_feedbacks.push_back(feedback);
-    } else if (rtp_feedback.arrival_time_ms == PacketFeedback::kNotReceived) {
+    }
+	else if (rtp_feedback.arrival_time_ms == PacketFeedback::kNotReceived) 
+	{
       msg.sendless_arrival_times.push_back(Timestamp::PlusInfinity());
-    } else {
-      msg.sendless_arrival_times.push_back(
-          Timestamp::ms(rtp_feedback.arrival_time_ms));
+    }
+	else 
+	{
+      msg.sendless_arrival_times.push_back(Timestamp::ms(rtp_feedback.arrival_time_ms));
     }
   }
   {
     rtc::CritScope cs(&lock_);
-    absl::optional<int64_t> first_unacked_send_time_ms =
-        send_time_history_.GetFirstUnackedSendTime();
-    if (first_unacked_send_time_ms) {
+    absl::optional<int64_t> first_unacked_send_time_ms = send_time_history_.GetFirstUnackedSendTime();
+    if (first_unacked_send_time_ms) 
+	{
       msg.first_unacked_send_time = Timestamp::ms(*first_unacked_send_time_ms);
     }
   }
@@ -207,6 +213,7 @@ std::vector<PacketFeedback> TransportFeedbackAdapter::GetPacketFeedbackVector(co
     int64_t delta = timestamp_us - last_timestamp_us_;
 
     // Detect and compensate for wrap-arounds in base time.
+	// 检测并补偿基本时间内的环绕
     if (std::abs(delta - kBaseTimestampRangeSizeUs) < std::abs(delta))
 	{
       delta -= kBaseTimestampRangeSizeUs;  // Wrap backwards.

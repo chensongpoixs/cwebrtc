@@ -23,16 +23,19 @@
 namespace webrtc {
 namespace {
 
-void RemoveOldReports(int64_t now, std::list<CallStats::RttTime>* reports) {
+void RemoveOldReports(int64_t now, std::list<CallStats::RttTime>* reports) 
+{
   static constexpr const int64_t kRttTimeoutMs = 1500;
-  reports->remove_if(
-      [&now](CallStats::RttTime& r) { return now - r.time > kRttTimeoutMs; });
+  reports->remove_if([&now](CallStats::RttTime& r) { return now - r.time > kRttTimeoutMs; });
 }
 
-int64_t GetMaxRttMs(const std::list<CallStats::RttTime>& reports) {
+int64_t GetMaxRttMs(const std::list<CallStats::RttTime>& reports) 
+{
   int64_t max_rtt_ms = -1;
   for (const CallStats::RttTime& rtt_time : reports)
+  {
     max_rtt_ms = std::max(rtt_time.rtt, max_rtt_ms);
+  }
   return max_rtt_ms;
 }
 
@@ -117,7 +120,8 @@ int64_t CallStats::TimeUntilNextProcess() {
   return last_process_time_ + kUpdateIntervalMs - clock_->TimeInMilliseconds();
 }
 
-void CallStats::Process() {
+void CallStats::Process() 
+{
   RTC_DCHECK_RUN_ON(&process_thread_checker_);
   int64_t now = clock_->TimeInMilliseconds();
   last_process_time_ = now;
@@ -132,10 +136,14 @@ void CallStats::Process() {
   }
 
   // If there is a valid rtt, update all observers with the max rtt.
-  if (max_rtt_ms_ >= 0) {
+  if (max_rtt_ms_ >= 0) 
+  {
     RTC_DCHECK_GE(avg_rtt_ms, 0);
-    for (CallStatsObserver* observer : observers_)
+	// TODO@chensong 2022-12-20 observers_是什么时候的创建的 需要跟一下  track
+	for (CallStatsObserver* observer : observers_)
+	{
       observer->OnRttUpdate(avg_rtt_ms, max_rtt_ms_);
+	}
     // Sum for Histogram of average RTT reported over the entire call.
     sum_avg_rtt_ms_ += avg_rtt_ms;
     ++num_avg_rtt_;

@@ -74,20 +74,13 @@ class RTCPReceiver {
   int32_t CNAME(uint32_t remote_ssrc, char cname[RTCP_CNAME_SIZE]) const;
 
   // Get received NTP.
-  bool NTP(uint32_t* received_ntp_secs,
-           uint32_t* received_ntp_frac,
-           uint32_t* rtcp_arrival_time_secs,
-           uint32_t* rtcp_arrival_time_frac,
-           uint32_t* rtcp_timestamp) const;
+  bool NTP(uint32_t* received_ntp_secs, uint32_t* received_ntp_frac, uint32_t* rtcp_arrival_time_secs,
+           uint32_t* rtcp_arrival_time_frac, uint32_t* rtcp_timestamp) const;
 
   std::vector<rtcp::ReceiveTimeInfo> ConsumeReceivedXrReferenceTimeInfo();
 
   // Get rtt.
-  int32_t RTT(uint32_t remote_ssrc,
-              int64_t* last_rtt_ms,
-              int64_t* avg_rtt_ms,
-              int64_t* min_rtt_ms,
-              int64_t* max_rtt_ms) const;
+  int32_t RTT(uint32_t remote_ssrc, int64_t* last_rtt_ms, int64_t* avg_rtt_ms, int64_t* min_rtt_ms, int64_t* max_rtt_ms) const;
 
   void SetRtcpXrRrtrStatus(bool enable);
   bool GetAndResetXrRrRtt(int64_t* rtt_ms);
@@ -126,12 +119,9 @@ class RTCPReceiver {
   // RTCP report blocks map mapped by source SSRC.
   using ReportBlockMap = std::map<uint32_t, ReportBlockInfoMap>;
 
-  bool ParseCompoundPacket(const uint8_t* packet_begin,
-                           const uint8_t* packet_end,
-                           PacketInformation* packet_information);
+  bool ParseCompoundPacket(const uint8_t* packet_begin, const uint8_t* packet_end, PacketInformation* packet_information);
 
-  void TriggerCallbacksFromRtcpPacket(
-      const PacketInformation& packet_information);
+  void TriggerCallbacksFromRtcpPacket(const PacketInformation& packet_information);
 
   TmmbrInformation* FindOrCreateTmmbrInfo(uint32_t remote_ssrc)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
@@ -141,72 +131,55 @@ class RTCPReceiver {
   TmmbrInformation* GetTmmbrInformation(uint32_t remote_ssrc)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleSenderReport(const rtcp::CommonHeader& rtcp_block,
-                          PacketInformation* packet_information)
+  void HandleSenderReport(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleReceiverReport(const rtcp::CommonHeader& rtcp_block,
-                            PacketInformation* packet_information)
+  void HandleReceiverReport(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleReportBlock(const rtcp::ReportBlock& report_block,
-                         PacketInformation* packet_information,
-                         uint32_t remote_ssrc)
+  void HandleReportBlock(const rtcp::ReportBlock& report_block, PacketInformation* packet_information, uint32_t remote_ssrc)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleSdes(const rtcp::CommonHeader& rtcp_block,
-                  PacketInformation* packet_information)
+  void HandleSdes(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleXr(const rtcp::CommonHeader& rtcp_block,
-                PacketInformation* packet_information)
+  void HandleXr(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleXrReceiveReferenceTime(uint32_t sender_ssrc,
-                                    const rtcp::Rrtr& rrtr)
+  void HandleXrReceiveReferenceTime(uint32_t sender_ssrc, const rtcp::Rrtr& rrtr)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
   void HandleXrDlrrReportBlock(const rtcp::ReceiveTimeInfo& rti)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleXrTargetBitrate(uint32_t ssrc,
-                             const rtcp::TargetBitrate& target_bitrate,
-                             PacketInformation* packet_information)
+  void HandleXrTargetBitrate(uint32_t ssrc, const rtcp::TargetBitrate& target_bitrate, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleNack(const rtcp::CommonHeader& rtcp_block,
-                  PacketInformation* packet_information)
+  void HandleNack(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
   void HandleBye(const rtcp::CommonHeader& rtcp_block)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandlePli(const rtcp::CommonHeader& rtcp_block,
-                 PacketInformation* packet_information)
+  void HandlePli(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandlePsfbApp(const rtcp::CommonHeader& rtcp_block,
-                     PacketInformation* packet_information)
+  void HandlePsfbApp(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleTmmbr(const rtcp::CommonHeader& rtcp_block,
-                   PacketInformation* packet_information)
+  void HandleTmmbr(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleTmmbn(const rtcp::CommonHeader& rtcp_block,
-                   PacketInformation* packet_information)
+  void HandleTmmbn(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleSrReq(const rtcp::CommonHeader& rtcp_block,
-                   PacketInformation* packet_information)
+  void HandleSrReq(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleFir(const rtcp::CommonHeader& rtcp_block,
-                 PacketInformation* packet_information)
+  void HandleFir(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
-  void HandleTransportFeedback(const rtcp::CommonHeader& rtcp_block,
-                               PacketInformation* packet_information)
+  void HandleTransportFeedback(const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
 
   Clock* const clock_;
@@ -233,11 +206,9 @@ class RTCPReceiver {
   NtpTime last_received_sr_ntp_ RTC_GUARDED_BY(rtcp_receiver_lock_);
 
   // Received RRTR information in ascending receive time order.
-  std::list<RrtrInformation> received_rrtrs_
-      RTC_GUARDED_BY(rtcp_receiver_lock_);
+  std::list<RrtrInformation> received_rrtrs_ RTC_GUARDED_BY(rtcp_receiver_lock_);
   // Received RRTR information mapped by remote ssrc.
-  std::map<uint32_t, std::list<RrtrInformation>::iterator>
-      received_rrtrs_ssrc_it_ RTC_GUARDED_BY(rtcp_receiver_lock_);
+  std::map<uint32_t, std::list<RrtrInformation>::iterator> received_rrtrs_ssrc_it_ RTC_GUARDED_BY(rtcp_receiver_lock_);
 
   // Estimated rtt, zero when there is no valid estimate.
   bool xr_rrtr_status_ RTC_GUARDED_BY(rtcp_receiver_lock_);
@@ -245,14 +216,11 @@ class RTCPReceiver {
 
   int64_t oldest_tmmbr_info_ms_ RTC_GUARDED_BY(rtcp_receiver_lock_);
   // Mapped by remote ssrc.
-  std::map<uint32_t, TmmbrInformation> tmmbr_infos_
-      RTC_GUARDED_BY(rtcp_receiver_lock_);
+  std::map<uint32_t, TmmbrInformation> tmmbr_infos_ RTC_GUARDED_BY(rtcp_receiver_lock_);
 
   ReportBlockMap received_report_blocks_ RTC_GUARDED_BY(rtcp_receiver_lock_);
-  std::map<uint32_t, LastFirStatus> last_fir_
-      RTC_GUARDED_BY(rtcp_receiver_lock_);
-  std::map<uint32_t, std::string> received_cnames_
-      RTC_GUARDED_BY(rtcp_receiver_lock_);
+  std::map<uint32_t, LastFirStatus> last_fir_ RTC_GUARDED_BY(rtcp_receiver_lock_);
+  std::map<uint32_t, std::string> received_cnames_ RTC_GUARDED_BY(rtcp_receiver_lock_);
 
   // The last time we received an RTCP Report block for this module.
   int64_t last_received_rb_ms_ RTC_GUARDED_BY(rtcp_receiver_lock_);
