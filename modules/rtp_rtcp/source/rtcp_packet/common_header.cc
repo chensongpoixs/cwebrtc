@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -25,7 +25,7 @@ constexpr size_t CommonHeader::kHeaderSizeBytes;
 //   ----------------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // 2                                 |             length            |
 //   --------------------------------+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
+//// TODO@chensong 2022-12-25 
 // Common header for all RTCP packets, 4 octets.
 bool CommonHeader::Parse(const uint8_t* buffer, size_t size_bytes) 
 {
@@ -39,7 +39,7 @@ bool CommonHeader::Parse(const uint8_t* buffer, size_t size_bytes)
         << ") remaining in buffer to parse RTCP header (4 bytes).";
     return false;
   }
-
+  // rtcp 版本
   uint8_t version = buffer[0] >> 6;
   if (version != kVersion) 
   {
@@ -49,11 +49,17 @@ bool CommonHeader::Parse(const uint8_t* buffer, size_t size_bytes)
     return false;
   }
 
+  // 是否有扩展的数据包
   bool has_padding = (buffer[0] & 0x20) != 0;
   count_or_format_ = buffer[0] & 0x1F;
+  // rtcp 包类型
   packet_type_ = buffer[1];
+
+  // rtcp 包中数据大小 读取4个字节 就是32bit
   payload_size_ = ByteReader<uint16_t>::ReadBigEndian(&buffer[2]) * 4;
-  payload_ = buffer + kHeaderSizeBytes;
+
+  // rtcp 包中实际数据开始地址的位置
+  payload_ = buffer + kHeaderSizeBytes /*default kHeaderSizeBytes = 4*/;
   padding_size_ = 0;
 
   if (size_bytes < kHeaderSizeBytes + payload_size_) 

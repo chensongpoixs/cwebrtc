@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -39,7 +39,16 @@ int64_t NtpOffsetMs();
 // In some fields where a more compact representation is
 // appropriate, only the middle 32 bits are used; that is, the low 16
 // bits of the integer part and the high 16 bits of the fractional part.
-inline uint32_t CompactNtp(NtpTime ntp) {
+//压缩ntp表示的帮助函数：
+// RFC 3550，第4节。时间格式。
+//时钟时间使用时间戳格式表示
+//网络时间协议（NTP）。
+// ...
+//在某些领域中
+//适当地，仅使用中间32位；即低16
+//整数部分的位和小数部分的高16位。
+inline uint32_t CompactNtp(NtpTime ntp) 
+{
   return (ntp.seconds() << 16) | (ntp.fractions() >> 16);
 }
 

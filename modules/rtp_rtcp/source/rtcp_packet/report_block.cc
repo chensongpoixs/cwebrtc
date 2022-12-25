@@ -53,14 +53,19 @@ bool ReportBlock::Parse(const uint8_t* buffer, size_t length)
     RTC_LOG(LS_ERROR) << "Report Block should be 24 bytes long";
     return false;
   }
-
+  // 接收到的媒体源ssrc
   source_ssrc_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[0]);
   // TODO@chensong 2022-10-19  丢包率 fraction_lost
   fraction_lost_ = buffer[4];
+  // 接收开始丢包总数， 迟到包不算丢包，重传有可以导致负数
   cumulative_lost_ = ByteReader<int32_t, 3>::ReadBigEndian(&buffer[5]);
+  // 低16位表示收到的最大seq，高16位表示seq循环次数
   extended_high_seq_num_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[8]);
+  // rtp包到达时间间隔的统计方差
   jitter_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[12]);
+  // ntp时间戳的中间32位
   last_sr_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[16]);
+  // 记录上一个接收SR的时间与上一个发送SR的时间差
   delay_since_last_sr_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[20]);
 
   return true;

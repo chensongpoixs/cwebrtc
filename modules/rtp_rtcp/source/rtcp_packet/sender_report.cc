@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -53,34 +53,39 @@ SenderReport& SenderReport::operator=(const SenderReport&) = default;
 SenderReport& SenderReport::operator=(SenderReport&&) = default;
 SenderReport::~SenderReport() = default;
 
-bool SenderReport::Parse(const CommonHeader& packet) {
+bool SenderReport::Parse(const CommonHeader& packet) 
+{
   RTC_DCHECK_EQ(packet.type(), kPacketType);
 
   const uint8_t report_block_count = packet.count();
-  if (packet.payload_size_bytes() <
-      kSenderBaseLength + report_block_count * ReportBlock::kLength) {
+  if (packet.payload_size_bytes() < kSenderBaseLength/*24*/ + report_block_count * ReportBlock::kLength /*24*/) 
+  {
     RTC_LOG(LS_WARNING) << "Packet is too small to contain all the data.";
     return false;
   }
   // Read SenderReport header.
   const uint8_t* const payload = packet.payload();
+  // 发送端ssrc
   sender_ssrc_ = ByteReader<uint32_t>::ReadBigEndian(&payload[0]);
   uint32_t secs = ByteReader<uint32_t>::ReadBigEndian(&payload[4]);
   uint32_t frac = ByteReader<uint32_t>::ReadBigEndian(&payload[8]);
   ntp_.Set(secs, frac);
+  // rtp 网络时间戳
   rtp_timestamp_ = ByteReader<uint32_t>::ReadBigEndian(&payload[12]);
+  // 发送的总包数
   sender_packet_count_ = ByteReader<uint32_t>::ReadBigEndian(&payload[16]);
+  // 总共发送数据包量
   sender_octet_count_ = ByteReader<uint32_t>::ReadBigEndian(&payload[20]);
   report_blocks_.resize(report_block_count);
   const uint8_t* next_block = payload + kSenderBaseLength;
-  for (ReportBlock& block : report_blocks_) {
+  for (ReportBlock& block : report_blocks_) 
+  {
     bool block_parsed = block.Parse(next_block, ReportBlock::kLength);
     RTC_DCHECK(block_parsed);
     next_block += ReportBlock::kLength;
   }
   // Double check we didn't read beyond provided buffer.
-  RTC_DCHECK_LE(next_block - payload,
-                static_cast<ptrdiff_t>(packet.payload_size_bytes()));
+  RTC_DCHECK_LE(next_block - payload, static_cast<ptrdiff_t>(packet.payload_size_bytes()));
   return true;
 }
 

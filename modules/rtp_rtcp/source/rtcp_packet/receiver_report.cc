@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -50,7 +50,7 @@ bool ReceiverReport::Parse(const CommonHeader& packet)
     RTC_LOG(LS_WARNING) << "Packet is too small to contain all the data.";
     return false;
   }
-
+  // 发送者ssrc
   sender_ssrc_ = ByteReader<uint32_t>::ReadBigEndian(packet.payload());
 
   const uint8_t* next_report_block = packet.payload() + kRrBaseLength;

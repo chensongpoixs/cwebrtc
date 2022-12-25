@@ -36,7 +36,7 @@ VideoSendStream::DeliverRtcp
 VideoSendStreamImpl::DeliverRtcp 
 RtpVideoSender::DeliverRtcp 
 ModuleRtpRtcpImpl::IncomingRtcpPacket(const uint8_t* rtcp_packet, const size_t length)
-RTCPReceiver::IncomingPacket(const uint8_t* packet, size_t packet_size)
+RTCPReceiver::IncomingPacket(const uint8_t* packet, size_t packet_size)  --> RTCPReceiver模块接受数据并读取数据格式
 RTCPReceiver::TriggerCallbacksFromRtcpPacket(const PacketInformation& packet_information)
 RtpTransportControllerSend::OnTransportFeedback(const rtcp::TransportFeedback& feedback)
 
