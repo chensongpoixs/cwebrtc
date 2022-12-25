@@ -443,8 +443,8 @@ class Network {
   const DefaultLocalAddressProvider* default_local_address_provider_ = nullptr;
   const MdnsResponderProvider* mdns_responder_provider_ = nullptr;
   std::string name_;
-  std::string description_;
-  IPAddress prefix_;
+  std::string description_; // Íø¿¨ÐÅÏ¢
+  IPAddress prefix_; // 
   int prefix_length_;
   std::string key_;
   std::vector<InterfaceAddress> ips_;
