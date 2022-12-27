@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -461,9 +461,9 @@ int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
   {
     // Convert from TickTime to Clock since capture_time_ms is based on
     // TickTime.
+      //  把要发送包seq序号队列中去插入发送队列中去
     int64_t corrected_capture_tims_ms = stored_packet->capture_time_ms + clock_delta_ms_;
-    paced_sender_->InsertPacket(RtpPacketSender::kNormalPriority, stored_packet->ssrc,
-        stored_packet->rtp_sequence_number, corrected_capture_tims_ms, stored_packet->packet_size, true);
+    paced_sender_->InsertPacket(RtpPacketSender::kNormalPriority, stored_packet->ssrc, stored_packet->rtp_sequence_number, corrected_capture_tims_ms, stored_packet->packet_size, true);
 
     return packet_size;
   }
@@ -507,6 +507,7 @@ bool RTPSender::SendPacketToNetwork(const RtpPacketToSend& packet,
 
 void RTPSender::OnReceivedNack( const std::vector<uint16_t>& nack_sequence_numbers, int64_t avg_rtt) 
 {
+    // 这边为什么要平均增加+5呢 ？？？？
   packet_history_.SetRtt(5 + avg_rtt);
   for (uint16_t seq_no : nack_sequence_numbers) 
   {

@@ -64,7 +64,8 @@ Sdes::Sdes() : block_length_(RtcpPacket::kHeaderLength) {}
 
 Sdes::~Sdes() {}
 
-bool Sdes::Parse(const CommonHeader& packet) {
+bool Sdes::Parse(const CommonHeader& packet)
+{
   RTC_DCHECK_EQ(packet.type(), kPacketType);
 
   uint8_t number_of_chunks = packet.count();
@@ -79,13 +80,14 @@ bool Sdes::Parse(const CommonHeader& packet) {
                         << " bytes for a valid Sdes packet. Size should be"
                            " multiple of 4 bytes";
   }
-  const uint8_t* const payload_end =
-      packet.payload() + packet.payload_size_bytes();
+  const uint8_t* const payload_end = packet.payload() + packet.payload_size_bytes();
   const uint8_t* looking_at = packet.payload();
   chunks.resize(number_of_chunks);
-  for (size_t i = 0; i < number_of_chunks;) {
+  for (size_t i = 0; i < number_of_chunks;)
+  {
     // Each chunk consumes at least 8 bytes.
-    if (payload_end - looking_at < 8) {
+    if (payload_end - looking_at < 8)
+    {
       RTC_LOG(LS_WARNING) << "Not enough space left for chunk #" << (i + 1);
       return false;
     }

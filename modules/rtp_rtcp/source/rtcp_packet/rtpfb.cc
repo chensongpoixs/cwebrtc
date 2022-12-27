@@ -31,8 +31,11 @@ constexpr uint8_t Rtpfb::kPacketType;
 //   :            Feedback Control Information (FCI)                 :
 //   :                                                               :
 
-void Rtpfb::ParseCommonFeedback(const uint8_t* payload) {
+void Rtpfb::ParseCommonFeedback(const uint8_t* payload)
+{
+    // 发送的ssrc源
   sender_ssrc_ = ByteReader<uint32_t>::ReadBigEndian(&payload[0]);
+    // media ssrc 源
   media_ssrc_ = ByteReader<uint32_t>::ReadBigEndian(&payload[4]);
 }
 

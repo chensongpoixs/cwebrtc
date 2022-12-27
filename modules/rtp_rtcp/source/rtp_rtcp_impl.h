@@ -277,8 +277,7 @@ class ModuleRtpRtcpImpl : public RtpRtcp, public RTCPReceiver::ModuleRtpRtcp {
   StreamDataCountersCallback* GetSendChannelRtpStatisticsCallback()
       const override;
 
-  void OnReceivedNack(
-      const std::vector<uint16_t>& nack_sequence_numbers) override;
+  void OnReceivedNack(const std::vector<uint16_t>& nack_sequence_numbers) override;
   void OnReceivedRtcpReportBlocks(
       const ReportBlockList& report_blocks) override;
   void OnRequestSendReport() override;

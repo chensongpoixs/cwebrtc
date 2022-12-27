@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -812,7 +812,7 @@ void ModuleRtpRtcpImpl::OnReceivedNack(const std::vector<uint16_t>& nack_sequenc
   {
     rtcp_receiver_.RTT(rtcp_receiver_.RemoteSSRC(), NULL, &rtt, NULL, NULL);
   }
-  // TODO@chensong 2022-12-20 重新发送包插入到发送队列中去 
+  // TODO@chensong 2022-12-20 重新发送包插入到发送队列中去  RTPSender->OnReceivedNack
   rtp_sender_->OnReceivedNack(nack_sequence_numbers, rtt);
 }
 

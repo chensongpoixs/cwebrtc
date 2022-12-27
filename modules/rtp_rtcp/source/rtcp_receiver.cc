@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -436,14 +436,14 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
     }
   }
 
-  if (packet_type_counter_observer_) {
-    packet_type_counter_observer_->RtcpPacketTypesCounterUpdated(
-        main_ssrc_, packet_type_counter_);
+  if (packet_type_counter_observer_)
+  {
+    packet_type_counter_observer_->RtcpPacketTypesCounterUpdated(main_ssrc_, packet_type_counter_);
   }
 
   int64_t now_ms = clock_->TimeInMilliseconds();
-  if (now_ms - last_skipped_packets_warning_ms_ >= kMaxWarningLogIntervalMs &&
-      num_skipped_packets_ > 0) {
+  if (now_ms - last_skipped_packets_warning_ms_ >= kMaxWarningLogIntervalMs && num_skipped_packets_ > 0)
+  {
     last_skipped_packets_warning_ms_ = now_ms;
     RTC_LOG(LS_WARNING)
         << num_skipped_packets_
@@ -706,10 +706,11 @@ std::vector<rtcp::TmmbItem> RTCPReceiver::BoundingSet(bool* tmmbr_owner) {
   return tmmbr_info->tmmbn;
 }
 
-void RTCPReceiver::HandleSdes(const CommonHeader& rtcp_block,
-                              PacketInformation* packet_information) {
+void RTCPReceiver::HandleSdes(const CommonHeader& rtcp_block, PacketInformation* packet_information)
+{
   rtcp::Sdes sdes;
-  if (!sdes.Parse(rtcp_block)) {
+  if (!sdes.Parse(rtcp_block))
+  {
     ++num_skipped_packets_;
     return;
   }
@@ -728,7 +729,8 @@ void RTCPReceiver::HandleSdes(const CommonHeader& rtcp_block,
 void RTCPReceiver::HandleNack(const CommonHeader& rtcp_block,
                               PacketInformation* packet_information) {
   rtcp::Nack nack;
-  if (!nack.Parse(rtcp_block)) {
+  if (!nack.Parse(rtcp_block))
+  {
     ++num_skipped_packets_;
     return;
   }
@@ -737,25 +739,32 @@ void RTCPReceiver::HandleNack(const CommonHeader& rtcp_block,
   {
     return;
   }
-
-  packet_information->nack_sequence_numbers.insert(
-      packet_information->nack_sequence_numbers.end(),
-      nack.packet_ids().begin(), nack.packet_ids().end());
-  for (uint16_t packet_id : nack.packet_ids()) {
+  // 把丢包的seq插入nack_sequence_numbers中去请求重新发送seq包
+  packet_information->nack_sequence_numbers.insert(packet_information->nack_sequence_numbers.end(), nack.packet_ids().begin(), nack.packet_ids().end());
+    
+    // 把丢包的seq的序号放到数据统计中去
+  for (uint16_t packet_id : nack.packet_ids())
+  {
     nack_stats_.ReportRequest(packet_id);
   }
 
-  if (!nack.packet_ids().empty()) {
+  if (!nack.packet_ids().empty())
+  {
     packet_information->packet_type_flags |= kRtcpNack;
+      // 记录nack丢包请求的次数
     ++packet_type_counter_.nack_packets;
+      // 记录总共nack包数量
     packet_type_counter_.nack_requests = nack_stats_.requests();
+      // 超时的包
     packet_type_counter_.unique_nack_requests = nack_stats_.unique_requests();
   }
 }
 
-void RTCPReceiver::HandleBye(const CommonHeader& rtcp_block) {
+void RTCPReceiver::HandleBye(const CommonHeader& rtcp_block)
+{
   rtcp::Bye bye;
-  if (!bye.Parse(rtcp_block)) {
+  if (!bye.Parse(rtcp_block))
+  {
     ++num_skipped_packets_;
     return;
   }
@@ -1082,8 +1091,8 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(const PacketInformation& packe
   {
     if (!packet_information.nack_sequence_numbers.empty()) 
 	{
-      RTC_LOG(LS_VERBOSE) << "Incoming NACK length: "
-                          << packet_information.nack_sequence_numbers.size();
+      RTC_LOG(LS_VERBOSE) << "Incoming NACK length: " << packet_information.nack_sequence_numbers.size();
+      // 请求重新发送seq的包   ModuleRtpRtcpImpl->OnReceivedNack
       rtp_rtcp_->OnReceivedNack(packet_information.nack_sequence_numbers);
     }
   }

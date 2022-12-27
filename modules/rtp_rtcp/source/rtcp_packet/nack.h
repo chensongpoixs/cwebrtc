@@ -35,10 +35,7 @@ class Nack : public Rtpfb {
 
   size_t BlockLength() const override;
 
-  bool Create(uint8_t* packet,
-              size_t* index,
-              size_t max_length,
-              PacketReadyCallback callback) const override;
+  bool Create(uint8_t* packet, size_t* index, size_t max_length, PacketReadyCallback callback) const override;
 
  private:
   static constexpr size_t kNackItemLength = 4;
@@ -50,8 +47,8 @@ class Nack : public Rtpfb {
   void Pack();    // Fills packed_ using packed_ids_. (used in SetPacketIds).
   void Unpack();  // Fills packet_ids_ using packed_. (used in Parse).
 
-  std::vector<PackedNack> packed_;
-  std::vector<uint16_t> packet_ids_;
+  std::vector<PackedNack> packed_;   //
+  std::vector<uint16_t> packet_ids_; // 丢包的seq的数组
 };
 
 }  // namespace rtcp
