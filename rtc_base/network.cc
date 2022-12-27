@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -493,67 +493,75 @@ bool BasicNetworkManager::CreateNetworks(bool include_ignored,
 #elif defined(WEBRTC_POSIX)
 void BasicNetworkManager::ConvertIfAddrs(struct ifaddrs* interfaces,
                                          IfAddrsConverter* ifaddrs_converter,
-                                         bool include_ignored,
-                                         NetworkList* networks) const {
+                                         bool include_ignored, NetworkList* networks) const 
+{
   NetworkMap current_networks;
 
-  for (struct ifaddrs* cursor = interfaces; cursor != nullptr;
-       cursor = cursor->ifa_next) {
+  for (struct ifaddrs* cursor = interfaces; cursor != nullptr; cursor = cursor->ifa_next) 
+  {
     IPAddress prefix;
     IPAddress mask;
     InterfaceAddress ip;
     int scope_id = 0;
 
     // Some interfaces may not have address assigned.
-    if (!cursor->ifa_addr || !cursor->ifa_netmask) {
+    if (!cursor->ifa_addr || !cursor->ifa_netmask) 
+	{
       continue;
     }
     // Skip ones which are down.
-    if (!(cursor->ifa_flags & IFF_RUNNING)) {
+    if (!(cursor->ifa_flags & IFF_RUNNING))
+	{
       continue;
     }
     // Skip unknown family.
     if (cursor->ifa_addr->sa_family != AF_INET &&
-        cursor->ifa_addr->sa_family != AF_INET6) {
+        cursor->ifa_addr->sa_family != AF_INET6) 
+	{
       continue;
     }
     // Convert to InterfaceAddress.
-    if (!ifaddrs_converter->ConvertIfAddrsToIPAddress(cursor, &ip, &mask)) {
+    if (!ifaddrs_converter->ConvertIfAddrsToIPAddress(cursor, &ip, &mask)) 
+	{
       continue;
     }
 
     // Special case for IPv6 address.
-    if (cursor->ifa_addr->sa_family == AF_INET6) {
+    if (cursor->ifa_addr->sa_family == AF_INET6) 
+	{
       if (IsIgnoredIPv6(ip)) {
         continue;
       }
-      scope_id =
-          reinterpret_cast<sockaddr_in6*>(cursor->ifa_addr)->sin6_scope_id;
+      scope_id = reinterpret_cast<sockaddr_in6*>(cursor->ifa_addr)->sin6_scope_id;
     }
 
     AdapterType adapter_type = ADAPTER_TYPE_UNKNOWN;
     AdapterType vpn_underlying_adapter_type = ADAPTER_TYPE_UNKNOWN;
-    if (cursor->ifa_flags & IFF_LOOPBACK) {
+    if (cursor->ifa_flags & IFF_LOOPBACK) 
+	{
       adapter_type = ADAPTER_TYPE_LOOPBACK;
-    } else {
+    } 
+	else 
+	{
       // If there is a network_monitor, use it to get the adapter type.
       // Otherwise, get the adapter type based on a few name matching rules.
-      if (network_monitor_) {
+      if (network_monitor_) 
+	  {
         adapter_type = network_monitor_->GetAdapterType(cursor->ifa_name);
       }
-      if (adapter_type == ADAPTER_TYPE_UNKNOWN) {
+      if (adapter_type == ADAPTER_TYPE_UNKNOWN) 
+	  {
         adapter_type = GetAdapterTypeFromName(cursor->ifa_name);
       }
     }
 
-    if (adapter_type == ADAPTER_TYPE_VPN && network_monitor_) {
-      vpn_underlying_adapter_type =
-          network_monitor_->GetVpnUnderlyingAdapterType(cursor->ifa_name);
+    if (adapter_type == ADAPTER_TYPE_VPN && network_monitor_) 
+	{
+      vpn_underlying_adapter_type = network_monitor_->GetVpnUnderlyingAdapterType(cursor->ifa_name);
     }
     int prefix_length = CountIPMaskBits(mask);
     prefix = TruncateIP(ip, prefix_length);
-    std::string key =
-        MakeNetworkKey(std::string(cursor->ifa_name), prefix, prefix_length);
+    std::string key = MakeNetworkKey(std::string(cursor->ifa_name), prefix, prefix_length);
     auto iter = current_networks.find(key);
     if (iter == current_networks.end()) {
       // TODO(phoglund): Need to recognize other types as well.
@@ -592,8 +600,7 @@ bool BasicNetworkManager::CreateNetworks(bool include_ignored,
   }
 
   std::unique_ptr<IfAddrsConverter> ifaddrs_converter(CreateIfAddrsConverter());
-  ConvertIfAddrs(interfaces, ifaddrs_converter.get(), include_ignored,
-                 networks);
+  ConvertIfAddrs(interfaces, ifaddrs_converter.get(), include_ignored, networks);
 
   freeifaddrs(interfaces);
   return true;
@@ -643,20 +650,20 @@ unsigned int GetPrefix(PIP_ADAPTER_PREFIX prefixlist,
   return best_length;
 }
 
-bool BasicNetworkManager::CreateNetworks(bool include_ignored,
-                                         NetworkList* networks) const {
+bool BasicNetworkManager::CreateNetworks(bool include_ignored, NetworkList* networks) const 
+{
   NetworkMap current_networks;
   // MSDN recommends a 15KB buffer for the first try at GetAdaptersAddresses.
   size_t buffer_size = 16384;
   std::unique_ptr<char[]> adapter_info(new char[buffer_size]);
-  PIP_ADAPTER_ADDRESSES adapter_addrs =
-      reinterpret_cast<PIP_ADAPTER_ADDRESSES>(adapter_info.get());
+  PIP_ADAPTER_ADDRESSES adapter_addrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(adapter_info.get());
   int adapter_flags = (GAA_FLAG_SKIP_DNS_SERVER | GAA_FLAG_SKIP_ANYCAST |
                        GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_INCLUDE_PREFIX);
   int ret = 0;
   do {
     adapter_info.reset(new char[buffer_size]);
     adapter_addrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(adapter_info.get());
+	// 查找机器的IP地址
     ret = GetAdaptersAddresses(AF_UNSPEC, adapter_flags, 0, adapter_addrs,
                                reinterpret_cast<PULONG>(&buffer_size));
   } while (ret == ERROR_BUFFER_OVERFLOW);
@@ -664,15 +671,16 @@ bool BasicNetworkManager::CreateNetworks(bool include_ignored,
     return false;
   }
   int count = 0;
-  while (adapter_addrs) {
-    if (adapter_addrs->OperStatus == IfOperStatusUp) {
+  while (adapter_addrs) 
+  {
+    if (adapter_addrs->OperStatus == IfOperStatusUp) 
+	{
       PIP_ADAPTER_UNICAST_ADDRESS address = adapter_addrs->FirstUnicastAddress;
       PIP_ADAPTER_PREFIX prefixlist = adapter_addrs->FirstPrefix;
       std::string name;
       std::string description;
 #if !defined(NDEBUG)
-      name = ToUtf8(adapter_addrs->FriendlyName,
-                    wcslen(adapter_addrs->FriendlyName));
+      name = ToUtf8(adapter_addrs->FriendlyName, wcslen(adapter_addrs->FriendlyName));
 #endif
       description = ToUtf8(adapter_addrs->Description,
                            wcslen(adapter_addrs->Description));
@@ -686,14 +694,12 @@ bool BasicNetworkManager::CreateNetworks(bool include_ignored,
         std::unique_ptr<Network> network;
         switch (address->Address.lpSockaddr->sa_family) {
           case AF_INET: {
-            sockaddr_in* v4_addr =
-                reinterpret_cast<sockaddr_in*>(address->Address.lpSockaddr);
+            sockaddr_in* v4_addr = reinterpret_cast<sockaddr_in*>(address->Address.lpSockaddr);
             ip = IPAddress(v4_addr->sin_addr);
             break;
           }
           case AF_INET6: {
-            sockaddr_in6* v6_addr =
-                reinterpret_cast<sockaddr_in6*>(address->Address.lpSockaddr);
+            sockaddr_in6* v6_addr = reinterpret_cast<sockaddr_in6*>(address->Address.lpSockaddr);
             scope_id = v6_addr->sin6_scope_id;
             ip = IPAddress(v6_addr->sin6_addr);
 
@@ -714,23 +720,8 @@ bool BasicNetworkManager::CreateNetworks(bool include_ignored,
         auto existing_network = current_networks.find(key);
         if (existing_network == current_networks.end()) {
           AdapterType adapter_type = ADAPTER_TYPE_UNKNOWN;
-          switch (adapter_addrs->IfType) {
-            case IF_TYPE_SOFTWARE_LOOPBACK:
-              adapter_type = ADAPTER_TYPE_LOOPBACK;
-              break;
-            case IF_TYPE_ETHERNET_CSMACD:
-            case IF_TYPE_ETHERNET_3MBIT:
-            case IF_TYPE_IEEE80212:
-            case IF_TYPE_FASTETHER:
-            case IF_TYPE_FASTETHER_FX:
-            case IF_TYPE_GIGABITETHERNET:
-              adapter_type = ADAPTER_TYPE_ETHERNET;
-              break;
-            case IF_TYPE_IEEE80211:
-              adapter_type = ADAPTER_TYPE_WIFI;
-              break;
-            case IF_TYPE_WWANPP:
-            case IF_TYPE_WWANPP2:
+          switch (adapter_addrs->IfType)
+
               adapter_type = ADAPTER_TYPE_CELLULAR;
               break;
             default:
