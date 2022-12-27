@@ -123,15 +123,16 @@ void RTCPReceiver::RegisteredSsrcs::set_media_ssrc(uint32_t ssrc) {
 }
 
 struct RTCPReceiver::PacketInformation {
+    // 每一位代表一种RTCP消息
   uint32_t packet_type_flags = 0;  // RTCPPacketTypeFlags bit field.
-
+    
   uint32_t remote_ssrc = 0;
-  std::vector<uint16_t> nack_sequence_numbers;
+  std::vector<uint16_t> nack_sequence_numbers; // 存放掉失的seq
   // TODO(hbos): Remove `report_blocks` in favor of `report_block_datas`.
   ReportBlockList report_blocks;
   std::vector<ReportBlockData> report_block_datas;
-  int64_t rtt_ms = 0;
-  uint32_t receiver_estimated_max_bitrate_bps = 0;
+  int64_t rtt_ms = 0; // 数据包一去一回 周期的时长是多少毫秒
+  uint32_t receiver_estimated_max_bitrate_bps = 0;  // 接受端评估最大马流是多少
   std::unique_ptr<rtcp::TransportFeedback> transport_feedback;
   absl::optional<VideoBitrateAllocation> target_bitrate_allocation;
   absl::optional<NetworkStateEstimate> network_state_estimate;
@@ -228,6 +229,7 @@ void RTCPReceiver::IncomingPacket(rtc::ArrayView<const uint8_t> packet) {
   }
 
   PacketInformation packet_information;
+    // 联合包 解析第一个包
   if (!ParseCompoundPacket(packet, &packet_information))
     return;
   TriggerCallbacksFromRtcpPacket(packet_information);
@@ -436,10 +438,10 @@ bool RTCPReceiver::ParseCompoundPacket(rtc::ArrayView<const uint8_t> packet,
 
   CommonHeader rtcp_block;
   for (const uint8_t* next_block = packet.begin(); next_block != packet.end();
-       next_block = rtcp_block.NextPacket()) {
+       next_block = rtcp_block.NextPacket()) { // 读取一个RTCP包
     ptrdiff_t remaining_blocks_size = packet.end() - next_block;
     RTC_DCHECK_GT(remaining_blocks_size, 0);
-    if (!rtcp_block.Parse(next_block, remaining_blocks_size)) {
+    if (!rtcp_block.Parse(next_block, remaining_blocks_size)) { //出错了 ！！！
       if (next_block == packet.begin()) {
         // Failed to parse 1st header, nothing was extracted from this packet.
         RTC_LOG(LS_WARNING) << "Incoming invalid RTCP packet";

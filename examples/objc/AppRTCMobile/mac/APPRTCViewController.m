@@ -65,6 +65,7 @@ static NSUInteger const kBottomViewHeight = 200;
 - (void)displayLogMessage:(NSString *)message {
   dispatch_async(dispatch_get_main_queue(), ^{
     self.logView.string = [NSString stringWithFormat:@"%@%@\n", self.logView.string, message];
+      NSLog(@"[chensong]logView = %@", self.logView.string);
     NSRange range = NSMakeRange(self.logView.string.length, 0);
     [self.logView scrollRangeToVisible:range];
   });
@@ -165,6 +166,7 @@ static NSUInteger const kBottomViewHeight = 200;
 
 #pragma mark - Control actions
 
+// 获取房间号
 - (void)startCall:(id)sender {
   NSString* roomString = _roomField.stringValue;
   // Generate room id for loopback options.
@@ -172,6 +174,7 @@ static NSUInteger const kBottomViewHeight = 200;
     roomString = [NSUUID UUID].UUIDString;
     roomString = [roomString stringByReplacingOccurrencesOfString:@"-" withString:@""];
   }
+    NSLog(@"[chensong]roomid =  %@", roomString);
   [self.delegate appRTCMainView:self
                  didEnterRoomId:roomString
                        loopback:_loopbackButton.intValue];
@@ -194,6 +197,10 @@ static NSUInteger const kBottomViewHeight = 200;
 
 #pragma mark - Private
 
+/**
+ TODO@chensong 2022-03-27
+ 设置显示界面
+ */
 - (void)setupViews {
   NSParameterAssert([[self subviews] count] == 0);
 

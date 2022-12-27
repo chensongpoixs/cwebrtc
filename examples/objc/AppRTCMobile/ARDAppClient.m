@@ -39,8 +39,8 @@
 #import "ARDWebSocketChannel.h"
 #import "RTCIceCandidate+JSON.h"
 #import "RTCSessionDescription+JSON.h"
-
-static NSString * const kARDIceServerRequestUrl = @"https://appr.tc/params";
+//https://rtc.api.zhlh.sinopec.com/
+static NSString * const kARDIceServerRequestUrl = @"https://rtc.api.zhlh.sinopec.com/params";
 
 static NSString * const kARDAppClientErrorDomain = @"ARDAppClient";
 static NSInteger const kARDAppClientErrorUnknown = -1;
@@ -214,6 +214,7 @@ static int const kKbpsMultiplier = 1000;
   [_delegate appClient:self didChangeState:_state];
 }
 
+//TODO@chensong 2022-03-27  连接信令服务器哈 ^_^
 - (void)connectToRoomWithId:(NSString *)roomId
                    settings:(ARDSettingsModel *)settings
                  isLoopback:(BOOL)isLoopback {
@@ -282,6 +283,7 @@ static int const kKbpsMultiplier = 1000;
         [strongSelf.messageQueue addObject:message];
       }
     }
+      NSLog(@"[chensong][websocket_url = %@] [messages = %@]", response.webSocketURL, response.messages);
     strongSelf.webSocketURL = response.webSocketURL;
     strongSelf.webSocketRestURL = response.webSocketRestURL;
     [strongSelf registerWithColliderIfReady];
