@@ -74,11 +74,9 @@ constexpr int64_t kTimeWrapPeriodUs = (1ll << 24) * kBaseScaleFactor;
 // TODO@chensong 2022-12-07 
 /*
 Receive Delta
-以250us(0.25ms)为单位，表示RTP包到达时间与前面一个RTP包到达时间的间隔，对于记录的第一个RTP包，该包的时间间隔是相对reference
-time的。
+以250us(0.25ms)为单位，表示RTP包到达时间与前面一个RTP包到达时间的间隔，对于记录的第一个RTP包，该包的时间间隔是相对referencetime的。
 
-1. 如果在packet chunk记录了一个"Packet received, small
-delta"状态的包，那么就会在receive delta列表中添加一个无符号1字节长度receive
+1. 如果在packet chunk记录了一个"Packet received, smalldelta"状态的包，那么就会在receive delta列表中添加一个无符号1字节长度receive
 delta，无符号1字节取值范围[0,255]，由于Receive
 Delta以0.25ms为单位，故此时Receive Delta取值范围[0, 63.75]ms 
 
@@ -458,7 +456,8 @@ int64_t TransportFeedback::GetBaseTimeUs() const {
 }
 
 // De-serialize packet.
-bool TransportFeedback::Parse(const CommonHeader& packet) {
+bool TransportFeedback::Parse(const CommonHeader& packet) 
+{
   RTC_DCHECK_EQ(packet.type(), kPacketType);
   RTC_DCHECK_EQ(packet.fmt(), kFeedbackMessageType);
   TRACE_EVENT0("webrtc", "TransportFeedback::Parse");
@@ -482,15 +481,18 @@ bool TransportFeedback::Parse(const CommonHeader& packet) {
   size_t index = 16;
   const size_t end_index = packet.payload_size_bytes();
 
-  if (status_count == 0) {
+  if (status_count == 0) 
+  {
     RTC_LOG(LS_WARNING) << "Empty feedback messages not allowed.";
     return false;
   }
 
   std::vector<uint8_t> delta_sizes;
   delta_sizes.reserve(status_count);
-  while (delta_sizes.size() < status_count) {
-    if (index + kChunkSizeBytes > end_index) {
+  while (delta_sizes.size() < status_count) 
+  {
+    if (index + kChunkSizeBytes > end_index) 
+	{
       RTC_LOG(LS_WARNING) << "Buffer overflow while parsing packet.";
       Clear();
       return false;
@@ -509,29 +511,36 @@ bool TransportFeedback::Parse(const CommonHeader& packet) {
 
   uint16_t seq_no = base_seq_no_;
   size_t recv_delta_size = 0;
-  for (size_t delta_size : delta_sizes) {
+  for (size_t delta_size : delta_sizes) 
+  {
     recv_delta_size += delta_size;
   }
 
   // Determine if timestamps, that is, recv_delta are included in the packet.
-  if (end_index >= index + recv_delta_size) {
-    for (size_t delta_size : delta_sizes) {
-      if (index + delta_size > end_index) {
+  if (end_index >= index + recv_delta_size) 
+  {
+    for (size_t delta_size : delta_sizes) 
+	{
+      if (index + delta_size > end_index) 
+	  {
         RTC_LOG(LS_WARNING) << "Buffer overflow while parsing packet.";
         Clear();
         return false;
       }
-      switch (delta_size) {
+      switch (delta_size) 
+	  {
         case 0:
           break;
-        case 1: {
+        case 1: 
+		{
           int16_t delta = payload[index];
           packets_.emplace_back(seq_no, delta);
           last_timestamp_us_ += delta * kDeltaScaleFactor /*default 250 */;
           index += delta_size;
           break;
         }
-        case 2: {
+        case 2: 
+		{
           int16_t delta = ByteReader<int16_t>::ReadBigEndian(&payload[index]);
           packets_.emplace_back(seq_no, delta);
           last_timestamp_us_ += delta * kDeltaScaleFactor /*default 250*/;
@@ -549,12 +558,16 @@ bool TransportFeedback::Parse(const CommonHeader& packet) {
       }
       ++seq_no;
     }
-  } else {
+  } 
+  else 
+  {
     // The packet does not contain receive deltas.
     include_timestamps_ = false;
-    for (size_t delta_size : delta_sizes) {
+    for (size_t delta_size : delta_sizes) 
+	{
       // Use delta sizes to detect if packet was received.
-      if (delta_size > 0) {
+      if (delta_size > 0) 
+	  {
         packets_.emplace_back(seq_no, 0);
       }
       ++seq_no;

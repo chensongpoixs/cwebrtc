@@ -942,10 +942,11 @@ void RTCPReceiver::HandleTmmbn(const CommonHeader& rtcp_block,
   tmmbr_info->tmmbn = tmmbn.items();
 }
 
-void RTCPReceiver::HandleSrReq(const CommonHeader& rtcp_block,
-                               PacketInformation* packet_information) {
+void RTCPReceiver::HandleSrReq(const CommonHeader& rtcp_block, PacketInformation* packet_information) 
+{
   rtcp::RapidResyncRequest sr_req;
-  if (!sr_req.Parse(rtcp_block)) {
+  if (!sr_req.Parse(rtcp_block)) 
+  {
     ++num_skipped_packets_;
     return;
   }
@@ -1017,9 +1018,7 @@ void RTCPReceiver::HandleFir(const CommonHeader& rtcp_block,
   }
 }
 
-void RTCPReceiver::HandleTransportFeedback(
-    const CommonHeader& rtcp_block,
-    PacketInformation* packet_information)
+void RTCPReceiver::HandleTransportFeedback(const CommonHeader& rtcp_block, PacketInformation* packet_information)
 {
   std::unique_ptr<rtcp::TransportFeedback> transport_feedback(new rtcp::TransportFeedback());
   if (!transport_feedback->Parse(rtcp_block)) 
@@ -1155,8 +1154,7 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(const PacketInformation& packe
   if (transport_feedback_observer_ &&(packet_information.packet_type_flags & kRtcpTransportFeedback)) 
   {
     uint32_t media_source_ssrc = packet_information.transport_feedback->media_ssrc();
-    if (media_source_ssrc == local_ssrc ||
-        registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) 
+    if (media_source_ssrc == local_ssrc || registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) 
 	{
       // TODO@chensong 2022-12-05    接受端反馈过来的接受包seq和时间戳统计数据  
       // remb
