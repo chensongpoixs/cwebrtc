@@ -86,10 +86,13 @@ int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe, bool is_rec
   bool is_retransmitted = true;
   // TODO@chensong 2022-05-30 
   // 1. 判断是否第一次， 初始化  完成就退出
-  if (!initialized_) {
+  if (!initialized_) 
+  {
     newest_seq_num_ = seq_num;
-    if (is_keyframe)// 这个包是否关键帧===》》 为什么要识别关键帧？？？
-      keyframe_list_.insert(seq_num);
+	if (is_keyframe)// 这个包是否关键帧===》》 为什么要识别关键帧？？？
+	{   // TODO@chensong 2023-03-29   WebRTC中为什么要把关键针插入keyframe_list_表中   为什么要所有keyframe_list表
+		keyframe_list_.insert(seq_num);
+	}
     initialized_ = true;
     return 0;
   }
@@ -105,9 +108,9 @@ int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe, bool is_rec
   //TODO@chensong 2022-05-30  
   // 即不是第一个包和重复包就判断包顺序哈 seq_num在newest_seq_num之前就要删除了哈  
   // 3. 如果是上次处理前面的包， 这个包已经失效了， 如果还在nack列表中， 需要删除的
-  // 说明这个包晚到达了 
   if (AheadOf(newest_seq_num_, seq_num)) 
   {
+	  // TODO@chensong 2023-03-29  // 说明这个包晚到达了 
     // An out of order packet has been received.
     auto nack_list_it = nack_list_.find(seq_num);
     int nacks_sent_for_packet = 0;
@@ -134,7 +137,7 @@ int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe, bool is_rec
   // And remove old ones so we don't accumulate keyframes.
   // TODO@chensong 2022-05-30 
   // 5. 找到最小边界点，   超出10000个就要删除之前的数据 ， 这个是实时系统
-  auto it = keyframe_list_.lower_bound(seq_num - kMaxPacketAge);
+  auto it = keyframe_list_.lower_bound(seq_num - kMaxPacketAge/*10000*/);
   if (it != keyframe_list_.begin())
   {
     keyframe_list_.erase(keyframe_list_.begin(), it);
@@ -148,7 +151,7 @@ int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe, bool is_rec
     // Remove old ones so we don't accumulate recovered packets.
     // TODO@chensong 2022-05-30
 	//  是否超出项 超出项也删除了  ， 最大项也是10000哈
-    auto it = recovered_list_.lower_bound(seq_num - kMaxPacketAge);
+    auto it = recovered_list_.lower_bound(seq_num - kMaxPacketAge/*10000*/);
 	if (it != recovered_list_.begin())
 	{
       recovered_list_.erase(recovered_list_.begin(), it);
@@ -165,7 +168,7 @@ int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe, bool is_rec
   //     4、 不是一个恢复包
   //   有两种情况会走到这边
   //     1、  上一次处理的包的后面的一个包哈   有序的包
-  //     2、  上一次处理的包 后面隔好几个包   
+  //     2、  上一次处理的包 后面隔好几个包   -----> newest_seq_num_包到seq_num之间有多少包插入保存 
   AddPacketsToNack(newest_seq_num_ + 1, seq_num);
   newest_seq_num_ = seq_num;
 
@@ -212,6 +215,7 @@ void NackModule::Process() {
     std::vector<uint16_t> nack_batch;
     {
       rtc::CritScope lock(&crit_);
+	  // TODO@chensong2023-03-29 以时间判断是否nack重新发送包
       nack_batch = GetNackBatch(kTimeOnly);
     }
 
@@ -233,11 +237,14 @@ void NackModule::Process() {
   }
 }
 
-bool NackModule::RemovePacketsUntilKeyFrame() {
-  while (!keyframe_list_.empty()) {
+bool NackModule::RemovePacketsUntilKeyFrame() 
+{
+	// TODO@chensong 2023-03-29 移除所有的包
+  while (!keyframe_list_.empty()) 
+  {
     auto it = nack_list_.lower_bound(*keyframe_list_.begin());
-
-    if (it != nack_list_.begin()) {
+    if (it != nack_list_.begin()) 
+	{
       // We have found a keyframe that actually is newer than at least one
       // packet in the nack list.
       nack_list_.erase(nack_list_.begin(), it);
@@ -323,6 +330,8 @@ std::vector<uint16_t> NackModule::GetNackBatch(NackFilterOptions options)
         AheadOrAt(newest_seq_num_, it->second.send_at_seq_num)/*TODO@chensong 2022-05-30 该包在最后处理的包之前*/;
     // TODO@chensong 2022-05-30
 	// 符合条件
+	//   1. seq 为判断条件
+	//   2. rtt即时间为判断条件
     if (delay_timed_out && ((consider_seq_num && nack_on_seq_num_passed) || (consider_timestamp && nack_on_rtt_passed))) 
 	{
       nack_batch.emplace_back(it->second.seq_num);
