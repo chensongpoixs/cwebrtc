@@ -75,11 +75,11 @@ gn gen out/linux  --args='target_os="linux" target_cpu="x86_x64" is_debug=false 
 
 
 
-gn gen out/linux --args='target_os="linux" target_cpu="x64" is_debug=false is_clang=false treat_warnings_as_errors=false rtc_include_tests=false is_component_build=false use_custom_libcxx=false rtc_enable_protobuf=false'
+gn gen out/linux --args='target_os="linux" target_cpu="x64" is_debug=false is_clang=false treat_warnings_as_errors=false rtc_include_tests=false rtc_use_h264=true ffmpeg_branding="Chrome" is_component_build=false use_custom_libcxx=false rtc_enable_protobuf=false'
  
  
  
- 
+ ninja -C out/linux  webrtc 
  
  gn gen out/linux_include --args='target_os="linux" target_cpu="x64" is_debug=false is_clang=false treat_warnings_as_errors=false rtc_include_tests=true is_component_build=false use_custom_libcxx=false rtc_enable_protobuf=false'
  
@@ -273,7 +273,7 @@ find . -name abc -type d -print -exec rm -rf {} \;
 gn gen out/Release-clang --args='target_os="linux" target_cpu="x64" is_debug=false is_component_build=false rtc_include_tests=false rtc_build_examples=false'
 ninja -C out/Release-clang
 # gcc编译x64版
-gn gen out/Release-gcc --args='target_os="linux" target_cpu="x64" is_debug=false is_component_build=false use_sysroot=false is_clang=false use_lld=false treat_warnings_as_errors=false rtc_include_tests=false rtc_build_examples=false use_custom_libcxx=false use_rtti=true'
+gn gen out/Release-gcc --args='target_os="linux" target_cpu="x64" is_debug=false is_component_build=false use_sysroot=false is_clang=false use_lld=false treat_warnings_as_errors=false rtc_build_examples=falsertc_build_examples=falsertc_build_examples=falsertc_build_examples=false rtc_build_examples=false use_custom_libcxx=false use_rtti=true'
 ninja -C out/Release-gcc
 # gcc编译arm64版（需要先安装编译工具）
 build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
@@ -281,3 +281,9 @@ gn gen out/Release-arm64 --args='target_os="linux" target_cpu="arm64" is_debug=f
 ninja -C out/Release-arm64
 
  
+ 
+ linux 
+ 
+ gn gen out/linux --args='target_os="linux" target_cpu="x64" is_debug=false is_clang=false treat_warnings_as_errors=false rtc_include_tests=false rtc_use_h264=true ffmpeg_branding="Chrome" is_component_build=false use_custom_libcxx=false rtc_enable_protobuf=false'
+ 
+ ninja -C out/linux webrtc 
