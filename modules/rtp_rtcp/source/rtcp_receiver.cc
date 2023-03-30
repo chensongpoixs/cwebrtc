@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -63,15 +63,17 @@ const int64_t kRtcpMinFrameLengthMs = 17;
 const size_t kMaxNumberOfStoredRrtrs = 200;
 
 }  // namespace
-
+// TODO@chensong 2023-03-30 
+// rtx ====> rtp.p_type=97 
 struct RTCPReceiver::PacketInformation {
-  uint32_t packet_type_flags = 0;  // RTCPPacketTypeFlags bit field.
+	// TODO@chensong 2023-03-29 每一位代表一种RTCP的消息
+  uint32_t packet_type_flags = 0;  // RTCPPacketTypeFlags bit field. 
 
-  uint32_t remote_ssrc = 0;
-  std::vector<uint16_t> nack_sequence_numbers;
-  ReportBlockList report_blocks;
-  int64_t rtt_ms = 0;
-  uint32_t receiver_estimated_max_bitrate_bps = 0;
+  uint32_t remote_ssrc = 0; // 远端的ssrc
+  std::vector<uint16_t> nack_sequence_numbers;  // 保存掉包的seq
+  ReportBlockList report_blocks; // 
+  int64_t rtt_ms = 0;// 数据包周期时长 一个包一去一回的时间长
+  uint32_t receiver_estimated_max_bitrate_bps = 0; //接受端评估最大的带宽
   std::unique_ptr<rtcp::TransportFeedback> transport_feedback;
   absl::optional<VideoBitrateAllocation> target_bitrate_allocation;
   std::unique_ptr<rtcp::LossNotification> loss_notification;

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -558,10 +558,13 @@ bool RTPSender::PrepareAndSendPacket(std::unique_ptr<RtpPacketToSend> packet,
   RtpPacketToSend* packet_to_send = packet.get();
 
   std::unique_ptr<RtpPacketToSend> packet_rtx;
-  if (send_over_rtx) {
+  if (send_over_rtx) 
+  {//TODO@chensong 2023-03-30  rtx 
     packet_rtx = BuildRtxPacket(*packet);
-    if (!packet_rtx)
-      return false;
+	if (!packet_rtx)
+	{
+		return false;
+	}
     packet_to_send = packet_rtx.get();
   }
 

@@ -721,7 +721,23 @@ bool BasicNetworkManager::CreateNetworks(bool include_ignored, NetworkList* netw
         if (existing_network == current_networks.end()) {
           AdapterType adapter_type = ADAPTER_TYPE_UNKNOWN;
           switch (adapter_addrs->IfType)
-
+		  {
+		  case IF_TYPE_SOFTWARE_LOOPBACK:
+			  adapter_type = ADAPTER_TYPE_LOOPBACK;
+			  break;
+		  case IF_TYPE_ETHERNET_CSMACD:
+		  case IF_TYPE_ETHERNET_3MBIT:
+		  case IF_TYPE_IEEE80212:
+		  case IF_TYPE_FASTETHER:
+		  case IF_TYPE_FASTETHER_FX:
+		  case IF_TYPE_GIGABITETHERNET:
+			  adapter_type = ADAPTER_TYPE_ETHERNET;
+			  break;
+		  case IF_TYPE_IEEE80211:
+			  adapter_type = ADAPTER_TYPE_WIFI;
+			  break;
+		  case IF_TYPE_WWANPP:
+		  case IF_TYPE_WWANPP2:
               adapter_type = ADAPTER_TYPE_CELLULAR;
               break;
             default:
