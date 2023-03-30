@@ -495,19 +495,23 @@ void RtpTransportControllerSend::MaybeCreateControllers() {
   RTC_DCHECK(!control_handler_);
 
   if (!network_available_ || !observer_)
+  {
     return;
+  }
   control_handler_ = absl::make_unique<CongestionControlHandler>();
 
-  initial_config_.constraints.at_time =
-      Timestamp::ms(clock_->TimeInMilliseconds());
+  initial_config_.constraints.at_time = Timestamp::ms(clock_->TimeInMilliseconds());
   initial_config_.stream_based_config = streams_config_;
 
   // TODO(srte): Use fallback controller if no feedback is available.
-  if (controller_factory_override_) {
+  if (controller_factory_override_) 
+  {
     RTC_LOG(LS_INFO) << "Creating overridden congestion controller";
     controller_ = controller_factory_override_->Create(initial_config_);
     process_interval_ = controller_factory_override_->GetProcessInterval();
-  } else {
+  } 
+  else 
+  {
     RTC_LOG(LS_INFO) << "Creating fallback congestion controller";
     controller_ = controller_factory_fallback_->Create(initial_config_);
     process_interval_ = controller_factory_fallback_->GetProcessInterval();
@@ -524,20 +528,24 @@ void RtpTransportControllerSend::UpdateInitialConstraints(
   initial_config_.constraints = new_contraints;
 }
 
-void RtpTransportControllerSend::StartProcessPeriodicTasks() {
-  if (!pacer_queue_update_task_.Running()) {
+void RtpTransportControllerSend::StartProcessPeriodicTasks() 
+{
+  if (!pacer_queue_update_task_.Running()) 
+  {
     pacer_queue_update_task_ = RepeatingTaskHandle::DelayedStart(
-        task_queue_.Get(), kPacerQueueUpdateInterval, [this]() {
+        task_queue_.Get(), kPacerQueueUpdateInterval, [this]() 
+	{
           RTC_DCHECK_RUN_ON(&task_queue_);
-          TimeDelta expected_queue_time =
-              TimeDelta::ms(pacer_.ExpectedQueueTimeMs());
+          TimeDelta expected_queue_time = TimeDelta::ms(pacer_.ExpectedQueueTimeMs());
           control_handler_->SetPacerQueue(expected_queue_time);
           UpdateControlState();
           return kPacerQueueUpdateInterval;
         });
   }
   controller_task_.Stop();
-  if (process_interval_.IsFinite()) {
+  if (process_interval_.IsFinite()) 
+  {
+    // 定时检测更新码率
     controller_task_ = RepeatingTaskHandle::DelayedStart(
         task_queue_.Get(), process_interval_, [this]() {
           RTC_DCHECK_RUN_ON(&task_queue_);
@@ -547,37 +555,50 @@ void RtpTransportControllerSend::StartProcessPeriodicTasks() {
   }
 }
 
-void RtpTransportControllerSend::UpdateControllerWithTimeInterval() {
+void RtpTransportControllerSend::UpdateControllerWithTimeInterval() 
+{
   RTC_DCHECK(controller_);
   ProcessInterval msg;
   msg.at_time = Timestamp::ms(clock_->TimeInMilliseconds());
   if (add_pacing_to_cwin_)
+  {
     msg.pacer_queue = DataSize::bytes(pacer_.QueueSizeBytes());
+  }
+  // 对码率进行检测和更新，将结果转发给pacer
   PostUpdates(controller_->OnProcessInterval(msg));
 }
 
 void RtpTransportControllerSend::UpdateStreamsConfig() {
   streams_config_.at_time = Timestamp::ms(clock_->TimeInMilliseconds());
   if (controller_)
+  {
     PostUpdates(controller_->OnStreamsConfig(streams_config_));
+  }
 }
 
 void RtpTransportControllerSend::PostUpdates(NetworkControlUpdate update) {
-  if (update.congestion_window) {
-    if (update.congestion_window->IsFinite())
-      pacer_.SetCongestionWindow(update.congestion_window->bytes());
-    else
-      pacer_.SetCongestionWindow(PacedSender::kNoCongestionWindow);
+  if (update.congestion_window)
+  {
+	  if (update.congestion_window->IsFinite())
+	  {
+			pacer_.SetCongestionWindow(update.congestion_window->bytes());
+	  }
+	  else
+	  {
+            pacer_.SetCongestionWindow(PacedSender::kNoCongestionWindow);
+	  }
   }
-  if (update.pacer_config) {
-    pacer_.SetPacingRates(update.pacer_config->data_rate().bps(),
-                          update.pacer_config->pad_rate().bps());
+  if (update.pacer_config) 
+  {
+    pacer_.SetPacingRates(update.pacer_config->data_rate().bps(), update.pacer_config->pad_rate().bps());
   }
-  for (const auto& probe : update.probe_cluster_configs) {
+  for (const auto& probe : update.probe_cluster_configs) 
+  {
     int64_t bitrate_bps = probe.target_data_rate.bps();
     pacer_.CreateProbeCluster(bitrate_bps, probe.id);
   }
-  if (update.target_rate) {
+  if (update.target_rate) 
+  {
     control_handler_->SetTargetRate(*update.target_rate);
     UpdateControlState();
   }

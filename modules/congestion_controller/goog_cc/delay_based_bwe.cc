@@ -161,8 +161,7 @@ DelayBasedBwe::Result DelayBasedBwe::IncomingPacketFeedbackVector(
     // against building very large network queues.
     return Result();
   }
-  return MaybeUpdateEstimate(acked_bitrate, probe_bitrate,
-                             recovered_from_overuse, in_alr, at_time);
+  return MaybeUpdateEstimate(acked_bitrate, probe_bitrate, recovered_from_overuse, in_alr, at_time);
 }
 
 void DelayBasedBwe::IncomingPacketFeedback(const PacketFeedback& packet_feedback, Timestamp at_time) 

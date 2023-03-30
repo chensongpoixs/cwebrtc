@@ -56,6 +56,18 @@ bool ReportBlock::Parse(const uint8_t* buffer, size_t length)
   // 接收到的媒体源ssrc
   source_ssrc_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[0]);
   // TODO@chensong 2022-10-19  丢包率 fraction_lost
+  /**
+		TODO@chensong 2023-03-07  
+		某时刻收到的有序包的数量Count = transmitted-retransmitte,当前时刻为Count2,上一时刻为Count1;
+
+        接收端以一定的频率发送RTCP包（RR、REMB、NACK等）时，会统计两次发送间隔之间(fraction)的接收包信息。
+
+        接收端发送的RR包中包含两个丢包:
+
+        一个是fraction_lost，是两次统计间隔间的丢包率(以256为基数换算成8bit)。
+
+        一个是cumulative number of packets lost，是总的累积丢包。 
+  **/
   fraction_lost_ = buffer[4];
   // 接收开始丢包总数， 迟到包不算丢包，重传有可以导致负数
   cumulative_lost_ = ByteReader<int32_t, 3>::ReadBigEndian(&buffer[5]);

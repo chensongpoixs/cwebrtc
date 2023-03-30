@@ -51,6 +51,7 @@ class GoogCcNetworkController : public NetworkControllerInterface {
   // NetworkControllerInterface
   NetworkControlUpdate OnNetworkAvailability(NetworkAvailability msg) override;
   NetworkControlUpdate OnNetworkRouteChange(NetworkRouteChange msg) override;
+  //定时的触发，用来做带宽检测和更新:
   NetworkControlUpdate OnProcessInterval(ProcessInterval msg) override;
   NetworkControlUpdate OnRemoteBitrateReport(RemoteBitrateReport msg) override;
   NetworkControlUpdate OnRoundTripTimeUpdate(RoundTripTimeUpdate msg) override;

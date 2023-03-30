@@ -217,33 +217,35 @@ std::vector<ProbeClusterConfig> ProbeController::OnMaxTotalAllocatedBitrate(
   return std::vector<ProbeClusterConfig>();
 }
 
-std::vector<ProbeClusterConfig> ProbeController::OnNetworkAvailability(
-    NetworkAvailability msg) {
+std::vector<ProbeClusterConfig> ProbeController::OnNetworkAvailability(NetworkAvailability msg)
+{
   network_available_ = msg.network_available;
 
-  if (!network_available_ && state_ == State::kWaitingForProbingResult) {
+  if (!network_available_ && state_ == State::kWaitingForProbingResult) 
+  {
     state_ = State::kProbingComplete;
     min_bitrate_to_probe_further_bps_ = kExponentialProbingDisabled;
   }
 
   if (network_available_ && state_ == State::kInit && start_bitrate_bps_ > 0)
+  {
     return InitiateExponentialProbing(msg.at_time.ms());
+  }
   return std::vector<ProbeClusterConfig>();
 }
 
-std::vector<ProbeClusterConfig> ProbeController::InitiateExponentialProbing(
-    int64_t at_time_ms) {
+std::vector<ProbeClusterConfig> ProbeController::InitiateExponentialProbing(int64_t at_time_ms) 
+{
   RTC_DCHECK(network_available_);
   RTC_DCHECK(state_ == State::kInit);
   RTC_DCHECK_GT(start_bitrate_bps_, 0);
 
   // When probing at 1.8 Mbps ( 6x 300), this represents a threshold of
   // 1.2 Mbps to continue probing.
-  std::vector<int64_t> probes = {static_cast<int64_t>(
-      config_.first_exponential_probe_scale * start_bitrate_bps_)};
-  if (config_.second_exponential_probe_scale) {
-    probes.push_back(config_.second_exponential_probe_scale.Value() *
-                     start_bitrate_bps_);
+  std::vector<int64_t> probes = {static_cast<int64_t>(config_.first_exponential_probe_scale * start_bitrate_bps_)};
+  if (config_.second_exponential_probe_scale) 
+  {
+    probes.push_back(config_.second_exponential_probe_scale.Value() * start_bitrate_bps_);
   }
   return InitiateProbing(at_time_ms, probes, true);
 }

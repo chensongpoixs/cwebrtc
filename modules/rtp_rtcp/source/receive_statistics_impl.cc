@@ -227,14 +227,28 @@ bool StreamStatisticianImpl::GetActiveStatisticsAndReset(
   return true;
 }
 
-RtcpStatistics StreamStatisticianImpl::CalculateRtcpStatistics() {
+RtcpStatistics StreamStatisticianImpl::CalculateRtcpStatistics() 
+{
+  /************************************************************************/
+  /* TODO@chensong 2023-03-07  丢包的计算方法：
+        1)两次发送间隔之间理论上应该收到的包数量=当前收到的最大包序号-上个时刻最大有序包序号。
+
+        2)两次发送间隔之间实际接收到有序包的数量=当前时刻收到的有序包的数量-上一个时刻收到的有序包的数量
+        
+		   uint32_t rec_since_last = Count2 - Count1。
+
+        3) 丢包数=理论上应收的包数-实际收到的包数。
+
+        4）int32_t missing = exp_since_last - rec_since_last，missing
+		   即为两次发送间隔之间的丢包数量，会累加并通过RR包通知发送端。  
+*/ 
   RtcpStatistics stats;
-  // Calculate fraction lost.
+  // Calculate fraction lost. 理论上接受的数据包的数量
   int64_t exp_since_last = received_seq_max_ - last_report_seq_max_;
   RTC_DCHECK_GE(exp_since_last, 0);
 
   // Number of received RTP packets since last report, counts all packets but
-  // not re-transmissions.
+  // not re-transmissions.  实际接受的数据的数量
   uint32_t rec_since_last = (receive_counters_.transmitted.packets -
                              receive_counters_.retransmitted.packets) -
                             last_report_inorder_packets_;
@@ -248,16 +262,19 @@ RtcpStatistics StreamStatisticianImpl::CalculateRtcpStatistics() {
   // With NACK we don't count old packets as received since they are
   // re-transmitted. We use RTT to decide if a packet is re-ordered or
   // re-transmitted.
-  uint32_t retransmitted_packets =
-      receive_counters_.retransmitted.packets - last_report_old_packets_;
+  ///  添加nack实际发送数据包的数量
+  uint32_t retransmitted_packets = receive_counters_.retransmitted.packets - last_report_old_packets_;
   rec_since_last += retransmitted_packets;
 
   int32_t missing = 0;
-  if (exp_since_last > rec_since_last) {
+  if (exp_since_last > rec_since_last) 
+  {
     missing = (exp_since_last - rec_since_last);
   }
   uint8_t local_fraction_lost = 0;
-  if (exp_since_last) {
+  if (exp_since_last) 
+  {
+	  //TODO@chensong 2023-03-07 一个是fraction_lost，是两次统计间隔间的丢包率(以256为基数换算成8bit)
     // Scale 0 to 255, where 255 is 100% loss.
     local_fraction_lost = static_cast<uint8_t>(255 * missing / exp_since_last);
   }

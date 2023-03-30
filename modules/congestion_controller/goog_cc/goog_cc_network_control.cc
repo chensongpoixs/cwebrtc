@@ -239,49 +239,58 @@ NetworkControlUpdate GoogCcNetworkController::OnNetworkRouteChange(
 /*
 TODO@chensong 得到目标码率 [update]
 */
-NetworkControlUpdate GoogCcNetworkController::OnProcessInterval(
-    ProcessInterval msg) {
+NetworkControlUpdate GoogCcNetworkController::OnProcessInterval(ProcessInterval msg) 
+{
   NetworkControlUpdate update;
-  if (initial_config_) {
-    update.probe_cluster_configs =
-        ResetConstraints(initial_config_->constraints);
+  if (initial_config_) 
+  {
+    // 重设loss_based和delay_based码率探测器和probe的初始码率
+    // 获得码率探测簇配置(probe_cluster_config)
+    update.probe_cluster_configs =  ResetConstraints(initial_config_->constraints);
+    // 获取当前pacing 的发送码率, padding， time_windows等
     update.pacer_config = GetPacingRates(msg.at_time);
 
-    if (initial_config_->stream_based_config.requests_alr_probing) {
-      probe_controller_->EnablePeriodicAlrProbing(
-          *initial_config_->stream_based_config.requests_alr_probing);
+	// probe探测完成后，允许其因为alr需要快速恢复码率而继续做probe
+    if (initial_config_->stream_based_config.requests_alr_probing) 
+	{
+      probe_controller_->EnablePeriodicAlrProbing(*initial_config_->stream_based_config.requests_alr_probing);
     }
-    absl::optional<DataRate> total_bitrate =
-        initial_config_->stream_based_config.max_total_allocated_bitrate;
-    if (total_bitrate) {
-      auto probes = probe_controller_->OnMaxTotalAllocatedBitrate(
-          total_bitrate->bps(), msg.at_time.ms());
-      update.probe_cluster_configs.insert(update.probe_cluster_configs.end(),
-                                          probes.begin(), probes.end());
-
+    absl::optional<DataRate> total_bitrate = initial_config_->stream_based_config.max_total_allocated_bitrate;
+    if (total_bitrate) 
+	{
+      // 为probe设置最大的分配码率(MaxTotalAllocatedBitrate)作为探测的上边界
+      // 并生成响应的probe_cluster_config去进行探测
+      auto probes = probe_controller_->OnMaxTotalAllocatedBitrate(total_bitrate->bps(), msg.at_time.ms());
+      update.probe_cluster_configs.insert(update.probe_cluster_configs.end(), probes.begin(), probes.end()); 
       max_total_allocated_bitrate_ = *total_bitrate;
     }
+    // 释放initial_config_，下次进来就不通过init_config做初始化了
     initial_config_.reset();
   }
-  if (congestion_window_pushback_controller_ && msg.pacer_queue) {
-    congestion_window_pushback_controller_->UpdatePacingQueue(
-        msg.pacer_queue->bytes());
+  // 更新拥塞窗口中的pacing数据长度
+  if (congestion_window_pushback_controller_ && msg.pacer_queue) 
+  {
+    congestion_window_pushback_controller_->UpdatePacingQueue(msg.pacer_queue->bytes());
   }
+  // 更新码率
   bandwidth_estimation_->UpdateEstimate(msg.at_time);
 #if _DEBUG
   NORMAL_EX_LOG("[bandwidth_estimation_->UpdateEstimate][msg.at_time = %s]",
                 webrtc::ToString(msg.at_time).c_str());
 
 #endif  // _DEBUG
+        // 检测当前是否处于alr
+  absl::optional<int64_t> start_time_ms = alr_detector_->GetApplicationLimitedRegionStartTime();
 
-  absl::optional<int64_t> start_time_ms =
-      alr_detector_->GetApplicationLimitedRegionStartTime();
+  // 如果处于alr，告诉probe_controller处于alr，可以进行探测，进行快恢复
   probe_controller_->SetAlrStartTimeMs(start_time_ms);
 
+  // 检测当前是否因alr状态而需要做probe了，获取probe_cluster_config
   auto probes = probe_controller_->Process(msg.at_time.ms());
   update.probe_cluster_configs.insert(update.probe_cluster_configs.end(),
                                       probes.begin(), probes.end());
 
+   // 获取更新后的码率，probe等，同时对alr， probe_controller中的码率进行更新
   MaybeTriggerOnNetworkChanged(&update, msg.at_time);
   return update;
 }
