@@ -93,8 +93,8 @@ struct RTPHeader {
   RTPHeader(const RTPHeader& other);
   RTPHeader& operator=(const RTPHeader& other);
 
-  bool markerBit;
-  uint8_t payloadType;
+  bool markerBit;   // 是否是一帧结束包
+  uint8_t payloadType;  
   uint16_t sequenceNumber;
   uint32_t timestamp;
   uint32_t ssrc;

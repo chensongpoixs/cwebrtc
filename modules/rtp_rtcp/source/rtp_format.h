@@ -70,7 +70,7 @@ class RtpDepacketizer {
 
     const uint8_t* payload;
     size_t payload_length;
-    VideoFrameType frame_type;
+    VideoFrameType frame_type; // 当前帧的类型
   };
 
   static RtpDepacketizer* Create(VideoCodecType type);

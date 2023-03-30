@@ -72,7 +72,8 @@ NackModule::NackModule(Clock* clock,
   RTC_DCHECK(keyframe_request_sender_);
 }
 
-int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe) {
+int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe) 
+{
   return OnReceivedPacket(seq_num, is_keyframe, false);
 }
 
@@ -184,13 +185,12 @@ int NackModule::OnReceivedPacket(uint16_t seq_num, bool is_keyframe, bool is_rec
   return 0;
 }
 
-void NackModule::ClearUpTo(uint16_t seq_num) {
+void NackModule::ClearUpTo(uint16_t seq_num) 
+{
   rtc::CritScope lock(&crit_);
   nack_list_.erase(nack_list_.begin(), nack_list_.lower_bound(seq_num));
-  keyframe_list_.erase(keyframe_list_.begin(),
-                       keyframe_list_.lower_bound(seq_num));
-  recovered_list_.erase(recovered_list_.begin(),
-                        recovered_list_.lower_bound(seq_num));
+  keyframe_list_.erase(keyframe_list_.begin(), keyframe_list_.lower_bound(seq_num));
+  recovered_list_.erase(recovered_list_.begin(), recovered_list_.lower_bound(seq_num));
 }
 
 void NackModule::UpdateRtt(int64_t rtt_ms) {
@@ -211,7 +211,8 @@ int64_t NackModule::TimeUntilNextProcess() {
 }
 
 void NackModule::Process() {
-  if (nack_sender_) {
+  if (nack_sender_) 
+  {
     std::vector<uint16_t> nack_batch;
     {
       rtc::CritScope lock(&crit_);
@@ -220,7 +221,9 @@ void NackModule::Process() {
     }
 
     if (!nack_batch.empty())
+    {
       nack_sender_->SendNack(nack_batch);
+    }
   }
 
   // Update the next_process_time_ms_ in intervals to achieve
@@ -228,12 +231,22 @@ void NackModule::Process() {
   // in case of a skip in time as to not make uneccessary
   // calls to Process in order to catch up.
   int64_t now_ms = clock_->TimeInMilliseconds();
-  if (next_process_time_ms_ == -1) {
-    next_process_time_ms_ = now_ms + kProcessIntervalMs;
-  } else {
-    next_process_time_ms_ = next_process_time_ms_ + kProcessIntervalMs +
+  if (next_process_time_ms_ == -1) 
+  {
+    next_process_time_ms_ = now_ms + kProcessIntervalMs /*20*/;
+  }
+  else 
+  {
+    /* RTC_LOG(LS_INFO) << "start[ nack module -->next_process_time_ms_ = "
+                      << next_process_time_ms_ << "][now_ms = " << now_ms <<
+       "]";*/
+    next_process_time_ms_ = next_process_time_ms_ + kProcessIntervalMs/*20*/ +
                             (now_ms - next_process_time_ms_) /
-                                kProcessIntervalMs * kProcessIntervalMs;
+                                kProcessIntervalMs /*20*/ * kProcessIntervalMs /*20*/;
+   /* RTC_LOG(LS_INFO) << "end [ nack module -->next_process_time_ms_ = "
+                     << next_process_time_ms_ << "]";*/
+
+
   }
 }
 

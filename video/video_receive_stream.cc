@@ -205,8 +205,8 @@ VideoReceiveStream::VideoReceiveStream(
                                  rtp_receive_statistics_.get(),
                                  &stats_proxy_,
                                  process_thread_,
-                                 this,  // NackSender
-                                 this,  // KeyFrameRequestSender
+                                 this,  // NackSender   // TODO@chensong 2023-03-30 发送掉包nack包请求
+                                 this,  // KeyFrameRequestSender   // TODO@chensong 2023-03-30  请求关键帧
                                  this,  // OnCompleteFrameCallback
                                  config_.frame_decryptor),
       rtp_stream_sync_(this),
@@ -403,6 +403,7 @@ void VideoReceiveStream::Start() {
     });
   }
   decoder_running_ = true;
+  // TODO@chensong 2023-03-30 开始接受视频帧
   rtp_video_stream_receiver_.StartReceive();
 }
 
@@ -510,8 +511,8 @@ void VideoReceiveStream::SetFrameDecryptor(
   rtp_video_stream_receiver_.SetFrameDecryptor(std::move(frame_decryptor));
 }
 
-void VideoReceiveStream::SendNack(
-    const std::vector<uint16_t>& sequence_numbers) {
+void VideoReceiveStream::SendNack(const std::vector<uint16_t>& sequence_numbers) 
+{
   rtp_video_stream_receiver_.RequestPacketRetransmit(sequence_numbers);
 }
 

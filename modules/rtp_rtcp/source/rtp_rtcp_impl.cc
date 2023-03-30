@@ -696,10 +696,10 @@ int32_t ModuleRtpRtcpImpl::SendNACK(const uint16_t* nack_list,
                                &nack_list[start_id]);
 }
 
-void ModuleRtpRtcpImpl::SendNack(
-    const std::vector<uint16_t>& sequence_numbers) {
-  rtcp_sender_.SendRTCP(GetFeedbackState(), kRtcpNack, sequence_numbers.size(),
-                        sequence_numbers.data());
+void ModuleRtpRtcpImpl::SendNack(const std::vector<uint16_t>& sequence_numbers) 
+{
+	// TODO@chensong 2023-03-30 发送掉包nack包表给对端发送
+  rtcp_sender_.SendRTCP(GetFeedbackState(), kRtcpNack, sequence_numbers.size(), sequence_numbers.data());
 }
 
 bool ModuleRtpRtcpImpl::TimeToSendFullNackList(int64_t now) const {

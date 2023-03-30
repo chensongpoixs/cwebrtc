@@ -141,25 +141,20 @@ class RtpVideoStreamReceiver : public LossNotificationSender,
                         uint16_t length) override;
 
   // Implements OnAssembledFrameCallback.
-  void OnAssembledFrame(
-      std::unique_ptr<video_coding::RtpFrameObject> frame) override;
+  void OnAssembledFrame( std::unique_ptr<video_coding::RtpFrameObject> frame) override;
 
   // Implements OnCompleteFrameCallback.
-  void OnCompleteFrame(
-      std::unique_ptr<video_coding::EncodedFrame> frame) override;
+  void OnCompleteFrame( std::unique_ptr<video_coding::EncodedFrame> frame) override;
 
   // Implements OnDecryptedFrameCallback.
-  void OnDecryptedFrame(
-      std::unique_ptr<video_coding::RtpFrameObject> frame) override;
+  void OnDecryptedFrame( std::unique_ptr<video_coding::RtpFrameObject> frame) override;
 
   // Implements OnDecryptionStatusChangeCallback.
-  void OnDecryptionStatusChange(
-      FrameDecryptorInterface::Status status) override;
+  void OnDecryptionStatusChange( FrameDecryptorInterface::Status status) override;
 
   // Optionally set a frame decryptor after a stream has started. This will not
   // reset the decoder state.
-  void SetFrameDecryptor(
-      rtc::scoped_refptr<FrameDecryptorInterface> frame_decryptor);
+  void SetFrameDecryptor( rtc::scoped_refptr<FrameDecryptorInterface> frame_decryptor);
 
   // Called by VideoReceiveStream when stats are updated.
   void UpdateRtt(int64_t max_rtt_ms);
@@ -204,7 +199,8 @@ class RtpVideoStreamReceiver : public LossNotificationSender,
   bool receiving_ RTC_GUARDED_BY(worker_task_checker_);
   int64_t last_packet_log_ms_ RTC_GUARDED_BY(worker_task_checker_);
 
-  const std::unique_ptr<RtpRtcp> rtp_rtcp_;
+  // TODO@chensong 2023-03-30  rtpRtcp --> ModuleRtpRtcpImpl 
+  const std::unique_ptr<RtpRtcp> rtp_rtcp_; 
 
   // Members for the new jitter buffer experiment.
   video_coding::OnCompleteFrameCallback* complete_frame_callback_;
@@ -214,8 +210,7 @@ class RtpVideoStreamReceiver : public LossNotificationSender,
   rtc::scoped_refptr<video_coding::PacketBuffer> packet_buffer_;
   std::unique_ptr<video_coding::RtpFrameReferenceFinder> reference_finder_;
   rtc::CriticalSection last_seq_num_cs_;
-  std::map<int64_t, uint16_t> last_seq_num_for_pic_id_
-      RTC_GUARDED_BY(last_seq_num_cs_);
+  std::map<int64_t, uint16_t> last_seq_num_for_pic_id_ RTC_GUARDED_BY(last_seq_num_cs_);
   video_coding::H264SpsPpsTracker tracker_;
 
   std::map<uint8_t, VideoCodecType> pt_codec_type_;
@@ -227,25 +222,21 @@ class RtpVideoStreamReceiver : public LossNotificationSender,
 
   bool has_received_frame_;
 
-  std::vector<RtpPacketSinkInterface*> secondary_sinks_
-      RTC_GUARDED_BY(worker_task_checker_);
+  std::vector<RtpPacketSinkInterface*> secondary_sinks_ RTC_GUARDED_BY(worker_task_checker_);
 
   // Info for GetSources and GetSyncInfo is updated on network or worker thread,
   // queried on the worker thread.
   rtc::CriticalSection rtp_sources_lock_;
   ContributingSources contributing_sources_ RTC_GUARDED_BY(&rtp_sources_lock_);
-  absl::optional<uint32_t> last_received_rtp_timestamp_
-      RTC_GUARDED_BY(rtp_sources_lock_);
-  absl::optional<int64_t> last_received_rtp_system_time_ms_
-      RTC_GUARDED_BY(rtp_sources_lock_);
+  absl::optional<uint32_t> last_received_rtp_timestamp_ RTC_GUARDED_BY(rtp_sources_lock_);
+  absl::optional<int64_t> last_received_rtp_system_time_ms_ RTC_GUARDED_BY(rtp_sources_lock_);
 
   // Used to validate the buffered frame decryptor is always run on the correct
   // thread.
   rtc::ThreadChecker network_tc_;
   // Handles incoming encrypted frames and forwards them to the
   // rtp_reference_finder if they are decryptable.
-  std::unique_ptr<BufferedFrameDecryptor> buffered_frame_decryptor_
-      RTC_PT_GUARDED_BY(network_tc_);
+  std::unique_ptr<BufferedFrameDecryptor> buffered_frame_decryptor_ RTC_PT_GUARDED_BY(network_tc_);
   std::atomic<bool> frames_decryptable_;
   absl::optional<ColorSpace> last_color_space_;
 };

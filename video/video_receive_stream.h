@@ -172,7 +172,7 @@ class VideoReceiveStream : public webrtc::VideoReceiveStream,
   std::unique_ptr<VCMTiming> timing_;  // Jitter buffer experiment.
   vcm::VideoReceiver video_receiver_;
   std::unique_ptr<rtc::VideoSinkInterface<VideoFrame>> incoming_video_stream_;
-  RtpVideoStreamReceiver rtp_video_stream_receiver_;
+  RtpVideoStreamReceiver rtp_video_stream_receiver_; // --> nack_module --> init 
   std::unique_ptr<VideoStreamDecoder> video_stream_decoder_;
   RtpStreamsSynchronizer rtp_stream_sync_;
 

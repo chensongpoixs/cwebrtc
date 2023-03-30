@@ -103,24 +103,36 @@ bool RtpDepacketizerGeneric::Parse(ParsedPayload* parsed_payload,
   uint8_t generic_header = *payload_data++;
   --payload_data_length;
 
-  parsed_payload->frame_type =
-      ((generic_header & RtpFormatVideoGeneric::kKeyFrameBit) != 0)
-          ? VideoFrameType::kVideoFrameKey
-          : VideoFrameType::kVideoFrameDelta;
+
+  /*  
+  +---------------------------------------+
+
+
+
+
+  +---------------------------------------+ 
+  */
+
+
+  // TODO@chensong 2023-03-30  一个bit的帧的类型
+  parsed_payload->frame_type = ((generic_header & RtpFormatVideoGeneric::kKeyFrameBit) != 0) ? VideoFrameType::kVideoFrameKey : VideoFrameType::kVideoFrameDelta;
+  // TODO@chensong 2023-03-30  第二个bit是指是否第一个包 
   parsed_payload->video_header().is_first_packet_in_frame =
       (generic_header & RtpFormatVideoGeneric::kFirstPacketBit) != 0;
   parsed_payload->video_header().codec = kVideoCodecGeneric;
   parsed_payload->video_header().width = 0;
   parsed_payload->video_header().height = 0;
 
-  if (generic_header & RtpFormatVideoGeneric::kExtendedHeaderBit) {
-    if (payload_data_length < kExtendedHeaderLength) {
+  // TODO@chensong 2023-03-30 扩展 第三个bit
+  if (generic_header & RtpFormatVideoGeneric::kExtendedHeaderBit) 
+  {
+    if (payload_data_length < kExtendedHeaderLength) 
+	{
       RTC_LOG(LS_WARNING) << "Too short payload for generic header.";
       return false;
     }
     parsed_payload->video_header().generic.emplace();
-    parsed_payload->video_header().generic->frame_id =
-        ((payload_data[0] & 0x7F) << 8) | payload_data[1];
+    parsed_payload->video_header().generic->frame_id = ((payload_data[0] & 0x7F) << 8) | payload_data[1];
     payload_data += kExtendedHeaderLength;
     payload_data_length -= kExtendedHeaderLength;
   }

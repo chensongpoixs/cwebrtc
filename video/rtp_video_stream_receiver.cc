@@ -149,13 +149,13 @@ RtpVideoStreamReceiver::RtpVideoStreamReceiver(
   process_thread_->RegisterModule(rtp_rtcp_.get(), RTC_FROM_HERE);
   // TODO@chensong 2022-11-30 RTCP LOSS 通知事件 掉包处理 
   // webrtc 中针对两种掉包处理方式 有什么区别呢 [默认使用nackmodule通知]
-  if (webrtc::field_trial::IsEnabled("WebRTC-RtcpLossNotification")) {
-    loss_notification_controller_ =
-        absl::make_unique<LossNotificationController>(keyframe_request_sender_,
-                                                      this);
-  } else if (config_.rtp.nack.rtp_history_ms != 0) {
-    nack_module_ = absl::make_unique<NackModule>(clock_, nack_sender,
-                                                 keyframe_request_sender);
+  if (webrtc::field_trial::IsEnabled("WebRTC-RtcpLossNotification"))
+  {
+    loss_notification_controller_ = absl::make_unique<LossNotificationController>(keyframe_request_sender_, this);
+  }
+  else if (config_.rtp.nack.rtp_history_ms != 0)
+  {
+    nack_module_ = absl::make_unique<NackModule>(clock_, nack_sender, keyframe_request_sender);
     process_thread_->RegisterModule(nack_module_.get(), RTC_FROM_HERE);
   }
 
@@ -405,8 +405,8 @@ bool RtpVideoStreamReceiver::IsRetransmissionsEnabled() const {
   return config_.rtp.nack.rtp_history_ms > 0;
 }
 
-void RtpVideoStreamReceiver::RequestPacketRetransmit(
-    const std::vector<uint16_t>& sequence_numbers) {
+void RtpVideoStreamReceiver::RequestPacketRetransmit(const std::vector<uint16_t>& sequence_numbers) 
+{
   rtp_rtcp_->SendNack(sequence_numbers);
 }
 
@@ -663,11 +663,12 @@ void RtpVideoStreamReceiver::NotifyReceiverOfEmptyPacket(uint16_t seq_num) {
   }
 }
 
-bool RtpVideoStreamReceiver::DeliverRtcp(const uint8_t* rtcp_packet,
-                                         size_t rtcp_packet_length) {
+bool RtpVideoStreamReceiver::DeliverRtcp(const uint8_t* rtcp_packet, size_t rtcp_packet_length) 
+{
   RTC_DCHECK_RUN_ON(&worker_task_checker_);
 
-  if (!receiving_) {
+  if (!receiving_) 
+  {
     return false;
   }
 
@@ -675,7 +676,8 @@ bool RtpVideoStreamReceiver::DeliverRtcp(const uint8_t* rtcp_packet,
 
   int64_t rtt = 0;
   rtp_rtcp_->RTT(config_.rtp.remote_ssrc, &rtt, nullptr, nullptr, nullptr);
-  if (rtt == 0) {
+  if (rtt == 0) 
+  {
     // Waiting for valid rtt.
     return true;
   }
@@ -690,10 +692,10 @@ bool RtpVideoStreamReceiver::DeliverRtcp(const uint8_t* rtcp_packet,
     return true;
   }
   NtpTime recieved_ntp(recieved_ntp_secs, recieved_ntp_frac);
-  int64_t time_since_recieved =
-      clock_->CurrentNtpInMilliseconds() - recieved_ntp.ToMs();
+  int64_t time_since_recieved = clock_->CurrentNtpInMilliseconds() - recieved_ntp.ToMs();
   // Don't use old SRs to estimate time.
-  if (time_since_recieved <= 1) {
+  if (time_since_recieved <= 1) 
+  {
     ntp_estimator_.UpdateRtcpTimestamp(rtt, ntp_secs, ntp_frac, rtp_timestamp);
   }
 

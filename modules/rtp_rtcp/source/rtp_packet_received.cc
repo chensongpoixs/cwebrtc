@@ -32,7 +32,8 @@ RtpPacketReceived& RtpPacketReceived::operator=(RtpPacketReceived&& packet) =
 
 RtpPacketReceived::~RtpPacketReceived() {}
 
-void RtpPacketReceived::GetHeader(RTPHeader* header) const {
+void RtpPacketReceived::GetHeader(RTPHeader* header) const 
+{
   header->markerBit = Marker();
   header->payloadType = PayloadType();
   header->sequenceNumber = SequenceNumber();

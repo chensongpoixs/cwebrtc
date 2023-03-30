@@ -1295,7 +1295,7 @@ bool WebRtcVideoChannel::AddRecvStream(const StreamParams& sp, bool default_stre
   if (!sp.stream_ids().empty()) {
     config.sync_group = sp.stream_ids()[0];
   }
-
+  // TODO@chensong 202303-30 创建接受视频数据ssrc的通道处理
   receive_streams_[ssrc] = new WebRtcVideoReceiveStream(
       this, call_, sp, std::move(config), decoder_factory_, default_stream,
       recv_codecs_, flexfec_config);
