@@ -68,6 +68,7 @@ class RemoteEstimatorProxy : public RemoteBitrateEstimator {
   rtc::CriticalSection lock_;
 
   uint32_t media_ssrc_ RTC_GUARDED_BY(&lock_);
+  // TODO@chensong 2023-03-31 feedback 反馈网络带宽评估的计算包序列号 --->>> 
   uint8_t feedback_packet_count_ RTC_GUARDED_BY(&lock_);
   SeqNumUnwrapper<uint16_t> unwrapper_ RTC_GUARDED_BY(&lock_);
   absl::optional<int64_t> periodic_window_start_seq_ RTC_GUARDED_BY(&lock_);

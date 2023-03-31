@@ -42,22 +42,23 @@ class TransportFeedback : public Rtpfb {
   // Convert to multiples of 0.25ms.
   static constexpr int kDeltaScaleFactor = 250;
   // Maximum number of packets (including missing) TransportFeedback can report.
+  //TODO@chensong 2023-03-31 一个transportfeedback可以报告的最大packets数量,2字节的最大值
   static constexpr size_t kMaxReportedPackets = 0xffff;
 
   TransportFeedback();
-  explicit TransportFeedback(
-      bool include_timestamps);  // If |include_timestamps| is set to false, the
+  explicit TransportFeedback(bool include_timestamps);  // If |include_timestamps| is set to false, the
                                  // created packet will not contain the receive
-                                 // delta block.
+                                 // delta block. 也就是说，只保留是否收到的信息
   TransportFeedback(const TransportFeedback&);
   TransportFeedback(TransportFeedback&&);
 
   ~TransportFeedback() override;
-
+  // TransportFeedback都有base_sequence和ref time
   void SetBase(uint16_t base_sequence,     // Seq# of first packet in this msg.
                int64_t ref_timestamp_us);  // Reference timestamp for this msg.
   void SetFeedbackSequenceNumber(uint8_t feedback_sequence);
   // NOTE: This method requires increasing sequence numbers (excepting wraps).
+  //序列号和接收到的时间
   bool AddReceivedPacket(uint16_t sequence_number, int64_t timestamp_us);
   const std::vector<ReceivedPacket>& GetReceivedPackets() const;
 
@@ -73,8 +74,7 @@ class TransportFeedback : public Rtpfb {
   bool IncludeTimestamps() const { return include_timestamps_; }
 
   bool Parse(const CommonHeader& packet);
-  static std::unique_ptr<TransportFeedback> ParseFrom(const uint8_t* buffer,
-                                                      size_t length);
+  static std::unique_ptr<TransportFeedback> ParseFrom(const uint8_t* buffer, size_t length);
   // Pre and postcondition for all public methods. Should always return true.
   // This function is for tests.
   bool IsConsistent() const;
@@ -82,10 +82,7 @@ class TransportFeedback : public Rtpfb {
   size_t BlockLength() const override;
   size_t PaddingLength() const;
 
-  bool Create(uint8_t* packet,
-              size_t* position,
-              size_t max_length,
-              PacketReadyCallback callback) const override;
+  bool Create(uint8_t* packet, size_t* position, size_t max_length, PacketReadyCallback callback) const override;
   const std::vector<ReceivedPacket>& GetPacket() const { return packets_; }
   const std::vector<uint16_t>& GetEncodedChunks() const { return encoded_chunks_; }
   const std::string ToString() const;
@@ -93,11 +90,14 @@ class TransportFeedback : public Rtpfb {
  private:
   // Size in bytes of a delta time in rtcp packet.
   // Valid values are 0 (packet wasn't received), 1 or 2.
-  using DeltaSize = uint8_t;
+  // delta大：2字节描述；delta小：1字节描述
+  using DeltaSize = uint8_t;//1 个time delta占据的字节数
   // Keeps DeltaSizes that can be encoded into single chunk if it is last chunk.
+  //核心的功能都在LastChunk里面实现的，是对单个packet
+  // chunk的处理方法（包括了不同方式的编解码 行程编解码，1 bit状态向量编解码  2 bits状态向量编解码
   class LastChunk {
    public:
-    using DeltaSize = TransportFeedback::DeltaSize;
+    using DeltaSize = TransportFeedback::DeltaSize; //取值为0， 1， 2
 
     LastChunk();
 
@@ -123,8 +123,11 @@ class TransportFeedback : public Rtpfb {
     std::string ToString() const;
 
    private:
+    //最大行程长度 13个1
     static constexpr size_t kMaxRunLengthCapacity = 0x1fff;
+    // status vector： 1 bit(0):没有接收到，14个状态
     static constexpr size_t kMaxOneBitCapacity = 14;
+    // status vector: 1 bit（1）：接收到（2位1个状态），7个packets的状态
     static constexpr size_t kMaxTwoBitCapacity = 7;
     static constexpr size_t kMaxVectorCapacity = kMaxOneBitCapacity;
     static constexpr DeltaSize kLarge = 2;
@@ -140,6 +143,7 @@ class TransportFeedback : public Rtpfb {
 
     DeltaSize delta_sizes_[kMaxVectorCapacity];
     size_t size_;
+	// TODO@chensong 2023-03-31    判断当前字节与第一个字节是否相等
     bool all_same_;
     bool has_large_delta_;
   };
@@ -148,20 +152,20 @@ class TransportFeedback : public Rtpfb {
   void Clear();
 
   bool AddDeltaSize(DeltaSize delta_size);
-
-  uint16_t base_seq_no_;
-  uint16_t num_seq_no_;
-  int32_t base_time_ticks_;
+  // TODO@chensong 2023-03-31
+  uint16_t base_seq_no_; //序列号基
+  uint16_t num_seq_no_;//packets数量
+  int32_t base_time_ticks_;//参考时间
 
   // TODO@chensong 2022-12-07 RTCP Transport-wide Congestion control (Transport-cc (15))的反馈信息包自动增加字段
-  uint8_t feedback_seq_;  
-  bool include_timestamps_;
+  uint8_t feedback_seq_;  //反馈序列号（标识）
+  bool include_timestamps_;//是否包含time
 
-  int64_t last_timestamp_us_;
-  std::vector<ReceivedPacket> packets_;
+  int64_t last_timestamp_us_;//上一个RTP packet的接收时间
+  std::vector<ReceivedPacket> packets_;//需要把接收到的packets打入transport feedback
   // All but last encoded packet chunks.
-  std::vector<uint16_t> encoded_chunks_;
-  LastChunk last_chunk_;
+  std::vector<uint16_t> encoded_chunks_;//除了最后一个packet chunk
+  LastChunk last_chunk_;//最后一个chunk
   size_t size_bytes_;
 };
 

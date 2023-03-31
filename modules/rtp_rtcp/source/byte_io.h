@@ -286,15 +286,18 @@ class ByteReader<T, 2, false> {
 };
 
 template <typename T>
-class ByteWriter<T, 2, false> {
+class ByteWriter<T, 2, false> 
+{
  public:
-  static void WriteBigEndian(uint8_t* data, T val) {
+  static void WriteBigEndian(uint8_t* data, T val) 
+  {
     static_assert(sizeof(T) >= 2, kSizeErrorMsg);
     data[0] = val >> 8;
     data[1] = val;
   }
 
-  static void WriteLittleEndian(uint8_t* data, T val) {
+  static void WriteLittleEndian(uint8_t* data, T val) 
+  {
     static_assert(sizeof(T) >= 2, kSizeErrorMsg);
     data[0] = val;
     data[1] = val >> 8;

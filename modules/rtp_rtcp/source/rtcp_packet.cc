@@ -29,7 +29,8 @@ rtc::Buffer RtcpPacket::Build() const {
   return packet;
 }
 
-bool RtcpPacket::Build(size_t max_length, PacketReadyCallback callback) const {
+bool RtcpPacket::Build(size_t max_length, PacketReadyCallback callback) const 
+{
   RTC_CHECK_LE(max_length, IP_PACKET_SIZE);
   uint8_t buffer[IP_PACKET_SIZE];
   size_t index = 0;
@@ -44,7 +45,9 @@ bool RtcpPacket::OnBufferFull(uint8_t* packet,
                               size_t* index,
                               PacketReadyCallback callback) const {
   if (*index == 0)
+  {
     return false;
+  }
   RTC_DCHECK(callback) << "Fragmentation not supported.";
   callback(rtc::ArrayView<const uint8_t>(packet, *index));
   *index = 0;

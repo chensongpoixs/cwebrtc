@@ -1090,11 +1090,13 @@ bool RTCPSender::SendFeedbackPacket(const rtcp::TransportFeedback& packet) {
   size_t max_packet_size;
   {
     rtc::CritScope lock(&critical_section_rtcp_sender_);
+	// TODO@chensong 2023-03-31 rtcp 反馈信息包发送模式
+	// kOff, kCompound, kReducedSize
     if (method_ == RtcpMode::kOff)
     {
       return false;
 	}
-    max_packet_size = max_packet_size_;
+    max_packet_size = max_packet_size_/*(1500) - 28 */;
   }
 
   RTC_DCHECK_LE(max_packet_size, IP_PACKET_SIZE);

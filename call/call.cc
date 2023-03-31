@@ -1391,7 +1391,8 @@ PacketReceiver::DeliveryStatus Call::DeliverRtp(MediaType media_type,
   {
 	  return DELIVERY_PACKET_ERROR;
   }
-
+  // TODO@chensong 2023-03-31  从底层socket读取数据结束时的时间微妙数据 在async_udp_socket.cc文件中
+  //  AsyncUDPSocket::OnReadEvent(AsyncSocket* socket)方法设置微妙数哈 ^_^ 
   if (packet_time_us != -1) 
   {
     if (receive_time_calculator_) 

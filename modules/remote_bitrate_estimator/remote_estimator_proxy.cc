@@ -168,16 +168,20 @@ void RemoteEstimatorProxy::OnPacketArrival(uint16_t sequence_number, int64_t arr
   if (send_periodic_feedback_) 
   {
 	 
-	 // lower_bound(key)返回的是大于、等于key的iterator，如果没有，返回空。  //  使用upper_bound(key)时，如果没有找到大于key的iterator时，返回为空
+	 // lower_bound(key)返回的是大于、等于key的iterator，如果没有，返回空。  
+	 //  使用upper_bound(key)时，如果没有找到大于key的iterator时，返回为空
     if (periodic_window_start_seq_ && packet_arrival_times_.lower_bound(*periodic_window_start_seq_) == packet_arrival_times_.end()) 
 	{
       // Start new feedback packet, cull old packets.
 		//TODO@chensong 2022-12-02 删除小于sequence_number且时间小于当前秒数500毫秒
-      for (auto it = packet_arrival_times_.begin(); it != packet_arrival_times_.end() && it->first < seq && arrival_time - it->second >= kBackWindowMs;) 
+		// TODO@chensong 2023-03-31  fackback 205 中反馈网络带宽的500毫秒以内数据包网络带宽 超过500毫秒时常删除了----我也很好奇啊 ~~~ ^_^
+      for (auto it = packet_arrival_times_.begin(); 
+		  it != packet_arrival_times_.end() && it->first < seq && arrival_time - it->second >= kBackWindowMs/*500*/;) 
 	  {
         it = packet_arrival_times_.erase(it);
       }
     }
+	// TODO@chensong 2023-03-31 判断是否刚刚开始发送数据包
     if (!periodic_window_start_seq_ || seq < *periodic_window_start_seq_) 
 	{
       periodic_window_start_seq_ = seq;
@@ -185,6 +189,7 @@ void RemoteEstimatorProxy::OnPacketArrival(uint16_t sequence_number, int64_t arr
   }
 
   // We are only interested in the first time a packet is received.
+  // TODO@chensong 判断数据是否已经接收到了 保存起来哈 ^_^ 
   if (packet_arrival_times_.find(seq) != packet_arrival_times_.end())
   {
     return;
@@ -193,6 +198,7 @@ void RemoteEstimatorProxy::OnPacketArrival(uint16_t sequence_number, int64_t arr
   packet_arrival_times_[seq] = arrival_time;
 
   // Limit the range of sequence numbers to send feedback for.
+  // TODO@chensong 2023-03-31 判断接受包队列中不能超过kMaxNumberOfPackets包的最大数据 多余从第一个开始删除了
   auto first_arrival_time_to_keep = packet_arrival_times_.lower_bound(packet_arrival_times_.rbegin()->first - kMaxNumberOfPackets /* 32768 */);
   if (first_arrival_time_to_keep != packet_arrival_times_.begin()) 
   {
@@ -254,9 +260,11 @@ void RemoteEstimatorProxy::SendFeedbackOnRequest(int64_t sequence_number, const 
   NORMAL_EX_LOG("[first_sequence_number = %llu][sequence_number = %llu]",
                 first_sequence_number, sequence_number);
   #endif
+  // TODO@chensong 2023-03-31 生成feedback反馈包fmt=205信息
   BuildFeedbackPacket(feedback_packet_count_++, media_ssrc_, first_sequence_number, begin_iterator, end_iterator, &feedback_packet);
 
   // Clear up to the first packet that is included in this feedback packet.
+  // TODO@chensong 2023-03-31 清除feedback中反馈过的数据包的信息
   packet_arrival_times_.erase(packet_arrival_times_.begin(), begin_iterator);
 
   RTC_DCHECK(feedback_sender_ != nullptr);
@@ -275,6 +283,7 @@ int64_t RemoteEstimatorProxy::BuildFeedbackPacket(uint8_t feedback_packet_count,
   // Base sequence number is the expected first sequence number. This is known,
   // but we might not have actually received it, so the base time shall be the
   // time of the first received packet in the feedback.
+  // TODO@chensong 2023-03-31   设置基类数  和时间戳毫秒还是微妙呢
   feedback_packet->SetBase(static_cast<uint16_t>(base_sequence_number & 0xFFFF), begin_iterator->second * 1000);
   // TODO@chensong 2022-12-02 RTCP的反馈信息 中 feedback_packet_number
   feedback_packet->SetFeedbackSequenceNumber(feedback_packet_count);
