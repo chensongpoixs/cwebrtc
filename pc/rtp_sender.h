@@ -116,8 +116,8 @@ class RtpSenderBase : public RtpSenderInternal, public ObserverInterface
     return init_parameters_.encodings;
   }
 
-  void set_transport(
-      rtc::scoped_refptr<DtlsTransportInterface> dtls_transport) override {
+  void set_transport(rtc::scoped_refptr<DtlsTransportInterface> dtls_transport) override 
+  {
     dtls_transport_ = dtls_transport;
   }
   rtc::scoped_refptr<DtlsTransportInterface> dtls_transport() const override {

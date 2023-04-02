@@ -603,49 +603,71 @@ void RtpVideoSender::DeliverRtcp(const uint8_t* packet, size_t length) {
   for (const RtpStreamSender& stream : rtp_streams_)
     stream.rtp_rtcp->IncomingRtcpPacket(packet, length);
 }
+/**
+ TODO@chensong 2023-04-02   
+ 设置SetRtxStatus调用栈
 
-void RtpVideoSender::ConfigureSsrcs(const RtpConfig& rtp_config) {
+ RTPSender::SetRtxStatus
+ ModuleRtpRtcpImpl::SetRtxSendStatus
+ RtpVideoSender::ConfigureSsrc
+ RtpVideoSender::RtpVideoSender
+ RtpTransportControllerSend::CreateRtpVideoSender
+ internal::VideoSendStreamImpl::VideoSendStreamImpl
+ internal::VideoSendStream::VideoSendStream
+
+**/
+void RtpVideoSender::ConfigureSsrcs(const RtpConfig& rtp_config)
+{
   // Configure regular SSRCs.
-  for (size_t i = 0; i < rtp_config.ssrcs.size(); ++i) {
+  for (size_t i = 0; i < rtp_config.ssrcs.size(); ++i) 
+  {
     uint32_t ssrc = rtp_config.ssrcs[i];
     RtpRtcp* const rtp_rtcp = rtp_streams_[i].rtp_rtcp.get();
     rtp_rtcp->SetSSRC(ssrc);
 
     // Restore RTP state if previous existed.
     auto it = suspended_ssrcs_.find(ssrc);
-    if (it != suspended_ssrcs_.end())
-      rtp_rtcp->SetRtpState(it->second);
+	if (it != suspended_ssrcs_.end())
+	{
+		rtp_rtcp->SetRtpState(it->second);
+	}
   }
 
   // Set up RTX if available.
   if (rtp_config.rtx.ssrcs.empty())
-    return;
+  {
+	  return;
+  }
 
   // Configure RTX SSRCs.
   RTC_DCHECK_EQ(rtp_config.rtx.ssrcs.size(), rtp_config.ssrcs.size());
-  for (size_t i = 0; i < rtp_config.rtx.ssrcs.size(); ++i) {
+  for (size_t i = 0; i < rtp_config.rtx.ssrcs.size(); ++i)
+  {
     uint32_t ssrc = rtp_config.rtx.ssrcs[i];
     RtpRtcp* const rtp_rtcp = rtp_streams_[i].rtp_rtcp.get();
     rtp_rtcp->SetRtxSsrc(ssrc);
     auto it = suspended_ssrcs_.find(ssrc);
-    if (it != suspended_ssrcs_.end())
-      rtp_rtcp->SetRtxState(it->second);
+	if (it != suspended_ssrcs_.end())
+	{
+		rtp_rtcp->SetRtxState(it->second);
+	}
   }
 
   // Configure RTX payload types.
   RTC_DCHECK_GE(rtp_config.rtx.payload_type, 0);
-  for (const RtpStreamSender& stream : rtp_streams_) {
-    stream.rtp_rtcp->SetRtxSendPayloadType(rtp_config.rtx.payload_type,
-                                           rtp_config.payload_type);
-    stream.rtp_rtcp->SetRtxSendStatus(kRtxRetransmitted |
-                                      kRtxRedundantPayloads);
+  for (const RtpStreamSender& stream : rtp_streams_) 
+  {
+    stream.rtp_rtcp->SetRtxSendPayloadType(rtp_config.rtx.payload_type, rtp_config.payload_type);
+	// TODO@chensong 2023-04-02  设置RTX重传的值 ： kRtxRetransmitted
+    stream.rtp_rtcp->SetRtxSendStatus(kRtxRetransmitted | kRtxRedundantPayloads);
   }
   if (rtp_config.ulpfec.red_payload_type != -1 &&
-      rtp_config.ulpfec.red_rtx_payload_type != -1) {
-    for (const RtpStreamSender& stream : rtp_streams_) {
+      rtp_config.ulpfec.red_rtx_payload_type != -1) 
+  {
+    for (const RtpStreamSender& stream : rtp_streams_) 
+	{
       stream.rtp_rtcp->SetRtxSendPayloadType(
-          rtp_config.ulpfec.red_rtx_payload_type,
-          rtp_config.ulpfec.red_payload_type);
+          rtp_config.ulpfec.red_rtx_payload_type, rtp_config.ulpfec.red_payload_type);
     }
   }
 }

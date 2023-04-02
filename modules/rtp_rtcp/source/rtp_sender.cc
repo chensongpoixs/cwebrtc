@@ -434,7 +434,8 @@ bool RTPSender::StorePackets() const {
          RtpPacketHistory::StorageMode::kDisabled;
 }
 
-int32_t RTPSender::ReSendPacket(uint16_t packet_id) {
+int32_t RTPSender::ReSendPacket(uint16_t packet_id)
+{
   // Try to find packet in RTP packet history. Also verify RTT here, so that we
   // don't retransmit too often.
   absl::optional<RtpPacketHistory::PacketState> stored_packet = packet_history_.GetPacketState(packet_id);

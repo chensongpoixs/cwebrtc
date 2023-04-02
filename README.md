@@ -1,4 +1,4 @@
-**WebRTC is a free, open software project** that provides browsers and mobile
+﻿**WebRTC is a free, open software project** that provides browsers and mobile
 applications with Real-Time Communications (RTC) capabilities via simple APIs.
 The WebRTC components have been optimized to best serve this purpose.
 
@@ -88,3 +88,9 @@ WebRTC中有得部分码控结构如下图所示，从socket层接收到数据�
 10. AlrDetector：应用（码率）受限检测， 检查当前的发送码率是否和目标码率由于编码器等原因相差过大受限了， 受限情况下会触发带宽预测过程的特殊处理
 
 11. NetworkSateEstimator、NetworkStateProdictor：此两者属于待开发类，只是在代码中有，但是还没开发完，没用上。
+
+
+
+## Pacer的作用
+
+让数据再网络上发送的更平滑， 防止因数据量的突增导致网络发生拥塞。
