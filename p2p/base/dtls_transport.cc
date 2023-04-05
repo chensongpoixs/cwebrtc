@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2011 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -554,7 +554,43 @@ void DtlsTransport::OnReceivingState(rtc::PacketTransportInternal* transport) {
     set_receiving(ice_transport_->receiving());
   }
 }
-
+static const char * get_dtls_state( DtlsTransportState  state)
+{
+	switch (state)
+	{
+	case cricket::DTLS_TRANSPORT_NEW:
+		return "DTLS_TRANSPORT_NEW";
+		break;
+	case cricket::DTLS_TRANSPORT_CONNECTING:
+		return "DTLS_TRANSPORT_CONNECTING";
+		break;
+	case cricket::DTLS_TRANSPORT_CONNECTED:
+		return "DTLS_TRANSPORT_CONNECTED";
+		break;
+	case cricket::DTLS_TRANSPORT_CLOSED:
+		return "DTLS_TRANSPORT_CLOSED";
+		break;
+	case cricket::DTLS_TRANSPORT_FAILED:
+		return "DTLS_TRANSPORT_FAILED";
+		break;
+	default:
+		return "default";
+		break;
+	}
+	//enum DtlsTransportState {
+	//	// Haven't started negotiating.
+	//	DTLS_TRANSPORT_NEW = 0,
+	//	// Have started negotiating.
+	//	DTLS_TRANSPORT_CONNECTING,
+	//	// Negotiated, and has a secure connection.
+	//	DTLS_TRANSPORT_CONNECTED,
+	//	// Transport is closed.
+	//	DTLS_TRANSPORT_CLOSED,
+	//	// Failed due to some error in the handshake process.
+	//	DTLS_TRANSPORT_FAILED,
+	//};
+	return "NULL";
+}
 void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
                                  const char* data,
                                  size_t size,
@@ -563,13 +599,13 @@ void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
   RTC_DCHECK_RUN_ON(&thread_checker_);
   RTC_DCHECK(transport == ice_transport_.get());
   RTC_DCHECK(flags == 0);
-
+  // TODO@chensong 2023-04-05  WebRTC中是否所有SRTP加密
   if (!dtls_active_) {
     // Not doing DTLS.
     SignalReadPacket(this, data, size, packet_time_us, 0);
     return;
   }
-
+  NORMAL_EX_LOG("[dtls state = %s]", get_dtls_state(dtls_state_));
   switch (dtls_state()) {
     case DTLS_TRANSPORT_NEW:
       if (dtls_) {
