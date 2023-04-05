@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -577,7 +577,8 @@ bool Port::GetStunMessage(const char* data,
 
   // Don't bother parsing the packet if we can tell it's not STUN.
   // In ICE mode, all STUN packets will have a valid fingerprint.
-  if (!StunMessage::ValidateFingerprint(data, size)) {
+  if (!StunMessage::ValidateFingerprint(data, size)) 
+  {
     return false;
   }
 
@@ -585,11 +586,13 @@ bool Port::GetStunMessage(const char* data,
   // STUN message, then ignore it.
   std::unique_ptr<IceMessage> stun_msg(new IceMessage());
   rtc::ByteBufferReader buf(data, size);
-  if (!stun_msg->Read(&buf) || (buf.Length() > 0)) {
+  if (!stun_msg->Read(&buf) || (buf.Length() > 0)) 
+  {
     return false;
   }
 
-  if (stun_msg->type() == STUN_BINDING_REQUEST) {
+  if (stun_msg->type() == STUN_BINDING_REQUEST) 
+  {
     // Check for the presence of USERNAME and MESSAGE-INTEGRITY (if ICE) first.
     // If not present, fail with a 400 Bad Request.
     if (!stun_msg->GetByteString(STUN_ATTR_USERNAME) ||
@@ -1249,23 +1252,35 @@ void Connection::OnSendStunPacket(const void* data,
                         << err << " id=" << rtc::hex_encode(req->id());
   }
 }
+/*
+TODO@chensong 2023-04-05  网络数据从底层向上调用流程
+[rtc_base/async_udp_socket.cc]	   AsyncUDPSocket::OnReadEvent
+[p2p\client/basic_port_allocator.cc]	   AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]							UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]										UDPPort::OnReadPacket
+[p2p/base/port.cc]											Connection::OnReadPackets
+[p2p/base/p2p_transport_channel.cc]						P2PTransportChannel::OnReadPacket
 
-void Connection::OnReadPacket(const char* data,
-                              size_t size,
-                              int64_t packet_time_us) {
+*/
+void Connection::OnReadPacket(const char* data, size_t size, int64_t packet_time_us) 
+{
   std::unique_ptr<IceMessage> msg;
   std::string remote_ufrag;
   const rtc::SocketAddress& addr(remote_candidate_.address());
-  if (!port_->GetStunMessage(data, size, addr, &msg, &remote_ufrag)) {
+  if (!port_->GetStunMessage(data, size, addr, &msg, &remote_ufrag)) 
+  {
     // The packet did not parse as a valid STUN message
     // This is a data packet, pass it along.
+	// TODO@chensong 2023-04-05  dtls/rtp/rtcp/channel -->数据
     last_data_received_ = rtc::TimeMillis();
     UpdateReceiving(last_data_received_);
     recv_rate_tracker_.AddSamples(size);
+	// 回调函数
     SignalReadPacket(this, data, size, packet_time_us);
 
     // If timed out sending writability checks, start up again
-    if (!pruned_ && (write_state_ == STATE_WRITE_TIMEOUT)) {
+    if (!pruned_ && (write_state_ == STATE_WRITE_TIMEOUT))
+	{
       RTC_LOG(LS_WARNING)
           << "Received a data packet on a timed-out Connection. "
              "Resetting state to STATE_WRITE_INIT.";
