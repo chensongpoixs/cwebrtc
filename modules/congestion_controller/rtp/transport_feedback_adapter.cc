@@ -96,7 +96,7 @@ void TransportFeedbackAdapter::AddPacket(uint32_t ssrc, uint16_t sequence_number
 absl::optional<SentPacket> TransportFeedbackAdapter::ProcessSentPacket(const rtc::SentPacket& sent_packet) 
 {
 #if _DEBUG
-  NORMAL_EX_LOG("[sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
+  RTC_NORMAL_EX_LOG("[sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
 #endif
 	
   rtc::CritScope cs(&lock_);
@@ -126,7 +126,7 @@ absl::optional<SentPacket> TransportFeedbackAdapter::ProcessSentPacket(const rtc
 absl::optional<TransportPacketsFeedback> TransportFeedbackAdapter::ProcessTransportFeedback(const rtcp::TransportFeedback& feedback,  Timestamp feedback_receive_time) 
 {
 #if _DEBUG
-  NORMAL_EX_LOG("[feedback = %s][feedback_receive_time = %s]",
+  RTC_NORMAL_EX_LOG("[feedback = %s][feedback_receive_time = %s]",
                  feedback.ToString().c_str(), webrtc::ToString(feedback_receive_time).c_str());
 #endif
   DataSize prior_in_flight = GetOutstandingData();
@@ -194,7 +194,7 @@ std::vector<PacketFeedback> TransportFeedbackAdapter::GetPacketFeedbackVector(co
 {
 
 	#if _DEBUG
-  NORMAL_EX_LOG("[feedback = %s][feedback_time = %s]",
+  RTC_NORMAL_EX_LOG("[feedback = %s][feedback_time = %s]",
                 feedback.ToString() .c_str(),
                 webrtc::ToString(feedback_time).c_str());
 #endif

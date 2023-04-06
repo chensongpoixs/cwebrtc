@@ -172,7 +172,7 @@ static void RtpFragmentize(EncodedImage* encoded_image,
 	  // 当前数据的大小
 	  frag_header->fragmentationLength[frag] = layerInfo.pNalLengthInByte[nal] - sizeof(start_code);
       layer_len += layerInfo.pNalLengthInByte[nal];
-        /*  NORMAL_EX_LOG(
+        /*  RTC_NORMAL_EX_LOG(
           " fragmentationOffset[%d] = %llu, fragmentationLength[%d] = %llu",
           frag, frag_header->fragmentationOffset[frag], frag,
           frag_header->fragmentationLength[frag]);*/
@@ -181,7 +181,7 @@ static void RtpFragmentize(EncodedImage* encoded_image,
     // Copy the entire layer's data (including start codes).
     memcpy(encoded_image->data() + encoded_image->size(), layerInfo.pBsBuf, layer_len);
 
-	 /* NORMAL_EX_LOG(
+	 /* RTC_NORMAL_EX_LOG(
    "[encoder] = [%s]",
               hexmem(layerInfo.pBsBuf, layer_len).c_str());
 */
@@ -366,25 +366,36 @@ int32_t H264EncoderImpl::RegisterEncodeCompleteCallback(
 int32_t H264EncoderImpl::SetRateAllocation(
     const VideoBitrateAllocation& bitrate,
     uint32_t new_framerate) {
-  if (encoders_.empty())
-    return WEBRTC_VIDEO_CODEC_UNINITIALIZED;
+	if (encoders_.empty())
+	{
+		return WEBRTC_VIDEO_CODEC_UNINITIALIZED;
+	}
 
   if (new_framerate < 1)
-    return WEBRTC_VIDEO_CODEC_ERR_PARAMETER;
+   {
+          return WEBRTC_VIDEO_CODEC_ERR_PARAMETER;
+  }
 
-  if (bitrate.get_sum_bps() == 0) {
+  if (bitrate.get_sum_bps() == 0) 
+  {
     // Encoder paused, turn off all encoding.
-    for (size_t i = 0; i < configurations_.size(); ++i)
+	  for (size_t i = 0; i < configurations_.size(); ++i)
+	  {
       configurations_[i].SetStreamState(false);
+	}
     return WEBRTC_VIDEO_CODEC_OK;
   }
 
   // At this point, bitrate allocation should already match codec settings.
   if (codec_.maxBitrate > 0)
+  {
     RTC_DCHECK_LE(bitrate.get_sum_kbps(), codec_.maxBitrate);
+  }
   RTC_DCHECK_GE(bitrate.get_sum_kbps(), codec_.minBitrate);
   if (codec_.numberOfSimulcastStreams > 0)
+  {
     RTC_DCHECK_GE(bitrate.get_sum_kbps(), codec_.simulcastStream[0].minBitrate);
+  }
 
   codec_.maxFramerate = new_framerate;
 
@@ -393,8 +404,11 @@ int32_t H264EncoderImpl::SetRateAllocation(
     // Update layer config.
     configurations_[i].target_bps = bitrate.GetSpatialLayerSum(stream_idx);
     configurations_[i].max_frame_rate = static_cast<float>(new_framerate);
-
-    if (configurations_[i].target_bps) {
+    RTC_NORMAL_EX_LOG("[target_bps = %u][max_frame_rate = %f]",
+                      configurations_[i].target_bps,
+                      configurations_[i].max_frame_rate);
+    if (configurations_[i].target_bps)
+	{
       configurations_[i].SetStreamState(true);
 
       // Update h264 encoder.
@@ -403,8 +417,7 @@ int32_t H264EncoderImpl::SetRateAllocation(
       target_bitrate.iLayer = SPATIAL_LAYER_ALL,
       target_bitrate.iBitrate = configurations_[i].target_bps;
       encoders_[i]->SetOption(ENCODER_OPTION_BITRATE, &target_bitrate);
-      encoders_[i]->SetOption(ENCODER_OPTION_FRAME_RATE,
-                              &configurations_[i].max_frame_rate);
+      encoders_[i]->SetOption(ENCODER_OPTION_FRAME_RATE,  &configurations_[i].max_frame_rate);
     } else {
       configurations_[i].SetStreamState(false);
     }
@@ -413,7 +426,7 @@ int32_t H264EncoderImpl::SetRateAllocation(
   return WEBRTC_VIDEO_CODEC_OK;
 }
 
- /*static const char* get_video_frame_type(EVideoFrameType type) {
+ static const char* get_video_frame_type(EVideoFrameType type) {
  switch (type) {
    case videoFrameTypeInvalid: {
      return "videoFrameTypeInvalid";
@@ -445,15 +458,16 @@ int32_t H264EncoderImpl::SetRateAllocation(
  }
  return "videoFrameTypeUNKNOWN";
 }
-*/
-int32_t H264EncoderImpl::Encode(
-    const VideoFrame& input_frame,
-    const std::vector<VideoFrameType>* frame_types) {
-  if (encoders_.empty()) {
+
+int32_t H264EncoderImpl::Encode(const VideoFrame& input_frame, const std::vector<VideoFrameType>* frame_types) 
+{
+  if (encoders_.empty()) 
+  {
     ReportError();
     return WEBRTC_VIDEO_CODEC_UNINITIALIZED;
   }
-  if (!encoded_image_callback_) {
+  if (!encoded_image_callback_) 
+  {
     RTC_LOG(LS_WARNING)
         << "InitEncode() has been called, but a callback function "
         << "has not been set with RegisterEncodeCompleteCallback()";
@@ -461,8 +475,7 @@ int32_t H264EncoderImpl::Encode(
     return WEBRTC_VIDEO_CODEC_UNINITIALIZED;
   }
 
-  rtc::scoped_refptr<const I420BufferInterface> frame_buffer =
-      input_frame.video_frame_buffer()->ToI420();
+  rtc::scoped_refptr<const I420BufferInterface> frame_buffer = input_frame.video_frame_buffer()->ToI420();
 
   bool send_key_frame = false;
   for (size_t i = 0; i < configurations_.size(); ++i) 
@@ -599,12 +612,14 @@ int32_t H264EncoderImpl::Encode(
 
 
 	  //get_video_frame_type#define FRAMETYPE(FrameType) (#FrameType)
-      /* RTC_LOG(LS_INFO) << "[" << __FUNCTION__ << "][" << __LINE__
+       RTC_LOG(LS_INFO) << "[" << __FUNCTION__ << "][" << __LINE__
                         << "] [FrameType = "
                         << get_video_frame_type(info.eFrameType)
                         << "][encoded_images_["<<i<<"].size() ="
-                        << encoded_images_[i].size() << "]";*/
-
+                        << encoded_images_[i].size() << "]";
+      RTC_NORMAL_EX_LOG("[FrameType = %s][encoded_images_[%u].size() = %u]",
+                         get_video_frame_type(info.eFrameType),
+                       i,   encoded_images_[i].size());
       codec_specific.codecSpecific.H264.base_layer_sync = false;
       if (num_temporal_layers_ > 1) 
       {

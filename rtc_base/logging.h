@@ -638,10 +638,10 @@ inline const char* AdaptString(const std::string& str) {
 void rtc_var_log(const char * format, ...);
 
 
-#define NORMAL_LOG(format, ...)   rtc_var_log(format, ##__VA_ARGS__)                          
+#define RTC_NORMAL_LOG(format, ...)   rtc_var_log(format, ##__VA_ARGS__)                          
 
-#define NORMAL_EX_LOG(format, ...) \
-  NORMAL_LOG("[%s][%s][%d][info]" format, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define RTC_NORMAL_EX_LOG(format, ...) \
+  RTC_NORMAL_LOG("[%s][%s][%d][info]" format, __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 #endif  // _DEBUG
 

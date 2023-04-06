@@ -44,7 +44,7 @@ namespace webrtc {
 //}
 //
 //#define RTC_GCC_NETWORK_CONTROL_LOG()
-//#define NORMAL_LOG(out_file, format, ...)                           \
+//#define RTC_NORMAL_LOG(out_file, format, ...)                           \
 //  rtc_gcc_log();                                          \
 //  if (out_file) {                             \
 //    fprintf(out_file, format, ##__VA_ARGS__); \
@@ -52,8 +52,8 @@ namespace webrtc {
 //    fflush(out_file);                         \
 //  }
 //
-//#define NORMAL_EX_LOG(format, ...) \
-//  NORMAL_LOG(out_rtc_remote_estimator_proxy_file_ptr, "[%s][%d][info]" format, \
+//#define RTC_NORMAL_EX_LOG(format, ...) \
+//  RTC_NORMAL_LOG(out_rtc_remote_estimator_proxy_file_ptr, "[%s][%d][info]" format, \
 //             __FUNCTION__, __LINE__, \
 //             ##__VA_ARGS__)
 // 
@@ -257,7 +257,7 @@ void RemoteEstimatorProxy::SendFeedbackOnRequest(int64_t sequence_number, const 
   auto begin_iterator = packet_arrival_times_.lower_bound(first_sequence_number);
   auto end_iterator = packet_arrival_times_.upper_bound(sequence_number);
 #if _DEBUG
-  NORMAL_EX_LOG("[first_sequence_number = %llu][sequence_number = %llu]",
+  RTC_NORMAL_EX_LOG("[first_sequence_number = %llu][sequence_number = %llu]",
                 first_sequence_number, sequence_number);
   #endif
   // TODO@chensong 2023-03-31 生成feedback反馈包fmt=205信息
@@ -291,7 +291,7 @@ int64_t RemoteEstimatorProxy::BuildFeedbackPacket(uint8_t feedback_packet_count,
 
   #if _DEBUG
 
-  NORMAL_EX_LOG("[base_sequence_number = %llu]", base_sequence_number);
+  RTC_NORMAL_EX_LOG("[base_sequence_number = %llu]", base_sequence_number);
 #endif  // _DEBUG
 
 
@@ -299,7 +299,7 @@ int64_t RemoteEstimatorProxy::BuildFeedbackPacket(uint8_t feedback_packet_count,
   {
 #if _DEBUG
 
-    NORMAL_EX_LOG("[it->first = %llu][it->second == %llu]", it->first, it->second);
+    RTC_NORMAL_EX_LOG("[it->first = %llu][it->second == %llu]", it->first, it->second);
 #endif  // _DEBUG
     if (!feedback_packet->AddReceivedPacket(static_cast<uint16_t>(it->first & 0xFFFF), it->second * 1000)) 
 	{

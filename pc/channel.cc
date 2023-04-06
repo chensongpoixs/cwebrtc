@@ -51,15 +51,15 @@ using webrtc::SdpType;
 //  }
 //}
 //
-//#define NORMAL_LOG(format, ...)                          \
+//#define RTC_NORMAL_LOG(format, ...)                          \
 //  rtc_turn_port_log();                                   \
 //  if (out_rtc_channel_ptr)	{ 	 			\
 //  fprintf(out_rtc_channel_ptr, format, ##__VA_ARGS__); \
 //  fprintf(out_rtc_channel_ptr, "\n");                  \
 //  fflush(out_rtc_channel_ptr); }
 //
-//#define NORMAL_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define RTC_NORMAL_EX_LOG(format, ...) \
+//  RTC_NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //
 //#endif  // _DEBUG
 
@@ -495,7 +495,7 @@ void BaseChannel::OnRtpPacket(const webrtc::RtpPacketReceived& parsed_packet) {
   if (parsed_packet.arrival_time_ms() > 0) {
     timestamp_us = parsed_packet.arrival_time_ms() * 1000;
   }
-  NORMAL_EX_LOG("[timestamp_us = %llu][]", timestamp_us);
+  RTC_NORMAL_EX_LOG("[timestamp_us = %llu][]", timestamp_us);
   OnPacketReceived(/*rtcp=*/false, parsed_packet.Buffer(), timestamp_us);
 }
 
@@ -826,7 +826,7 @@ void BaseChannel::SignalSentPacket_w(const rtc::SentPacket& sent_packet) {
 
   #if _DEBUG
 
-  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+  RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());
 #endif  // _DEBUG
 

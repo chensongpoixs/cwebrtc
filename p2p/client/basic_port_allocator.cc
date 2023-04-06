@@ -1608,7 +1608,7 @@ void AllocationSequence::OnReadPacket(rtc::AsyncPacketSocket* socket,
 	{
       RTC_DCHECK(udp_port_->SharedSocket());
      
-	  NORMAL_EX_LOG("[remote_addr = %s][packet_time_us = %llu]",
+	  RTC_NORMAL_EX_LOG("[remote_addr = %s][packet_time_us = %llu]",
                     remote_addr.ToString().c_str(), packet_time_us);
 	  udp_port_->HandleIncomingPacket(socket, data, size, remote_addr, packet_time_us);
     }

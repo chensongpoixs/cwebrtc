@@ -88,15 +88,14 @@ delta，范围[-8192.0, 8191.75] ms
 3. 如果时间间隔超过了最大限制，那么就会构建一个新的TransportFeedback
 RTCP包，由于reference time长度为3字节，所以目前的包中3字节长度能够覆盖很大范围了
 
-以上说明总结起来就是：对于收到的RTP包在TransportFeedback RTCP receive
-delta列表中通过时间间隔记录到达时间，如果与前面包时间间隔小，那么使用1字节表示，否则2字节，超过最大取值范围，就另起新RTCP包了。
+以上说明总结起来就是：对于收到的RTP包在TransportFeedback RTCP receive delta列表中
+通过时间间隔记录到达时间，如果与前面包时间间隔小，那么使用1字节表示，否则2字节，超过最大取值范围，就另起新RTCP包了。
 
-对于"Packet received, small delta"状态的包来说，receive
-delta最大值63.75ms，那么一秒时间跨度最少能标识1000/63.75~=16个包。由于receive
-delta为250us的倍数，所以一秒时间跨度最多能标识4000个包。
+对于"Packet received, small delta"状态的包来说，receive delta最大值63.75ms，
+那么一秒时间跨度最少能标识1000/63.75~=16个包。由于receive delta为250us的倍数， 所以一秒时间跨度最多能标识4000个包。
 
-packet chunk以及receive delta的使用是为了尽可能减小RTCP包大小。packet
-chunk用到了不同编码方式，对于收到的RTP包才添加到达时间信息，而且是通过时间间隔的方式记录到达时间。
+packet chunk以及receive delta的使用是为了尽可能减小RTCP包大小。packet chunk用到了不同编码方式，
+对于收到的RTP包才添加到达时间信息，而且是通过时间间隔的方式记录到达时间。
  
  TODO@chensong 2023-03-31 
  编码方法有三种：（1）行程码；（2）1位状态向量码；（3）2位状态向量码。
@@ -154,7 +153,7 @@ void TransportFeedback::LastChunk::Add(DeltaSize delta_size)
   // CanAdd检验
   RTC_DCHECK(CanAdd(delta_size));
   // size_是当前有几个了packets了 delta_sizes_[size_]是第size_的delta size
-  if (size_ < kMaxVectorCapacity) 
+  if (size_ < kMaxVectorCapacity/*14*/) 
   {
     //记录第size_个packet的recv delta占据的字节数
     delta_sizes_[size_] = delta_size;
@@ -303,8 +302,8 @@ uint16_t TransportFeedback::LastChunk::EncodeOneBit() const
   return chunk;
 }
 
-void TransportFeedback::LastChunk::DecodeOneBit(uint16_t chunk,
-                                                size_t max_size) {
+void TransportFeedback::LastChunk::DecodeOneBit(uint16_t chunk, size_t max_size)
+{
   RTC_DCHECK_EQ(chunk & 0xc000, 0x8000);
   size_ = std::min(kMaxOneBitCapacity /*14*/, max_size);
   has_large_delta_ = false;
@@ -327,7 +326,8 @@ void TransportFeedback::LastChunk::DecodeOneBit(uint16_t chunk,
 //  T = 1
 //  S = 1
 //  symbol list = 7 entries of two bits each.
-uint16_t TransportFeedback::LastChunk::EncodeTwoBit(size_t size) const {
+uint16_t TransportFeedback::LastChunk::EncodeTwoBit(size_t size) const 
+{
   RTC_DCHECK_LE(size, size_);
   // T,S位进行赋值 
   uint16_t chunk = 0xc000; //1(T)1(S)00 0000 0000 0000
@@ -339,13 +339,14 @@ uint16_t TransportFeedback::LastChunk::EncodeTwoBit(size_t size) const {
   return chunk;
 }
 
-void TransportFeedback::LastChunk::DecodeTwoBit(uint16_t chunk,
-                                                size_t max_size) {
+void TransportFeedback::LastChunk::DecodeTwoBit(uint16_t chunk, size_t max_size) 
+{
   RTC_DCHECK_EQ(chunk & 0xc000, 0xc000);
-  size_ = std::min(kMaxTwoBitCapacity, max_size);
+  size_ = std::min(kMaxTwoBitCapacity /*7*/, max_size);
   has_large_delta_ = true;
   all_same_ = false;
-  for (size_t i = 0; i < size_; ++i) {
+  for (size_t i = 0; i < size_; ++i) 
+  {
     delta_sizes_[i] = (chunk >> 2 * (kMaxTwoBitCapacity - 1 - i)) & 0x03;
   }
 }
@@ -371,8 +372,8 @@ uint16_t TransportFeedback::LastChunk::EncodeRunLength() const
   return (delta_sizes_[0] << 13) | static_cast<uint16_t>(size_);
 }
 
-void TransportFeedback::LastChunk::DecodeRunLength(uint16_t chunk,
-                                                   size_t max_count) {
+void TransportFeedback::LastChunk::DecodeRunLength(uint16_t chunk, size_t max_count)
+{
   RTC_DCHECK_EQ(chunk & 0x8000, 0);
   //解析出size_相同的status的个数
   size_ = std::min<size_t>(chunk & 0x1fff, max_count);
@@ -382,8 +383,7 @@ void TransportFeedback::LastChunk::DecodeRunLength(uint16_t chunk,
   all_same_ = true;
   // To make it consistent with Add function, populate delta_sizes_ beyound 1st.
   //一致性处理
-  for (size_t i = 0; i < std::min<size_t>(size_, kMaxVectorCapacity /*14*/);
-       ++i) 
+  for (size_t i = 0; i < std::min<size_t>(size_, kMaxVectorCapacity /*14*/); ++i) 
   {
     delta_sizes_[i] = delta_size;
   }
@@ -948,7 +948,7 @@ bool TransportFeedback::AddDeltaSize(DeltaSize delta_size)
   {
     return false;
   }
-
+  // TODO@chensong 2023-04-03  判断是否chnuk中放满数据 如果放满了数据就创建新的chunk， 把之前的chunk放到encoded_chunks数组中
   if (last_chunk_.CanAdd(delta_size)) 
   {
     size_bytes_ += add_chunk_size;
@@ -956,6 +956,7 @@ bool TransportFeedback::AddDeltaSize(DeltaSize delta_size)
     ++num_seq_no_;
     return true;
   }
+  // TODO@chensong 2023-04-03 是否大于rtcp包最大字节数
   if (size_bytes_ + delta_size + kChunkSizeBytes > kMaxSizeBytes) 
   {
     return false;

@@ -426,7 +426,7 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
   // TODO@chensong 20220805  rtp_header
   RTPVideoHeader rtp_video_header = params_[stream_index].GetRtpVideoHeader(encoded_image, codec_specific_info, shared_frame_id_);
 #if _DEBUG
-  NORMAL_EX_LOG("[rtp_video_header = %s]",
+  RTC_NORMAL_EX_LOG("[rtp_video_header = %s]",
                 webrtc::ToString(rtp_video_header).c_str());
   #endif
   uint32_t rtp_timestamp = encoded_image.Timestamp() + rtp_streams_[stream_index].rtp_rtcp->StartTimestamp();

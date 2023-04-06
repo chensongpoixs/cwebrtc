@@ -586,7 +586,8 @@ MainWnd::VideoRenderer::VideoRenderer(
     int width,
     int height,
     webrtc::VideoTrackInterface* track_to_render)
-    : wnd_(wnd), rendered_track_(track_to_render) {
+    : wnd_(wnd), rendered_track_(track_to_render) 
+{
   ::InitializeCriticalSection(&buffer_lock_);
   ZeroMemory(&bmi_, sizeof(bmi_));
   bmi_.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);

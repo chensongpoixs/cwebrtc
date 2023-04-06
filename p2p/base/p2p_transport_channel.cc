@@ -115,15 +115,15 @@ using webrtc::RTCError;
 //  }
 //}
 //
-//#define NORMAL_LOG(format, ...)                               \
+//#define RTC_NORMAL_LOG(format, ...)                               \
 //  rtc_p2p_transport_channel_log();                                   \
 //  if ( out_rtc_p2p_transport_channel_ptr)	{ 		 			\
 //  fprintf(out_rtc_p2p_transport_channel_ptr, format, ##__VA_ARGS__); \
 //  fprintf(out_rtc_p2p_transport_channel_ptr, "\n");                  \
 //  fflush(out_rtc_p2p_transport_channel_ptr); }
 //
-//#define NORMAL_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define RTC_NORMAL_EX_LOG(format, ...) \
+//  RTC_NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //
 //#endif  // _DEBUG
 
@@ -221,6 +221,10 @@ void P2PTransportChannel::AddAllocatorSession(
 
 void P2PTransportChannel::AddConnection(Connection* connection) {
   connections_.push_back(connection);
+  RTC_NORMAL_EX_LOG("addConnection --> [%s]",
+      connection->remote_candidate().address().ToString().c_str());
+  RTC_LOG(INFO) << __FUNCTION__ << "][ " << __LINE__ << "] ["
+                << connection->remote_candidate().address().ToString() << "]";
   unpinged_connections_.insert(connection);
   connection->set_remote_ice_mode(remote_ice_mode_);
   connection->set_receiving_timeout(config_.receiving_timeout);
@@ -2338,7 +2342,11 @@ void P2PTransportChannel::OnConnectionDestroyed(Connection* connection) {
 
   // Note: the previous selected_connection_ may be destroyed by now, so don't
   // use it.
-
+  RTC_NORMAL_EX_LOG(
+      "del --> [%s]",
+      connection->remote_candidate().address().ToString().c_str());
+  RTC_LOG(INFO) << __FUNCTION__ << "][ " << __LINE__ << "] ["
+                << connection->remote_candidate().address().ToString() << "]";
   // Remove this connection from the list.
   auto iter = absl::c_find(connections_, connection);
   RTC_DCHECK(iter != connections_.end());
@@ -2451,7 +2459,7 @@ void P2PTransportChannel::OnReadPacket(Connection* connection,
 void P2PTransportChannel::OnSentPacket(const rtc::SentPacket& sent_packet) {
   RTC_DCHECK(network_thread_ == rtc::Thread::Current());
 #if _DEBUG
-  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
+  RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
 
 #endif 
   SignalSentPacket(this, sent_packet);

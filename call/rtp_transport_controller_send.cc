@@ -50,19 +50,19 @@ namespace webrtc {
 //}
 //
 // 
-//#define NORMAL_LOG(format, ...)                         \
+//#define RTC_NORMAL_LOG(format, ...)                         \
 //  rtc_rtp_transport_send_log();                                        \
 //    if ( out_rtc_rtp_transport_send_file_ptr) { 								\
 //  fprintf(out_rtc_rtp_transport_send_file_ptr, format, ##__VA_ARGS__); \
 //  fprintf(out_rtc_rtp_transport_send_file_ptr, "\n");                  \
 //  fflush(out_rtc_rtp_transport_send_file_ptr);}
 //
-//#define NORMAL_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define RTC_NORMAL_EX_LOG(format, ...) \
+//  RTC_NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //#define ERROR_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//  RTC_NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //#define WARNING_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//  RTC_NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //#endif  // _DEBUG
 
 namespace {
@@ -350,7 +350,7 @@ void RtpTransportControllerSend::OnSentPacket(
 
   if (packet_msg)
   {
-    NORMAL_EX_LOG(
+    RTC_NORMAL_EX_LOG(
         "[transport_feedback_adapter_.ProcessSentPacket][sent_packet = %s]  [packet_msg = %s]",
         webrtc::ToString(sent_packet) .c_str(),
         webrtc::ToString(packet_msg.value()).c_str());

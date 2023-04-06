@@ -85,19 +85,19 @@ namespace webrtc {
 //}
 //
 //#define RTC_GCC_NETWORK_CONTROL_LOG()
-//#define NORMAL_LOG(format, ...)                         \
+//#define RTC_NORMAL_LOG(format, ...)                         \
 //  rtc_call_log();                                        \
 //  if ( out_rtc_call_ptr) { 					\
 //  fprintf(out_rtc_call_ptr, format, ##__VA_ARGS__); \
 //  fprintf(out_rtc_call_ptr, "\n");                  \
 //  fflush(out_rtc_call_ptr);}
 //
-//#define NORMAL_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define RTC_NORMAL_EX_LOG(format, ...) \
+//  RTC_NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //#define ERROR_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//  RTC_NORMAL_LOG("[%s][%d][error]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //#define WARNING_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//  RTC_NORMAL_LOG("[%s][%d][warning]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //#endif  // _DEBUG
 
 
@@ -1186,7 +1186,7 @@ void Call::OnSentPacket(const rtc::SentPacket& sent_packet) {
 
   #if _DEBUG
 
-  NORMAL_EX_LOG("[transport_send_ptr_->OnSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
+  RTC_NORMAL_EX_LOG("[transport_send_ptr_->OnSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
 #endif  // _DEBUG
 
   transport_send_ptr_->OnSentPacket(sent_packet);

@@ -43,7 +43,7 @@ namespace rtc {
 //  fprintf(out_rtc_fake_packet_transport_ptr, "\n");                  \
 //  fflush(out_rtc_fake_packet_transport_ptr); }
 //
-//#define RTC_FAKE_PACKET_TRANSPORT_NORMAL_EX_LOG(format, ...) \
+//#define RTC_FAKE_PACKET_TRANSPORT_RTC_NORMAL_EX_LOG(format, ...) \
 //  RTC_FAKE_PACKET_TRANSPORT_LOG("[%s][%d][info]" format, __FUNCTION__, \
 //                                __LINE__, ##__VA_ARGS__)
 // 
@@ -111,7 +111,7 @@ class FakePacketTransport : public PacketTransportInternal {
     SentPacket sent_packet(options.packet_id, TimeMillis());
 #if _DEBUG
 
-	RTC_FAKE_PACKET_TRANSPORT_NORMAL_EX_LOG(
+	RTC_FAKE_PACKET_TRANSPORT_RTC_NORMAL_EX_LOG(
         "[SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet));
 #endif  // _DEBUG
 

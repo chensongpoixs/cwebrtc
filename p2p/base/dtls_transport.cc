@@ -77,15 +77,15 @@ static bool IsRtpPacket(const char* data, size_t len) {
 //  }
 //}
 //
-//#define NORMAL_LOG(format, ...)                                      \
+//#define RTC_NORMAL_LOG(format, ...)                                      \
 //  rtc_dtls_transport_log();                                   \
 //  if ( out_rtc_dtls_transport_ptr) { 	 			\
 //  fprintf(out_rtc_dtls_transport_ptr, format, ##__VA_ARGS__); \
 //  fprintf(out_rtc_dtls_transport_ptr, "\n");                  \
 //  fflush(out_rtc_dtls_transport_ptr); }
 //
-//#define NORMAL_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define RTC_NORMAL_EX_LOG(format, ...) \
+//  RTC_NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //
 //#endif  // _DEBUG
 
@@ -643,7 +643,7 @@ void DtlsTransport::OnSentPacket(rtc::PacketTransportInternal* transport,
                                  const rtc::SentPacket& sent_packet) {
   RTC_DCHECK_RUN_ON(&thread_checker_);
 #if _DEBUG
-  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+  RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());
 
   #endif 

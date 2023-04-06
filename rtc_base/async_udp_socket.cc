@@ -37,15 +37,15 @@ namespace rtc {
 //  }
 //}
 //
-//#define NORMAL_LOG(format, ...)                                 \
+//#define RTC_NORMAL_LOG(format, ...)                                 \
 //  rtc_turn_port_log();                                          \
 //  if (out_rtc_async_udp_socket_ptr)	{ 		 			\
 //  fprintf(out_rtc_async_udp_socket_ptr, format, ##__VA_ARGS__); \
 //  fprintf(out_rtc_async_udp_socket_ptr, "\n");                  \
 //  fflush(out_rtc_async_udp_socket_ptr); }
 //
-//#define NORMAL_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define RTC_NORMAL_EX_LOG(format, ...) \
+//  RTC_NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //
 //#endif  // _DEBUG
 
@@ -103,7 +103,7 @@ int AsyncUDPSocket::Send(const void* pv,
 
   #if _DEBUG
 
-	NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+	RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());
 #endif  // _DEBUG
 
@@ -123,7 +123,7 @@ int AsyncUDPSocket::SendTo(const void* pv,
 
     #if _DEBUG
 
-  NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
+  RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());
 #endif  // _DEBUG
 

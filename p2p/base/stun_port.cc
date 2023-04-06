@@ -48,15 +48,15 @@ const int kSendErrorLogLimit = 5;
 //  }
 //}
 //
-//#define NORMAL_LOG(format, ...)                                      \
+//#define RTC_NORMAL_LOG(format, ...)                                      \
 //  rtc_stun_port_log();                                   \
 //  if ( out_rtc_stun_port_ptr)	{ 		 			\
 //  fprintf(out_rtc_stun_port_ptr, format, ##__VA_ARGS__); \
 //  fprintf(out_rtc_stun_port_ptr, "\n");                  \
 //  fflush(out_rtc_stun_port_ptr); }
 //
-//#define NORMAL_EX_LOG(format, ...) \
-//  NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+//#define RTC_NORMAL_EX_LOG(format, ...) \
+//  RTC_NORMAL_LOG("[%s][%d][info]" format, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 //
 //#endif  // _DEBUG
 
@@ -422,7 +422,7 @@ void UDPPort::OnSentPacket(rtc::AsyncPacketSocket* socket,
                            const rtc::SentPacket& sent_packet) 
 {
 #if _DEBUG
-  NORMAL_EX_LOG("[PortInterface::SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
+  RTC_NORMAL_EX_LOG("[PortInterface::SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
 
 #endif 
   PortInterface::SignalSentPacket(sent_packet);
