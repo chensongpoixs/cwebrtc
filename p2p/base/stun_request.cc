@@ -56,7 +56,12 @@ StunRequestManager::~StunRequestManager() {
     delete request;
   }
 }
-
+/** 
+	TODO@chensong 2023-04-06 stun request 
+	P2PTransportChannel::CheckAndPing
+	P2PTransportChannel::PingConnection
+[p2p/base/port.cc]	        Connection::Ping
+**/
 void StunRequestManager::Send(StunRequest* request) {
   SendDelayed(request, 0);
 }

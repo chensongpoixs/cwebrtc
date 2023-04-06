@@ -2070,6 +2070,7 @@ void P2PTransportChannel::CheckAndPing() {
       MarkConnectionPinged(conn);
     }
   }
+  // TODO@chensong 2023-05-06 stun 心跳包发送间隔时间毫秒数
   int delay = std::min(ping_interval, check_receiving_interval());
   invoker_.AsyncInvokeDelayed<void>(
       RTC_FROM_HERE, thread(),
