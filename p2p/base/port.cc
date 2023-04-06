@@ -301,11 +301,13 @@ Port::Port(rtc::Thread* thread,
   Construct();
 }
 
-void Port::Construct() {
+void Port::Construct() 
+{
   // TODO(pthatcher): Remove this old behavior once we're sure no one
   // relies on it.  If the username_fragment and password are empty,
   // we should just create one.
-  if (ice_username_fragment_.empty()) {
+  if (ice_username_fragment_.empty()) 
+  {
     RTC_DCHECK(password_.empty());
     ice_username_fragment_ = rtc::CreateRandomString(ICE_UFRAG_LENGTH);
     password_ = rtc::CreateRandomString(ICE_PWD_LENGTH);
@@ -313,10 +315,8 @@ void Port::Construct() {
   network_->SignalTypeChanged.connect(this, &Port::OnNetworkTypeChanged);
   network_cost_ = network_->GetCost();
 
-  thread_->PostDelayed(RTC_FROM_HERE, timeout_delay_, this,
-                       MSG_DESTROY_IF_DEAD);
-  RTC_LOG(LS_INFO) << ToString() << ": Port created with network cost "
-                   << network_cost_;
+  thread_->PostDelayed(RTC_FROM_HERE, timeout_delay_, this, MSG_DESTROY_IF_DEAD);
+  RTC_LOG(LS_INFO) << ToString() << ": Port created with network cost " << network_cost_;
 }
 
 Port::~Port() {
@@ -326,16 +326,20 @@ Port::~Port() {
   std::vector<Connection*> list;
 
   AddressMap::iterator iter = connections_.begin();
-  while (iter != connections_.end()) {
+  while (iter != connections_.end())
+  {
     list.push_back(iter->second);
     ++iter;
   }
 
   for (uint32_t i = 0; i < list.size(); i++)
-    delete list[i];
+  {
+	  delete list[i];
+  }
 }
 
-const std::string& Port::Type() const {
+const std::string& Port::Type() const 
+{
   return type_;
 }
 rtc::Network* Port::Network() const {
@@ -410,17 +414,17 @@ void Port::AddAddress(const rtc::SocketAddress& address,
                       uint32_t type_preference,
                       uint32_t relay_preference,
                       const std::string& url,
-                      bool is_final) {
-  if (protocol == TCP_PROTOCOL_NAME && type == LOCAL_PORT_TYPE) {
+                      bool is_final) 
+{
+  if (protocol == TCP_PROTOCOL_NAME && type == LOCAL_PORT_TYPE)
+  {
     RTC_DCHECK(!tcptype.empty());
   }
 
-  std::string foundation =
-      ComputeFoundation(type, protocol, relay_protocol, base_address);
+  std::string foundation = ComputeFoundation(type, protocol, relay_protocol, base_address);
   Candidate c(component_, protocol, address, 0U, username_fragment(), password_,
               type, generation_, foundation, network_->id(), network_cost_);
-  c.set_priority(
-      c.GetPriority(type_preference, network_->preference(), relay_preference));
+  c.set_priority(c.GetPriority(type_preference, network_->preference(), relay_preference));
   c.set_relay_protocol(relay_protocol);
   c.set_tcptype(tcptype);
   c.set_network_name(network_->name());
@@ -430,20 +434,22 @@ void Port::AddAddress(const rtc::SocketAddress& address,
 
   bool pending = MaybeObfuscateAddress(&c, type, is_final);
 
-  if (!pending) {
+  if (!pending) 
+  {
     FinishAddingAddress(c, is_final);
   }
 }
 
-bool Port::MaybeObfuscateAddress(Candidate* c,
-                                 const std::string& type,
-                                 bool is_final) {
+bool Port::MaybeObfuscateAddress(Candidate* c, const std::string& type, bool is_final) 
+{
   // TODO(bugs.webrtc.org/9723): Use a config to control the feature of IP
   // handling with mDNS.
-  if (network_->GetMdnsResponder() == nullptr) {
+  if (network_->GetMdnsResponder() == nullptr)
+  {
     return false;
   }
-  if (type != LOCAL_PORT_TYPE) {
+  if (type != LOCAL_PORT_TYPE) 
+  {
     return false;
   }
 
@@ -472,7 +478,8 @@ bool Port::MaybeObfuscateAddress(Candidate* c,
   return true;
 }
 
-void Port::FinishAddingAddress(const Candidate& c, bool is_final) {
+void Port::FinishAddingAddress(const Candidate& c, bool is_final)
+{
   candidates_.push_back(c);
   SignalCandidateReady(this, c);
 
@@ -694,23 +701,24 @@ rtc::DiffServCodePoint Port::StunDscpValue() const {
   return rtc::DSCP_NO_CHANGE;
 }
 
-bool Port::ParseStunUsername(const StunMessage* stun_msg,
-                             std::string* local_ufrag,
-                             std::string* remote_ufrag) const {
+bool Port::ParseStunUsername(const StunMessage* stun_msg, std::string* local_ufrag, std::string* remote_ufrag) const 
+{
   // The packet must include a username that either begins or ends with our
   // fragment.  It should begin with our fragment if it is a request and it
   // should end with our fragment if it is a response.
   local_ufrag->clear();
   remote_ufrag->clear();
-  const StunByteStringAttribute* username_attr =
-      stun_msg->GetByteString(STUN_ATTR_USERNAME);
+  const StunByteStringAttribute* username_attr = stun_msg->GetByteString(STUN_ATTR_USERNAME);
   if (username_attr == NULL)
-    return false;
+  {
+	  return false;
+  }
 
   // RFRAG:LFRAG
   const std::string username = username_attr->GetString();
   size_t colon_pos = username.find(':');
-  if (colon_pos == std::string::npos) {
+  if (colon_pos == std::string::npos) 
+  {
     return false;
   }
 
@@ -719,16 +727,15 @@ bool Port::ParseStunUsername(const StunMessage* stun_msg,
   return true;
 }
 
-bool Port::MaybeIceRoleConflict(const rtc::SocketAddress& addr,
-                                IceMessage* stun_msg,
-                                const std::string& remote_ufrag) {
+bool Port::MaybeIceRoleConflict(const rtc::SocketAddress& addr, IceMessage* stun_msg, const std::string& remote_ufrag) 
+{
   // Validate ICE_CONTROLLING or ICE_CONTROLLED attributes.
   bool ret = true;
   IceRole remote_ice_role = ICEROLE_UNKNOWN;
   uint64_t remote_tiebreaker = 0;
-  const StunUInt64Attribute* stun_attr =
-      stun_msg->GetUInt64(STUN_ATTR_ICE_CONTROLLING);
-  if (stun_attr) {
+  const StunUInt64Attribute* stun_attr = stun_msg->GetUInt64(STUN_ATTR_ICE_CONTROLLING);
+  if (stun_attr) 
+  {
     remote_ice_role = ICEROLE_CONTROLLING;
     remote_tiebreaker = stun_attr->value();
   }
@@ -739,34 +746,42 @@ bool Port::MaybeIceRoleConflict(const rtc::SocketAddress& addr,
   // We will treat this as valid scenario.
   if (remote_ice_role == ICEROLE_CONTROLLING &&
       username_fragment() == remote_ufrag &&
-      remote_tiebreaker == IceTiebreaker()) {
+      remote_tiebreaker == IceTiebreaker()) 
+  {
     return true;
   }
 
   stun_attr = stun_msg->GetUInt64(STUN_ATTR_ICE_CONTROLLED);
-  if (stun_attr) {
+  if (stun_attr) 
+  {
     remote_ice_role = ICEROLE_CONTROLLED;
     remote_tiebreaker = stun_attr->value();
   }
 
-  switch (ice_role_) {
+  switch (ice_role_) 
+  {
     case ICEROLE_CONTROLLING:
-      if (ICEROLE_CONTROLLING == remote_ice_role) {
-        if (remote_tiebreaker >= tiebreaker_) {
+      if (ICEROLE_CONTROLLING == remote_ice_role) 
+	  {
+        if (remote_tiebreaker >= tiebreaker_)
+		{
           SignalRoleConflict(this);
         } else {
           // Send Role Conflict (487) error response.
-          SendBindingErrorResponse(stun_msg, addr, STUN_ERROR_ROLE_CONFLICT,
-                                   STUN_ERROR_REASON_ROLE_CONFLICT);
+          SendBindingErrorResponse(stun_msg, addr, STUN_ERROR_ROLE_CONFLICT, STUN_ERROR_REASON_ROLE_CONFLICT);
           ret = false;
         }
       }
       break;
     case ICEROLE_CONTROLLED:
-      if (ICEROLE_CONTROLLED == remote_ice_role) {
-        if (remote_tiebreaker < tiebreaker_) {
+      if (ICEROLE_CONTROLLED == remote_ice_role) 
+	  {
+        if (remote_tiebreaker < tiebreaker_) 
+		{
           SignalRoleConflict(this);
-        } else {
+        }
+		else 
+		{
           // Send Role Conflict (487) error response.
           SendBindingErrorResponse(stun_msg, addr, STUN_ERROR_ROLE_CONFLICT,
                                    STUN_ERROR_REASON_ROLE_CONFLICT);
@@ -775,7 +790,9 @@ bool Port::MaybeIceRoleConflict(const rtc::SocketAddress& addr,
       }
       break;
     default:
-      RTC_NOTREACHED();
+	{
+		RTC_NOTREACHED();
+	}
   }
   return ret;
 }
@@ -792,24 +809,26 @@ bool Port::HandleIncomingPacket(rtc::AsyncPacketSocket* socket,
                                 const char* data,
                                 size_t size,
                                 const rtc::SocketAddress& remote_addr,
-                                int64_t packet_time_us) {
+                                int64_t packet_time_us) 
+{
   RTC_NOTREACHED();
   return false;
 }
 
-bool Port::CanHandleIncomingPacketsFrom(const rtc::SocketAddress&) const {
+bool Port::CanHandleIncomingPacketsFrom(const rtc::SocketAddress&) const 
+{
   return false;
 }
 
-void Port::SendBindingResponse(StunMessage* request,
-                               const rtc::SocketAddress& addr) {
+void Port::SendBindingResponse(StunMessage* request, const rtc::SocketAddress& addr) 
+{
   RTC_DCHECK(request->type() == STUN_BINDING_REQUEST);
 
   // Retrieve the username from the request.
-  const StunByteStringAttribute* username_attr =
-      request->GetByteString(STUN_ATTR_USERNAME);
+  const StunByteStringAttribute* username_attr = request->GetByteString(STUN_ATTR_USERNAME);
   RTC_DCHECK(username_attr != NULL);
-  if (username_attr == NULL) {
+  if (username_attr == NULL) 
+  {
     // No valid username, skip the response.
     return;
   }
@@ -818,15 +837,15 @@ void Port::SendBindingResponse(StunMessage* request,
   StunMessage response;
   response.SetType(STUN_BINDING_RESPONSE);
   response.SetTransactionID(request->transaction_id());
-  const StunUInt32Attribute* retransmit_attr =
-      request->GetUInt32(STUN_ATTR_RETRANSMIT_COUNT);
-  if (retransmit_attr) {
+  const StunUInt32Attribute* retransmit_attr = request->GetUInt32(STUN_ATTR_RETRANSMIT_COUNT);
+  if (retransmit_attr) 
+  {
     // Inherit the incoming retransmit value in the response so the other side
     // can see our view of lost pings.
-    response.AddAttribute(absl::make_unique<StunUInt32Attribute>(
-        STUN_ATTR_RETRANSMIT_COUNT, retransmit_attr->value()));
+    response.AddAttribute(absl::make_unique<StunUInt32Attribute>(STUN_ATTR_RETRANSMIT_COUNT, retransmit_attr->value()));
 
-    if (retransmit_attr->value() > CONNECTION_WRITE_CONNECT_FAILURES) {
+    if (retransmit_attr->value() > CONNECTION_WRITE_CONNECT_FAILURES) 
+	{
       RTC_LOG(LS_INFO)
           << ToString()
           << ": Received a remote ping with high retransmit count: "
@@ -834,8 +853,7 @@ void Port::SendBindingResponse(StunMessage* request,
     }
   }
 
-  response.AddAttribute(absl::make_unique<StunXorAddressAttribute>(
-      STUN_ATTR_XOR_MAPPED_ADDRESS, addr));
+  response.AddAttribute(absl::make_unique<StunXorAddressAttribute>(STUN_ATTR_XOR_MAPPED_ADDRESS, addr));
   response.AddMessageIntegrity(password_);
   response.AddFingerprint();
 
@@ -843,15 +861,17 @@ void Port::SendBindingResponse(StunMessage* request,
   rtc::ByteBufferWriter buf;
   response.Write(&buf);
   rtc::PacketOptions options(StunDscpValue());
-  options.info_signaled_after_sent.packet_type =
-      rtc::PacketType::kIceConnectivityCheckResponse;
+  options.info_signaled_after_sent.packet_type = rtc::PacketType::kIceConnectivityCheckResponse;
   auto err = SendTo(buf.Data(), buf.Length(), addr, options, false);
-  if (err < 0) {
+  if (err < 0) 
+  {
     RTC_LOG(LS_ERROR) << ToString()
                       << ": Failed to send STUN ping response, to="
                       << addr.ToSensitiveString() << ", err=" << err
                       << ", id=" << rtc::hex_encode(response.transaction_id());
-  } else {
+  } 
+  else 
+  {
     // Log at LS_INFO if we send a stun ping response on an unwritable
     // connection.
     Connection* conn = GetConnection(addr);
@@ -862,16 +882,12 @@ void Port::SendBindingResponse(StunMessage* request,
                    << ", id=" << rtc::hex_encode(response.transaction_id());
 
     conn->stats_.sent_ping_responses++;
-    conn->LogCandidatePairEvent(
-        webrtc::IceCandidatePairEventType::kCheckResponseSent,
-        request->reduced_transaction_id());
+    conn->LogCandidatePairEvent(webrtc::IceCandidatePairEventType::kCheckResponseSent, request->reduced_transaction_id());
   }
 }
 
-void Port::SendBindingErrorResponse(StunMessage* request,
-                                    const rtc::SocketAddress& addr,
-                                    int error_code,
-                                    const std::string& reason) {
+void Port::SendBindingErrorResponse(StunMessage* request, const rtc::SocketAddress& addr, int error_code, const std::string& reason) 
+{
   RTC_DCHECK(request->type() == STUN_BINDING_REQUEST);
 
   // Fill in the response message.
@@ -888,53 +904,58 @@ void Port::SendBindingErrorResponse(StunMessage* request,
 
   // Per Section 10.1.2, certain error cases don't get a MESSAGE-INTEGRITY,
   // because we don't have enough information to determine the shared secret.
-  if (error_code != STUN_ERROR_BAD_REQUEST &&
-      error_code != STUN_ERROR_UNAUTHORIZED)
-    response.AddMessageIntegrity(password_);
+  if (error_code != STUN_ERROR_BAD_REQUEST && error_code != STUN_ERROR_UNAUTHORIZED)
+  {
+	  response.AddMessageIntegrity(password_);
+  }
   response.AddFingerprint();
 
   // Send the response message.
   rtc::ByteBufferWriter buf;
   response.Write(&buf);
   rtc::PacketOptions options(StunDscpValue());
-  options.info_signaled_after_sent.packet_type =
-      rtc::PacketType::kIceConnectivityCheckResponse;
+  options.info_signaled_after_sent.packet_type = rtc::PacketType::kIceConnectivityCheckResponse;
   SendTo(buf.Data(), buf.Length(), addr, options, false);
   RTC_LOG(LS_INFO) << ToString()
                    << ": Sending STUN binding error: reason=" << reason
                    << " to " << addr.ToSensitiveString();
 }
 
-void Port::KeepAliveUntilPruned() {
+void Port::KeepAliveUntilPruned() 
+{
   // If it is pruned, we won't bring it up again.
-  if (state_ == State::INIT) {
+  if (state_ == State::INIT)
+  {
     state_ = State::KEEP_ALIVE_UNTIL_PRUNED;
   }
 }
 
-void Port::Prune() {
+void Port::Prune() 
+{
   state_ = State::PRUNED;
   thread_->Post(RTC_FROM_HERE, this, MSG_DESTROY_IF_DEAD);
 }
 
-void Port::OnMessage(rtc::Message* pmsg) {
+void Port::OnMessage(rtc::Message* pmsg) 
+{
   RTC_DCHECK(pmsg->message_id == MSG_DESTROY_IF_DEAD);
-  bool dead =
-      (state_ == State::INIT || state_ == State::PRUNED) &&
-      connections_.empty() &&
-      rtc::TimeMillis() - last_time_all_connections_removed_ >= timeout_delay_;
-  if (dead) {
+  bool dead = (state_ == State::INIT || state_ == State::PRUNED) &&
+      connections_.empty() && rtc::TimeMillis() - last_time_all_connections_removed_ >= timeout_delay_;
+  if (dead) 
+  {
     Destroy();
   }
 }
 
-void Port::OnNetworkTypeChanged(const rtc::Network* network) {
+void Port::OnNetworkTypeChanged(const rtc::Network* network) 
+{
   RTC_DCHECK(network == network_);
 
   UpdateNetworkCost();
 }
 
-std::string Port::ToString() const {
+std::string Port::ToString() const 
+{
   rtc::StringBuilder ss;
   ss << "Port[" << rtc::ToHex(reinterpret_cast<uintptr_t>(this)) << ":"
      << content_name_ << ":" << component_ << ":" << generation_ << ":" << type_
@@ -943,9 +964,11 @@ std::string Port::ToString() const {
 }
 
 // TODO(honghaiz): Make the network cost configurable from user setting.
-void Port::UpdateNetworkCost() {
+void Port::UpdateNetworkCost() 
+{
   uint16_t new_cost = network_->GetCost();
-  if (network_cost_ == new_cost) {
+  if (network_cost_ == new_cost) 
+  {
     return;
   }
   RTC_LOG(LS_INFO) << "Network cost changed from " << network_cost_ << " to "
@@ -954,7 +977,8 @@ void Port::UpdateNetworkCost() {
                    << ". Number of connections created: "
                    << connections_.size();
   network_cost_ = new_cost;
-  for (cricket::Candidate& candidate : candidates_) {
+  for (cricket::Candidate& candidate : candidates_) 
+  {
     candidate.set_network_cost(network_cost_);
   }
   // Network cost change will affect the connection selection criteria.
@@ -1010,7 +1034,8 @@ void Port::CopyPortInformationToPacketInfo(rtc::PacketInfo* info) const {
 }
 
 // A ConnectionRequest is a simple STUN ping used to determine writability.
-class ConnectionRequest : public StunRequest {
+class ConnectionRequest : public StunRequest 
+{
  public:
   explicit ConnectionRequest(Connection* connection)
       : StunRequest(new IceMessage()), connection_(connection) {}
@@ -1468,10 +1493,12 @@ void Connection::PrintPingsSinceLastResponse(std::string* s, size_t max) {
   *s = oss.str();
 }
 
-void Connection::UpdateState(int64_t now) {
+void Connection::UpdateState(int64_t now) 
+{
   int rtt = ConservativeRTTEstimate(rtt_);
 
-  if (RTC_LOG_CHECK_LEVEL(LS_VERBOSE)) {
+  if (RTC_LOG_CHECK_LEVEL(LS_VERBOSE))
+  {
     std::string pings;
     PrintPingsSinceLastResponse(&pings, 5);
     RTC_LOG(LS_VERBOSE) << ToString()
@@ -1520,7 +1547,8 @@ void Connection::UpdateState(int64_t now) {
 
   // Update the receiving state.
   UpdateReceiving(now);
-  if (dead(now)) {
+  if (dead(now))
+  {
     Destroy();
   }
 }
