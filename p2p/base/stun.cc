@@ -294,31 +294,34 @@ bool StunMessage::AddMessageIntegrity(const char* key, size_t keylen) {
 // Verifies a message is in fact a STUN message, by performing the checks
 // outlined in RFC 5389, section 7.3, including the FINGERPRINT check detailed
 // in section 15.5.
-bool StunMessage::ValidateFingerprint(const char* data, size_t size) {
+bool StunMessage::ValidateFingerprint(const char* data, size_t size) 
+{
   // Check the message length.
-  size_t fingerprint_attr_size =
-      kStunAttributeHeaderSize + StunUInt32Attribute::SIZE;
+  size_t fingerprint_attr_size = kStunAttributeHeaderSize + StunUInt32Attribute::SIZE;
   if (size % 4 != 0 || size < kStunHeaderSize + fingerprint_attr_size)
-    return false;
+  {
+	  return false;
+  }
 
   // Skip the rest if the magic cookie isn't present.
-  const char* magic_cookie =
-      data + kStunTransactionIdOffset - kStunMagicCookieLength;
+  const char* magic_cookie = data + kStunTransactionIdOffset - kStunMagicCookieLength;
   if (rtc::GetBE32(magic_cookie) != kStunMagicCookie)
-    return false;
+  {
+	  return false;
+  }
 
   // Check the fingerprint type and length.
   const char* fingerprint_attr_data = data + size - fingerprint_attr_size;
   if (rtc::GetBE16(fingerprint_attr_data) != STUN_ATTR_FINGERPRINT ||
-      rtc::GetBE16(fingerprint_attr_data + sizeof(uint16_t)) !=
-          StunUInt32Attribute::SIZE)
-    return false;
+	  rtc::GetBE16(fingerprint_attr_data + sizeof(uint16_t)) !=
+	  StunUInt32Attribute::SIZE)
+  {
+	  return false;
+  }
 
   // Check the fingerprint value.
-  uint32_t fingerprint =
-      rtc::GetBE32(fingerprint_attr_data + kStunAttributeHeaderSize);
-  return ((fingerprint ^ STUN_FINGERPRINT_XOR_VALUE) ==
-          rtc::ComputeCrc32(data, size - fingerprint_attr_size));
+  uint32_t fingerprint = rtc::GetBE32(fingerprint_attr_data + kStunAttributeHeaderSize);
+  return ((fingerprint ^ STUN_FINGERPRINT_XOR_VALUE) == rtc::ComputeCrc32(data, size - fingerprint_attr_size));
 }
 
 bool StunMessage::AddFingerprint() {

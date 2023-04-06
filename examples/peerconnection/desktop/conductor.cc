@@ -188,7 +188,7 @@ bool Conductor::InitializePeerConnection() {
     return false;
   }
   // 设置SDP  ->马流是否加密哈DTLS
-  if (!CreatePeerConnection(/*dtls=*/false)) 
+  if (!CreatePeerConnection(/*dtls=*/true)) 
   {
     main_wnd_->MessageBox("Error", "CreatePeerConnection failed", true);
     DeletePeerConnection();
@@ -205,7 +205,7 @@ bool Conductor::ReinitializePeerConnectionForLoopback() {
   std::vector<rtc::scoped_refptr<webrtc::RtpSenderInterface>> senders =
       peer_connection_->GetSenders();
   peer_connection_ = nullptr;
-  if (CreatePeerConnection(/*dtls=*/false)) {
+  if (CreatePeerConnection(/*dtls=*/true)) {
     for (const auto& sender : senders) {
       peer_connection_->AddTrack(sender->track(), sender->stream_ids());
     }

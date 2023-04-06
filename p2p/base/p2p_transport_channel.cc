@@ -2434,7 +2434,16 @@ bool P2PTransportChannel::PrunePort(PortInterface* port) {
   pruned_ports_.push_back(port);
   return true;
 }
+/* 
+TODO@chensong 2023-04-05  网络数据从底层向上调用流程
+[rtc_base/async_udp_socket.cc]	   AsyncUDPSocket::OnReadEvent
+[p2p\client/basic_port_allocator.cc]	   AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]							UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]										UDPPort::OnReadPacket
+[p2p/base/port.cc]											Connection::OnReadPackets
+[p2p/base/p2p_transport_channel.cc]						P2PTransportChannel::OnReadPacket
 
+*/
 // We data is available, let listeners know
 void P2PTransportChannel::OnReadPacket(Connection* connection,
                                        const char* data,
@@ -2444,7 +2453,9 @@ void P2PTransportChannel::OnReadPacket(Connection* connection,
 
   // Do not deliver, if packet doesn't belong to the correct transport channel.
   if (!FindConnection(connection))
-    return;
+  {
+	  return;
+  }
 
   // Let the client know of an incoming packet
   SignalReadPacket(this, data, len, packet_time_us, 0);

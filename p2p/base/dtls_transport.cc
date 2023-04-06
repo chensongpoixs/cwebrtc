@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2011 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -554,6 +554,54 @@ void DtlsTransport::OnReceivingState(rtc::PacketTransportInternal* transport) {
     set_receiving(ice_transport_->receiving());
   }
 }
+static const char * get_dtls_state( DtlsTransportState  state)
+{
+	switch (state)
+	{
+	case cricket::DTLS_TRANSPORT_NEW:
+		return "DTLS_TRANSPORT_NEW";
+		break;
+	case cricket::DTLS_TRANSPORT_CONNECTING:
+		return "DTLS_TRANSPORT_CONNECTING";
+		break;
+	case cricket::DTLS_TRANSPORT_CONNECTED:
+		return "DTLS_TRANSPORT_CONNECTED";
+		break;
+	case cricket::DTLS_TRANSPORT_CLOSED:
+		return "DTLS_TRANSPORT_CLOSED";
+		break;
+	case cricket::DTLS_TRANSPORT_FAILED:
+		return "DTLS_TRANSPORT_FAILED";
+		break;
+	default:
+		return "default";
+		break;
+	}
+	//enum DtlsTransportState {
+	//	// Haven't started negotiating.
+	//	DTLS_TRANSPORT_NEW = 0,
+	//	// Have started negotiating.
+	//	DTLS_TRANSPORT_CONNECTING,
+	//	// Negotiated, and has a secure connection.
+	//	DTLS_TRANSPORT_CONNECTED,
+	//	// Transport is closed.
+	//	DTLS_TRANSPORT_CLOSED,
+	//	// Failed due to some error in the handshake process.
+	//	DTLS_TRANSPORT_FAILED,
+	//};
+	return "NULL";
+}
+
+/* 
+	TODO@chensong 2023-04-05  网络数据从底层向上调用流程
+[rtc_base/async_udp_socket.cc]	   AsyncUDPSocket::OnReadEvent
+[p2p\client/basic_port_allocator.cc]	   AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]							UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]										UDPPort::OnReadPacket
+[p2p/base/port.cc]											Connection::OnReadPackets
+[p2p/base/p2p_transport_channel.cc]						P2PTransportChannel::OnReadPacket
+
+*/
 
 void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
                                  const char* data,
@@ -563,13 +611,13 @@ void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
   RTC_DCHECK_RUN_ON(&thread_checker_);
   RTC_DCHECK(transport == ice_transport_.get());
   RTC_DCHECK(flags == 0);
-
+  // TODO@chensong 2023-04-05  WebRTC中是否所有SRTP加密
   if (!dtls_active_) {
     // Not doing DTLS.
     SignalReadPacket(this, data, size, packet_time_us, 0);
     return;
   }
-
+  NORMAL_EX_LOG("[dtls state = %s]", get_dtls_state(dtls_state_));
   switch (dtls_state()) {
     case DTLS_TRANSPORT_NEW:
       if (dtls_) {
@@ -663,6 +711,7 @@ void DtlsTransport::OnDtlsEvent(rtc::StreamInterface* dtls, int sig, int err) {
   if (sig & rtc::SE_OPEN) {
     // This is the first time.
     RTC_LOG(LS_INFO) << ToString() << ": DTLS handshake complete.";
+	NORMAL_EX_LOG("[%s]: DTLS handshake complete.", ToString().c_str());
     if (dtls_->GetState() == rtc::SS_OPEN) {
       // The check for OPEN shouldn't be necessary but let's make
       // sure we don't accidentally frob the state if it's closed.
@@ -684,12 +733,14 @@ void DtlsTransport::OnDtlsEvent(rtc::StreamInterface* dtls, int sig, int err) {
       } else if (ret == rtc::SR_EOS) {
         // Remote peer shut down the association with no error.
         RTC_LOG(LS_INFO) << ToString() << ": DTLS transport closed";
+		NORMAL_EX_LOG("[%s]: DTLS transport closed", ToString().c_str());
         set_writable(false);
         set_dtls_state(DTLS_TRANSPORT_CLOSED);
       } else if (ret == rtc::SR_ERROR) {
         // Remote peer shut down the association with an error.
         RTC_LOG(LS_INFO) << ToString()
                          << ": DTLS transport error, code=" << read_error;
+		NORMAL_EX_LOG("[%s]: DTLS transport error, [code = %u]", ToString().c_str(), read_error);
         set_writable(false);
         set_dtls_state(DTLS_TRANSPORT_FAILED);
       }
@@ -700,9 +751,11 @@ void DtlsTransport::OnDtlsEvent(rtc::StreamInterface* dtls, int sig, int err) {
     set_writable(false);
     if (!err) {
       RTC_LOG(LS_INFO) << ToString() << ": DTLS transport closed";
+	  NORMAL_EX_LOG("[%s]: DTLS transport closed", ToString().c_str());
       set_dtls_state(DTLS_TRANSPORT_CLOSED);
     } else {
       RTC_LOG(LS_INFO) << ToString() << ": DTLS transport error, code=" << err;
+	  NORMAL_EX_LOG("[%s]: DTLS transport error, [code = %u]", ToString().c_str(), err);
       set_dtls_state(DTLS_TRANSPORT_FAILED);
     }
   }

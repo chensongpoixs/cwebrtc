@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -67,11 +67,10 @@ FrameBuffer::FrameBuffer(Clock* clock,
 
 FrameBuffer::~FrameBuffer() {}
 
-void FrameBuffer::NextFrame(
-    int64_t max_wait_time_ms,
-    bool keyframe_required,
-    rtc::TaskQueue* callback_queue,
-    std::function<void(std::unique_ptr<EncodedFrame>, ReturnReason)> handler) {
+// TODO@chensong 2023-04-05  解码视频网络数据包
+void FrameBuffer::NextFrame(int64_t max_wait_time_ms, bool keyframe_required, rtc::TaskQueue* callback_queue,
+    std::function<void(std::unique_ptr<EncodedFrame>, ReturnReason)> handler) 
+{
   RTC_DCHECK_RUN_ON(callback_queue);
   TRACE_EVENT0("webrtc", "FrameBuffer::NextFrame");
   int64_t latest_return_time_ms =
@@ -441,8 +440,9 @@ bool FrameBuffer::IsCompleteSuperFrame(const EncodedFrame& frame) {
 
   return true;
 }
-
-int64_t FrameBuffer::InsertFrame(std::unique_ptr<EncodedFrame> frame) {
+// TODO@chensong 2023-04-05  插入一帧视频
+int64_t FrameBuffer::InsertFrame(std::unique_ptr<EncodedFrame> frame) 
+{
   TRACE_EVENT0("webrtc", "FrameBuffer::InsertFrame");
   RTC_DCHECK(frame);
 
