@@ -278,17 +278,20 @@ void UDPPort::MaybePrepareStunCandidate() {
   }
 }
 
-Connection* UDPPort::CreateConnection(const Candidate& address,
-                                      CandidateOrigin origin) {
-  if (!SupportsProtocol(address.protocol())) {
+Connection* UDPPort::CreateConnection(const Candidate& address, CandidateOrigin origin) 
+{
+  if (!SupportsProtocol(address.protocol())) 
+  {
     return NULL;
   }
 
-  if (!IsCompatibleAddress(address.address())) {
+  if (!IsCompatibleAddress(address.address())) 
+  {
     return NULL;
   }
 
-  if (SharedSocket() && Candidates()[0].type() != LOCAL_PORT_TYPE) {
+  if (SharedSocket() && Candidates()[0].type() != LOCAL_PORT_TYPE) 
+  {
     RTC_NOTREACHED();
     return NULL;
   }

@@ -334,7 +334,8 @@ class Port : public PortInterface,
                                 int error_code,
                                 const std::string& reason) override;
 
-  void set_proxy(const std::string& user_agent, const rtc::ProxyInfo& proxy) {
+  void set_proxy(const std::string& user_agent, const rtc::ProxyInfo& proxy) 
+  {
     user_agent_ = user_agent;
     proxy_ = proxy;
   }
@@ -508,8 +509,7 @@ class Port : public PortInterface,
   int16_t network_cost_;
   State state_ = State::INIT;
   int64_t last_time_all_connections_removed_ = 0;
-  MdnsNameRegistrationStatus mdns_name_registration_status_ =
-      MdnsNameRegistrationStatus::kNotStarted;
+  MdnsNameRegistrationStatus mdns_name_registration_status_ = MdnsNameRegistrationStatus::kNotStarted;
 
   rtc::WeakPtrFactory<Port> weak_factory_;
 
