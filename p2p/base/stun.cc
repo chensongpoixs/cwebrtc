@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -158,7 +158,8 @@ const StunUInt64Attribute* StunMessage::GetUInt64(int type) const {
   return static_cast<const StunUInt64Attribute*>(GetAttribute(type));
 }
 
-const StunByteStringAttribute* StunMessage::GetByteString(int type) const {
+const StunByteStringAttribute* StunMessage::GetByteString(int type) const 
+{
   return static_cast<const StunByteStringAttribute*>(GetAttribute(type));
 }
 
@@ -179,34 +180,46 @@ const StunUInt16ListAttribute* StunMessage::GetUnknownAttributes() const {
 
 // Verifies a STUN message has a valid MESSAGE-INTEGRITY attribute, using the
 // procedure outlined in RFC 5389, section 15.4.
-bool StunMessage::ValidateMessageIntegrity(const char* data,
-                                           size_t size,
-                                           const std::string& password) {
+bool StunMessage::ValidateMessageIntegrity(const char* data, size_t size, const std::string& password) 
+{
+   // TODO@chensong 2023-04-07 stun MESSAGE-INTEGRITY 数据的长度24字节 ^_^
   // Verifying the size of the message.
-  if ((size % 4) != 0 || size < kStunHeaderSize) {
+  if ((size % 4) != 0 || size < kStunHeaderSize) 
+  {
     return false;
   }
 
   // Getting the message length from the STUN header.
+  // TODO@chensong 2023-04-07 数据的完整性验证 
+  /*
+   STUN Header 其中不包括魔法数的4个字节
+          1.  2个字节(16bit)类型
+          2.  2个字节(16bit)信息长度、不包括信息头
+          3.  16个字节(128bit)事务ID、请求与响应事务ID相同
+  */
   uint16_t msg_length = rtc::GetBE16(&data[2]);
-  if (size != (msg_length + kStunHeaderSize)) {
+  if (size != (msg_length + kStunHeaderSize)) 
+  {
     return false;
   }
 
   // Finding Message Integrity attribute in stun message.
   size_t current_pos = kStunHeaderSize;
   bool has_message_integrity_attr = false;
-  while (current_pos + 4 <= size) {
+  // TODO@chensong 2023-04-07 专门针对信息完整性的验证和TLV数据的长度验证
+  while (current_pos + 4 <= size) 
+  {
     uint16_t attr_type, attr_length;
     // Getting attribute type and length.
     attr_type = rtc::GetBE16(&data[current_pos]);
     attr_length = rtc::GetBE16(&data[current_pos + sizeof(attr_type)]);
 
     // If M-I, sanity check it, and break out.
-    if (attr_type == STUN_ATTR_MESSAGE_INTEGRITY) {
+    if (attr_type == STUN_ATTR_MESSAGE_INTEGRITY)
+	{
       if (attr_length != kStunMessageIntegritySize ||
-          current_pos + sizeof(attr_type) + sizeof(attr_length) + attr_length >
-              size) {
+          current_pos + sizeof(attr_type) + sizeof(attr_length) + attr_length > size) 
+	  {
         return false;
       }
       has_message_integrity_attr = true;
@@ -215,12 +228,14 @@ bool StunMessage::ValidateMessageIntegrity(const char* data,
 
     // Otherwise, skip to the next attribute.
     current_pos += sizeof(attr_type) + sizeof(attr_length) + attr_length;
-    if ((attr_length % 4) != 0) {
+    if ((attr_length % 4) != 0) 
+	{
       current_pos += (4 - (attr_length % 4));
     }
   }
 
-  if (!has_message_integrity_attr) {
+  if (!has_message_integrity_attr)
+  {
     return false;
   }
 
@@ -228,11 +243,11 @@ bool StunMessage::ValidateMessageIntegrity(const char* data,
   size_t mi_pos = current_pos;
   std::unique_ptr<char[]> temp_data(new char[current_pos]);
   memcpy(temp_data.get(), data, current_pos);
-  if (size > mi_pos + kStunAttributeHeaderSize + kStunMessageIntegritySize) {
+  if (size > mi_pos + kStunAttributeHeaderSize + kStunMessageIntegritySize)
+  {
     // Stun message has other attributes after message integrity.
     // Adjust the length parameter in stun message to calculate HMAC.
-    size_t extra_offset =
-        size - (mi_pos + kStunAttributeHeaderSize + kStunMessageIntegritySize);
+    size_t extra_offset = size - (mi_pos + kStunAttributeHeaderSize + kStunMessageIntegritySize);
     size_t new_adjusted_len = size - extra_offset - kStunHeaderSize;
 
     // Writing new length of the STUN message @ Message Length in temp buffer.
@@ -245,8 +260,7 @@ bool StunMessage::ValidateMessageIntegrity(const char* data,
   }
 
   char hmac[kStunMessageIntegritySize];
-  size_t ret =
-      rtc::ComputeHmac(rtc::DIGEST_SHA_1, password.c_str(), password.size(),
+  size_t ret = rtc::ComputeHmac(rtc::DIGEST_SHA_1, password.c_str(), password.size(),
                        temp_data.get(), mi_pos, hmac, sizeof(hmac));
   RTC_DCHECK(ret == sizeof(hmac));
   if (ret != sizeof(hmac))
@@ -294,11 +308,19 @@ bool StunMessage::AddMessageIntegrity(const char* key, size_t keylen) {
 // Verifies a message is in fact a STUN message, by performing the checks
 // outlined in RFC 5389, section 7.3, including the FINGERPRINT check detailed
 // in section 15.5.
+/*
+TODO@chensong 2023-04-07 
+stun 返回信息是否之前验证的三大标准
+
+1. 数据的大小验证
+2. 魔法数验证
+3. 指纹验证 (整个stun协议是否传输完整性)
+*/
 bool StunMessage::ValidateFingerprint(const char* data, size_t size) 
 {
   // Check the message length.
-  size_t fingerprint_attr_size = kStunAttributeHeaderSize + StunUInt32Attribute::SIZE;
-  if (size % 4 != 0 || size < kStunHeaderSize + fingerprint_attr_size)
+  size_t fingerprint_attr_size = kStunAttributeHeaderSize/*4*/ + StunUInt32Attribute::SIZE/*4*/;
+  if (size % 4 != 0 || size < kStunHeaderSize/*20*/ + fingerprint_attr_size)
   {
 	  return false;
   }
@@ -311,10 +333,11 @@ bool StunMessage::ValidateFingerprint(const char* data, size_t size)
   }
 
   // Check the fingerprint type and length.
+  // TODO@chensong 2023-04-07   stun message body 类型分别是 Type, Length, Value
+  // TODO@chensong 2023-04-07   中指纹验证 
   const char* fingerprint_attr_data = data + size - fingerprint_attr_size;
   if (rtc::GetBE16(fingerprint_attr_data) != STUN_ATTR_FINGERPRINT ||
-	  rtc::GetBE16(fingerprint_attr_data + sizeof(uint16_t)) !=
-	  StunUInt32Attribute::SIZE)
+	  rtc::GetBE16(fingerprint_attr_data + sizeof(uint16_t)) != StunUInt32Attribute::SIZE)
   {
 	  return false;
   }
@@ -346,26 +369,36 @@ bool StunMessage::AddFingerprint() {
   return true;
 }
 
-bool StunMessage::Read(ByteBufferReader* buf) {
-  if (!buf->ReadUInt16(&type_))
+bool StunMessage::Read(ByteBufferReader* buf) 
+{
+	if (!buf->ReadUInt16(&type_))
+	{
     return false;
-
-  if (type_ & 0x8000) {
+  }
+	// TODO@chensong 2023-04-07 stun 协议前面两个bit是'0' 
+  if (type_ & 0x8000) 
+  {
     // RTP and RTCP set the MSB of first byte, since first two bits are version,
     // and version is always 2 (10). If set, this is not a STUN packet.
     return false;
   }
-
+  // TODO@chensong 2023-04-07 stun 协议的长度(2字节)
   if (!buf->ReadUInt16(&length_))
+  {
     return false;
-
+  }
+  // TODO@chensong 2023-04-07 读取魔法数(4字节)
   std::string magic_cookie;//0x2112A442
   if (!buf->ReadString(&magic_cookie, kStunMagicCookieLength))
+  {
     return false;
-
-  std::string transaction_id; // 12bit
+  }
+  // TODO@chensong 2023-04-07 事务id(12字节)
+  std::string transaction_id; // 12字节
   if (!buf->ReadString(&transaction_id, kStunTransactionIdLength))
+  {
     return false;
+  }
 
   uint32_t magic_cookie_int;
   static_assert(sizeof(magic_cookie_int) == kStunMagicCookieLength,
@@ -379,35 +412,47 @@ bool StunMessage::Read(ByteBufferReader* buf) {
   RTC_DCHECK(IsValidTransactionId(transaction_id));
   transaction_id_ = transaction_id;
   reduced_transaction_id_ = ReduceTransactionId(transaction_id_);
-  /* printf(
-       "type_ = %u, magic_cookie = %s, transaction_id = %s, magic_cookie_int = "
-       "%u\n ",
-       type_, magic_cookie.c_str(), transaction_id.c_str(), magic_cookie_int);*/
+  // TODO@chensong 2023-04-07 stun协议中数据块的大小即[Type, Length, Value]
   if (length_ != buf->Length())
+  {
     return false;
+  }
 
   attrs_.resize(0);
 
   size_t rest = buf->Length() - length_;
-  while (buf->Length() > rest) {
+  while (buf->Length() > rest) 
+  {
     uint16_t attr_type, attr_length;
-    if (!buf->ReadUInt16(&attr_type))
+	if (!buf->ReadUInt16(&attr_type))
+	{
       return false;
-    if (!buf->ReadUInt16(&attr_length))
-      return false;
+	}
+	if (!buf->ReadUInt16(&attr_length))
+	{
+          return false;
+	}
 
-    std::unique_ptr<StunAttribute> attr(
-        CreateAttribute(attr_type, attr_length));
-    if (!attr) {
+    std::unique_ptr<StunAttribute> attr(CreateAttribute(attr_type, attr_length));
+    if (!attr) 
+	{
+		// TODO@chensong 2023-04-07 stun meesage 协议中有不需要读取的无用的数据
       // Skip any unknown or malformed attributes.
-      if ((attr_length % 4) != 0) {
+      if ((attr_length % 4) != 0)
+	  {
         attr_length += (4 - (attr_length % 4));
       }
-      if (!buf->Consume(attr_length))
+	  if (!buf->Consume(attr_length))
+	  {
         return false;
-    } else {
-      if (!attr->Read(buf))
+	  }
+    } 
+	else 
+	{
+		if (!attr->Read(buf))
+		{
         return false;
+	  }
       attrs_.push_back(std::move(attr));
     }
   }
@@ -475,23 +520,29 @@ StunAttributeValueType StunMessage::GetAttributeValueType(int type) const {
   }
 }
 
-StunAttribute* StunMessage::CreateAttribute(int type, size_t length) /*const*/ {
+StunAttribute* StunMessage::CreateAttribute(int type, size_t length) /*const*/ 
+{
   StunAttributeValueType value_type = GetAttributeValueType(type);
-  if (value_type != STUN_VALUE_UNKNOWN) {
-    return StunAttribute::Create(value_type, type,
-                                 static_cast<uint16_t>(length), this);
-  } else if (DesignatedExpertRange(type)) {
+  if (value_type != STUN_VALUE_UNKNOWN) 
+  {
+    return StunAttribute::Create(value_type, type, static_cast<uint16_t>(length), this);
+  } 
+  else if (DesignatedExpertRange(type))
+  {
     // Read unknown attributes as STUN_VALUE_BYTE_STRING
-    return StunAttribute::Create(STUN_VALUE_BYTE_STRING, type,
-                                 static_cast<uint16_t>(length), this);
-  } else {
+    return StunAttribute::Create(STUN_VALUE_BYTE_STRING, type, static_cast<uint16_t>(length), this);
+  } 
+  else 
+  {
     return NULL;
   }
 }
 
 const StunAttribute* StunMessage::GetAttribute(int type) const {
-  for (const auto& attr : attrs_) {
-    if (attr->type() == type) {
+  for (const auto& attr : attrs_) 
+  {
+    if (attr->type() == type) 
+	{
       return attr.get();
     }
   }

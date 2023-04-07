@@ -218,7 +218,20 @@ void P2PTransportChannel::AddAllocatorSession(
   PruneAllPorts();
 }
 
-void P2PTransportChannel::AddConnection(Connection* connection) {
+/*
+TODO@chensong 2023-04-07
+
+stun  验证调用流程
+[async_udp_socket.cc]         AsyncUDPSocket::OnReadEvent
+[p2p/client/basic_port_allocator.cc]       AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]      UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]      UDPPort::OnReadPacket
+[p2p/base/port.cc]                  Port::OnReadPacket
+[p2p/base/p2p_transport_channel]     P2PTransportChannel::OnUnknownAddress
+[p2p/base/p2p_transport_channel]         P2PTransportChannel::AddConnection
+*/
+void P2PTransportChannel::AddConnection(Connection* connection) 
+{
   connections_.push_back(connection);
   RTC_NORMAL_EX_LOG(
       "addConnection --> [%s]",
@@ -844,8 +857,7 @@ void P2PTransportChannel::OnPortReady(PortAllocatorSession* session,
   port->SetIceRole(ice_role_);
   port->SetIceTiebreaker(tiebreaker_);
   ports_.push_back(port);
-  port->SignalUnknownAddress.connect(this,
-                                     &P2PTransportChannel::OnUnknownAddress);
+  port->SignalUnknownAddress.connect(this, &P2PTransportChannel::OnUnknownAddress);
   port->SignalDestroyed.connect(this, &P2PTransportChannel::OnPortDestroyed);
 
   port->SignalRoleConflict.connect(this, &P2PTransportChannel::OnRoleConflict);
@@ -889,14 +901,23 @@ void P2PTransportChannel::OnCandidatesAllocationDone(
                    << ", component " << component() << " gathering complete";
   SignalGatheringState(this);
 }
+/*
+TODO@chensong 2023-04-07
 
+stun  验证调用流程
+[async_udp_socket.cc]         AsyncUDPSocket::OnReadEvent
+[p2p/client/basic_port_allocator.cc]       AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]      UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]      UDPPort::OnReadPacket
+[p2p/base/port.cc]                  Port::OnReadPacket
+[p2p/base/p2p_transport_channel]     P2PTransportChannel::OnUnknownAddress
+[p2p/base/p2p_transport_channel]         P2PTransportChannel::AddConnection
+*/
 // Handle stun packets
-void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
-                                           const rtc::SocketAddress& address,
-                                           ProtocolType proto,
-                                           IceMessage* stun_msg,
-                                           const std::string& remote_username,
-                                           bool port_muxed) {
+void P2PTransportChannel::OnUnknownAddress(PortInterface* port, const rtc::SocketAddress& address,
+                                           ProtocolType proto, IceMessage* stun_msg,
+                                           const std::string& remote_username, bool port_muxed)
+{
   RTC_DCHECK(network_thread_ == rtc::Thread::Current());
 
   // Port has received a valid stun packet from an address that no Connection
@@ -921,9 +942,11 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
   // could be the only way to have a connection, if the resolution never
   // completes or is significantly delayed.
   const Candidate* candidate = nullptr;
-  for (const Candidate& c : remote_candidates_) {
+  for (const Candidate& c : remote_candidates_)
+  {
     if (c.username() == remote_username && c.address() == address &&
-        c.protocol() == ProtoToString(proto)) {
+        c.protocol() == ProtoToString(proto))
+	{
       candidate = &c;
       break;
     }
@@ -934,23 +957,25 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
   // The STUN binding request may arrive after setRemoteDescription and before
   // adding remote candidate, so we need to set the password to the shared
   // password and set the generation if the user name matches.
-  const IceParameters* ice_param =
-      FindRemoteIceFromUfrag(remote_username, &remote_generation);
+  const IceParameters* ice_param = FindRemoteIceFromUfrag(remote_username, &remote_generation);
   // Note: if not found, the remote_generation will still be 0.
-  if (ice_param != nullptr) {
+  if (ice_param != nullptr) 
+  {
     remote_password = ice_param->pwd;
   }
 
   Candidate remote_candidate;
   bool remote_candidate_is_new = (candidate == nullptr);
-  if (!remote_candidate_is_new) {
+  if (!remote_candidate_is_new) 
+  {
     remote_candidate = *candidate;
-  } else {
+  } 
+  else 
+  {
     // Create a new candidate with this address.
     // The priority of the candidate is set to the PRIORITY attribute
     // from the request.
-    const StunUInt32Attribute* priority_attr =
-        stun_msg->GetUInt32(STUN_ATTR_PRIORITY);
+    const StunUInt32Attribute* priority_attr = stun_msg->GetUInt32(STUN_ATTR_PRIORITY);
     if (!priority_attr) {
       RTC_LOG(LS_WARNING) << "P2PTransportChannel::OnUnknownAddress - "
                              "No STUN_ATTR_PRIORITY found in the "
@@ -963,9 +988,9 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
 
     uint16_t network_id = 0;
     uint16_t network_cost = 0;
-    const StunUInt32Attribute* network_attr =
-        stun_msg->GetUInt32(STUN_ATTR_NETWORK_INFO);
-    if (network_attr) {
+    const StunUInt32Attribute* network_attr = stun_msg->GetUInt32(STUN_ATTR_NETWORK_INFO);
+    if (network_attr)
+	{
       uint32_t network_info = network_attr->value();
       network_id = static_cast<uint16_t>(network_info >> 16);
       network_cost = static_cast<uint16_t>(network_info);
@@ -996,23 +1021,26 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
   // When ports are muxed, this channel might get multiple unknown address
   // signals. In that case if the connection is already exists, we should
   // simply ignore the signal otherwise send server error.
-  if (port->GetConnection(remote_candidate.address())) {
-    if (port_muxed) {
+  if (port->GetConnection(remote_candidate.address())) 
+  {
+    if (port_muxed) 
+	{
       RTC_LOG(LS_INFO) << "Connection already exists for peer reflexive "
                           "candidate: "
                        << remote_candidate.ToString();
       return;
-    } else {
+    }
+	else 
+	{
       RTC_NOTREACHED();
-      port->SendBindingErrorResponse(stun_msg, address, STUN_ERROR_SERVER_ERROR,
-                                     STUN_ERROR_REASON_SERVER_ERROR);
+      port->SendBindingErrorResponse(stun_msg, address, STUN_ERROR_SERVER_ERROR, STUN_ERROR_REASON_SERVER_ERROR);
       return;
     }
   }
 
-  Connection* connection =
-      port->CreateConnection(remote_candidate, PortInterface::ORIGIN_THIS_PORT);
-  if (!connection) {
+  Connection* connection = port->CreateConnection(remote_candidate, PortInterface::ORIGIN_THIS_PORT);
+  if (!connection) 
+  {
     // This could happen in some scenarios. For example, a TurnPort may have
     // had a refresh request timeout, so it won't create connections.
     port->SendBindingErrorResponse(stun_msg, address, STUN_ERROR_SERVER_ERROR,
@@ -1030,8 +1058,7 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
   // Update the list of connections since we just added another.  We do this
   // after sending the response since it could (in principle) delete the
   // connection in question.
-  SortConnectionsAndUpdateState(
-      "a new candidate pair created from an unknown remote address");
+  SortConnectionsAndUpdateState("a new candidate pair created from an unknown remote address");
 }
 
 void P2PTransportChannel::OnRoleConflict(PortInterface* port) {
@@ -2074,23 +2101,23 @@ void P2PTransportChannel::CheckAndPing() {
 
   static int64_t cur_ms = rtc::TimeMillis();
   cur_ms = rtc::TimeMillis();
- // RTC_LOG(LS_INFO) << "ping stun last_ping_sent_ms_ == "
-   /*                << cur_ms - last_ping_sent_ms_
+  RTC_LOG(LS_INFO) << "ping stun last_ping_sent_ms_ == "
+                    << cur_ms - last_ping_sent_ms_
                    << "--> delay = " << cur_ms - pre_ms
-                   << ", ping_interval = " << ping_interval;*/
+                   << ", ping_interval = " << ping_interval; 
   pre_ms = cur_ms;
   if (rtc::TimeMillis() >= last_ping_sent_ms_ + ping_interval) {
     Connection* conn = FindNextPingableConnection();
     if (conn) {
-     // RTC_LOG(LS_INFO) << "======>>>>>>>>>>>>>>>>>>>>>>";
+       RTC_LOG(LS_INFO) << "======>>>>>>>>>>>>>>>>>>>>>>";
       PingConnection(conn);
       MarkConnectionPinged(conn);
-    //  RTC_LOG(LS_INFO) << "ping ---> server ms = "
-     //                  << rtc::TimeMillis() - cur_ms;
+      RTC_LOG(LS_INFO) << "ping ---> server ms = "
+                       << rtc::TimeMillis() - cur_ms;
     } 
 	else
 	{
-     // RTC_LOG(LS_INFO) << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>+++";
+       RTC_LOG(LS_INFO) << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>+++";
 	}
   }
 
@@ -2192,7 +2219,8 @@ int P2PTransportChannel::CalculateActiveWritablePingInterval(const Connection* c
 }
 
 // Returns the next pingable connection to ping.
-Connection* P2PTransportChannel::FindNextPingableConnection() {
+Connection* P2PTransportChannel::FindNextPingableConnection() 
+{
   int64_t now = rtc::TimeMillis();
 
   // Rule 1: Selected connection takes priority over non-selected ones.

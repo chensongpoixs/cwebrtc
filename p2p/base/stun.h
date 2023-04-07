@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -42,7 +42,7 @@ enum StunMessageType {
 enum StunAttributeType {
   STUN_ATTR_MAPPED_ADDRESS = 0x0001,      // Address
   STUN_ATTR_USERNAME = 0x0006,            // ByteString
-  STUN_ATTR_MESSAGE_INTEGRITY = 0x0008,   // ByteString, 20 bytes
+  STUN_ATTR_MESSAGE_INTEGRITY = 0x0008,   // ByteString, 20 bytes // TODO@chensong 2023-04-07 有点懵逼了~~~ 和下面的指纹验证不是有点冲突了吗？？？
   STUN_ATTR_ERROR_CODE = 0x0009,          // ErrorCode
   STUN_ATTR_UNKNOWN_ATTRIBUTES = 0x000a,  // UInt16List
   STUN_ATTR_REALM = 0x0014,               // ByteString
@@ -50,7 +50,7 @@ enum StunAttributeType {
   STUN_ATTR_XOR_MAPPED_ADDRESS = 0x0020,  // XorAddress
   STUN_ATTR_SOFTWARE = 0x8022,            // ByteString
   STUN_ATTR_ALTERNATE_SERVER = 0x8023,    // Address
-  STUN_ATTR_FINGERPRINT = 0x8028,         // UInt32
+  STUN_ATTR_FINGERPRINT = 0x8028,         // UInt32    //TODO@chensong 2023-04-07 指纹验证？？？
   STUN_ATTR_ORIGIN = 0x802F,              // ByteString
   STUN_ATTR_RETRANSMIT_COUNT = 0xFF00     // UInt32
 };

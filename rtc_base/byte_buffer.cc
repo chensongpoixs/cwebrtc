@@ -69,13 +69,18 @@ bool ByteBufferReader::ReadUInt8(uint8_t* val) {
 }
 
 bool ByteBufferReader::ReadUInt16(uint16_t* val) {
-  if (!val)
+	if (!val)
+	{
     return false;
+  }
 
   uint16_t v;
-  if (!ReadBytes(reinterpret_cast<char*>(&v), 2)) {
+  if (!ReadBytes(reinterpret_cast<char*>(&v), 2)) 
+  {
     return false;
-  } else {
+  } 
+  else 
+  {
     *val = (Order() == ORDER_NETWORK) ? NetworkToHost16(v) : v;
     return true;
   }
@@ -161,19 +166,26 @@ bool ByteBufferReader::ReadString(std::string* val, size_t len) {
   }
 }
 
-bool ByteBufferReader::ReadBytes(char* val, size_t len) {
-  if (len > Length()) {
+bool ByteBufferReader::ReadBytes(char* val, size_t len) 
+{
+  if (len > Length())
+  {
     return false;
-  } else {
+  }
+  else 
+  {
     memcpy(val, bytes_ + start_, len);
     start_ += len;
     return true;
   }
 }
 
-bool ByteBufferReader::Consume(size_t size) {
+bool ByteBufferReader::Consume(size_t size) 
+{
   if (size > Length())
+  {
     return false;
+  }
   start_ += size;
   return true;
 }

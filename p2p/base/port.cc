@@ -492,12 +492,13 @@ void Port::PostAddAddress(bool is_final) {
   }
 }
 
-void Port::AddOrReplaceConnection(Connection* conn) {
-  auto ret = connections_.insert(
-      std::make_pair(conn->remote_candidate().address(), conn));
+void Port::AddOrReplaceConnection(Connection* conn)
+{
+  auto ret = connections_.insert(std::make_pair(conn->remote_candidate().address(), conn));
   // If there is a different connection on the same remote address, replace
   // it with the new one and destroy the old one.
-  if (ret.second == false && ret.first->second != conn) {
+  if (ret.second == false && ret.first->second != conn) 
+  {
     RTC_LOG(LS_WARNING)
         << ToString()
         << ": A new connection was created on an existing remote address. "
@@ -514,13 +515,23 @@ void Port::AddOrReplaceConnection(Connection* conn) {
   conn->SignalDestroyed.connect(this, &Port::OnConnectionDestroyed);
   SignalConnectionCreated(this, conn);
 }
+/*
+TODO@chensong 2023-04-07
 
-void Port::OnReadPacket(const char* data,
-                        size_t size,
-                        const rtc::SocketAddress& addr,
-                        ProtocolType proto) {
+stun  验证调用流程
+[async_udp_socket.cc]         AsyncUDPSocket::OnReadEvent
+[p2p/client/basic_port_allocator.cc]       AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]      UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]      UDPPort::OnReadPacket
+[p2p/base/port.cc]                  Port::OnReadPacket
+[p2p/base/p2p_transport_channel]     P2PTransportChannel::OnUnknownAddress
+[p2p/base/p2p_transport_channel]         P2PTransportChannel::AddConnection
+*/
+void Port::OnReadPacket(const char* data, size_t size, const rtc::SocketAddress& addr, ProtocolType proto) 
+{
   // If the user has enabled port packets, just hand this over.
-  if (enable_port_packets_) {
+  if (enable_port_packets_) 
+  {
     SignalReadPacket(this, data, size, addr);
     return;
   }
@@ -529,31 +540,42 @@ void Port::OnReadPacket(const char* data,
   // send back a proper binding response.
   std::unique_ptr<IceMessage> msg;
   std::string remote_username;
-  if (!GetStunMessage(data, size, addr, &msg, &remote_username)) {
+
+  if (!GetStunMessage(data, size, addr, &msg, &remote_username)) 
+  {
     RTC_LOG(LS_ERROR) << ToString()
                       << ": Received non-STUN packet from unknown address: "
                       << addr.ToSensitiveString();
-  } else if (!msg) {
+  } 
+  else if (!msg) 
+  {
     // STUN message handled already
-  } else if (msg->type() == STUN_BINDING_REQUEST) {
+  }
+  else if (msg->type() == STUN_BINDING_REQUEST) 
+  {
     RTC_LOG(LS_INFO) << "Received STUN ping id="
                      << rtc::hex_encode(msg->transaction_id())
                      << " from unknown address " << addr.ToSensitiveString();
     // We need to signal an unknown address before we handle any role conflict
     // below. Otherwise there would be no candidate pair and TURN entry created
     // to send the error response in case of a role conflict.
+	// TODO@chensong 2023-04-07 stun协议请求返回数据解析分析接口
     SignalUnknownAddress(this, addr, proto, msg.get(), remote_username, false);
     // Check for role conflicts.
-    if (!MaybeIceRoleConflict(addr, msg.get(), remote_username)) {
+    if (!MaybeIceRoleConflict(addr, msg.get(), remote_username)) 
+	{
       RTC_LOG(LS_INFO) << "Received conflicting role from the peer.";
       return;
     }
-  } else {
+  }
+  else 
+  {
     // NOTE(tschmelcher): STUN_BINDING_RESPONSE is benign. It occurs if we
     // pruned a connection for this port while it had STUN requests in flight,
     // because we then get back responses for them, which this code correctly
     // does not handle.
-    if (msg->type() != STUN_BINDING_RESPONSE) {
+    if (msg->type() != STUN_BINDING_RESPONSE) 
+	{
       RTC_LOG(LS_ERROR) << ToString()
                         << ": Received unexpected STUN message type: "
                         << msg->type() << " from unknown address: "
@@ -574,11 +596,9 @@ size_t Port::AddPrflxCandidate(const Candidate& local) {
   return (candidates_.size() - 1);
 }
 
-bool Port::GetStunMessage(const char* data,
-                          size_t size,
-                          const rtc::SocketAddress& addr,
-                          std::unique_ptr<IceMessage>* out_msg,
-                          std::string* out_username) {
+bool Port::GetStunMessage(const char* data, size_t size, const rtc::SocketAddress& addr, 
+	std::unique_ptr<IceMessage>* out_msg, std::string* out_username) 
+{
   // NOTE: This could clearly be optimized to avoid allocating any memory.
   //       However, at the data rates we'll be looking at on the client side,
   //       this probably isn't worth worrying about.
@@ -588,6 +608,7 @@ bool Port::GetStunMessage(const char* data,
 
   // Don't bother parsing the packet if we can tell it's not STUN.
   // In ICE mode, all STUN packets will have a valid fingerprint.
+  // TODO@chensong 2023-04-07 验证是否stun协议
   if (!StunMessage::ValidateFingerprint(data, size)) 
   {
     return false;
@@ -597,17 +618,24 @@ bool Port::GetStunMessage(const char* data,
   // STUN message, then ignore it.
   std::unique_ptr<IceMessage> stun_msg(new IceMessage());
   rtc::ByteBufferReader buf(data, size);
+  // TODO@chensong 2023-04-07 解析stun协议数据的格式
   if (!stun_msg->Read(&buf) || (buf.Length() > 0)) 
   {
     return false;
   }
-
+  /* TODO@chensong 2023-04-07 
+		一、stun协议请求数据处理
+			1. 判断是否有用户名或者信息完整性判断的TLV(Type, Length, Value)
+			2. 获取本地和远端的用户名用于验证
+			3. stun 协议数据完整性判断 和获取密码
+  */
   if (stun_msg->type() == STUN_BINDING_REQUEST) 
   {
     // Check for the presence of USERNAME and MESSAGE-INTEGRITY (if ICE) first.
     // If not present, fail with a 400 Bad Request.
-    if (!stun_msg->GetByteString(STUN_ATTR_USERNAME) ||
-        !stun_msg->GetByteString(STUN_ATTR_MESSAGE_INTEGRITY)) {
+	// TODO@chensong 2023-04-07 stun协议请求返回的数据中是否有用户名或者 信息完整性的验证
+    if (!stun_msg->GetByteString(STUN_ATTR_USERNAME) || !stun_msg->GetByteString(STUN_ATTR_MESSAGE_INTEGRITY)) 
+	{
       RTC_LOG(LS_ERROR) << ToString()
                         << ": Received STUN request without username/M-I from: "
                         << addr.ToSensitiveString();
@@ -620,7 +648,8 @@ bool Port::GetStunMessage(const char* data,
     std::string local_ufrag;
     std::string remote_ufrag;
     if (!ParseStunUsername(stun_msg.get(), &local_ufrag, &remote_ufrag) ||
-        local_ufrag != username_fragment()) {
+        local_ufrag != username_fragment()) 
+	{
       RTC_LOG(LS_ERROR) << ToString()
                         << ": Received STUN request with bad local username "
                         << local_ufrag << " from " << addr.ToSensitiveString();
@@ -630,7 +659,9 @@ bool Port::GetStunMessage(const char* data,
     }
 
     // If ICE, and the MESSAGE-INTEGRITY is bad, fail with a 401 Unauthorized
-    if (!stun_msg->ValidateMessageIntegrity(data, size, password_)) {
+	// TODO@chensong 2023-04-07 stun协议数据的完整性验证 还有拿到密码
+    if (!stun_msg->ValidateMessageIntegrity(data, size, password_)) 
+	{
       RTC_LOG(LS_ERROR) << ToString()
                         << ": Received STUN request with bad M-I from "
                         << addr.ToSensitiveString()
@@ -640,10 +671,14 @@ bool Port::GetStunMessage(const char* data,
       return true;
     }
     out_username->assign(remote_ufrag);
-  } else if ((stun_msg->type() == STUN_BINDING_RESPONSE) ||
-             (stun_msg->type() == STUN_BINDING_ERROR_RESPONSE)) {
-    if (stun_msg->type() == STUN_BINDING_ERROR_RESPONSE) {
-      if (const StunErrorCodeAttribute* error_code = stun_msg->GetErrorCode()) {
+  } 
+  else if ((stun_msg->type() == STUN_BINDING_RESPONSE) ||
+             (stun_msg->type() == STUN_BINDING_ERROR_RESPONSE)) 
+  {
+    if (stun_msg->type() == STUN_BINDING_ERROR_RESPONSE) 
+	{
+      if (const StunErrorCodeAttribute* error_code = stun_msg->GetErrorCode()) 
+	  {
         RTC_LOG(LS_ERROR) << ToString()
                           << ": Received STUN binding error: class="
                           << error_code->eclass()
@@ -651,7 +686,9 @@ bool Port::GetStunMessage(const char* data,
                           << error_code->reason() << "' from "
                           << addr.ToSensitiveString();
         // Return message to allow error-specific processing
-      } else {
+      } 
+	  else 
+	  {
         RTC_LOG(LS_ERROR)
             << ToString()
             << ": Received STUN binding error without a error code from "
@@ -661,14 +698,18 @@ bool Port::GetStunMessage(const char* data,
     }
     // NOTE: Username should not be used in verifying response messages.
     out_username->clear();
-  } else if (stun_msg->type() == STUN_BINDING_INDICATION) {
+  } 
+  else if (stun_msg->type() == STUN_BINDING_INDICATION) 
+  {
     RTC_LOG(LS_VERBOSE) << ToString()
                         << ": Received STUN binding indication: from "
                         << addr.ToSensitiveString();
     out_username->clear();
     // No stun attributes will be verified, if it's stun indication message.
     // Returning from end of the this method.
-  } else {
+  } 
+  else 
+  {
     RTC_LOG(LS_ERROR) << ToString()
                       << ": Received STUN packet with invalid type ("
                       << stun_msg->type() << ") from "
@@ -744,9 +785,7 @@ bool Port::MaybeIceRoleConflict(const rtc::SocketAddress& addr, IceMessage* stun
   // tie breaker value received in the ping message matches port
   // tiebreaker value this must be a loopback call.
   // We will treat this as valid scenario.
-  if (remote_ice_role == ICEROLE_CONTROLLING &&
-      username_fragment() == remote_ufrag &&
-      remote_tiebreaker == IceTiebreaker()) 
+  if (remote_ice_role == ICEROLE_CONTROLLING && username_fragment() == remote_ufrag && remote_tiebreaker == IceTiebreaker()) 
   {
     return true;
   }
