@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -1572,10 +1572,20 @@ void AllocationSequence::CreateTurnPort(const RelayServerConfig& config) {
     session_->AddAllocatedPort(port.release(), this, true);
   }
 }
+/*
+TODO@chensong 2023-04-07
 
+stun  验证调用流程
+[async_udp_socket.cc]         AsyncUDPSocket::OnReadEvent
+[p2p/client/basic_port_allocator.cc]       AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]      UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]      UDPPort::OnReadPacket
+[p2p/base/port.cc]                  Port::OnReadPacket
+[p2p/base/p2p_transport_channel]     P2PTransportChannel::OnUnknownAddress
+[p2p/base/p2p_transport_channel]         P2PTransportChannel::AddConnection
+*/
 void AllocationSequence::OnReadPacket(rtc::AsyncPacketSocket* socket,
-                                      const char* data,
-                                      size_t size,
+                                      const char* data, size_t size,
                                       const rtc::SocketAddress& remote_addr,
                                       const int64_t& packet_time_us) {
   RTC_DCHECK(socket == udp_socket_.get());
@@ -1588,23 +1598,25 @@ void AllocationSequence::OnReadPacket(rtc::AsyncPacketSocket* socket,
   // a STUN binding response, so we pass the message to TurnPort regardless of
   // the message type. The TurnPort will just ignore the message since it will
   // not find any request by transaction ID.
-  for (auto* port : relay_ports_) {
-    if (port->CanHandleIncomingPacketsFrom(remote_addr)) {
-      if (port->HandleIncomingPacket(socket, data, size, remote_addr,
-                                     packet_time_us)) {
+  for (auto* port : relay_ports_)
+  {
+    if (port->CanHandleIncomingPacketsFrom(remote_addr)) 
+	{
+      if (port->HandleIncomingPacket(socket, data, size, remote_addr, packet_time_us))
+	  {
         return;
       }
       turn_port_found = true;
     }
   }
 
-  if (udp_port_) {
+  if (udp_port_) 
+  {
     const ServerAddresses& stun_servers = udp_port_->server_addresses();
 
     // Pass the packet to the UdpPort if there is no matching TurnPort, or if
     // the TURN server is also a STUN server.
-    if (!turn_port_found ||
-        stun_servers.find(remote_addr) != stun_servers.end()) 
+    if (!turn_port_found || stun_servers.find(remote_addr) != stun_servers.end()) 
 	{
       RTC_DCHECK(udp_port_->SharedSocket());
      

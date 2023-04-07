@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -349,12 +349,23 @@ int UDPPort::GetOption(rtc::Socket::Option opt, int* value) {
 int UDPPort::GetError() {
   return error_;
 }
+/*
+TODO@chensong 2023-04-07
 
+stun  验证调用流程
+[async_udp_socket.cc]         AsyncUDPSocket::OnReadEvent
+[p2p/client/basic_port_allocator.cc]       AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]      UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]      UDPPort::OnReadPacket
+[p2p/base/port.cc]                  Port::OnReadPacket
+[p2p/base/p2p_transport_channel]     P2PTransportChannel::OnUnknownAddress
+[p2p/base/p2p_transport_channel]         P2PTransportChannel::AddConnection
+*/
 bool UDPPort::HandleIncomingPacket(rtc::AsyncPacketSocket* socket,
-                                   const char* data,
-                                   size_t size,
+                                   const char* data, size_t size,
                                    const rtc::SocketAddress& remote_addr,
-                                   int64_t packet_time_us) {
+                                   int64_t packet_time_us) 
+{
   // All packets given to UDP port will be consumed.
   OnReadPacket(socket, data, size, remote_addr, packet_time_us);
   return true;
@@ -396,12 +407,23 @@ void UDPPort::OnLocalAddressReady(rtc::AsyncPacketSocket* socket,
 void UDPPort::PostAddAddress(bool is_final) {
   MaybeSetPortCompleteOrError();
 }
+/*
+TODO@chensong 2023-04-07
 
+stun  验证调用流程
+[async_udp_socket.cc]         AsyncUDPSocket::OnReadEvent
+[p2p/client/basic_port_allocator.cc]       AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]      UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]      UDPPort::OnReadPacket
+[p2p/base/port.cc]                  Port::OnReadPacket
+[p2p/base/p2p_transport_channel]     P2PTransportChannel::OnUnknownAddress
+[p2p/base/p2p_transport_channel]         P2PTransportChannel::AddConnection
+*/
 void UDPPort::OnReadPacket(rtc::AsyncPacketSocket* socket,
-                           const char* data,
-                           size_t size,
+                           const char* data, size_t size,
                            const rtc::SocketAddress& remote_addr,
-                           const int64_t& packet_time_us) {
+                           const int64_t& packet_time_us) 
+{
   RTC_DCHECK(socket == socket_);
   RTC_DCHECK(!remote_addr.IsUnresolvedIP());
 
@@ -409,14 +431,18 @@ void UDPPort::OnReadPacket(rtc::AsyncPacketSocket* socket,
   // Even if the response doesn't match one of our outstanding requests, we
   // will eat it because it might be a response to a retransmitted packet, and
   // we already cleared the request when we got the first response.
-  if (server_addresses_.find(remote_addr) != server_addresses_.end()) {
+  if (server_addresses_.find(remote_addr) != server_addresses_.end())
+  {
     requests_.CheckResponse(data, size);
     return;
   }
 
-  if (Connection* conn = GetConnection(remote_addr)) {
+  if (Connection* conn = GetConnection(remote_addr)) 
+  {
     conn->OnReadPacket(data, size, packet_time_us);
-  } else {
+  }
+  else 
+  {
     Port::OnReadPacket(data, size, remote_addr, PROTO_UDP);
   }
 }

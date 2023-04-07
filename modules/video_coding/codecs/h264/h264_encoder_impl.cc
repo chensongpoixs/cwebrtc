@@ -425,39 +425,39 @@ int32_t H264EncoderImpl::SetRateAllocation(
 
   return WEBRTC_VIDEO_CODEC_OK;
 }
-
- static const char* get_video_frame_type(EVideoFrameType type) {
- switch (type) {
-   case videoFrameTypeInvalid: {
-     return "videoFrameTypeInvalid";
-     break;
-   }
-   case videoFrameTypeIDR: {
-     return "videoFrameTypeIDR";
-     break;
-   }
-   case videoFrameTypeI: {
-     return "videoFrameTypeI";
-     break;
-   }
-   case videoFrameTypeP: {
-     return "videoFrameTypeP";
-     break;
-   }
-   case videoFrameTypeSkip: {
-     return "videoFrameTypeSkip";
-     break;
-   }
-   case videoFrameTypeIPMixed: {
-     return "videoFrameTypeIPMixed";
-     break;
-   }
-   default:
-     return "videoFrameTypeUNKNOWN";
-     break;
- }
- return "videoFrameTypeUNKNOWN";
-}
+//
+// static const char* get_video_frame_type(EVideoFrameType type) {
+// switch (type) {
+//   case videoFrameTypeInvalid: {
+//     return "videoFrameTypeInvalid";
+//     break;
+//   }
+//   case videoFrameTypeIDR: {
+//     return "videoFrameTypeIDR";
+//     break;
+//   }
+//   case videoFrameTypeI: {
+//     return "videoFrameTypeI";
+//     break;
+//   }
+//   case videoFrameTypeP: {
+//     return "videoFrameTypeP";
+//     break;
+//   }
+//   case videoFrameTypeSkip: {
+//     return "videoFrameTypeSkip";
+//     break;
+//   }
+//   case videoFrameTypeIPMixed: {
+//     return "videoFrameTypeIPMixed";
+//     break;
+//   }
+//   default:
+//     return "videoFrameTypeUNKNOWN";
+//     break;
+// }
+// return "videoFrameTypeUNKNOWN";
+//}
 
 int32_t H264EncoderImpl::Encode(const VideoFrame& input_frame, const std::vector<VideoFrameType>* frame_types) 
 {
@@ -612,14 +612,14 @@ int32_t H264EncoderImpl::Encode(const VideoFrame& input_frame, const std::vector
 
 
 	  //get_video_frame_type#define FRAMETYPE(FrameType) (#FrameType)
-       RTC_LOG(LS_INFO) << "[" << __FUNCTION__ << "][" << __LINE__
+     /*  RTC_LOG(LS_INFO) << "[" << __FUNCTION__ << "][" << __LINE__
                         << "] [FrameType = "
                         << get_video_frame_type(info.eFrameType)
                         << "][encoded_images_["<<i<<"].size() ="
                         << encoded_images_[i].size() << "]";
       RTC_NORMAL_EX_LOG("[FrameType = %s][encoded_images_[%u].size() = %u]",
                          get_video_frame_type(info.eFrameType),
-                       i,   encoded_images_[i].size());
+                       i,   encoded_images_[i].size());*/
       codec_specific.codecSpecific.H264.base_layer_sync = false;
       if (num_temporal_layers_ > 1) 
       {

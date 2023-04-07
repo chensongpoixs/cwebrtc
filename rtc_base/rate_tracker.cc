@@ -107,7 +107,8 @@ size_t RateTracker::TotalSampleCount() const {
   return total_sample_count_;
 }
 
-void RateTracker::AddSamples(size_t sample_count) {
+void RateTracker::AddSamples(size_t sample_count) 
+{
   EnsureInitialized();
   int64_t current_time = Time();
   // Advance the current bucket as needed for the current time, and reset

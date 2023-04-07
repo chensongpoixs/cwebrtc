@@ -244,21 +244,16 @@ void P2PTransportChannel::AddConnection(Connection* connection)
   connection->set_unwritable_timeout(config_.ice_unwritable_timeout);
   connection->set_unwritable_min_checks(config_.ice_unwritable_min_checks);
   connection->set_inactive_timeout(config_.ice_inactive_timeout);
-  connection->SignalReadPacket.connect(this,
-                                       &P2PTransportChannel::OnReadPacket);
-  connection->SignalReadyToSend.connect(this,
-                                        &P2PTransportChannel::OnReadyToSend);
-  connection->SignalStateChange.connect(
-      this, &P2PTransportChannel::OnConnectionStateChange);
-  connection->SignalDestroyed.connect(
-      this, &P2PTransportChannel::OnConnectionDestroyed);
+  connection->SignalReadPacket.connect(this, &P2PTransportChannel::OnReadPacket);
+  connection->SignalReadyToSend.connect(this, &P2PTransportChannel::OnReadyToSend);
+  connection->SignalStateChange.connect(this, &P2PTransportChannel::OnConnectionStateChange);
+  connection->SignalDestroyed.connect(this, &P2PTransportChannel::OnConnectionDestroyed);
   connection->SignalNominated.connect(this, &P2PTransportChannel::OnNominated);
 
   had_connection_ = true;
 
   connection->set_ice_event_log(&ice_event_log_);
-  LogCandidatePairConfig(connection,
-                         webrtc::IceCandidatePairConfigType::kAdded);
+  LogCandidatePairConfig(connection, webrtc::IceCandidatePairConfigType::kAdded);
 }
 
 // Determines whether we should switch the selected connection to
@@ -385,7 +380,8 @@ int P2PTransportChannel::component() const {
   return component_;
 }
 
-bool P2PTransportChannel::writable() const {
+bool P2PTransportChannel::writable() const 
+{
   return writable_;
 }
 
@@ -1037,7 +1033,7 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port, const rtc::Socke
       return;
     }
   }
-
+  // TODO@chensong 2023-04-07  创建一个连接管理进行stun/rtp/rtcp
   Connection* connection = port->CreateConnection(remote_candidate, PortInterface::ORIGIN_THIS_PORT);
   if (!connection) 
   {
@@ -2101,23 +2097,24 @@ void P2PTransportChannel::CheckAndPing() {
 
   static int64_t cur_ms = rtc::TimeMillis();
   cur_ms = rtc::TimeMillis();
-  RTC_LOG(LS_INFO) << "ping stun last_ping_sent_ms_ == "
+  /*RTC_LOG(LS_INFO) << "ping stun last_ping_sent_ms_ == "
                     << cur_ms - last_ping_sent_ms_
                    << "--> delay = " << cur_ms - pre_ms
-                   << ", ping_interval = " << ping_interval; 
+                   << ", ping_interval = " << ping_interval; */
   pre_ms = cur_ms;
-  if (rtc::TimeMillis() >= last_ping_sent_ms_ + ping_interval) {
+  if (rtc::TimeMillis() >= last_ping_sent_ms_ + ping_interval) 
+  {
     Connection* conn = FindNextPingableConnection();
     if (conn) {
-       RTC_LOG(LS_INFO) << "======>>>>>>>>>>>>>>>>>>>>>>";
+      // RTC_LOG(LS_INFO) << "======>>>>>>>>>>>>>>>>>>>>>>";
       PingConnection(conn);
       MarkConnectionPinged(conn);
-      RTC_LOG(LS_INFO) << "ping ---> server ms = "
-                       << rtc::TimeMillis() - cur_ms;
+     // RTC_LOG(LS_INFO) << "ping ---> server ms = "
+      //                 << rtc::TimeMillis() - cur_ms;
     } 
 	else
 	{
-       RTC_LOG(LS_INFO) << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>+++";
+      // RTC_LOG(LS_INFO) << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>+++";
 	}
   }
 
@@ -2262,7 +2259,8 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
   // Rule 3: Triggered checks have priority over non-triggered connections.
   // Rule 3.1: Among triggered checks, oldest takes precedence.
   Connection* oldest_triggered_check = FindOldestConnectionNeedingTriggeredCheck(now);
-  if (oldest_triggered_check) {
+  if (oldest_triggered_check) 
+  {
     return oldest_triggered_check;
   }
 
@@ -2272,19 +2270,47 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
   // Otherwise, treat everything as unpinged.
   // TODO(honghaiz): Instead of adding two separate vectors, we can add a state
   // "pinged" to filter out unpinged connections.
-  if (absl::c_none_of(unpinged_connections_, [this, now](Connection* conn) {
+  if (absl::c_none_of(unpinged_connections_, [this, now](Connection* conn) 
+  {
         return this->IsPingable(conn, now);
       }))
   {
-    unpinged_connections_.insert(pinged_connections_.begin(),
-                                 pinged_connections_.end());
+    unpinged_connections_.insert(pinged_connections_.begin(), pinged_connections_.end());
     pinged_connections_.clear();
   }
-
-  // Among un-pinged pingable connections, "more pingable" takes precedence.
+  /*std::ostringstream cmd;
+  for (size_t i = 0; i <  connections_.size(); ++i)
+  {
+    cmd << "[i " << i << "][" << connections_[i]->ToString() <<"]\n";
+  }
+  std::ostringstream uncmd;
+  for (  Connection*  contest: unpinged_connections_) 
+  {
+    uncmd << " [" << contest->ToString()
+          << "]\n";
+  }
+  RTC_LOG(LS_INFO) << "pre_connections[connections_.size() = "
+                   << connections_.size() << "]\n " << cmd.str().c_str()
+                   << "[unpinged_connections_.size() = "
+                   << unpinged_connections_.size() << "]\n"
+                   << uncmd.str().c_str()
+                   << "[pinged_connections_ = " << pinged_connections_.size()
+                   << "]";*/
+  // Among. un-pinged pingable connections, "more pingable" takes precedence.
   std::vector<Connection*> pingable_connections;
   absl::c_copy_if(unpinged_connections_, std::back_inserter(pingable_connections),
-      [this, now](Connection* conn) { return IsPingable(conn, now); });
+      [this, now](Connection* conn) 
+  {
+	  return IsPingable(conn, now); 
+  });
+  /*RTC_LOG(LS_INFO) << "pre_connections[connections_.size() = "
+                   << connections_.size() << "][unpinged_connections_.size() = "
+                   << unpinged_connections_.size()
+                   << "][pinged_connections_ = " << pinged_connections_.size()
+                   << "][pingable_connections.size() = "
+                   << pingable_connections.size() << "]";*/
+  
+  
   auto iter = absl::c_max_element(pingable_connections,
                                   [this](Connection* conn1, Connection* conn2) {
                                     // Some implementations of max_element
@@ -2504,11 +2530,11 @@ bool P2PTransportChannel::PrunePort(PortInterface* port) {
 TODO@chensong 2023-04-05  网络数据从底层向上调用流程
 [rtc_base/async_udp_socket.cc]	   AsyncUDPSocket::OnReadEvent
 [p2p\client/basic_port_allocator.cc]	   AllocationSequence::OnReadPacket
-[p2p/base/stun_port.cc]
-UDPPort::HandleIncomingPacket [p2p/base/stun_port.cc]
-UDPPort::OnReadPacket [p2p/base/port.cc]
-Connection::OnReadPackets [p2p/base/p2p_transport_channel.cc]
-P2PTransportChannel::OnReadPacket
+[p2p/base/stun_port.cc]                UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]                 UDPPort::OnReadPacket 
+[p2p/base/port.cc]          Connection::OnReadPackets 
+[p2p/base/p2p_transport_channel.cc] P2PTransportChannel::OnReadPacket
+[p2p/base/dtls_transport.cc]            DtlsTransport::OnReadPacket
 
 */
 // We data is available, let listeners know
@@ -2517,7 +2543,8 @@ void P2PTransportChannel::OnReadPacket(Connection* connection, const char* data,
   RTC_DCHECK(network_thread_ == rtc::Thread::Current());
 
   // Do not deliver, if packet doesn't belong to the correct transport channel.
-  if (!FindConnection(connection)) {
+  if (!FindConnection(connection)) 
+  {
     return;
   }
 
@@ -2542,8 +2569,10 @@ void P2PTransportChannel::OnSentPacket(const rtc::SentPacket& sent_packet) {
   SignalSentPacket(this, sent_packet);
 }
 
-void P2PTransportChannel::OnReadyToSend(Connection* connection) {
-  if (connection == selected_connection_ && writable()) {
+void P2PTransportChannel::OnReadyToSend(Connection* connection) 
+{
+  if (connection == selected_connection_ && writable())
+  {
     SignalReadyToSend(this);
   }
 }
@@ -2615,15 +2644,18 @@ Connection* P2PTransportChannel::LeastRecentlyPinged(Connection* conn1,
 Connection* P2PTransportChannel::MorePingable(Connection* conn1,
                                               Connection* conn2) {
   RTC_DCHECK(conn1 != conn2);
-  if (config_.prioritize_most_likely_candidate_pairs) {
+  if (config_.prioritize_most_likely_candidate_pairs) 
+  {
     Connection* most_likely_to_work_conn = MostLikelyToWork(conn1, conn2);
-    if (most_likely_to_work_conn) {
+    if (most_likely_to_work_conn) 
+	{
       return most_likely_to_work_conn;
     }
   }
 
   Connection* least_recently_pinged_conn = LeastRecentlyPinged(conn1, conn2);
-  if (least_recently_pinged_conn) {
+  if (least_recently_pinged_conn) 
+  {
     return least_recently_pinged_conn;
   }
 
@@ -2655,14 +2687,13 @@ void P2PTransportChannel::SetReceiving(bool receiving) {
   SignalReceivingState(this);
 }
 
-void P2PTransportChannel::LogCandidatePairConfig(
-    Connection* conn,
-    webrtc::IceCandidatePairConfigType type) {
-  if (conn == nullptr) {
+void P2PTransportChannel::LogCandidatePairConfig(Connection* conn, webrtc::IceCandidatePairConfigType type) 
+{
+  if (conn == nullptr) 
+  {
     return;
   }
-  ice_event_log_.LogCandidatePairConfig(type, conn->id(),
-                                        conn->ToLogDescription());
+  ice_event_log_.LogCandidatePairConfig(type, conn->id(), conn->ToLogDescription());
 }
 
 }  // namespace cricket

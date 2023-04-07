@@ -604,21 +604,22 @@ static const char * get_dtls_state( DtlsTransportState  state)
 */
 
 void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
-                                 const char* data,
-                                 size_t size,
-                                 const int64_t& packet_time_us,
-                                 int flags) {
+                                 const char* data, size_t size,
+                                 const int64_t& packet_time_us, int flags) 
+{
   RTC_DCHECK_RUN_ON(&thread_checker_);
   RTC_DCHECK(transport == ice_transport_.get());
   RTC_DCHECK(flags == 0);
   // TODO@chensong 2023-04-05  WebRTC中是否所有SRTP加密
-  if (!dtls_active_) {
+  if (!dtls_active_) 
+  {
     // Not doing DTLS.
     SignalReadPacket(this, data, size, packet_time_us, 0);
     return;
   }
   RTC_NORMAL_EX_LOG("[dtls state = %s]", get_dtls_state(dtls_state_));
-  switch (dtls_state()) {
+  switch (dtls_state()) 
+  {
     case DTLS_TRANSPORT_NEW:
       if (dtls_) {
         RTC_LOG(LS_INFO) << ToString()
@@ -652,14 +653,19 @@ void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
     case DTLS_TRANSPORT_CONNECTED:
       // We should only get DTLS or SRTP packets; STUN's already been demuxed.
       // Is this potentially a DTLS packet?
-      if (IsDtlsPacket(data, size)) {
-        if (!HandleDtlsPacket(data, size)) {
+      if (IsDtlsPacket(data, size)) 
+	  {
+        if (!HandleDtlsPacket(data, size)) 
+		{
           RTC_LOG(LS_ERROR) << ToString() << ": Failed to handle DTLS packet.";
           return;
         }
-      } else {
+      } 
+	  else 
+	  {
         // Not a DTLS packet; our handshake should be complete by now.
-        if (dtls_state() != DTLS_TRANSPORT_CONNECTED) {
+        if (dtls_state() != DTLS_TRANSPORT_CONNECTED)
+		{
           RTC_LOG(LS_ERROR) << ToString()
                             << ": Received non-DTLS packet before DTLS "
                                "complete.";
@@ -667,7 +673,8 @@ void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
         }
 
         // And it had better be a SRTP packet.
-        if (!IsRtpPacket(data, size)) {
+        if (!IsRtpPacket(data, size)) 
+		{
           RTC_LOG(LS_ERROR)
               << ToString() << ": Received unexpected non-DTLS packet.";
           return;

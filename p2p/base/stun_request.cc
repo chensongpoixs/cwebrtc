@@ -123,18 +123,24 @@ void StunRequestManager::Clear() {
 
 bool StunRequestManager::CheckResponse(StunMessage* msg) {
   RequestMap::iterator iter = requests_.find(msg->transaction_id());
-  if (iter == requests_.end()) {
+  if (iter == requests_.end())
+  {
     // TODO(pthatcher): Log unknown responses without being too spammy
     // in the logs.
     return false;
   }
 
   StunRequest* request = iter->second;
-  if (msg->type() == GetStunSuccessResponseType(request->type())) {
+  if (msg->type() == GetStunSuccessResponseType(request->type())) 
+  {
     request->OnResponse(msg);
-  } else if (msg->type() == GetStunErrorResponseType(request->type())) {
+  } 
+  else if (msg->type() == GetStunErrorResponseType(request->type())) 
+  {
     request->OnErrorResponse(msg);
-  } else {
+  }
+  else 
+  {
     RTC_LOG(LERROR) << "Received response with wrong type: " << msg->type()
                     << " (expecting "
                     << GetStunSuccessResponseType(request->type()) << ")";
@@ -145,18 +151,22 @@ bool StunRequestManager::CheckResponse(StunMessage* msg) {
   return true;
 }
 
-bool StunRequestManager::CheckResponse(const char* data, size_t size) {
+bool StunRequestManager::CheckResponse(const char* data, size_t size) 
+{
   // Check the appropriate bytes of the stream to see if they match the
   // transaction ID of a response we are expecting.
 
-  if (size < 20)
-    return false;
+	if (size < 20)
+	{
+		return false;
+	}
 
   std::string id;
   id.append(data + kStunTransactionIdOffset, kStunTransactionIdLength);
 
   RequestMap::iterator iter = requests_.find(id);
-  if (iter == requests_.end()) {
+  if (iter == requests_.end())
+  {
     // TODO(pthatcher): Log unknown responses without being too spammy
     // in the logs.
     return false;
