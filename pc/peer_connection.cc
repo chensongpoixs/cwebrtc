@@ -1128,7 +1128,7 @@ bool PeerConnection::Initialize(const PeerConnectionInterface::RTCConfiguration&
     certificate = configuration.certificates[0];
   }
 
-  // TODO@chensong 2022-09-29 ICE中属性是在网络线程操作的
+  // TODO@chensong 2022-09-29 ICE中属性是在网络线程操作的这个可以配置stun的ping的时间间隔的哈 ^_^
   transport_controller_->SetIceConfig(ParseIceConfig(configuration));
 
 
@@ -5843,7 +5843,7 @@ cricket::IceConfig PeerConnection::ParseIceConfig(const PeerConnectionInterface:
       gathering_policy = cricket::GATHER_ONCE;
 	}
   }
-
+  // TODO@chensong 配置stun的ping的时间间隔
   cricket::IceConfig ice_config;
   ice_config.receiving_timeout = RTCConfigurationToIceConfigOptionalInt(
       config.ice_connection_receiving_timeout);

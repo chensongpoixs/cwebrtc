@@ -1638,6 +1638,8 @@ void Connection::Ping(int64_t now)
                       << rtc::hex_encode(req->id())
                       << ", nomination=" << nomination_;
   requests_.Send(req);
+  /*RTC_LOG(LS_INFO) << "send [request_id = " << req->id()
+                   << "][rtc::TimeMillis() = " << rtc::TimeMillis() << "]";*/
   state_ = IceCandidatePairState::IN_PROGRESS;
   num_pings_sent_++;
 }
@@ -1647,9 +1649,12 @@ void Connection::ReceivedPing()
   last_ping_received_ = rtc::TimeMillis();
   UpdateReceiving(last_ping_received_);
 }
-
-void Connection::ReceivedPingResponse(int rtt, const std::string& request_id) {
+// TODO@chensong 2023-04-07 接收stun协议消息
+void Connection::ReceivedPingResponse(int rtt, const std::string& request_id) 
+{
   RTC_DCHECK_GE(rtt, 0);
+ /* RTC_LOG(LS_INFO) << "recv [request_id = " << request_id
+                   << "][rtc::TimeMillis() = " << rtc::TimeMillis() << "]";*/
   // We've already validated that this is a STUN binding response with
   // the correct local and remote username for this connection.
   // So if we're not already, become writable. We may be bringing a pruned
@@ -1811,7 +1816,13 @@ void Connection::LogCandidatePairEvent(webrtc::IceCandidatePairEventType type,
   }
   ice_event_log_->LogCandidatePairEvent(type, id(), transaction_id);
 }
+/*
+TODO@chensong 2023-04-07 
 
+StunRequestManager::CheckResponse
+...
+Connection::OnConnectionRequestResponse
+*/
 void Connection::OnConnectionRequestResponse(ConnectionRequest* request, StunMessage* response)
 {
   // Log at LS_INFO if we receive a ping response on an unwritable

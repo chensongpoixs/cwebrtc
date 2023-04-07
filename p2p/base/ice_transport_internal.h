@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2016 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -49,10 +49,10 @@ enum IceGatheringState {
 
 enum ContinualGatheringPolicy {
   // All port allocator sessions will stop after a writable connection is found.
-  // ÕÒµ½¿ÉĞ´Á¬½Óºó£¬ËùÓĞ¶Ë¿Ú·ÖÅäÆ÷»á»°¶¼½«Í£Ö¹¡£
+  // æ‰¾åˆ°å¯å†™è¿æ¥åï¼Œæ‰€æœ‰ç«¯å£åˆ†é…å™¨ä¼šè¯éƒ½å°†åœæ­¢ã€‚
   GATHER_ONCE = 0,
   // The most recent port allocator session will keep on running.
-  //×î½üµÄ¶Ë¿Ú·ÖÅäÆ÷»á»°½«¼ÌĞøÔËĞĞ
+  //æœ€è¿‘çš„ç«¯å£åˆ†é…å™¨ä¼šè¯å°†ç»§ç»­è¿è¡Œ
   GATHER_CONTINUALLY,
 };
 
@@ -85,7 +85,8 @@ struct IceConfig {
   // is writable yet.
   bool prioritize_most_likely_candidate_pairs = false;
 
-  // Writable connections are pinged at a slower rate once stablized.
+  // Writable connections are pinged at a slower rate once stablized.  
+  // TODO@chensong 2023-04-07  é…ç½®stunæœåŠ¡pingä¿å®ˆæ—¶é—´é—´éš”æ¯«ç§’æ•°
   absl::optional<int> stable_writable_connection_ping_interval;
 
   // If set to true, this means the ICE transport should presume TURN-to-TURN

@@ -486,6 +486,7 @@ JsepTransportController::CreateDtlsTransport(
   dtls->SetSslMaxProtocolVersion(config_.ssl_max_version);
   dtls->ice_transport()->SetIceRole(ice_role_);
   dtls->ice_transport()->SetIceTiebreaker(ice_tiebreaker_);
+  // TODO@chensong 2023-04-07 stun的ping 配置时间间隔
   dtls->ice_transport()->SetIceConfig(ice_config_);
   if (certificate_) {
     bool set_cert_success = dtls->SetLocalCertificate(certificate_);

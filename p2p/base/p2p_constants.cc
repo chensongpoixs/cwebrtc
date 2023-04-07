@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -56,6 +56,7 @@ const int STUN_PING_PACKET_SIZE = 60 * 8;
 const int STRONG_PING_INTERVAL = 1000 * STUN_PING_PACKET_SIZE / 1000;  // 480ms.
 const int WEAK_PING_INTERVAL = 1000 * STUN_PING_PACKET_SIZE / 10000;   // 48ms.
 const int WEAK_OR_STABILIZING_WRITABLE_CONNECTION_PING_INTERVAL = 900;
+// TODO@chensong 2023-04-07 stun协议发送心跳包时间间隔 ????? 不是默认250ms吗 我有点懵逼了
 const int STRONG_AND_STABLE_WRITABLE_CONNECTION_PING_INTERVAL = 2500;
 const int CONNECTION_WRITE_CONNECT_TIMEOUT = 5 * 1000;  // 5 seconds
 const uint32_t CONNECTION_WRITE_CONNECT_FAILURES = 5;   // 5 pings

@@ -556,10 +556,10 @@ void P2PTransportChannel::SetIceConfig(const IceConfig& config) {
   RTC_LOG(LS_INFO) << "Set ping most likely connection to "
                    << config_.prioritize_most_likely_candidate_pairs;
 
-  if (config_.stable_writable_connection_ping_interval !=
-      config.stable_writable_connection_ping_interval) {
-    config_.stable_writable_connection_ping_interval =
-        config.stable_writable_connection_ping_interval;
+  // TODO@chensong 2023-04-07 stun ping 时间间隔配置时间间隔地方
+  if (config_.stable_writable_connection_ping_interval != config.stable_writable_connection_ping_interval)
+  {
+    config_.stable_writable_connection_ping_interval = config.stable_writable_connection_ping_interval;
     RTC_LOG(LS_INFO)
         << "Set stable_writable_connection_ping_interval to "
         << config_.stable_writable_connection_ping_interval_or_default();
@@ -2075,7 +2075,8 @@ bool P2PTransportChannel::ReadyToSend(Connection* connection) const {
 // Handle queued up check-and-ping request
 // TODO@chensong 2022-10-25
 // MaybeStartPinging ->[CheckAndPing <-> CheckAndPing] stun 心跳包 一直在发送
-void P2PTransportChannel::CheckAndPing() {
+void P2PTransportChannel::CheckAndPing() 
+{
   // Make sure the states of the connections are up-to-date (since this affects
   // which ones are pingable).
   /*static int64_t pre_check_ms = rtc::TimeMillis();
@@ -2093,15 +2094,15 @@ void P2PTransportChannel::CheckAndPing() {
   int ping_interval = (weak() || need_more_pings_at_weak_interval)
                           ? weak_ping_interval()
                           : strong_ping_interval();
-  static int64_t pre_ms = rtc::TimeMillis();
+  /*static int64_t pre_ms = rtc::TimeMillis();
 
   static int64_t cur_ms = rtc::TimeMillis();
-  cur_ms = rtc::TimeMillis();
+  cur_ms = rtc::TimeMillis();*/
   /*RTC_LOG(LS_INFO) << "ping stun last_ping_sent_ms_ == "
                     << cur_ms - last_ping_sent_ms_
                    << "--> delay = " << cur_ms - pre_ms
                    << ", ping_interval = " << ping_interval; */
-  pre_ms = cur_ms;
+  /*pre_ms = cur_ms;*/
   if (rtc::TimeMillis() >= last_ping_sent_ms_ + ping_interval) 
   {
     Connection* conn = FindNextPingableConnection();
@@ -2197,7 +2198,7 @@ bool P2PTransportChannel::WritableConnectionPastPingInterval(const Connection* c
   int interval = CalculateActiveWritablePingInterval(conn, now);
   return conn->last_ping_sent() + interval <= now;
 }
-
+// TODO@chensong 2023-04-07 stun 中ping时间间隔计算的真正计算的地方
 int P2PTransportChannel::CalculateActiveWritablePingInterval(const Connection* conn, int64_t now) const 
 {
   // Ping each connection at a higher rate at least
@@ -2220,11 +2221,26 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
 {
   int64_t now = rtc::TimeMillis();
 
+  if (selected_connection_)
+  {
+    RTC_LOG(LS_INFO) << "[ptr = " << selected_connection_->ToString()
+                     << "]\n[connected = " << selected_connection_->connected()
+                     << "][write = " << selected_connection_->writable()
+                     << "][conn->last_ping_sent() = "
+                     << selected_connection_->last_ping_sent()
+                     << "]";
+  } 
+  else
+  {
+    RTC_LOG(LS_INFO) << "[ptr =  NULL]";
+  }
   // Rule 1: Selected connection takes priority over non-selected ones.
   if (selected_connection_ && selected_connection_->connected() &&
       selected_connection_->writable() &&
       WritableConnectionPastPingInterval(selected_connection_, now)) 
   {
+	  //TODO@chensong 2023-04-07 正常情况下 下次验证stun走这边
+    RTC_LOG(LS_INFO) << "[selected_connection_ ] [" << selected_connection_->ToString() << "]";
     return selected_connection_;
   }
 
@@ -2251,7 +2267,9 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
                                       return conn1->last_ping_sent() <
                                              conn2->last_ping_sent();
                                     });
-    if (iter != pingable_selectable_connections.end()) {
+    if (iter != pingable_selectable_connections.end()) 
+    {
+     // RTC_LOG(LS_INFO) << "[weak ] ["<< (*iter)->ToString() <<"]";
       return *iter;
     }
   }
@@ -2261,6 +2279,8 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
   Connection* oldest_triggered_check = FindOldestConnectionNeedingTriggeredCheck(now);
   if (oldest_triggered_check) 
   {
+   // RTC_LOG(LS_INFO) << "[oldest_triggered_check ] ["
+   //                  << oldest_triggered_check->ToString() << "]";
     return oldest_triggered_check;
   }
 
@@ -2278,37 +2298,29 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
     unpinged_connections_.insert(pinged_connections_.begin(), pinged_connections_.end());
     pinged_connections_.clear();
   }
-  /*std::ostringstream cmd;
-  for (size_t i = 0; i <  connections_.size(); ++i)
-  {
-    cmd << "[i " << i << "][" << connections_[i]->ToString() <<"]\n";
-  }
-  std::ostringstream uncmd;
-  for (  Connection*  contest: unpinged_connections_) 
-  {
-    uncmd << " [" << contest->ToString()
-          << "]\n";
-  }
-  RTC_LOG(LS_INFO) << "pre_connections[connections_.size() = "
-                   << connections_.size() << "]\n " << cmd.str().c_str()
-                   << "[unpinged_connections_.size() = "
-                   << unpinged_connections_.size() << "]\n"
-                   << uncmd.str().c_str()
-                   << "[pinged_connections_ = " << pinged_connections_.size()
-                   << "]";*/
+  
+   
   // Among. un-pinged pingable connections, "more pingable" takes precedence.
   std::vector<Connection*> pingable_connections;
   absl::c_copy_if(unpinged_connections_, std::back_inserter(pingable_connections),
       [this, now](Connection* conn) 
   {
-	  return IsPingable(conn, now); 
+                    bool ret = IsPingable(conn, now); 
+					/*if (ret)
+					{
+                      RTC_LOG(LS_INFO) << "[ping---> ret = " << ret << "]["
+                                       << conn->ToString() << "][ ms = "<<rtc::TimeMillis()<<"]";
+					}
+					else
+					{
+                                          RTC_LOG(LS_INFO)
+                                              << "[ping---> ret = " << ret
+                                              << "][" << conn->ToString()
+                                              << "]";
+					}*/
+					
+	  return ret;
   });
-  /*RTC_LOG(LS_INFO) << "pre_connections[connections_.size() = "
-                   << connections_.size() << "][unpinged_connections_.size() = "
-                   << unpinged_connections_.size()
-                   << "][pinged_connections_ = " << pinged_connections_.size()
-                   << "][pingable_connections.size() = "
-                   << pingable_connections.size() << "]";*/
   
   
   auto iter = absl::c_max_element(pingable_connections,
@@ -2323,6 +2335,8 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
                                   });
   if (iter != pingable_connections.end()) 
   {
+    /* RTC_LOG(LS_INFO) << "[pingable_connections.size() = "
+                      << pingable_connections.size() << "]";*/
     return *iter;
   }
   return nullptr;
@@ -2344,15 +2358,18 @@ void P2PTransportChannel::PingConnection(Connection* conn)
 {
   bool use_candidate_attr = false;
   uint32_t nomination = 0;
-  if (ice_role_ == ICEROLE_CONTROLLING) {
+  if (ice_role_ == ICEROLE_CONTROLLING) 
+  {
     bool renomination_supported = ice_parameters_.renomination &&
                                   !remote_ice_parameters_.empty() &&
                                   remote_ice_parameters_.back().renomination;
-    if (renomination_supported) {
+    if (renomination_supported)
+	{
       nomination = GetNominationAttr(conn);
-    } else {
-      use_candidate_attr =
-          GetUseCandidateAttr(conn, config_.default_nomination_mode);
+    }
+	else 
+	{
+      use_candidate_attr = GetUseCandidateAttr(conn, config_.default_nomination_mode);
     }
   }
   conn->set_nomination(nomination);
@@ -2361,14 +2378,16 @@ void P2PTransportChannel::PingConnection(Connection* conn)
   conn->Ping(last_ping_sent_ms_);
 }
 
-uint32_t P2PTransportChannel::GetNominationAttr(Connection* conn) const {
+uint32_t P2PTransportChannel::GetNominationAttr(Connection* conn) const 
+{
   return (conn == selected_connection_) ? nomination_ : 0;
 }
 
 // Nominate a connection based on the NominationMode.
-bool P2PTransportChannel::GetUseCandidateAttr(Connection* conn,
-                                              NominationMode mode) const {
-  switch (mode) {
+bool P2PTransportChannel::GetUseCandidateAttr(Connection* conn, NominationMode mode) const 
+{
+  switch (mode) 
+  {
     case NominationMode::REGULAR:
       // TODO(honghaiz): Implement regular nomination.
       return false;
@@ -2378,7 +2397,8 @@ bool P2PTransportChannel::GetUseCandidateAttr(Connection* conn,
         return GetUseCandidateAttr(conn, NominationMode::REGULAR);
       }
       return true;
-    case NominationMode::SEMI_AGGRESSIVE: {
+    case NominationMode::SEMI_AGGRESSIVE: 
+	{
       // Nominate if
       // a) Remote is in FULL ICE AND
       //    a.1) |conn| is the selected connection OR
@@ -2389,7 +2409,8 @@ bool P2PTransportChannel::GetUseCandidateAttr(Connection* conn,
       //    b.1) |conn| is the selected_connection AND
       //    b.2) |conn| is writable.
       bool selected = conn == selected_connection_;
-      if (remote_ice_mode_ == ICEMODE_LITE) {
+      if (remote_ice_mode_ == ICEMODE_LITE) 
+	  {
         return selected && conn->writable();
       }
       bool better_than_selected =
@@ -2641,8 +2662,8 @@ Connection* P2PTransportChannel::LeastRecentlyPinged(Connection* conn1,
   return nullptr;
 }
 
-Connection* P2PTransportChannel::MorePingable(Connection* conn1,
-                                              Connection* conn2) {
+Connection* P2PTransportChannel::MorePingable(Connection* conn1, Connection* conn2)
+{
   RTC_DCHECK(conn1 != conn2);
   if (config_.prioritize_most_likely_candidate_pairs) 
   {
