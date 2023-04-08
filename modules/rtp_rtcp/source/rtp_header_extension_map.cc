@@ -70,8 +70,10 @@ RtpHeaderExtensionMap::RtpHeaderExtensionMap(bool extmap_allow_mixed)
 RtpHeaderExtensionMap::RtpHeaderExtensionMap(
     rtc::ArrayView<const RtpExtension> extensions)
     : RtpHeaderExtensionMap(false) {
-  for (const RtpExtension& extension : extensions)
-    RegisterByUri(extension.id, extension.uri);
+	for (const RtpExtension& extension : extensions)
+	{
+		RegisterByUri(extension.id, extension.uri);
+  }
 }
 
 bool RtpHeaderExtensionMap::RegisterByType(int id, RTPExtensionType type) {
@@ -83,9 +85,13 @@ bool RtpHeaderExtensionMap::RegisterByType(int id, RTPExtensionType type) {
 }
 
 bool RtpHeaderExtensionMap::RegisterByUri(int id, const std::string& uri) {
-  for (const ExtensionInfo& extension : kExtensions)
-    if (uri == extension.uri)
-      return Register(id, extension.type, extension.uri);
+	for (const ExtensionInfo& extension : kExtensions)
+	{
+		if (uri == extension.uri)
+		{
+			return Register(id, extension.type, extension.uri);
+		}
+  }
   RTC_LOG(LS_WARNING) << "Unknown extension uri:'" << uri << "', id: " << id
                       << '.';
   return false;

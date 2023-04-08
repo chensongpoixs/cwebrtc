@@ -1362,6 +1362,16 @@ void Connection::OnReadPacket(const char* data, size_t size, int64_t packet_time
     UpdateReceiving(last_data_received_);
     recv_rate_tracker_.AddSamples(size);
 	// 回调函数
+	/*
+	TODO@chensong 2023-04-08 网络数据从底层向上调用流程
+	[rtc_base/async_udp_socket.cc]	   AsyncUDPSocket::OnReadEvent
+	[p2p\client/basic_port_allocator.cc]	   AllocationSequence::OnReadPacket
+	[p2p/base/stun_port.cc]							UDPPort::HandleIncomingPacket
+	[p2p/base/stun_port.cc]										UDPPort::OnReadPacket
+	[p2p/base/port.cc]											Connection::OnReadPackets
+	[p2p/base/p2p_transport_channel.cc]						P2PTransportChannel::OnReadPacket
+	[pc/rtp_transprot.cc]                                            RtpTransport::OnReadPacket
+	*/
     SignalReadPacket(this, data, size, packet_time_us);
 
     // If timed out sending writability checks, start up again

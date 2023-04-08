@@ -393,12 +393,15 @@ void RtpPacket::Clear() {
   WriteAt(0, kRtpVersion << 6);
 }
 
-bool RtpPacket::ParseBuffer(const uint8_t* buffer, size_t size) {
-  if (size < kFixedHeaderSize) {
+bool RtpPacket::ParseBuffer(const uint8_t* buffer, size_t size) 
+{
+  if (size < kFixedHeaderSize)
+  {
     return false;
   }
   const uint8_t version = buffer[0] >> 6;
-  if (version != kRtpVersion) {
+  if (version != kRtpVersion) 
+  {
     return false;
   }
   const bool has_padding = (buffer[0] & 0x20) != 0;
@@ -410,24 +413,30 @@ bool RtpPacket::ParseBuffer(const uint8_t* buffer, size_t size) {
   sequence_number_ = ByteReader<uint16_t>::ReadBigEndian(&buffer[2]);
   timestamp_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[4]);
   ssrc_ = ByteReader<uint32_t>::ReadBigEndian(&buffer[8]);
-  if (size < kFixedHeaderSize + number_of_crcs * 4) {
+  if (size < kFixedHeaderSize + number_of_crcs * 4) 
+  {
     return false;
   }
   payload_offset_ = kFixedHeaderSize + number_of_crcs * 4;
 
-  if (has_padding) {
+  if (has_padding) 
+  {
     padding_size_ = buffer[size - 1];
-    if (padding_size_ == 0) {
+    if (padding_size_ == 0)
+	{
       RTC_LOG(LS_WARNING) << "Padding was set, but padding size is zero";
       return false;
     }
-  } else {
+  } 
+  else
+  {
     padding_size_ = 0;
   }
 
   extensions_size_ = 0;
   extension_entries_.clear();
-  if (has_extension) {
+  if (has_extension) 
+  {
     /* RTP header extension, RFC 3550.
      0                   1                   2                   3
      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -438,61 +447,69 @@ bool RtpPacket::ParseBuffer(const uint8_t* buffer, size_t size) {
     |                             ....                              |
     */
     size_t extension_offset = payload_offset_ + 4;
-    if (extension_offset > size) {
+    if (extension_offset > size) 
+	{
       return false;
     }
-    uint16_t profile =
-        ByteReader<uint16_t>::ReadBigEndian(&buffer[payload_offset_]);
-    size_t extensions_capacity =
-        ByteReader<uint16_t>::ReadBigEndian(&buffer[payload_offset_ + 2]);
+    uint16_t profile = ByteReader<uint16_t>::ReadBigEndian(&buffer[payload_offset_]);
+    size_t extensions_capacity = ByteReader<uint16_t>::ReadBigEndian(&buffer[payload_offset_ + 2]);
     extensions_capacity *= 4;
-    if (extension_offset + extensions_capacity > size) {
+    if (extension_offset + extensions_capacity > size) 
+	{
       return false;
     }
-    if (profile != kOneByteExtensionProfileId &&
-        profile != kTwoByteExtensionProfileId) {
+    if (profile != kOneByteExtensionProfileId && profile != kTwoByteExtensionProfileId) 
+	{
       RTC_LOG(LS_WARNING) << "Unsupported rtp extension " << profile;
-    } else {
+    } 
+	else 
+	{
       size_t extension_header_length = profile == kOneByteExtensionProfileId
                                            ? kOneByteExtensionHeaderLength
                                            : kTwoByteExtensionHeaderLength;
       constexpr uint8_t kPaddingByte = 0;
       constexpr uint8_t kPaddingId = 0;
       constexpr uint8_t kOneByteHeaderExtensionReservedId = 15;
-      while (extensions_size_ + extension_header_length < extensions_capacity) {
-        if (buffer[extension_offset + extensions_size_] == kPaddingByte) {
+      while (extensions_size_ + extension_header_length < extensions_capacity) 
+	  {
+        if (buffer[extension_offset + extensions_size_] == kPaddingByte) 
+		{
           extensions_size_++;
           continue;
         }
         int id;
         uint8_t length;
-        if (profile == kOneByteExtensionProfileId) {
+        if (profile == kOneByteExtensionProfileId)
+		{
           id = buffer[extension_offset + extensions_size_] >> 4;
           length = 1 + (buffer[extension_offset + extensions_size_] & 0xf);
-          if (id == kOneByteHeaderExtensionReservedId ||
-              (id == kPaddingId && length != 1)) {
+          if (id == kOneByteHeaderExtensionReservedId || (id == kPaddingId && length != 1)) 
+		  {
             break;
           }
-        } else {
+        } 
+		else 
+		{
           id = buffer[extension_offset + extensions_size_];
           length = buffer[extension_offset + extensions_size_ + 1];
         }
 
-        if (extensions_size_ + extension_header_length + length >
-            extensions_capacity) {
+        if (extensions_size_ + extension_header_length + length > extensions_capacity) 
+		{
           RTC_LOG(LS_WARNING) << "Oversized rtp header extension.";
           break;
         }
 
         ExtensionInfo& extension_info = FindOrCreateExtensionInfo(id);
-        if (extension_info.length != 0) {
+        if (extension_info.length != 0) 
+		{
           RTC_LOG(LS_VERBOSE)
               << "Duplicate rtp header extension id " << id << ". Overwriting.";
         }
 
-        size_t offset =
-            extension_offset + extensions_size_ + extension_header_length;
-        if (!rtc::IsValueInRangeForNumericType<uint16_t>(offset)) {
+        size_t offset = extension_offset + extensions_size_ + extension_header_length;
+        if (!rtc::IsValueInRangeForNumericType<uint16_t>(offset)) 
+		{
           RTC_DLOG(LS_WARNING) << "Oversized rtp header extension.";
           break;
         }
@@ -504,7 +521,8 @@ bool RtpPacket::ParseBuffer(const uint8_t* buffer, size_t size) {
     payload_offset_ = extension_offset + extensions_capacity;
   }
 
-  if (payload_offset_ + padding_size_ > size) {
+  if (payload_offset_ + padding_size_ > size) 
+  {
     return false;
   }
   payload_size_ = size - payload_offset_ - padding_size_;

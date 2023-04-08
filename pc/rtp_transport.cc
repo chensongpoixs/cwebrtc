@@ -277,7 +277,16 @@ void RtpTransport::OnRtcpPacketReceived(rtc::CopyOnWriteBuffer packet,
                                         int64_t packet_time_us) {
   SignalRtcpPacketReceived(&packet, packet_time_us);
 }
-
+/* 
+TODO@chensong 2023-04-08 网络数据从底层向上调用流程
+[rtc_base/async_udp_socket.cc]	   AsyncUDPSocket::OnReadEvent
+[p2p\client/basic_port_allocator.cc]	   AllocationSequence::OnReadPacket
+[p2p/base/stun_port.cc]							UDPPort::HandleIncomingPacket
+[p2p/base/stun_port.cc]										UDPPort::OnReadPacket
+[p2p/base/port.cc]											Connection::OnReadPackets
+[p2p/base/p2p_transport_channel.cc]						P2PTransportChannel::OnReadPacket
+[pc/rtp_transprot.cc]                                            RtpTransport::OnReadPacket
+*/
 void RtpTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
                                 const char* data,
                                 size_t len,

@@ -3231,7 +3231,7 @@ bool ParseContent(const std::string& message,
       if (!ParseIceOptions(line, &transport->transport_options, error)) {
         return false;
       }
-    } else if (HasAttribute(line, kAttributeFmtp)) {
+    } else if (HasAttribute(line, kAttributeFmtp/*apt rtx */)) {
       if (!ParseFmtpAttributes(line, media_type, media_desc, error)) {
         return false;
       }
