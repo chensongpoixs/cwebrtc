@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -58,13 +58,13 @@ class ReportBlock {
   uint32_t delay_since_last_sr() const { return delay_since_last_sr_; }
 
  private:
-  uint32_t source_ssrc_;     // 32 bits ½ÓÊÕµ½µÄÃ¿¸öÃ½ÌåÔ´
-  uint8_t fraction_lost_;    // 8 bits representing a fixed point value 0..1 ÉÏÒ»´Î±¨¸æÖ®ºó´ÓSSRC_nÀ´°üµÄÂ©°ü±ÈÁĞ
-  int32_t cumulative_lost_;  // Signed 24-bit value ×Ô½ÓÊÕ¿ªÊ¼Â©°ü×ÜÊı£¬³Ùµ½°ü²»ËãÂ©°ü£¬ÖØ´«ÓĞ¿ÉÒÔµ¼ÖÂ¸ºÊı
-  uint32_t extended_high_seq_num_;  // 32 bits  µÍ16Î»±íÊ½ÊÕµ½µÄ×î´óseq£¬¸ß16Î»±íÊ½seqÑ­»·´ÎÊı 
-  uint32_t jitter_;                 // 32 bits RTP°üµ½´ïÊ±¼ä¼ä¸ôµÄÍ³¼Æ·½²î
-  uint32_t last_sr_;                // 32 bits NTPÊ±¼ä´ÁµÄÖĞ¼ä32Î»
-  uint32_t delay_since_last_sr_;    // 32 bits, units of 1/65536 seconds//¼ÇÂ¼½ÓÊÕSRµÄÊ±¼äÓë·¢ËÍSRµÄÊ±¼ä²î
+  uint32_t source_ssrc_;     // 32 bits æ¥æ”¶åˆ°çš„æ¯ä¸ªåª’ä½“æº
+  uint8_t fraction_lost_;    // 8 bits representing a fixed point value 0..1 ä¸Šä¸€æ¬¡æŠ¥å‘Šä¹‹åä»SSRC_næ¥åŒ…çš„æ¼åŒ…æ¯”åˆ—
+  int32_t cumulative_lost_;  // Signed 24-bit value è‡ªæ¥æ”¶å¼€å§‹æ¼åŒ…æ€»æ•°ï¼Œè¿Ÿåˆ°åŒ…ä¸ç®—æ¼åŒ…ï¼Œé‡ä¼ æœ‰å¯ä»¥å¯¼è‡´è´Ÿæ•°
+  uint32_t extended_high_seq_num_;  // 32 bits  ä½16ä½è¡¨å¼æ”¶åˆ°çš„æœ€å¤§seqï¼Œé«˜16ä½è¡¨å¼seqå¾ªç¯æ¬¡æ•° 
+  uint32_t jitter_;                 // 32 bits RTPåŒ…åˆ°è¾¾æ—¶é—´é—´éš”çš„ç»Ÿè®¡æ–¹å·®
+  uint32_t last_sr_;                // 32 bits NTPæ—¶é—´æˆ³çš„ä¸­é—´32ä½
+  uint32_t delay_since_last_sr_;    // 32 bits, units of 1/65536 seconds//è®°å½•æ¥æ”¶SRçš„æ—¶é—´ä¸å‘é€SRçš„æ—¶é—´å·®
 };
 
 }  // namespace rtcp
