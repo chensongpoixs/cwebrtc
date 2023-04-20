@@ -698,7 +698,7 @@ bool BaseChannel::UpdateLocalStreams_w(const std::vector<StreamParams>& streams,
     if (!new_stream.has_ssrcs()) {
       // TODO(bugs.webrtc.org/10250): Indicate if flex is desired here.
       new_stream.GenerateSsrcs(new_stream.rids().size(), /* rtx = */ true,
-                               /* flex_fec = */ false, ssrc_generator_);
+                               /* flex_fec = */false /*false*/, ssrc_generator_);
     }
 	//TODO@chensong 2022-10-09  关键步骤
     if (media_channel()->AddSendStream(new_stream)) {

@@ -110,7 +110,8 @@ std::vector<RtpStreamSender> CreateRtpStreamSenders(
   std::vector<RtpStreamSender> rtp_streams;
   const std::vector<uint32_t>& flexfec_protected_ssrcs =
       rtp_config.flexfec.protected_media_ssrcs;
-  for (uint32_t ssrc : rtp_config.ssrcs) {
+  for (uint32_t ssrc : rtp_config.ssrcs) 
+  { // TODO@chensong 2023-04-16  flexfec 
     bool enable_flexfec = flexfec_sender != nullptr &&
                           std::find(flexfec_protected_ssrcs.begin(),
                                     flexfec_protected_ssrcs.end(),
