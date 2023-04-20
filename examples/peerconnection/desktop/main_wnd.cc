@@ -410,7 +410,9 @@ bool MainWnd::OnMessage(UINT msg, WPARAM wp, LPARAM lp, LRESULT* result) {
 }
 
 // static
-LRESULT CALLBACK MainWnd::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+LRESULT CALLBACK MainWnd::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+  //RTC_LOG(LS_INFO) << "msg = " << msg << ", wp " << wp << ", lp = " << lp;
   MainWnd* me =
       reinterpret_cast<MainWnd*>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
   if (!me && WM_CREATE == msg) {
@@ -484,15 +486,12 @@ void MainWnd::CreateChildWindow(HWND* wnd,
 void MainWnd::CreateChildWindows() {
   // Create the child windows in tab order.
   CreateChildWindow(&label1_, LABEL1_ID, L"Static", ES_CENTER | ES_READONLY, 0);
-  CreateChildWindow(&edit1_, EDIT_ID, L"Edit",
-                    ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
+  CreateChildWindow(&edit1_, EDIT_ID, L"Edit", ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
   CreateChildWindow(&label2_, LABEL2_ID, L"Static", ES_CENTER | ES_READONLY, 0);
-  CreateChildWindow(&edit2_, EDIT_ID, L"Edit",
-                    ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
+  CreateChildWindow(&edit2_, EDIT_ID, L"Edit", ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
   CreateChildWindow(&button_, BUTTON_ID, L"Button", BS_CENTER | WS_TABSTOP, 0);
 
-  CreateChildWindow(&listbox_, LISTBOX_ID, L"ListBox",
-                    LBS_HASSTRINGS | LBS_NOTIFY, WS_EX_CLIENTEDGE);
+  CreateChildWindow(&listbox_, LISTBOX_ID, L"ListBox", LBS_HASSTRINGS | LBS_NOTIFY, WS_EX_CLIENTEDGE);
 
   ::SetWindowTextA(edit1_, server_.c_str());
   ::SetWindowTextA(edit2_, port_.c_str());

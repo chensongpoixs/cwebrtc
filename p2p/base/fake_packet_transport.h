@@ -25,7 +25,7 @@ namespace rtc {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29   
 
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_fake_packet_transport_ptr = NULL;
 //static void rtc_fake_packet_transport_log() {
@@ -109,7 +109,7 @@ class FakePacketTransport : public PacketTransportInternal {
       SendPacketInternal(packet);
     }
     SentPacket sent_packet(options.packet_id, TimeMillis());
-#if _DEBUG
+#if 0
 
 	RTC_FAKE_PACKET_TRANSPORT_RTC_NORMAL_EX_LOG(
         "[SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet));

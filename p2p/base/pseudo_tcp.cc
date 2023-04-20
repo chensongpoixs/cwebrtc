@@ -290,7 +290,7 @@ void PseudoTcp::NotifyClock(uint32_t now) {
     } else {
 // Note: (m_slist.front().xmit == 0)) {
 // retransmit segments
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
       RTC_LOG(LS_INFO) << "timeout retransmit (rto: " << m_rx_rto
                        << ") (rto_base: " << m_rto_base << ") (now: " << now
                        << ") (dup_acks: " << static_cast<unsigned>(m_dup_acks)
@@ -537,7 +537,7 @@ IPseudoTcpNotify::WriteResult PseudoTcp::packet(uint32_t seq,
     RTC_DCHECK(static_cast<uint32_t>(bytes_read) == len);
   }
 
-#if _DEBUGMSG >= _DBG_VERBOSE
+#if 0MSG >= _DBG_VERBOSE
   RTC_LOG(LS_INFO) << "<-- <CONV=" << m_conv
                    << "><FLG=" << static_cast<unsigned>(flags)
                    << "><SEQ=" << seq << ":" << seq + len
@@ -583,7 +583,7 @@ bool PseudoTcp::parse(const uint8_t* buffer, uint32_t size) {
   seg.data = reinterpret_cast<const char*>(buffer) + HEADER_SIZE;
   seg.len = size - HEADER_SIZE;
 
-#if _DEBUGMSG >= _DBG_VERBOSE
+#if 0MSG >= _DBG_VERBOSE
   RTC_LOG(LS_INFO) << "--> <CONV=" << seg.conv
                    << "><FLG=" << static_cast<unsigned>(seg.flags)
                    << "><SEQ=" << seg.seq << ":" << seg.seq + seg.len
@@ -722,7 +722,7 @@ bool PseudoTcp::process(Segment& seg) {
         }
         m_rx_rto = rtc::SafeClamp(m_rx_srtt + rtc::SafeMax(1, 4 * m_rx_rttvar),
                                   MIN_RTO, MAX_RTO);
-#if _DEBUGMSG >= _DBG_VERBOSE
+#if 0MSG >= _DBG_VERBOSE
         RTC_LOG(LS_INFO) << "rtt: " << rtt << "  srtt: " << m_rx_srtt
                          << "  rto: " << m_rx_rto;
 #endif  // _DEBUGMSG
@@ -758,12 +758,12 @@ bool PseudoTcp::process(Segment& seg) {
       if (m_snd_una >= m_recover) {  // NewReno
         uint32_t nInFlight = m_snd_nxt - m_snd_una;
         m_cwnd = std::min(m_ssthresh, nInFlight + m_mss);  // (Fast Retransmit)
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
         RTC_LOG(LS_INFO) << "exit recovery";
 #endif  // _DEBUGMSG
         m_dup_acks = 0;
       } else {
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
         RTC_LOG(LS_INFO) << "recovery retransmit";
 #endif  // _DEBUGMSG
         if (!transmit(m_slist.begin(), now)) {
@@ -792,7 +792,7 @@ bool PseudoTcp::process(Segment& seg) {
     } else if (m_snd_una != m_snd_nxt) {
       m_dup_acks += 1;
       if (m_dup_acks == 3) {  // (Fast Retransmit)
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
         RTC_LOG(LS_INFO) << "enter recovery";
         RTC_LOG(LS_INFO) << "recovery retransmit";
 #endif  // _DEBUGMSG
@@ -857,7 +857,7 @@ bool PseudoTcp::process(Segment& seg) {
       sflags = sfDelayedAck;
     }
   }
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
   if (sflags == sfImmediateAck) {
     if (seg.seq > m_rcv_nxt) {
       RTC_LOG_F(LS_INFO) << "too new";
@@ -941,7 +941,7 @@ bool PseudoTcp::process(Segment& seg) {
         // now.
         bRecover = true;
       } else {
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
         RTC_LOG(LS_INFO) << "Saving " << seg.len << " bytes (" << seg.seq
                          << " -> " << seg.seq + seg.len << ")";
 #endif  // _DEBUGMSG
@@ -961,7 +961,7 @@ bool PseudoTcp::process(Segment& seg) {
         if (it->seq + it->len > m_rcv_nxt) {
           sflags = sfImmediateAck;  // (Fast Recovery)
           uint32_t nAdjust = (it->seq + it->len) - m_rcv_nxt;
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
           RTC_LOG(LS_INFO) << "Recovered " << nAdjust << " bytes (" << m_rcv_nxt
                            << " -> " << m_rcv_nxt + nAdjust << ")";
 #endif  // _DEBUGMSG
@@ -1028,7 +1028,7 @@ bool PseudoTcp::transmit(const SList::iterator& seg, uint32_t now) {
         break;
       }
     }
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
     RTC_LOG(LS_INFO) << "Adjusting mss to " << m_mss << " bytes";
 #endif  // _DEBUGMSG
   }
@@ -1064,7 +1064,7 @@ void PseudoTcp::attemptSend(SendFlags sflags) {
     m_cwnd = m_mss;
   }
 
-#if _DEBUGMSG
+#if 0MSG
   bool bFirst = true;
 #endif  // _DEBUGMSG
 
@@ -1091,7 +1091,7 @@ void PseudoTcp::attemptSend(SendFlags sflags) {
       }
     }
 
-#if _DEBUGMSG >= _DBG_VERBOSE
+#if 0MSG >= _DBG_VERBOSE
     if (bFirst) {
       size_t available_space = 0;
       m_sbuf.GetWriteRemaining(&available_space);
@@ -1170,7 +1170,7 @@ void PseudoTcp::adjustMTU() {
   }
   m_mss = m_mtu_advise - PACKET_OVERHEAD;
 // !?! Should we reset m_largest here?
-#if _DEBUGMSG >= _DBG_NORMAL
+#if 0MSG >= _DBG_NORMAL
   RTC_LOG(LS_INFO) << "Adjusting mss to " << m_mss << " bytes";
 #endif  // _DEBUGMSG
   // Enforce minimums on ssthresh and cwnd

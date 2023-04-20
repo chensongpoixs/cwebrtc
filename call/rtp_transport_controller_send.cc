@@ -31,7 +31,7 @@ namespace webrtc {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29  googcc  算法
 
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_rtp_transport_send_file_ptr = NULL;
 //static void rtc_rtp_transport_send_log() {
@@ -346,7 +346,7 @@ void RtpTransportControllerSend::EnablePeriodicAlrProbing(bool enable) {
 void RtpTransportControllerSend::OnSentPacket(
     const rtc::SentPacket& sent_packet) {
   absl::optional<SentPacket> packet_msg = transport_feedback_adapter_.ProcessSentPacket(sent_packet);
-#if _DEBUG
+#if 0
 
   if (packet_msg)
   {

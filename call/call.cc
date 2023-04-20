@@ -73,7 +73,7 @@ namespace webrtc {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29  call 
 
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_call_ptr = NULL;
 //static void rtc_call_log() {
@@ -1184,7 +1184,7 @@ void Call::OnSentPacket(const rtc::SentPacket& sent_packet) {
   video_send_delay_stats_->OnSentPacket(sent_packet.packet_id,
                                         clock_->TimeInMilliseconds());
 
-  #if _DEBUG
+  #if 0
 
   RTC_NORMAL_EX_LOG("[transport_send_ptr_->OnSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
 #endif  // _DEBUG

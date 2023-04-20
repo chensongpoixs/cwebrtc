@@ -42,7 +42,7 @@ if (out_argv_file_ptr)												   \
 
 std::string FindFullName(const std::string& name)
 {
-	#if _DEBUG
+	#if 0
   FILE_WRITE_ARGS(name.c_str());
 	#endif // __DEBUG__
   if (trials_init_string == NULL) {

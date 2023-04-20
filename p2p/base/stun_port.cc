@@ -38,7 +38,7 @@ const int kSendErrorLogLimit = 5;
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
 
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_stun_port_ptr = NULL;
 //static void rtc_stun_port_log() {
@@ -450,7 +450,7 @@ void UDPPort::OnReadPacket(rtc::AsyncPacketSocket* socket,
 void UDPPort::OnSentPacket(rtc::AsyncPacketSocket* socket,
                            const rtc::SentPacket& sent_packet) 
 {
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG("[PortInterface::SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
 
 #endif 

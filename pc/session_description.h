@@ -327,7 +327,7 @@ class DataContentDescription : public MediaContentDescriptionImpl<DataCodec> {
   void set_use_sctpmap(bool enable) { use_sctpmap_ = enable; }
 
  private:
-  bool use_sctpmap_ = true;
+  bool use_sctpmap_ = false;
 };
 
 // Protocol used for encoding media. This is the "top level" protocol that may

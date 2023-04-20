@@ -48,7 +48,7 @@ static const int kListenBacklog = 5;
 			////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
 //
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_async_tcp_socket_ptr = NULL;
 //static void rtc_turn_port_log() {
@@ -334,7 +334,7 @@ int AsyncTCPSocket::Send(const void* pv,
   rtc::SentPacket sent_packet(options.packet_id, rtc::TimeMillis(),
                               options.info_signaled_after_sent);
   CopySocketInformationToPacketInfo(cb, *this, false, &sent_packet.info);
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
 
   #endif // _DEBUG_

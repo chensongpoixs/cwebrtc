@@ -29,7 +29,7 @@ namespace webrtc {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
 //
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_rtp_transport_ptr = NULL;
 //static void rtc_turn_port_log() {
@@ -153,7 +153,7 @@ bool RtpTransport::SendPacket(bool rtcp,
   rtc::PacketTransportInternal* transport = rtcp && !rtcp_mux_enabled_
                                                 ? rtcp_packet_transport_
                                                 : rtp_packet_transport_;
-#if _DEBUG
+#if 0
 
 	RTC_NORMAL_EX_LOG("[transport->SendPacket] [options = %s]",
                 webrtc::ToString(options).c_str());
@@ -259,7 +259,7 @@ void RtpTransport::OnSentPacket(rtc::PacketTransportInternal* packet_transport,
   RTC_DCHECK(packet_transport == rtp_packet_transport_ ||
              packet_transport == rtcp_packet_transport_);
 
-#if _DEBUG
+#if 0
 
   RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());
