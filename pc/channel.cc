@@ -42,7 +42,7 @@ using webrtc::SdpType;
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
 //
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_channel_ptr = NULL;
 //static void rtc_turn_port_log() {
@@ -824,7 +824,7 @@ void BaseChannel::SignalSentPacket_n(const rtc::SentPacket& sent_packet) {
 void BaseChannel::SignalSentPacket_w(const rtc::SentPacket& sent_packet) {
   RTC_DCHECK(worker_thread_->IsCurrent());
 
-  #if _DEBUG
+  #if 0
 
   RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());

@@ -67,7 +67,7 @@ static bool IsRtpPacket(const char* data, size_t len) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
 //
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_dtls_transport_ptr = NULL;
 //static void rtc_dtls_transport_log() {
@@ -697,7 +697,7 @@ void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
 void DtlsTransport::OnSentPacket(rtc::PacketTransportInternal* transport,
                                  const rtc::SentPacket& sent_packet) {
   RTC_DCHECK_RUN_ON(&thread_checker_);
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());
 

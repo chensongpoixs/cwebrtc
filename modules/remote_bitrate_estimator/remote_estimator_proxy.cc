@@ -25,7 +25,7 @@ namespace webrtc {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29  googcc  算法
 
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_remote_estimator_proxy_file_ptr = NULL;
 //static void rtc_gcc_log() {
@@ -256,7 +256,7 @@ void RemoteEstimatorProxy::SendFeedbackOnRequest(int64_t sequence_number, const 
   int64_t first_sequence_number = sequence_number - feedback_request.sequence_count + 1;
   auto begin_iterator = packet_arrival_times_.lower_bound(first_sequence_number);
   auto end_iterator = packet_arrival_times_.upper_bound(sequence_number);
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG("[first_sequence_number = %llu][sequence_number = %llu]",
                 first_sequence_number, sequence_number);
   #endif
@@ -289,7 +289,7 @@ int64_t RemoteEstimatorProxy::BuildFeedbackPacket(uint8_t feedback_packet_count,
   feedback_packet->SetFeedbackSequenceNumber(feedback_packet_count);
   int64_t next_sequence_number = base_sequence_number;
 
-  #if _DEBUG
+  #if 0
 
   RTC_NORMAL_EX_LOG("[base_sequence_number = %llu]", base_sequence_number);
 #endif  // _DEBUG
@@ -297,7 +297,7 @@ int64_t RemoteEstimatorProxy::BuildFeedbackPacket(uint8_t feedback_packet_count,
 
   for (auto it = begin_iterator; it != end_iterator; ++it) 
   {
-#if _DEBUG
+#if 0
 
     RTC_NORMAL_EX_LOG("[it->first = %llu][it->second == %llu]", it->first, it->second);
 #endif  // _DEBUG

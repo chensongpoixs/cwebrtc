@@ -559,7 +559,7 @@ void Log(const LogArgType* fmt, ...) {
 }  // namespace webrtc_logging_impl
 }  // namespace rtc
 
-#if _DEBUG
+#if 0
 
 #include <cstdio>
 #include <cstdlib>

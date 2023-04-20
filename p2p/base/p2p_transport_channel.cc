@@ -103,7 +103,7 @@ using webrtc::RTCErrorType;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
 //
-//#if _DEBUG
+//#if 0
 //
 // static FILE* out_rtc_p2p_transport_channel_ptr = NULL;
 // static void rtc_p2p_transport_channel_log() {
@@ -2221,7 +2221,7 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
 {
   int64_t now = rtc::TimeMillis();
 
-  if (selected_connection_)
+  /*if (selected_connection_)
   {
     RTC_LOG(LS_INFO) << "[ptr = " << selected_connection_->ToString()
                      << "]\n[connected = " << selected_connection_->connected()
@@ -2229,18 +2229,18 @@ Connection* P2PTransportChannel::FindNextPingableConnection()
                      << "][conn->last_ping_sent() = "
                      << selected_connection_->last_ping_sent()
                      << "]";
-  } 
+  }
   else
   {
     RTC_LOG(LS_INFO) << "[ptr =  NULL]";
-  }
+  }*/
   // Rule 1: Selected connection takes priority over non-selected ones.
   if (selected_connection_ && selected_connection_->connected() &&
       selected_connection_->writable() &&
       WritableConnectionPastPingInterval(selected_connection_, now)) 
   {
 	  //TODO@chensong 2023-04-07 正常情况下 下次验证stun走这边
-    RTC_LOG(LS_INFO) << "[selected_connection_ ] [" << selected_connection_->ToString() << "]";
+  //  RTC_LOG(LS_INFO) << "[selected_connection_ ] [" << selected_connection_->ToString() << "]";
     return selected_connection_;
   }
 
@@ -2583,7 +2583,7 @@ void P2PTransportChannel::OnReadPacket(Connection* connection, const char* data,
 
 void P2PTransportChannel::OnSentPacket(const rtc::SentPacket& sent_packet) {
   RTC_DCHECK(network_thread_ == rtc::Thread::Current());
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                     webrtc::ToString(sent_packet).c_str());
 

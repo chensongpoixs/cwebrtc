@@ -82,7 +82,7 @@ bool IsNotDisabled(const WebRtcKeyValueConfig* config, absl::string_view key) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29  googcc  算法
 //
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_gcc_file_ptr = NULL;
 //static void rtc_gcc_log() {
@@ -199,7 +199,7 @@ NetworkControlUpdate GoogCcNetworkController::OnNetworkRouteChange(
       bandwidth_estimation_->CurrentEstimate(&target_bitrate_bps,
                                              &fraction_loss, &rtt_ms);
 
-#if _DEBUG
+#if 0
       RTC_NORMAL_EX_LOG(
           "[bandwidth_estimation_->CurrentEstimate][out][target_bitrate_bps = "
           "%u][fraction_loss = %u][rtt_ms = %llu ]",
@@ -224,7 +224,7 @@ NetworkControlUpdate GoogCcNetworkController::OnNetworkRouteChange(
   delay_based_bwe_.reset(new DelayBasedBwe(key_value_config_, event_log_,
                                            network_state_predictor_.get()));
   bandwidth_estimation_->OnRouteChange();
-#if _DEBUG
+#if 0
 
   RTC_NORMAL_EX_LOG("[bandwidth_estimation_->OnRouteChange]");
 #endif  // _DEBUG
@@ -274,7 +274,7 @@ NetworkControlUpdate GoogCcNetworkController::OnProcessInterval(ProcessInterval 
   }
   // 更新码率
   bandwidth_estimation_->UpdateEstimate(msg.at_time);
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG("[bandwidth_estimation_->UpdateEstimate][msg.at_time = %s]",
                 webrtc::ToString(msg.at_time).c_str());
 
@@ -304,7 +304,7 @@ NetworkControlUpdate GoogCcNetworkController::OnRemoteBitrateReport(
   bandwidth_estimation_->UpdateReceiverEstimate(msg.receive_time,
                                                 msg.bandwidth);
 
-#if _DEBUG
+#if 0
 
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->UpdateReceiverEstimate][msg.receive_time = "
@@ -327,7 +327,7 @@ NetworkControlUpdate GoogCcNetworkController::OnRoundTripTimeUpdate(
     delay_based_bwe_->OnRttUpdate(msg.round_trip_time);
   bandwidth_estimation_->UpdateRtt(msg.round_trip_time, msg.receive_time);
 
-#if _DEBUG
+#if 0
 
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->UpdateRtt][msg.round_trip_time = "
@@ -349,7 +349,7 @@ NetworkControlUpdate GoogCcNetworkController::OnSentPacket(
     // first feedback is received.
     bandwidth_estimation_->UpdatePropagationRtt(sent_packet.send_time,
                                                 TimeDelta::Zero());
-#if _DEBUG
+#if 0
 
     RTC_NORMAL_EX_LOG(
         "[bandwidth_estimation_->UpdatePropagationRtt][sent_packet.send_time = "
@@ -358,7 +358,7 @@ NetworkControlUpdate GoogCcNetworkController::OnSentPacket(
 #endif  // _DEBUG
   }
   bandwidth_estimation_->OnSentPacket(sent_packet);
-#if _DEBUG
+#if 0
 
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->OnSentPacket][sent_packet = %s"
@@ -407,7 +407,7 @@ NetworkControlUpdate GoogCcNetworkController::OnStreamsConfig(
       ClampConstraints();
       delay_based_bwe_->SetMinBitrate(min_data_rate_);
       bandwidth_estimation_->SetMinMaxBitrate(min_data_rate_, max_data_rate_);
-#if _DEBUG
+#if 0
 
       RTC_NORMAL_EX_LOG(
           "[bandwidth_estimation_->SetMinMaxBitrate][min_data_rate_ = "
@@ -463,7 +463,7 @@ std::vector<ProbeClusterConfig> GoogCcNetworkController::ResetConstraints(
 
   bandwidth_estimation_->SetBitrates(starting_rate_, min_data_rate_,
                                      max_data_rate_, new_constraints.at_time);
-#if _DEBUG
+#if 0
 
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->SetBitrates][starting_rate_ = "
@@ -490,7 +490,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportLossReport(
       msg.packets_received_delta + msg.packets_lost_delta;
   bandwidth_estimation_->UpdatePacketsLost(
       msg.packets_lost_delta, total_packets_delta, msg.receive_time);
-#if _DEBUG
+#if 0
 
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->UpdatePacketsLost][msg.packets_lost_delta = "
@@ -544,7 +544,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
     }
     // TODO(srte): Use time since last unacknowledged packet.
     bandwidth_estimation_->UpdatePropagationRtt(report.feedback_time, min_propagation_rtt);
-#if _DEBUG
+#if 0
 
     RTC_NORMAL_EX_LOG(
         "[bandwidth_estimation_->UpdatePropagationRtt][report.feedback_time = "
@@ -574,7 +574,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
     if (feedback_min_rtt.IsFinite()) 
 	{
       bandwidth_estimation_->UpdateRtt(feedback_min_rtt, report.feedback_time);
-#if _DEBUG
+#if 0
 
       RTC_NORMAL_EX_LOG(
           "[bandwidth_estimation_->UpdateRtt][feedback_min_rtt = "
@@ -596,7 +596,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
       bandwidth_estimation_->UpdatePacketsLost(
           lost_packets_since_last_loss_update_,
           expected_packets_since_last_loss_update_, report.feedback_time);
-#if _DEBUG
+#if 0
 
       RTC_NORMAL_EX_LOG(
           "[bandwidth_estimation_->UpdatePacketsLost][lost_packets_since_last_"
@@ -640,7 +640,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
   }
   bandwidth_estimation_->SetAcknowledgedRate(acknowledged_bitrate, report.feedback_time);
 
-#if _DEBUG
+#if 0
 
   if (acknowledged_bitrate) {
     RTC_NORMAL_EX_LOG(
@@ -658,7 +658,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
 #endif  // _DEBUG
 
   bandwidth_estimation_->IncomingPacketFeedbackVector(report);
-#if _DEBUG
+#if 0
 
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->IncomingPacketFeedbackVector][report = ]");
@@ -678,7 +678,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
 	{
       bandwidth_estimation_->SetSendBitrate(result.target_bitrate,
                                             report.feedback_time);
-#if _DEBUG
+#if 0
 
       RTC_NORMAL_EX_LOG(
           "[bandwidth_estimation_->SetSendBitrate][result.target_bitrate = "
@@ -693,7 +693,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
     bandwidth_estimation_->UpdateDelayBasedEstimate(report.feedback_time,
                                                     result.target_bitrate);
 
-#if _DEBUG
+#if 0
 
     RTC_NORMAL_EX_LOG(
         "[bandwidth_estimation_->UpdateDelayBasedEstimate][report.feedback_"
@@ -755,7 +755,7 @@ NetworkControlUpdate GoogCcNetworkController::GetNetworkState(
   DataRate bandwidth = use_stable_bandwidth_estimate_
                            ? bandwidth_estimation_->GetEstimatedLinkCapacity()
                            : last_raw_target_rate_;
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->GetEstimatedLinkCapacity()] "
       "[goog_cc_network_control bandwidth = %s][last_raw_target_rate_ = %s]",
@@ -788,7 +788,7 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(
   int64_t rtt_ms;
   bandwidth_estimation_->CurrentEstimate(&estimated_bitrate_bps, &fraction_loss,
                                          &rtt_ms);
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->CurrentEstimate][out][estimated_bitrate_bps = "
       "%u][fraction_loss = %u][rtt_ms = %llu]",
@@ -826,7 +826,7 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(
     DataRate bandwidth = use_stable_bandwidth_estimate_
                              ? bandwidth_estimation_->GetEstimatedLinkCapacity()
                              : last_raw_target_rate_;
-#if _DEBUG
+#if 0
     RTC_NORMAL_EX_LOG(
         " [bandwidth_estimation_->GetEstimatedLinkCapacity()][goog_cc_network_"
         "control bandwidth = %s][last_raw_target_rate_ = %s]",

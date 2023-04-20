@@ -27,7 +27,7 @@ namespace cricket {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29  call
 //
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_fake_ice_transport_ptr = NULL;
 //static void rtc_fake_ice_transport_log() {
@@ -277,7 +277,7 @@ class FakeIceTransport : public IceTransportInternal {
       }
     }
     rtc::SentPacket sent_packet(options.packet_id, rtc::TimeMillis());
-#if _DEBUG
+#if 0
 
 	RTC_NORMAL_EX_LOG("[SignalSentPacket] [sent_packet = %s]",
                   webrtc::ToString(sent_packet).c_str());

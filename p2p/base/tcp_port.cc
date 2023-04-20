@@ -86,7 +86,7 @@ namespace cricket {
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
 
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_tcp_port_ptr = NULL;
 //static void rtc_tcp_port_log() {
@@ -342,7 +342,7 @@ void TCPPort::OnReadPacket(rtc::AsyncPacketSocket* socket,
 void TCPPort::OnSentPacket(rtc::AsyncPacketSocket* socket,
                            const rtc::SentPacket& sent_packet) 
 {
-#if _DEBUG
+#if 0
   RTC_NORMAL_EX_LOG("[PortInterface::SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());
 

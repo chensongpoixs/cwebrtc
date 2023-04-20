@@ -486,6 +486,14 @@ void Conductor::AddTracks() {
   {
     return;  // Already added tracks.
   }
+  webrtc::DataChannelInit init;
+  init.ordered = true;
+  init.negotiated = true;
+  init.maxRetransmits = -1;
+  init.maxRetransmitTime = -1;
+  init.id = 0;
+		rtc::scoped_refptr<webrtc::DataChannelInterface> webrtcDataChannel  = peer_connection_->CreateDataChannel("sctp", &init);
+		 
   ///////////////////////////////////////////////AUDIO///////////////////////////////////////////////////////////
   rtc::scoped_refptr<webrtc::AudioSourceInterface> audio_source_ptr = peer_connection_factory_->CreateAudioSource(cricket::AudioOptions());
 

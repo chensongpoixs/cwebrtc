@@ -27,7 +27,7 @@ namespace rtc {
 			////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////      TODO@chensong  2022-11-29
 //
-//#if _DEBUG
+//#if 0
 //
 //static FILE* out_rtc_async_udp_socket_ptr = NULL;
 //static void rtc_turn_port_log() {
@@ -101,7 +101,7 @@ int AsyncUDPSocket::Send(const void* pv,
   int ret = socket_->Send(pv, cb);
 
 
-  #if _DEBUG
+  #if 0
 
 	RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());
@@ -121,7 +121,7 @@ int AsyncUDPSocket::SendTo(const void* pv,
   CopySocketInformationToPacketInfo(cb, *this, true, &sent_packet.info);
   int ret = socket_->SendTo(pv, cb, addr);
 
-    #if _DEBUG
+    #if 0
 
   RTC_NORMAL_EX_LOG("[SignalSentPacket][sent_packet = %s]",
                 webrtc::ToString(sent_packet).c_str());

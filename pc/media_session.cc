@@ -2280,8 +2280,8 @@ bool MediaSessionDescriptionFactory::AddDataContentForOffer(
     // TODO(deadbeef): Offer kMediaProtocolUdpDtlsSctp (or TcpDtlsSctp), once
     // it's safe to do so. Older versions of webrtc would reject these
     // protocols; see https://bugs.chromium.org/p/webrtc/issues/detail?id=7706.
-    data->set_protocol(secure_transport ? kMediaProtocolDtlsSctp
-                                        : kMediaProtocolSctp);
+    data->set_protocol(kMediaProtocolUdpDtlsSctp/*secure_transport ? kMediaProtocolDtlsSctp
+                                        : kMediaProtocolSctp*/);
   } else {
     GetSupportedDataSdesCryptoSuiteNames(session_options.crypto_options,
                                          &crypto_suites);
