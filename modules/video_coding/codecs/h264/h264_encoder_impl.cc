@@ -404,9 +404,11 @@ int32_t H264EncoderImpl::SetRateAllocation(
     // Update layer config.
     configurations_[i].target_bps = bitrate.GetSpatialLayerSum(stream_idx);
     configurations_[i].max_frame_rate = static_cast<float>(new_framerate);
+#if 0
     RTC_NORMAL_EX_LOG("[target_bps = %u][max_frame_rate = %f]",
                       configurations_[i].target_bps,
                       configurations_[i].max_frame_rate);
+#endif //
     if (configurations_[i].target_bps)
 	{
       configurations_[i].SetStreamState(true);

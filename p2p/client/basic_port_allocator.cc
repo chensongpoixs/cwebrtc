@@ -1619,9 +1619,10 @@ void AllocationSequence::OnReadPacket(rtc::AsyncPacketSocket* socket,
     if (!turn_port_found || stun_servers.find(remote_addr) != stun_servers.end()) 
 	{
       RTC_DCHECK(udp_port_->SharedSocket());
-     
+#if 0
 	  RTC_NORMAL_EX_LOG("[remote_addr = %s][packet_time_us = %llu]",
                     remote_addr.ToString().c_str(), packet_time_us);
+#endif //#if 0
 	  udp_port_->HandleIncomingPacket(socket, data, size, remote_addr, packet_time_us);
     }
   }

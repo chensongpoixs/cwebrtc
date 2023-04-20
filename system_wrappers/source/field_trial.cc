@@ -24,7 +24,7 @@ static const char* trials_init_string =  NULL;
 #ifndef WEBRTC_EXCLUDE_FIELD_TRIAL_DEFAULT
 
 
-
+#if 0
 
 static FILE* out_argv_file_ptr = NULL;
 #define FILE_WRITE_ARGS(name)	                                       \
@@ -36,7 +36,7 @@ if (out_argv_file_ptr)												   \
 	::fprintf(out_argv_file_ptr, "%s\n", name);						   \
 		::fflush(out_argv_file_ptr);								   \
 }
-
+#endif 
 
 
 

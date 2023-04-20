@@ -233,9 +233,11 @@ stun  验证调用流程
 void P2PTransportChannel::AddConnection(Connection* connection) 
 {
   connections_.push_back(connection);
+#if 0
   RTC_NORMAL_EX_LOG(
       "addConnection --> [%s]",
       connection->remote_candidate().address().ToString().c_str());
+#endif //#if 0
   RTC_LOG(INFO) << __FUNCTION__ << "][ " << __LINE__ << "] ["
                 << connection->remote_candidate().address().ToString() << "]";
   unpinged_connections_.insert(connection);
@@ -2454,9 +2456,11 @@ void P2PTransportChannel::OnConnectionDestroyed(Connection* connection) {
 
   // Note: the previous selected_connection_ may be destroyed by now, so don't
   // use it.
+#if 0
   RTC_NORMAL_EX_LOG(
       "del --> [%s]",
       connection->remote_candidate().address().ToString().c_str());
+#endif //#if 0
   RTC_LOG(INFO) << __FUNCTION__ << "][ " << __LINE__ << "] ["
                 << connection->remote_candidate().address().ToString() << "]";
   // Remove this connection from the list.

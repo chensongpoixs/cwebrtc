@@ -256,7 +256,10 @@ int32_t H264DecoderImpl::Decode(const EncodedImage& input_image,
   packet.size = static_cast<int>(input_image.size());
   int64_t frame_timestamp_us = input_image.ntp_time_ms_ * 1000;  // ms -> μs
   av_context_->reordered_opaque = frame_timestamp_us;
+#if 0
+
   RTC_NORMAL_EX_LOG("[packet.size = %u]", input_image.size());
+#endif 
   int result = avcodec_send_packet(av_context_.get(), &packet);
   if (result < 0) {
     RTC_LOG(LS_ERROR) << "avcodec_send_packet error: " << result;

@@ -508,8 +508,10 @@ void Port::AddOrReplaceConnection(Connection* conn)
     ret.first->second->Destroy();
     ret.first->second = conn;
   }
+#if 0
   RTC_NORMAL_EX_LOG("insert --> [%s]",
                     conn->remote_candidate().address().ToString().c_str());
+#endif //_DEBUGMSG
   RTC_LOG(INFO) << "[" << __FUNCTION__ << "][" << __LINE__ << "] insert -->["
                 << conn->remote_candidate().address().ToString() << "]";
   conn->SignalDestroyed.connect(this, &Port::OnConnectionDestroyed);
@@ -1045,8 +1047,10 @@ void Port::OnConnectionDestroyed(Connection* conn) {
   AddressMap::iterator iter =
       connections_.find(conn->remote_candidate().address());
   RTC_DCHECK(iter != connections_.end());
+#if 0
   RTC_NORMAL_EX_LOG("del --> [%s]",
                     conn->remote_candidate().address().ToString().c_str());
+#endif //_DEBUGMSG
   RTC_LOG(INFO) << __FUNCTION__ << "][ " << __LINE__ << "] ["
                 << conn->remote_candidate().address().ToString() << "]";
   connections_.erase(iter);

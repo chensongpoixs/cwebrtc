@@ -495,7 +495,9 @@ void BaseChannel::OnRtpPacket(const webrtc::RtpPacketReceived& parsed_packet) {
   if (parsed_packet.arrival_time_ms() > 0) {
     timestamp_us = parsed_packet.arrival_time_ms() * 1000;
   }
+#if 0
   RTC_NORMAL_EX_LOG("[timestamp_us = %llu][]", timestamp_us);
+#endif //_DEBUGMSG
   OnPacketReceived(/*rtcp=*/false, parsed_packet.Buffer(), timestamp_us);
 }
 

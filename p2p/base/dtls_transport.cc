@@ -554,6 +554,7 @@ void DtlsTransport::OnReceivingState(rtc::PacketTransportInternal* transport) {
     set_receiving(ice_transport_->receiving());
   }
 }
+#if 0
 static const char * get_dtls_state( DtlsTransportState  state)
 {
 	switch (state)
@@ -591,7 +592,7 @@ static const char * get_dtls_state( DtlsTransportState  state)
 	//};
 	return "NULL";
 }
-
+#endif //_DEBUGMSG
 /* 
 	TODO@chensong 2023-04-05  网络数据从底层向上调用流程
 [rtc_base/async_udp_socket.cc]	   AsyncUDPSocket::OnReadEvent
@@ -617,7 +618,9 @@ void DtlsTransport::OnReadPacket(rtc::PacketTransportInternal* transport,
     SignalReadPacket(this, data, size, packet_time_us, 0);
     return;
   }
+#if 0
   RTC_NORMAL_EX_LOG("[dtls state = %s]", get_dtls_state(dtls_state_));
+#endif 
   switch (dtls_state()) 
   {
     case DTLS_TRANSPORT_NEW:
@@ -718,7 +721,9 @@ void DtlsTransport::OnDtlsEvent(rtc::StreamInterface* dtls, int sig, int err) {
   if (sig & rtc::SE_OPEN) {
     // This is the first time.
     RTC_LOG(LS_INFO) << ToString() << ": DTLS handshake complete.";
+#if 0
     RTC_NORMAL_EX_LOG("[%s]: DTLS handshake complete.", ToString().c_str());
+#endif //#if 0
     if (dtls_->GetState() == rtc::SS_OPEN) {
       // The check for OPEN shouldn't be necessary but let's make
       // sure we don't accidentally frob the state if it's closed.
@@ -740,15 +745,19 @@ void DtlsTransport::OnDtlsEvent(rtc::StreamInterface* dtls, int sig, int err) {
       } else if (ret == rtc::SR_EOS) {
         // Remote peer shut down the association with no error.
         RTC_LOG(LS_INFO) << ToString() << ": DTLS transport closed";
+#if 0
         RTC_NORMAL_EX_LOG("[%s]: DTLS transport closed", ToString().c_str());
+#endif //#if 0
         set_writable(false);
         set_dtls_state(DTLS_TRANSPORT_CLOSED);
       } else if (ret == rtc::SR_ERROR) {
         // Remote peer shut down the association with an error.
         RTC_LOG(LS_INFO) << ToString()
                          << ": DTLS transport error, code=" << read_error;
+#if 0
         RTC_NORMAL_EX_LOG("[%s]: DTLS transport error, [code = %u]",
                           ToString().c_str(), read_error);
+#endif //#if 0
         set_writable(false);
         set_dtls_state(DTLS_TRANSPORT_FAILED);
       }
@@ -759,12 +768,16 @@ void DtlsTransport::OnDtlsEvent(rtc::StreamInterface* dtls, int sig, int err) {
     set_writable(false);
     if (!err) {
       RTC_LOG(LS_INFO) << ToString() << ": DTLS transport closed";
+#if 0
       RTC_NORMAL_EX_LOG("[%s]: DTLS transport closed", ToString().c_str());
+#endif //
       set_dtls_state(DTLS_TRANSPORT_CLOSED);
     } else {
       RTC_LOG(LS_INFO) << ToString() << ": DTLS transport error, code=" << err;
+#if 0
       RTC_NORMAL_EX_LOG("[%s]: DTLS transport error, [code = %u]",
                         ToString().c_str(), err);
+#endif //_DEBUGMSG
       set_dtls_state(DTLS_TRANSPORT_FAILED);
     }
   }
