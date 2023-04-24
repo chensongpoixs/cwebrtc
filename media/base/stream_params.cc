@@ -215,10 +215,10 @@ bool StreamParams::AddSecondarySsrc(const std::string& semantics, uint32_t prima
   ssrc_groups.push_back(SsrcGroup(semantics, {primary_ssrc, secondary_ssrc}));
   return true;
 }
-
+// TODO@chensong 2023-04-24  nack 根据ssrc_group:FID  ssrc rtx_ssrc
 bool StreamParams::GetSecondarySsrc(const std::string& semantics,
-                                    uint32_t primary_ssrc,
-                                    uint32_t* secondary_ssrc) const {
+                                    uint32_t primary_ssrc, uint32_t* secondary_ssrc) const 
+{
   for (const SsrcGroup& ssrc_group : ssrc_groups) 
   {
     if (ssrc_group.has_semantics(semantics) && ssrc_group.ssrcs.size() >= 2 && ssrc_group.ssrcs[0] == primary_ssrc) 

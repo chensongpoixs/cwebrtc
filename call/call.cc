@@ -1417,6 +1417,7 @@ PacketReceiver::DeliveryStatus Call::DeliverRtp(MediaType media_type,
 
   RTC_DCHECK(media_type == MediaType::AUDIO || media_type == MediaType::VIDEO || is_keep_alive_packet);
 
+  // TODO@chensong 2023-04-24 接收的rtp的数据查询ssrc表中是否有ssrc
   ReadLockScoped read_lock(*receive_crit_);
   auto it = receive_rtp_config_.find(parsed_packet.Ssrc());
   if (it == receive_rtp_config_.end()) 

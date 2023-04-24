@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -178,11 +178,14 @@ void RtcpTransceiverImpl::SendRawPacket(rtc::ArrayView<const uint8_t> packet) {
   config_.outgoing_transport->SendRtcp(packet.data(), packet.size());
 }
 
-void RtcpTransceiverImpl::SendNack(uint32_t ssrc,
-                                   std::vector<uint16_t> sequence_numbers) {
+void RtcpTransceiverImpl::SendNack(uint32_t ssrc, std::vector<uint16_t> sequence_numbers) 
+{
   RTC_DCHECK(!sequence_numbers.empty());
   if (!ready_to_send_)
+  {
     return;
+  }
+  // TODO@chensong 2023-04-24 发送nack的请求
   rtcp::Nack nack;
   nack.SetSenderSsrc(config_.feedback_ssrc);
   nack.SetMediaSsrc(ssrc);
