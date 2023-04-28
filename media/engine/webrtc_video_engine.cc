@@ -305,6 +305,7 @@ bool IsCodecBlacklistedForSimulcast(const std::string& codec_name) {
 
 // The selected thresholds for QVGA and VGA corresponded to a QP around 10.
 // The change in QP declined above the selected bitrates.
+// TODO@chensong 2023-04-28 网络评估视频最大bit公式
 static int GetMaxDefaultVideoBitrateKbps(int width,
                                          int height,
                                          bool is_screenshare) {
