@@ -784,14 +784,12 @@ NetworkControlUpdate GoogCcNetworkController::GetNetworkState(
   return update;
 }
 
-void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(
-    NetworkControlUpdate* update,
-    Timestamp at_time) {
+void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(NetworkControlUpdate* update, Timestamp at_time) 
+{
   int32_t estimated_bitrate_bps;
   uint8_t fraction_loss;
   int64_t rtt_ms;
-  bandwidth_estimation_->CurrentEstimate(&estimated_bitrate_bps, &fraction_loss,
-                                         &rtt_ms);
+  bandwidth_estimation_->CurrentEstimate(&estimated_bitrate_bps, &fraction_loss, &rtt_ms);
 #if 0
   RTC_NORMAL_EX_LOG(
       "[bandwidth_estimation_->CurrentEstimate][out][estimated_bitrate_bps = "
@@ -862,7 +860,11 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(
                         << " estimate_bps=" << last_raw_target_rate_.bps();
   }
 }
-
+// RtpTransportControllerSend::UpdateControllerWithTimeInterval() 
+//RtpTransportControllerSend::PostUpdates(NetworkControlUpdate update)
+// GoogCcNetworkController::OnProcessInterval
+// GoogCcNetworkController::MaybeTriggerOnNetworkChanged
+// TODO@chensong 2023-04-29 获取码流字节数据
 PacerConfig GoogCcNetworkController::GetPacingRates(Timestamp at_time) const {
   // Pacing rate is based on target rate before congestion window pushback,
   // because we don't want to build queues in the pacer when pushback occurs.
