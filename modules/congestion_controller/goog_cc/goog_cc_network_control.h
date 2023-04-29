@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -51,7 +51,7 @@ class GoogCcNetworkController : public NetworkControllerInterface {
   // NetworkControllerInterface
   NetworkControlUpdate OnNetworkAvailability(NetworkAvailability msg) override;
   NetworkControlUpdate OnNetworkRouteChange(NetworkRouteChange msg) override;
-  //¶¨Ê±µÄ´¥·¢£¬ÓÃÀ´×ö´ø¿í¼ì²âºÍ¸üĞÂ:
+  //å®šæ—¶çš„è§¦å‘ï¼Œç”¨æ¥åšå¸¦å®½æ£€æµ‹å’Œæ›´æ–°:
   NetworkControlUpdate OnProcessInterval(ProcessInterval msg) override;
   NetworkControlUpdate OnRemoteBitrateReport(RemoteBitrateReport msg) override;
   NetworkControlUpdate OnRoundTripTimeUpdate(RoundTripTimeUpdate msg) override;

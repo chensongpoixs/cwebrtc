@@ -38,8 +38,11 @@ IntervalBudget::IntervalBudget(int initial_target_rate_kbps, bool can_build_up_u
 
 void IntervalBudget::set_target_rate_kbps(int target_rate_kbps) 
 {
+	//目标码流
   target_rate_kbps_ = target_rate_kbps;
+  // [单位时间500ms内的码流字节数总和]
   max_bytes_in_budget_ = (kWindowMs * target_rate_kbps_) / 8;
+  //当前已经发送码流字节书
   bytes_remaining_ = std::min(std::max(-max_bytes_in_budget_, bytes_remaining_), max_bytes_in_budget_);
 }
 

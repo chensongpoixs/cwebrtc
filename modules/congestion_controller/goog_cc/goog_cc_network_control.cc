@@ -157,13 +157,9 @@ GoogCcNetworkController::GoogCcNetworkController(
       initial_config_(config),
       last_raw_target_rate_(*config.constraints.starting_rate),
       last_pushback_target_rate_(last_raw_target_rate_),
-      pacing_factor_(config.stream_based_config.pacing_factor.value_or(
-          kDefaultPaceMultiplier)),
-      min_total_allocated_bitrate_(
-          config.stream_based_config.min_total_allocated_bitrate.value_or(
-              DataRate::Zero())),
-      max_padding_rate_(config.stream_based_config.max_padding_rate.value_or(
-          DataRate::Zero())),
+      pacing_factor_(config.stream_based_config.pacing_factor.value_or(kDefaultPaceMultiplier)),
+      min_total_allocated_bitrate_(config.stream_based_config.min_total_allocated_bitrate.value_or(DataRate::Zero())),
+      max_padding_rate_(config.stream_based_config.max_padding_rate.value_or(DataRate::Zero())),
       max_total_allocated_bitrate_(DataRate::Zero()),
       network_state_predictor_(std::move(network_state_predictor)) {
   RTC_DCHECK(config.constraints.at_time.IsFinite());
@@ -318,13 +314,17 @@ NetworkControlUpdate GoogCcNetworkController::OnRemoteBitrateReport(
   return NetworkControlUpdate();
 }
 
-NetworkControlUpdate GoogCcNetworkController::OnRoundTripTimeUpdate(
-    RoundTripTimeUpdate msg) {
-  if (packet_feedback_only_ || msg.smoothed)
-    return NetworkControlUpdate();
+NetworkControlUpdate GoogCcNetworkController::OnRoundTripTimeUpdate(RoundTripTimeUpdate msg)
+{
+	if (packet_feedback_only_ || msg.smoothed)
+	{
+		return NetworkControlUpdate();
+	}
   RTC_DCHECK(!msg.round_trip_time.IsZero());
   if (delay_based_bwe_)
-    delay_based_bwe_->OnRttUpdate(msg.round_trip_time);
+  {
+	  delay_based_bwe_->OnRttUpdate(msg.round_trip_time);
+  }
   bandwidth_estimation_->UpdateRtt(msg.round_trip_time, msg.receive_time);
 
 #if 0
@@ -439,25 +439,27 @@ void GoogCcNetworkController::ClampConstraints() {
   // TODO(holmer): We should make sure the default bitrates are set to 10 kbps,
   // and that we don't try to set the min bitrate to 0 from any applications.
   // The congestion controller should allow a min bitrate of 0.
-  min_data_rate_ =
-      std::max(min_data_rate_, congestion_controller::GetMinBitrate());
+  min_data_rate_ = std::max(min_data_rate_, congestion_controller::GetMinBitrate());
   if (use_min_allocatable_as_lower_bound_)
-    min_data_rate_ = std::max(min_data_rate_, min_total_allocated_bitrate_);
-  if (max_data_rate_ < min_data_rate_) {
+  {
+	  min_data_rate_ = std::max(min_data_rate_, min_total_allocated_bitrate_);
+  }
+  if (max_data_rate_ < min_data_rate_) 
+  {
     RTC_LOG(LS_WARNING) << "max bitrate smaller than min bitrate";
     max_data_rate_ = min_data_rate_;
   }
-  if (starting_rate_ && starting_rate_ < min_data_rate_) {
+  if (starting_rate_ && starting_rate_ < min_data_rate_) 
+  {
     RTC_LOG(LS_WARNING) << "start bitrate smaller than min bitrate";
     starting_rate_ = min_data_rate_;
   }
 }
 
-std::vector<ProbeClusterConfig> GoogCcNetworkController::ResetConstraints(
-    TargetRateConstraints new_constraints) {
+std::vector<ProbeClusterConfig> GoogCcNetworkController::ResetConstraints(TargetRateConstraints new_constraints) 
+{
   min_data_rate_ = new_constraints.min_data_rate.value_or(DataRate::Zero());
-  max_data_rate_ =
-      new_constraints.max_data_rate.value_or(DataRate::PlusInfinity());
+  max_data_rate_ = new_constraints.max_data_rate.value_or(DataRate::PlusInfinity());
   starting_rate_ = new_constraints.starting_rate;
   ClampConstraints();
 
@@ -474,7 +476,9 @@ std::vector<ProbeClusterConfig> GoogCcNetworkController::ResetConstraints(
 #endif  // _DEBUG
 
   if (starting_rate_)
-    delay_based_bwe_->SetStartBitrate(*starting_rate_);
+  {
+	  delay_based_bwe_->SetStartBitrate(*starting_rate_);
+  }
   delay_based_bwe_->SetMinBitrate(min_data_rate_);
 
   return probe_controller_->SetBitrates(
@@ -862,11 +866,8 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(
 PacerConfig GoogCcNetworkController::GetPacingRates(Timestamp at_time) const {
   // Pacing rate is based on target rate before congestion window pushback,
   // because we don't want to build queues in the pacer when pushback occurs.
-  DataRate pacing_rate =
-      std::max(min_total_allocated_bitrate_, last_raw_target_rate_) *
-      pacing_factor_;
-  DataRate padding_rate =
-      std::min(max_padding_rate_, last_pushback_target_rate_);
+  DataRate pacing_rate = std::max(min_total_allocated_bitrate_, last_raw_target_rate_) * pacing_factor_/*2.5f*/;
+  DataRate padding_rate = std::min(max_padding_rate_, last_pushback_target_rate_);
   PacerConfig msg;
   msg.at_time = at_time;
   msg.time_window = TimeDelta::seconds(1);

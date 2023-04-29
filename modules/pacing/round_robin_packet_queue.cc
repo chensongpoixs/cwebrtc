@@ -77,8 +77,7 @@ void RoundRobinPacketQueue::Push(const Packet& packet_to_insert)
   {
     // If the SSRC is not currently scheduled, add it to |stream_priorities_|.
     RTC_CHECK(!IsSsrcScheduled(stream->ssrc));
-    stream->priority_it = stream_priorities_.emplace(
-        StreamPrioKey(packet.priority, stream->bytes), packet.ssrc);
+    stream->priority_it = stream_priorities_.emplace( StreamPrioKey(packet.priority, stream->bytes), packet.ssrc);
   }
   else if (packet.priority < stream->priority_it->first.priority) 
   {
@@ -218,15 +217,19 @@ void RoundRobinPacketQueue::UpdateQueueTime(int64_t timestamp_ms)
 }
 
 void RoundRobinPacketQueue::SetPauseState(bool paused, int64_t timestamp_ms) {
-  if (paused_ == paused)
-    return;
+	if (paused_ == paused)
+	{
+		return;
+  }
   UpdateQueueTime(timestamp_ms);
   paused_ = paused;
 }
 
 int64_t RoundRobinPacketQueue::AverageQueueTimeMs() const {
-  if (Empty())
-    return 0;
+	if (Empty())
+	{
+		return 0;
+  }
   return queue_time_sum_ms_ / size_packets_;
 }
 

@@ -671,9 +671,11 @@ ChannelSend::ChannelSend(Clock* clock,
   // transport. All of this logic should be moved to the future
   // RTPMediaTransport. In this case it means that overhead and bandwidth
   // observers should not be called when using media transport.
-  if (!media_transport_) {
+  if (!media_transport_) 
+  {
     configuration.overhead_observer = overhead_observer;
-    configuration.bandwidth_callback = rtcp_observer_.get();
+	// TODO@chensong 2023-04-29 创建网络带宽评估
+	configuration.bandwidth_callback = rtcp_observer_.get();
     configuration.transport_feedback_callback = feedback_observer_proxy_.get();
   }
 

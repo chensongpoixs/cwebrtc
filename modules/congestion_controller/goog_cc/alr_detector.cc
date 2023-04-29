@@ -50,8 +50,10 @@ AlrDetector::AlrDetector(RtcEventLog* event_log)
 
 AlrDetector::~AlrDetector() {}
 
-void AlrDetector::OnBytesSent(size_t bytes_sent, int64_t send_time_ms) {
-  if (!last_send_time_ms_.has_value()) {
+void AlrDetector::OnBytesSent(size_t bytes_sent, int64_t send_time_ms) 
+{
+  if (!last_send_time_ms_.has_value()) 
+  {
     last_send_time_ms_ = send_time_ms;
     // Since the duration for sending the bytes is unknwon, return without
     // updating alr state.
@@ -64,18 +66,21 @@ void AlrDetector::OnBytesSent(size_t bytes_sent, int64_t send_time_ms) {
   alr_budget_.IncreaseBudget(delta_time_ms);
   bool state_changed = false;
   if (alr_budget_.budget_level_percent() > alr_start_budget_level_percent_ &&
-      !alr_started_time_ms_) {
+      !alr_started_time_ms_) 
+  {
     alr_started_time_ms_.emplace(rtc::TimeMillis());
     state_changed = true;
-  } else if (alr_budget_.budget_level_percent() <
+  }
+  else if (alr_budget_.budget_level_percent() <
                  alr_stop_budget_level_percent_ &&
-             alr_started_time_ms_) {
+             alr_started_time_ms_) 
+  {
     state_changed = true;
     alr_started_time_ms_.reset();
   }
-  if (event_log_ && state_changed) {
-    event_log_->Log(
-        absl::make_unique<RtcEventAlrState>(alr_started_time_ms_.has_value()));
+  if (event_log_ && state_changed) 
+  {
+    event_log_->Log(absl::make_unique<RtcEventAlrState>(alr_started_time_ms_.has_value()));
   }
 }
 

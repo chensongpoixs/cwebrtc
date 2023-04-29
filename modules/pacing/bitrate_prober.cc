@@ -60,12 +60,16 @@ BitrateProber::BitrateProber(const WebRtcKeyValueConfig& field_trials)
 }
 
 void BitrateProber::SetEnabled(bool enable) {
-  if (enable) {
-    if (probing_state_ == ProbingState::kDisabled) {
+  if (enable) 
+  {
+    if (probing_state_ == ProbingState::kDisabled) 
+	{
       probing_state_ = ProbingState::kInactive;
       RTC_LOG(LS_INFO) << "Bandwidth probing enabled, set to inactive";
     }
-  } else {
+  }
+  else 
+  {
     probing_state_ = ProbingState::kDisabled;
     RTC_LOG(LS_INFO) << "Bandwidth probing disabled";
   }

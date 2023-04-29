@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -28,6 +28,12 @@ class RtcEventLog;
 // AlrDetector provides a signal that can be utilized to adjust
 // estimate bandwidth.
 // Note: This class is not thread-safe.
+//应用受限区域检测器是一类利用
+//用于估计网络流量是否为
+//目前受到应用程序生成流量的能力的限制。
+//AlrDetector提供可用于调整的信号
+//估计带宽。
+//注意：这个类不是线程安全的。
 class AlrDetector {
  public:
   AlrDetector();

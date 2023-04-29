@@ -111,8 +111,10 @@ void PacedSender::CreateProbeCluster(int bitrate_bps, int cluster_id) {
 void PacedSender::Pause() {
   {
     rtc::CritScope cs(&critsect_);
-    if (!paused_)
-      RTC_LOG(LS_INFO) << "PacedSender paused.";
+	if (!paused_)
+	{
+		RTC_LOG(LS_INFO) << "PacedSender paused.";
+	}
     paused_ = true;
     packets_.SetPauseState(true, TimeMilliseconds());
   }
@@ -120,14 +122,18 @@ void PacedSender::Pause() {
   // Tell the process thread to call our TimeUntilNextProcess() method to get
   // a new (longer) estimate for when to call Process().
   if (process_thread_)
-    process_thread_->WakeUp(this);
+  {
+	  process_thread_->WakeUp(this);
+  }
 }
 
 void PacedSender::Resume() {
   {
     rtc::CritScope cs(&critsect_);
-    if (paused_)
-      RTC_LOG(LS_INFO) << "PacedSender resumed.";
+	if (paused_)
+	{
+		RTC_LOG(LS_INFO) << "PacedSender resumed.";
+	}
     paused_ = false;
     packets_.SetPauseState(false, TimeMilliseconds());
   }
@@ -135,7 +141,9 @@ void PacedSender::Resume() {
   // Tell the process thread to call our TimeUntilNextProcess() method to
   // refresh the estimate for when to call Process().
   if (process_thread_)
-    process_thread_->WakeUp(this);
+  {
+	  process_thread_->WakeUp(this);
+  }
 }
 
 void PacedSender::SetCongestionWindow(int64_t congestion_window_bytes) {
@@ -149,8 +157,10 @@ void PacedSender::UpdateOutstandingData(int64_t outstanding_bytes) {
 }
 
 bool PacedSender::Congested() const {
-  if (congestion_window_bytes_ == kNoCongestionWindow)
-    return false;
+	if (congestion_window_bytes_ == kNoCongestionWindow)
+	{
+		return false;
+  }
   return outstanding_bytes_ >= congestion_window_bytes_;
 }
 
@@ -173,35 +183,34 @@ void PacedSender::SetProbingEnabled(bool enabled) {
   prober_.SetEnabled(enabled);
 }
 
-void PacedSender::SetEstimatedBitrate(uint32_t bitrate_bps) {
-  if (bitrate_bps == 0)
-    RTC_LOG(LS_ERROR) << "PacedSender is not designed to handle 0 bitrate.";
+void PacedSender::SetEstimatedBitrate(uint32_t bitrate_bps)
+{
+	if (bitrate_bps == 0)
+	{
+		RTC_LOG(LS_ERROR) << "PacedSender is not designed to handle 0 bitrate.";
+  }
   rtc::CritScope cs(&critsect_);
   estimated_bitrate_bps_ = bitrate_bps;
-  padding_budget_.set_target_rate_kbps(
-      std::min(estimated_bitrate_bps_ / 1000, max_padding_bitrate_kbps_));
-  pacing_bitrate_kbps_ =
-      std::max(min_send_bitrate_kbps_, estimated_bitrate_bps_ / 1000) *
-      pacing_factor_;
+  padding_budget_.set_target_rate_kbps(std::min(estimated_bitrate_bps_ / 1000, max_padding_bitrate_kbps_));
+  pacing_bitrate_kbps_ = std::max(min_send_bitrate_kbps_, estimated_bitrate_bps_ / 1000) * pacing_factor_;
   if (!alr_detector_)
-    alr_detector_ = absl::make_unique<AlrDetector>(nullptr /*event_log*/);
+  {
+	  alr_detector_ = absl::make_unique<AlrDetector>(nullptr /*event_log*/);
+  }
   alr_detector_->SetEstimatedBitrate(bitrate_bps);
 }
 
-void PacedSender::SetSendBitrateLimits(int min_send_bitrate_bps,
-                                       int padding_bitrate) {
+void PacedSender::SetSendBitrateLimits(int min_send_bitrate_bps, int padding_bitrate) 
+{
   rtc::CritScope cs(&critsect_);
   min_send_bitrate_kbps_ = min_send_bitrate_bps / 1000;
-  pacing_bitrate_kbps_ =
-      std::max(min_send_bitrate_kbps_, estimated_bitrate_bps_ / 1000) *
-      pacing_factor_;
+  pacing_bitrate_kbps_ = std::max(min_send_bitrate_kbps_, estimated_bitrate_bps_ / 1000) * pacing_factor_;
   max_padding_bitrate_kbps_ = padding_bitrate / 1000;
-  padding_budget_.set_target_rate_kbps(
-      std::min(estimated_bitrate_bps_ / 1000, max_padding_bitrate_kbps_));
+  padding_budget_.set_target_rate_kbps(std::min(estimated_bitrate_bps_ / 1000, max_padding_bitrate_kbps_));
 }
 
-void PacedSender::SetPacingRates(uint32_t pacing_rate_bps,
-                                 uint32_t padding_rate_bps) {
+void PacedSender::SetPacingRates(uint32_t pacing_rate_bps, uint32_t padding_rate_bps) 
+{
   rtc::CritScope cs(&critsect_);
   RTC_DCHECK(pacing_rate_bps > 0);
   pacing_bitrate_kbps_ = pacing_rate_bps / 1000;
@@ -217,7 +226,8 @@ void PacedSender::InsertPacket(RtpPacketSender::Priority priority,
                                uint16_t sequence_number,
                                int64_t capture_time_ms,
                                size_t bytes,
-                               bool retransmission) {
+                               bool retransmission) 
+{
   rtc::CritScope cs(&critsect_);
   RTC_DCHECK(pacing_bitrate_kbps_ > 0)
       << "SetPacingRate must be called before InsertPacket.";
@@ -242,8 +252,7 @@ void PacedSender::SetAccountForAudioPackets(bool account_for_audio) {
 int64_t PacedSender::ExpectedQueueTimeMs() const {
   rtc::CritScope cs(&critsect_);
   RTC_DCHECK_GT(pacing_bitrate_kbps_, 0);
-  return static_cast<int64_t>(packets_.SizeInBytes() * 8 /
-                              pacing_bitrate_kbps_);
+  return static_cast<int64_t>(packets_.SizeInBytes() * 8 / pacing_bitrate_kbps_);
 }
 
 absl::optional<int64_t> PacedSender::GetApplicationLimitedRegionStartTime() {
@@ -340,6 +349,7 @@ void PacedSender::Process()
   // kDynamic:Process是以不定速率进行的
   rtc::CritScope cs(&critsect_);
   int64_t now_us = clock_->TimeInMicroseconds();
+  // elapsed_time_ms = [0 - 2000ms]
   int64_t elapsed_time_ms = UpdateTimeAndGetElapsedMs(now_us);
   // TODO@chensong 20220803
   // 检查是否需要发送keepalive包,
@@ -365,6 +375,10 @@ void PacedSender::Process()
   // 预算
   if (elapsed_time_ms > 0) 
   {
+	  // 三个重要接口修改 目标码流
+	  // 接口1. PacedSender::SetEstimatedBitrate
+	  // 接口2. PacedSender::SetSendBitrateLimits
+	  // 接口3. PacedSender::SetPacingRates  ---->这个接口RtpTransportControllerSend::StartProcessPeriodicTasks()定时任务中更新码流
     int target_bitrate_kbps = pacing_bitrate_kbps_;
     size_t queue_size_bytes = packets_.SizeInBytes();
     if (queue_size_bytes > 0) 
@@ -375,26 +389,19 @@ void PacedSender::Process()
       packets_.UpdateQueueTime(TimeMilliseconds());
       if (drain_large_queues_) 
 	  {
-//<<<<<<< HEAD
- //       int64_t avg_time_left_ms = std::max<int64_t>( 1, queue_time_limit - packets_.AverageQueueTimeMs());
-//=======
-        int64_t avg_time_left_ms = std::max<int64_t>(1, queue_time_limit - packets_.AverageQueueTimeMs());
-//>>>>>>> 400fbc6232e2881b208dd76136e19a6ecf5adcd4
+        int64_t avg_time_left_ms = std::max<int64_t>(1, queue_time_limit /*2000*/ - packets_.AverageQueueTimeMs());
         // 根据队列大小计算最小目标码率
         int min_bitrate_needed_kbps = static_cast<int>(queue_size_bytes * 8 / avg_time_left_ms);
         if (min_bitrate_needed_kbps > target_bitrate_kbps) 
 		{
-          target_bitrate_kbps = min_bitrate_needed_kbps;
-//<<<<<<< HEAD
+          target_bitrate_kbps = min_bitrate_needed_kbps; 
           RTC_LOG(LS_VERBOSE) << "bwe:large_pacing_queue pacing_rate_kbps="  << target_bitrate_kbps;
-//=======
-       //   RTC_LOG(LS_VERBOSE) << "bwe:large_pacing_queue pacing_rate_kbps=" << target_bitrate_kbps;
-//>>>>>>> 400fbc6232e2881b208dd76136e19a6ecf5adcd4
         }
       }
     }
 
     media_budget_.set_target_rate_kbps(target_bitrate_kbps);
+	//更新媒体和pping的数据的大小
     UpdateBudgetWithElapsedTime(elapsed_time_ms);
   }
   // 从prober_获取探测码率
@@ -421,12 +428,7 @@ void PacedSender::Process()
     critsect_.Leave();
     bool success = packet_sender_->TimeToSendPacket( packet->ssrc, packet->sequence_number, packet->capture_time_ms,
         packet->retransmission, pacing_info);
-    critsect_.Enter();
-//<<<<<<< HEAD
- //   if (success)
-//=======
-   
-//>>>>>>> 400fbc6232e2881b208dd76136e19a6ecf5adcd4
+    critsect_.Enter(); 
     if (success) 
 	{
       bytes_sent += packet->bytes;
@@ -456,15 +458,15 @@ void PacedSender::Process()
       if (padding_needed > 0) 
 	  {
         critsect_.Leave();
-        size_t padding_sent =
-            packet_sender_->TimeToSendPadding(padding_needed, pacing_info);
+        size_t padding_sent = packet_sender_->TimeToSendPadding(padding_needed, pacing_info);
         critsect_.Enter();
         bytes_sent += padding_sent;
         OnPaddingSent(padding_sent);
       }
     }
   }
-  if (is_probing) {
+  if (is_probing) 
+  {
     probing_send_failure_ = bytes_sent == 0;
     if (!probing_send_failure_) 
 	{
@@ -473,7 +475,9 @@ void PacedSender::Process()
     }
   }
   if (alr_detector_)
-    alr_detector_->OnBytesSent(bytes_sent, now_us / 1000);
+  {
+	  alr_detector_->OnBytesSent(bytes_sent, now_us / 1000);
+  }
 }
 
 void PacedSender::ProcessThreadAttached(ProcessThread* process_thread) {
@@ -500,8 +504,10 @@ const RoundRobinPacketQueue::Packet* PacedSender::GetPendingPacket(const PacedPa
 }
 
 void PacedSender::OnPacketSent(const RoundRobinPacketQueue::Packet* packet) {
-  if (first_sent_packet_ms_ == -1)
-    first_sent_packet_ms_ = TimeMilliseconds();
+	if (first_sent_packet_ms_ == -1)
+	{
+		first_sent_packet_ms_ = TimeMilliseconds();
+  }
   bool audio_packet = packet->priority == kHighPriority;
   if (!audio_packet || account_for_audio_) {
     // Update media bytes sent.
@@ -523,7 +529,9 @@ void PacedSender::OnPaddingSent(size_t bytes_sent) {
   last_send_time_us_ = clock_->TimeInMicroseconds();
 }
 
-void PacedSender::UpdateBudgetWithElapsedTime(int64_t delta_time_ms) {
+void PacedSender::UpdateBudgetWithElapsedTime(int64_t delta_time_ms) 
+{
+	// TODO@chensong 2023-04-29 更新媒体的数据的大小
   delta_time_ms = std::min(kMaxIntervalTimeMs, delta_time_ms);
   media_budget_.IncreaseBudget(delta_time_ms);
   padding_budget_.IncreaseBudget(delta_time_ms);

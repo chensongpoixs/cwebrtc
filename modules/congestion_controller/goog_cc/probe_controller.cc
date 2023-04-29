@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -119,15 +119,13 @@ ProbeControllerConfig::~ProbeControllerConfig() = default;
 ProbeController::ProbeController(const WebRtcKeyValueConfig* key_value_config,
                                  RtcEventLog* event_log)
     : enable_periodic_alr_probing_(false),
-      in_rapid_recovery_experiment_(
-          key_value_config->Lookup(kBweRapidRecoveryExperiment)
-              .find("Enabled") == 0),
-      limit_probes_with_allocateable_rate_(
-          key_value_config->Lookup(kCappedProbingFieldTrialName)
-              .find("Disabled") != 0),
-      allocation_probing_only_in_alr_(
-          key_value_config->Lookup(kAllocProbingOnlyInAlrFieldTrialName)
-              .find("Enabled") == 0),
+	//WebRTC-BweRapidRecoveryExperiment是一个用于测试WebRTC带宽估算器（BWE）的实验。它旨在评估BWE如何处理网络拥塞和恢复过程，并提供改进的建议。
+	//这个实验通过模拟不同的网络拥塞情况，例如丢包、延迟等，来测试BWE在这些情况下的表现。同时，它还测试了BWE在网络恢复时的表现，以确保视频流畅度和质量不会受到影响。
+	//除此之外，WebRTC-BweRapidRecoveryExperiment还可以与其他WebRTC实验一起使用，例如WebRTC-NetEQ-Experiment和WebRTC-DynamicRateControl-Experiment，以对WebRTC进行全面的性能评估和优化。
+	//总体来说，WebRTC-BweRapidRecoveryExperiment是一个非常有用的工具，可帮助开发者和研究人员深入了解WebRTC的带宽估算器，并提供相关性能改进的建议。
+      in_rapid_recovery_experiment_( key_value_config->Lookup(kBweRapidRecoveryExperiment) .find("Enabled") == 0),
+      limit_probes_with_allocateable_rate_(key_value_config->Lookup(kCappedProbingFieldTrialName).find("Disabled") != 0),
+      allocation_probing_only_in_alr_(key_value_config->Lookup(kAllocProbingOnlyInAlrFieldTrialName) .find("Enabled") == 0),
       event_log_(event_log),
       config_(ProbeControllerConfig(key_value_config)) {
   Reset(0);
@@ -136,14 +134,15 @@ ProbeController::ProbeController(const WebRtcKeyValueConfig* key_value_config,
 ProbeController::~ProbeController() {}
 
 std::vector<ProbeClusterConfig> ProbeController::SetBitrates(
-    int64_t min_bitrate_bps,
-    int64_t start_bitrate_bps,
-    int64_t max_bitrate_bps,
-    int64_t at_time_ms) {
-  if (start_bitrate_bps > 0) {
+    int64_t min_bitrate_bps, int64_t start_bitrate_bps, int64_t max_bitrate_bps, int64_t at_time_ms)
+{
+  if (start_bitrate_bps > 0) 
+  {
     start_bitrate_bps_ = start_bitrate_bps;
     estimated_bitrate_bps_ = start_bitrate_bps;
-  } else if (start_bitrate_bps_ == 0) {
+  } 
+  else if (start_bitrate_bps_ == 0) 
+  {
     start_bitrate_bps_ = min_bitrate_bps;
   }
 
@@ -186,32 +185,31 @@ std::vector<ProbeClusterConfig> ProbeController::SetBitrates(
 }
 
 std::vector<ProbeClusterConfig> ProbeController::OnMaxTotalAllocatedBitrate(
-    int64_t max_total_allocated_bitrate,
-    int64_t at_time_ms) {
+    int64_t max_total_allocated_bitrate, int64_t at_time_ms)
+{
   const bool in_alr = alr_start_time_ms_.has_value();
-  const bool allow_allocation_probe =
-      allocation_probing_only_in_alr_ ? in_alr : true;
+  const bool allow_allocation_probe = allocation_probing_only_in_alr_ ? in_alr : true;
 
   if (state_ == State::kProbingComplete &&
       max_total_allocated_bitrate != max_total_allocated_bitrate_ &&
       estimated_bitrate_bps_ != 0 &&
       (max_bitrate_bps_ <= 0 || estimated_bitrate_bps_ < max_bitrate_bps_) &&
       estimated_bitrate_bps_ < max_total_allocated_bitrate &&
-      allow_allocation_probe) {
+      allow_allocation_probe) 
+  {
     max_total_allocated_bitrate_ = max_total_allocated_bitrate;
 
-    if (!config_.first_allocation_probe_scale)
-      return std::vector<ProbeClusterConfig>();
+	if (!config_.first_allocation_probe_scale)
+	{
+		return std::vector<ProbeClusterConfig>();
+	}
 
-    std::vector<int64_t> probes = {
-        static_cast<int64_t>(config_.first_allocation_probe_scale.Value() *
-                             max_total_allocated_bitrate)};
-    if (config_.second_allocation_probe_scale) {
-      probes.push_back(config_.second_allocation_probe_scale.Value() *
-                       max_total_allocated_bitrate);
+    std::vector<int64_t> probes = { static_cast<int64_t>(config_.first_allocation_probe_scale.Value() * max_total_allocated_bitrate)};
+    if (config_.second_allocation_probe_scale) 
+	{
+      probes.push_back(config_.second_allocation_probe_scale.Value() * max_total_allocated_bitrate);
     }
-    return InitiateProbing(at_time_ms, probes,
-                           config_.allocation_allow_further_probing);
+    return InitiateProbing(at_time_ms, probes, config_.allocation_allow_further_probing);
   }
   max_total_allocated_bitrate_ = max_total_allocated_bitrate;
   return std::vector<ProbeClusterConfig>();

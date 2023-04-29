@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -35,7 +35,18 @@ namespace webrtc {
 class AlrDetector;
 class Clock;
 class RtcEventLog;
+/*
+TODO@chensong 2023-04-29 
+PacedSender类是WebRTC中用于控制传输速率的一个重要组件，主要用于调整发送方的发送速率以满足网络带宽的限制。PacedSender类的实现原理如下：
 
+1.根据网络带宽动态调整发送速率：PacedSender类会根据网络带宽的情况调整发送速率，以保证数据包能够在网络上正常传输。具体而言，PacedSender会先统计一定时间内网络的平均带宽，并根据平均带宽和目标带宽之间的差值来调整发送速率。
+
+2.使用Leaky Bucket算法进行流量控制：PacedSender类基于Leaky Bucket算法实现了流量控制，即在发送端维护一个固定大小的队列，当有新数据包需要发送时，先将其放入队列中，然后按照一定的速率从队列中取出数据包发送。这样可以避免瞬时爆发式的数据传输，从而平稳地控制发送速率。
+
+3.考虑丢包情况进行自适应调整：PacedSender类还会根据网络丢包的情况进行自适应调整，以尽量减少数据包的丢失率。具体而言，当检测到网络丢包时，PacedSender会降低发送速率，以便等待网络恢复。同时，在网络恢复后，PacedSender会逐渐增加发送速率，以达到最大可用带宽。
+
+综上所述，PacedSender类通过动态调整发送速率、使用Leaky Bucket算法进行流量控制和考虑丢包情况进行自适应调整来保证数据包能够在网络上正常传输。这些机制使得PacedSender类成为WebRTC中重要的传输控制组件。
+*/
 class PacedSender : public Pacer {
  public:
   class PacketSender {
@@ -81,9 +92,11 @@ class PacedSender : public Pacer {
   virtual void CreateProbeCluster(int bitrate_bps, int cluster_id);
 
   // Temporarily pause all sending.
+  // Pause方法用于暂停发送。在暂停状态下，发送速率会被忽略，直接以最大速率发送数据包
   void Pause();
 
   // Resume sending packets.
+  //Resume方法用于恢复发送。在恢复状态下，PacedSender将根据带宽和网络条件自动控制发送速率。
   void Resume();
 
   void SetCongestionWindow(int64_t congestion_window_bytes);
@@ -92,6 +105,8 @@ class PacedSender : public Pacer {
   // Enable bitrate probing. Enabled by default, mostly here to simplify
   // testing. Must be called before any packets are being sent to have an
   // effect.
+  // TODO@chensong 2023-04-29
+  // SetProbingEnabled方法设置是否处于探测模式。在探测模式下，发送速率会被忽略，直接以最大速率发送数据包。
   void SetProbingEnabled(bool enabled);
 
   // Deprecated, SetPacingRates should be used instead.
@@ -106,6 +121,9 @@ class PacedSender : public Pacer {
 
   // Returns true if we send the packet now, else it will add the packet
   // information to the queue and call TimeToSendPacket when it's time to send.
+  // TODO@chensong 2023-04-29 
+  // InsertPacket方法用于向发送队列中插入一个待发送的数据包。该方法首先检查当前是否处于探测模式，如果是，则直接将数据包发送出去；否则，将数据包加入发送队列。
+  //
   void InsertPacket(RtpPacketSender::Priority priority,
                     uint32_t ssrc,
                     uint16_t sequence_number,
@@ -155,24 +173,17 @@ class PacedSender : public Pacer {
               RtcEventLog* event_log,
               const WebRtcKeyValueConfig& field_trials);
 
-  int64_t UpdateTimeAndGetElapsedMs(int64_t now_us)
-      RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
-  bool ShouldSendKeepalive(int64_t at_time_us) const
-      RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
+  int64_t UpdateTimeAndGetElapsedMs(int64_t now_us) RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
+  bool ShouldSendKeepalive(int64_t at_time_us) const RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
 
   // Updates the number of bytes that can be sent for the next time interval.
-  void UpdateBudgetWithElapsedTime(int64_t delta_time_in_ms)
-      RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
-  void UpdateBudgetWithBytesSent(size_t bytes)
-      RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
+  void UpdateBudgetWithElapsedTime(int64_t delta_time_in_ms) RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
+  void UpdateBudgetWithBytesSent(size_t bytes) RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
 
-  const RoundRobinPacketQueue::Packet* GetPendingPacket(
-      const PacedPacketInfo& pacing_info)
+  const RoundRobinPacketQueue::Packet* GetPendingPacket(const PacedPacketInfo& pacing_info)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
-  void OnPacketSent(const RoundRobinPacketQueue::Packet* packet)
-      RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
-  void OnPaddingSent(size_t padding_sent)
-      RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
+  void OnPacketSent(const RoundRobinPacketQueue::Packet* packet) RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
+  void OnPaddingSent(size_t padding_sent) RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
 
   bool Congested() const RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);
   int64_t TimeMilliseconds() const RTC_EXCLUSIVE_LOCKS_REQUIRED(critsect_);

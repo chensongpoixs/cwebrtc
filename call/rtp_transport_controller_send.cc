@@ -16,6 +16,7 @@
 #include "api/transport/network_types.h"
 #include "api/units/data_rate.h"
 #include "api/units/time_delta.h"
+#include "api/units/data_size.h"
 #include "api/units/timestamp.h"
 #include "call/rtp_transport_controller_send.h"
 #include "call/rtp_video_sender.h"
@@ -115,10 +116,15 @@ RtpTransportControllerSend::RtpTransportControllerSend(
       last_report_block_time_(Timestamp::ms(clock_->TimeInMilliseconds())),
       reset_feedback_on_route_change_(
           !field_trial::IsEnabled("WebRTC-Bwe-NoFeedbackReset")),
-      send_side_bwe_with_overhead_(
-          webrtc::field_trial::IsEnabled("WebRTC-SendSideBwe-WithOverhead")),
-      add_pacing_to_cwin_(
-          field_trial::IsEnabled("WebRTC-AddPacingToCongestionWindowPushback")),
+	// TODO@chensong 2023-04-29 
+	// 参数WebRTC-SendSideBwe-WithOverhead是用于启用或禁用WebRTC发送端带宽估计（BWE）时考虑IP和UDP头部开销的选项。默认值为true，表示启用此选项，即将IP和UDP头部开销作为考虑因素纳入BWE计算中。如果将其设置为false，则不考虑这些overhead。
+	//在WebRTC中，BWE是一种自适应机制，通过分析网络状况并根据可用带宽调整音视频质量来实现最佳用户体验。采用BWE可以确保在网络中发生拥塞时，WebRTC应用程序可以适当地降低传输带宽，从而避免数据包丢失和延迟增加。但是，为了准确估计可用带宽，必须考虑IP和UDP头部开销，这些头部会占用网络总带宽的一部分。因此，使用参数WebRTC-SendSideBwe-WithOverhead可以更好地调整BWE算法，以便在考虑网络开销的情况下更准确地估计可用带宽。
+      send_side_bwe_with_overhead_(webrtc::field_trial::IsEnabled("WebRTC-SendSideBwe-WithOverhead")),
+	  // TODO@chensong 2023-04-29 
+	  // 是一个布尔类型的参数，用于启用或禁用WebRTC的pacing功能。当此参数设置为true时，WebRTC将使用拥塞控制窗口回退（congestion window pushback）来控制数据包的发送速率，
+	// 并且通过添加延迟以避免网络拥塞。这可以有效地减少数据包的丢失和延迟，并提高视频通话的质量。然而，如果网络条件较好，
+	// 则可能会导致额外的延迟，因此在不同的网络环境中需要进行调整和测试来确定是否需要启用此功能。
+      add_pacing_to_cwin_(field_trial::IsEnabled("WebRTC-AddPacingToCongestionWindowPushback")),
       transport_overhead_bytes_per_packet_(0),
       network_available_(false),
       retransmission_rate_limiter_(clock, kRetransmitWindowSizeMs),
@@ -562,7 +568,9 @@ void RtpTransportControllerSend::UpdateControllerWithTimeInterval()
   msg.at_time = Timestamp::ms(clock_->TimeInMilliseconds());
   if (add_pacing_to_cwin_)
   {
+	  // TODO@chensong 2023-04-29 单位时间内发送数据的字节数大小
     msg.pacer_queue = DataSize::bytes(pacer_.QueueSizeBytes());
+	RTC_LOG(LS_INFO) << "[pacer_queue = " << ToString(msg.pacer_queue.value()) << "]";
   }
   // 对码率进行检测和更新，将结果转发给pacer
   PostUpdates(controller_->OnProcessInterval(msg));
