@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2019 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -19,7 +19,20 @@
 #include "video/encoder_overshoot_detector.h"
 
 namespace webrtc {
+	/*
+	TODO@chensong 2023-04-29 
+	EncoderBitrateAdjuster是WebRTC中负责调整编码器比特率的模块。其原理如下：
 
+	1.获取网络状况：EncoderBitrateAdjuster会从与远端的连接中获取网络状况，例如延迟、丢包率等。
+
+	2.计算可用带宽：根据网络状况，EncoderBitrateAdjuster会计算出当前可用的带宽大小。
+
+	3.调整比特率：EncoderBitrateAdjuster根据可用带宽大小，调整编码器的比特率，以达到最佳图像质量和视频传输性能的平衡。
+
+	4.反馈控制：EncoderBitrateAdjuster会将调整后的比特率反馈给编码器，以确保编码器一直处于最佳状态。
+
+	总之，EncoderBitrateAdjuster通过实时监测网络状况并调整编码器比特率，保证了视频传输的稳定性和质量。
+	*/
 class EncoderBitrateAdjuster {
  public:
   // Size of sliding window used to track overshoot rate.
@@ -39,8 +52,7 @@ class EncoderBitrateAdjuster {
 
   // Adjusts the given rate allocation to make it paceable within the target
   // rates.
-  VideoBitrateAllocation AdjustRateAllocation(
-      const VideoBitrateAllocation& bitrate_allocation,
+  VideoBitrateAllocation AdjustRateAllocation( const VideoBitrateAllocation& bitrate_allocation,
       int framerate_fps);
 
   // Updated overuse detectors with data about the encoder, specifically about
@@ -57,14 +69,12 @@ class EncoderBitrateAdjuster {
   int current_total_framerate_fps_;
   // FPS allocation of temporal layers, per spatial layer. Represented as a Q8
   // fraction; 0 = 0%, 255 = 100%. See VideoEncoder::EncoderInfo.fps_allocation.
-  absl::InlinedVector<uint8_t, kMaxTemporalStreams>
-      current_fps_allocation_[kMaxSpatialLayers];
+  absl::InlinedVector<uint8_t, kMaxTemporalStreams> current_fps_allocation_[kMaxSpatialLayers];
 
   // Frames since layout was changed, mean that any spatial or temporal layer
   // was either disabled or enabled.
   size_t frames_since_layout_change_;
-  std::unique_ptr<EncoderOvershootDetector>
-      overshoot_detectors_[kMaxSpatialLayers][kMaxTemporalStreams];
+  std::unique_ptr<EncoderOvershootDetector> overshoot_detectors_[kMaxSpatialLayers][kMaxTemporalStreams];
 
   // Minimum bitrates allowed, per spatial layer.
   uint32_t min_bitrates_bps_[kMaxSpatialLayers];

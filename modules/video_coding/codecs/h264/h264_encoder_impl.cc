@@ -418,6 +418,7 @@ int32_t H264EncoderImpl::SetRateAllocation(
       memset(&target_bitrate, 0, sizeof(SBitrateInfo));
       target_bitrate.iLayer = SPATIAL_LAYER_ALL,
       target_bitrate.iBitrate = configurations_[i].target_bps;
+	 
       encoders_[i]->SetOption(ENCODER_OPTION_BITRATE, &target_bitrate);
       encoders_[i]->SetOption(ENCODER_OPTION_FRAME_RATE,  &configurations_[i].max_frame_rate);
     } else {

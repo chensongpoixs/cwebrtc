@@ -485,6 +485,7 @@ VideoStreamEncoder::VideoStreamEncoder(
       source_proxy_(new VideoSourceProxy(this)),
       sink_(nullptr),
       settings_(settings),
+	  // TODO@chensong 2023-04-29 网络评估带宽算法
       rate_control_settings_(RateControlSettings::ParseFromFieldTrials()),
       overuse_detector_(std::move(overuse_detector)),
       encoder_stats_observer_(encoder_stats_observer),
@@ -653,10 +654,10 @@ void VideoStreamEncoder::ConfigureEncoderOnTaskQueue(
 // reconfiguration, but this isn't always necessary. Add in logic to only update
 // the VideoBitrateAllocator and call OnEncoderConfigurationChanged with a
 // "soft" reconfiguration.
-void VideoStreamEncoder::ReconfigureEncoder() {
+void VideoStreamEncoder::ReconfigureEncoder() 
+{
   RTC_DCHECK(pending_encoder_reconfiguration_);
-  std::vector<VideoStream> streams =
-      encoder_config_.video_stream_factory->CreateEncoderStreams(
+  std::vector<VideoStream> streams = encoder_config_.video_stream_factory->CreateEncoderStreams(
           last_frame_info_->width, last_frame_info_->height, encoder_config_);
 
   // TODO(ilnik): If configured resolution is significantly less than provided,
@@ -682,22 +683,19 @@ void VideoStreamEncoder::ReconfigureEncoder() {
     RTC_LOG(LS_ERROR) << "Failed to create encoder configuration.";
   }
 
-  rate_allocator_ =
-      settings_.bitrate_allocator_factory->CreateVideoBitrateAllocator(codec);
+  rate_allocator_ = settings_.bitrate_allocator_factory->CreateVideoBitrateAllocator(codec);
 
   // Set min_bitrate_bps, max_bitrate_bps, and max padding bit rate for VP9.
-  if (encoder_config_.codec_type == kVideoCodecVP9) {
+  if (encoder_config_.codec_type == kVideoCodecVP9) 
+  {
     // Lower max bitrate to the level codec actually can produce.
-    streams[0].max_bitrate_bps = std::min<int>(
-        streams[0].max_bitrate_bps, SvcRateAllocator::GetMaxBitrateBps(codec));
+    streams[0].max_bitrate_bps = std::min<int>(  streams[0].max_bitrate_bps, SvcRateAllocator::GetMaxBitrateBps(codec));
     streams[0].min_bitrate_bps = codec.spatialLayers[0].minBitrate * 1000;
     // target_bitrate_bps specifies the maximum padding bitrate.
-    streams[0].target_bitrate_bps =
-        SvcRateAllocator::GetPaddingBitrateBps(codec);
+    streams[0].target_bitrate_bps = SvcRateAllocator::GetPaddingBitrateBps(codec);
   }
 
-  codec.startBitrate =
-      std::max(encoder_start_bitrate_bps_ / 1000, codec.minBitrate);
+  codec.startBitrate = std::max(encoder_start_bitrate_bps_ / 1000, codec.minBitrate);
   codec.startBitrate = std::min(codec.startBitrate, codec.maxBitrate);
   codec.expect_encode_from_texture = last_frame_info_->is_texture;
   // Make sure the start bit rate is sane...
@@ -706,25 +704,28 @@ void VideoStreamEncoder::ReconfigureEncoder() {
 
   // Inform source about max configured framerate.
   int max_framerate = 0;
-  for (const auto& stream : streams) {
+  for (const auto& stream : streams)
+  {
     max_framerate = std::max(stream.max_framerate, max_framerate);
   }
   source_proxy_->SetMaxFramerate(max_framerate);
 
-  if (codec.maxBitrate == 0) {
+  if (codec.maxBitrate == 0) 
+  {
     // max is one bit per pixel
     codec.maxBitrate =
         (static_cast<int>(codec.height) * static_cast<int>(codec.width) *
-         static_cast<int>(codec.maxFramerate)) /
-        1000;
-    if (codec.startBitrate > codec.maxBitrate) {
+         static_cast<int>(codec.maxFramerate)) / 1000;
+    if (codec.startBitrate > codec.maxBitrate) 
+	{
       // But if the user tries to set a higher start bit rate we will
       // increase the max accordingly.
       codec.maxBitrate = codec.startBitrate;
     }
   }
 
-  if (codec.startBitrate > codec.maxBitrate) {
+  if (codec.startBitrate > codec.maxBitrate) 
+  {
     codec.startBitrate = codec.maxBitrate;
   }
 
@@ -740,18 +741,17 @@ void VideoStreamEncoder::ReconfigureEncoder() {
   // CPU adaptation with the correct settings should be polled after
   // encoder_->InitEncode().
   bool success = true;
-  if (pending_encoder_creation_ || reset_required) {
+  if (pending_encoder_creation_ || reset_required) 
+  {
     ReleaseEncoder();
     if (pending_encoder_creation_) {
 	// 找到你哈 ^_^      encoder    TODO@chensong 20220312  -> 
 		// encoder_factory 其实就是BuiltinVideoEncoderFactory类 哈 ^_^  简单
-      encoder_ = settings_.encoder_factory->CreateVideoEncoder(
-          encoder_config_.video_format);
+      encoder_ = settings_.encoder_factory->CreateVideoEncoder(encoder_config_.video_format);
       // TODO(nisse): What to do if creating the encoder fails? Crash,
       // or just discard incoming frames?
       RTC_CHECK(encoder_);
-      codec_info_ = settings_.encoder_factory->QueryVideoEncoder(
-          encoder_config_.video_format);
+      codec_info_ = settings_.encoder_factory->QueryVideoEncoder(encoder_config_.video_format);
     }
 
     if (encoder_->InitEncode(&send_codec_, number_of_cores_,
@@ -799,18 +799,27 @@ void VideoStreamEncoder::ReconfigureEncoder() {
   }
 
   int num_layers;
-  if (codec.codecType == kVideoCodecVP8) {
+  if (codec.codecType == kVideoCodecVP8) 
+  {
     num_layers = codec.VP8()->numberOfTemporalLayers;
-  } else if (codec.codecType == kVideoCodecVP9) {
+  }
+  else if (codec.codecType == kVideoCodecVP9) 
+  {
     num_layers = codec.VP9()->numberOfTemporalLayers;
-  } else if (codec.codecType == kVideoCodecH264) {
+  }
+  else if (codec.codecType == kVideoCodecH264) 
+  {
     num_layers = codec.H264()->numberOfTemporalLayers;
-  } else if (codec.codecType == kVideoCodecGeneric &&
-             codec.numberOfSimulcastStreams > 0) {
+  }
+  else if (codec.codecType == kVideoCodecGeneric &&
+             codec.numberOfSimulcastStreams > 0) 
+  {
     // This is mainly for unit testing, disabling frame dropping.
     // TODO(sprang): Add a better way to disable frame dropping.
     num_layers = codec.simulcastStream[0].numberOfTemporalLayers;
-  } else {
+  } 
+  else 
+  {
     num_layers = 1;
   }
 
@@ -824,7 +833,8 @@ void VideoStreamEncoder::ReconfigureEncoder() {
       (num_layers > 1 && codec.mode == VideoCodecMode::kScreensharing);
 
   VideoEncoder::EncoderInfo info = encoder_->GetEncoderInfo();
-  if (rate_control_settings_.UseEncoderBitrateAdjuster()) {
+  if (rate_control_settings_.UseEncoderBitrateAdjuster()) 
+  {
     bitrate_adjuster_ = absl::make_unique<EncoderBitrateAdjuster>(codec);
     bitrate_adjuster_->OnEncoderInfo(info);
   }
@@ -833,8 +843,7 @@ void VideoStreamEncoder::ReconfigureEncoder() {
     // We have a new rate allocator instance and already configured target
     // bitrate. Update the rate allocation and notify observers.
     last_encoder_rate_settings_->framerate_fps = GetInputFramerateFps();
-    SetEncoderRates(
-        UpdateBitrateAllocationAndNotifyObserver(*last_encoder_rate_settings_));
+    SetEncoderRates(UpdateBitrateAllocationAndNotifyObserver(*last_encoder_rate_settings_));
   }
 
   encoder_stats_observer_->OnEncoderReconfigured(encoder_config_, streams);
@@ -1064,9 +1073,7 @@ VideoStreamEncoder::UpdateBitrateAllocationAndNotifyObserver(
 
   if (bitrate_adjuster_) {
     VideoBitrateAllocation adjusted_allocation =
-        bitrate_adjuster_->AdjustRateAllocation(
-            new_allocation,
-            static_cast<int>(rate_settings.framerate_fps + 0.5));
+        bitrate_adjuster_->AdjustRateAllocation(new_allocation, static_cast<int>(rate_settings.framerate_fps + 0.5));
     RTC_LOG(LS_VERBOSE) << "Adjusting allocation, fps = "
                         << rate_settings.framerate_fps << ", from "
                         << new_allocation.ToString() << ", to "
@@ -1862,9 +1869,8 @@ VideoStreamEncoder::GetConstAdaptCounter() {
   return adapt_counters_[degradation_preference_];
 }
 
-void VideoStreamEncoder::RunPostEncode(EncodedImage encoded_image,
-                                       int64_t time_sent_us,
-                                       int temporal_index) {
+void VideoStreamEncoder::RunPostEncode(EncodedImage encoded_image, int64_t time_sent_us, int temporal_index)
+{
   if (!encoder_queue_.IsCurrent()) {
     encoder_queue_.PostTask(
         [this, encoded_image, time_sent_us, temporal_index] {
@@ -1906,8 +1912,11 @@ void VideoStreamEncoder::RunPostEncode(EncodedImage encoded_image,
   // TODO@chensong 20222-07-26 统计视频编码的延迟
   overuse_detector_->FrameSent( encoded_image.Timestamp(), time_sent_us, encoded_image.capture_time_ms_ * rtc::kNumMicrosecsPerMillisec, encode_duration_us);
   if (quality_scaler_ && encoded_image.qp_ >= 0)
-    quality_scaler_->ReportQp(encoded_image.qp_, time_sent_us);
-  if (bitrate_adjuster_) {
+  {
+	  quality_scaler_->ReportQp(encoded_image.qp_, time_sent_us);
+  }
+  if (bitrate_adjuster_) 
+  {
     bitrate_adjuster_->OnEncodedFrame(encoded_image, temporal_index);
   }
 }

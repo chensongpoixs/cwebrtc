@@ -59,11 +59,13 @@ RoundRobinPacketQueue::RoundRobinPacketQueue(int64_t start_time_us)
 
 RoundRobinPacketQueue::~RoundRobinPacketQueue() {}
 
-void RoundRobinPacketQueue::Push(const Packet& packet_to_insert) {
+void RoundRobinPacketQueue::Push(const Packet& packet_to_insert) 
+{
   Packet packet(packet_to_insert);
 
   auto stream_info_it = streams_.find(packet.ssrc);
-  if (stream_info_it == streams_.end()) {
+  if (stream_info_it == streams_.end()) 
+  {
     stream_info_it = streams_.emplace(packet.ssrc, Stream()).first;
     stream_info_it->second.priority_it = stream_priorities_.end();
     stream_info_it->second.ssrc = packet.ssrc;
@@ -71,18 +73,20 @@ void RoundRobinPacketQueue::Push(const Packet& packet_to_insert) {
 
   Stream* stream = &stream_info_it->second;
 
-  if (stream->priority_it == stream_priorities_.end()) {
+  if (stream->priority_it == stream_priorities_.end()) 
+  {
     // If the SSRC is not currently scheduled, add it to |stream_priorities_|.
     RTC_CHECK(!IsSsrcScheduled(stream->ssrc));
     stream->priority_it = stream_priorities_.emplace(
         StreamPrioKey(packet.priority, stream->bytes), packet.ssrc);
-  } else if (packet.priority < stream->priority_it->first.priority) {
+  }
+  else if (packet.priority < stream->priority_it->first.priority) 
+  {
     // If the priority of this SSRC increased, remove the outdated StreamPrioKey
     // and insert a new one with the new priority. Note that
     // RtpPacketSender::Priority uses lower ordinal for higher priority.
     stream_priorities_.erase(stream->priority_it);
-    stream->priority_it = stream_priorities_.emplace(
-        StreamPrioKey(packet.priority, stream->bytes), packet.ssrc);
+    stream->priority_it = stream_priorities_.emplace(StreamPrioKey(packet.priority, stream->bytes), packet.ssrc);
   }
   RTC_CHECK(stream->priority_it != stream_priorities_.end());
 

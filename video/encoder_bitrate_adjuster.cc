@@ -48,8 +48,8 @@ EncoderBitrateAdjuster::EncoderBitrateAdjuster(const VideoCodec& codec_settings)
 EncoderBitrateAdjuster::~EncoderBitrateAdjuster() = default;
 
 VideoBitrateAllocation EncoderBitrateAdjuster::AdjustRateAllocation(
-    const VideoBitrateAllocation& bitrate_allocation,
-    int framerate_fps) {
+    const VideoBitrateAllocation& bitrate_allocation, int framerate_fps) 
+{
   current_bitrate_allocation_ = bitrate_allocation;
   current_total_framerate_fps_ = framerate_fps;
 
@@ -199,8 +199,7 @@ VideoBitrateAllocation EncoderBitrateAdjuster::AdjustRateAllocation(
   return adjusted_allocation;
 }
 
-void EncoderBitrateAdjuster::OnEncoderInfo(
-    const VideoEncoder::EncoderInfo& encoder_info) 
+void EncoderBitrateAdjuster::OnEncoderInfo(const VideoEncoder::EncoderInfo& encoder_info) 
 {
   // Copy allocation into current state and re-allocate.
   for (size_t si = 0; si < kMaxSpatialLayers; ++si) 
@@ -209,18 +208,16 @@ void EncoderBitrateAdjuster::OnEncoderInfo(
   }
 
   // Trigger re-allocation so that overshoot detectors have correct targets.
-  AdjustRateAllocation(current_bitrate_allocation_,
-                       current_total_framerate_fps_);
+  AdjustRateAllocation(current_bitrate_allocation_, current_total_framerate_fps_);
 }
 
-void EncoderBitrateAdjuster::OnEncodedFrame(const EncodedImage& encoded_image,
-                                            int temporal_index) {
+void EncoderBitrateAdjuster::OnEncodedFrame(const EncodedImage& encoded_image, int temporal_index) 
+{
   ++frames_since_layout_change_;
   // Detectors may not exist, for instance if ScreenshareLayers is used.
-  auto& detector =
-      overshoot_detectors_[encoded_image.SpatialIndex().value_or(0)]
-                          [temporal_index];
-  if (detector) {
+  auto& detector = overshoot_detectors_[encoded_image.SpatialIndex().value_or(0)][temporal_index];
+  if (detector)
+  {
     detector->OnEncodedFrame(encoded_image.size(), rtc::TimeMillis());
   }
 }

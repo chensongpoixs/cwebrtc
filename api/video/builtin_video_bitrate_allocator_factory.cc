@@ -28,10 +28,11 @@ class BuiltinVideoBitrateAllocatorFactory
   BuiltinVideoBitrateAllocatorFactory() = default;
   ~BuiltinVideoBitrateAllocatorFactory() override = default;
 
-  std::unique_ptr<VideoBitrateAllocator> CreateVideoBitrateAllocator(
-      const VideoCodec& codec) override {
+  std::unique_ptr<VideoBitrateAllocator> CreateVideoBitrateAllocator(const VideoCodec& codec) override 
+  {
     std::unique_ptr<VideoBitrateAllocator> rate_allocator;
-    switch (codec.codecType) {
+    switch (codec.codecType) 
+	{
       case kVideoCodecVP8:
         RTC_FALLTHROUGH();
       case kVideoCodecH264: 

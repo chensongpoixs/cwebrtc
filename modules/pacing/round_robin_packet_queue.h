@@ -117,9 +117,14 @@ class RoundRobinPacketQueue {
   absl::optional<Stream*> pop_stream_;
 
   bool paused_ = false;
+  // TODO@chensong 2023-04-25 
+  // 队列中包的个数， 入队加一， 出队减一
   size_t size_packets_ = 0;
+  // 队列中存放的数据大小， 以字节为单位
   size_t size_bytes_ = 0;
+  // 队列中可以存放的最大字节数
   size_t max_bytes_ = kMaxLeadingBytes;
+  // 队列中存放包占了多长时间
   int64_t queue_time_sum_ms_ = 0;
   int64_t pause_time_sum_ms_ = 0;
 
@@ -127,9 +132,11 @@ class RoundRobinPacketQueue {
   // a multimap instead of a priority_queue since the priority of a stream can
   // change as a new packet is inserted, and a multimap allows us to remove and
   // then reinsert a StreamPrioKey if the priority has increased.
+  // 带有优先级的流的Map表，通过优先级找到Stream，方便优先级变化
   std::multimap<StreamPrioKey, uint32_t> stream_priorities_;
 
   // A map of SSRCs to Streams.
+  // ssrc 到Stream的对应
   std::map<uint32_t, Stream> streams_;
 
   // The enqueue time of every packet currently in the queue. Used to figure out

@@ -2949,18 +2949,16 @@ EncoderStreamFactory::EncoderStreamFactory(
           screenshare_config_explicitly_enabled) {}
 
 std::vector<webrtc::VideoStream> EncoderStreamFactory::CreateEncoderStreams(
-    int width,
-    int height,
-    const webrtc::VideoEncoderConfig& encoder_config) {
+    int width, int height, const webrtc::VideoEncoderConfig& encoder_config) 
+{
   bool screenshare_simulcast_enabled =
-      screenshare_config_explicitly_enabled_ &&
-      cricket::ScreenshareSimulcastFieldTrialEnabled();
-  if (is_screenshare_ && !screenshare_simulcast_enabled) {
+      screenshare_config_explicitly_enabled_ && cricket::ScreenshareSimulcastFieldTrialEnabled();
+  if (is_screenshare_ && !screenshare_simulcast_enabled)
+  {
     RTC_DCHECK_EQ(1, encoder_config.number_of_streams);
   }
   RTC_DCHECK_GT(encoder_config.number_of_streams, 0);
-  RTC_DCHECK_GE(encoder_config.simulcast_layers.size(),
-                encoder_config.number_of_streams);
+  RTC_DCHECK_GE(encoder_config.simulcast_layers.size(), encoder_config.number_of_streams);
   std::vector<webrtc::VideoStream> layers;
 
   if (encoder_config.number_of_streams > 1 ||
@@ -3057,10 +3055,7 @@ std::vector<webrtc::VideoStream> EncoderStreamFactory::CreateEncoderStreams(
 
   // For unset max bitrates set default bitrate for non-simulcast.
   int max_bitrate_bps =
-      (encoder_config.max_bitrate_bps > 0)
-          ? encoder_config.max_bitrate_bps
-          : GetMaxDefaultVideoBitrateKbps(width, height, is_screenshare_) *
-                1000;
+      (encoder_config.max_bitrate_bps > 0) ? encoder_config.max_bitrate_bps  : GetMaxDefaultVideoBitrateKbps(width, height, is_screenshare_) * 1000;
 
   int min_bitrate_bps = GetMinVideoBitrateBps();
   if (encoder_config.simulcast_layers[0].min_bitrate_bps > 0) {

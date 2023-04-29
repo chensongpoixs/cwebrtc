@@ -59,7 +59,8 @@ void EncoderOvershootDetector::OnEncodedFrame(size_t bytes, int64_t time_ms) {
 
   // Ideal size of a frame given the current rates.
   const int64_t ideal_frame_size_bits = IdealFrameSizeBits();
-  if (ideal_frame_size_bits == 0) {
+  if (ideal_frame_size_bits == 0) 
+  {
     // Frame without updated bitrate and/or framerate, ignore it.
     return;
   }

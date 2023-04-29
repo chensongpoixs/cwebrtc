@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2019 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -66,14 +66,9 @@ RateControlSettings::RateControlSettings(
       congestion_window_pushback_("MinBitrate"),
       pacing_factor_("pacing_factor"),
       alr_probing_("alr_probing", false),
-      trust_vp8_(
-          "trust_vp8",
-          IsEnabled(key_value_config, kVp8TrustedRateControllerFieldTrialName)),
-      trust_vp9_(
-          "trust_vp9",
-          IsEnabled(key_value_config, kVp9TrustedRateControllerFieldTrialName)),
-      video_hysteresis_("video_hysteresis",
-                        ParseHysteresisFactor(key_value_config,
+      trust_vp8_("trust_vp8", IsEnabled(key_value_config, kVp8TrustedRateControllerFieldTrialName)),
+      trust_vp9_( "trust_vp9", IsEnabled(key_value_config, kVp9TrustedRateControllerFieldTrialName)),
+      video_hysteresis_("video_hysteresis", ParseHysteresisFactor(key_value_config,
                                               kVideoHysteresisFieldTrialname,
                                               kDefaultVideoHysteresisFactor)),
       screenshare_hysteresis_(
@@ -82,6 +77,7 @@ RateControlSettings::RateControlSettings(
                                 kScreenshareHysteresisFieldTrialname,
                                 kDefaultScreenshareHysteresisFactor)),
       probe_max_allocation_("probe_max_allocation", true),
+	  // TODO@chensong 2023-04-29 网络带宽评估编码器比特率
       bitrate_adjuster_("bitrate_adjuster", false),
       vp8_s0_boost_("vp8_s0_boost", true) {
   ParseFieldTrial({&congestion_window_, &congestion_window_pushback_},
@@ -95,7 +91,8 @@ RateControlSettings::RateControlSettings(
 RateControlSettings::~RateControlSettings() = default;
 RateControlSettings::RateControlSettings(RateControlSettings&&) = default;
 
-RateControlSettings RateControlSettings::ParseFromFieldTrials() {
+RateControlSettings RateControlSettings::ParseFromFieldTrials() 
+{
   FieldTrialBasedConfig field_trial_config;
   return RateControlSettings(&field_trial_config);
 }

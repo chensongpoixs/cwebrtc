@@ -25,13 +25,14 @@
 
 namespace webrtc {
 
-bool VideoCodecInitializer::SetupCodec(const VideoEncoderConfig& config,
-                                       const std::vector<VideoStream>& streams,
-                                       VideoCodec* codec) {
-  if (config.codec_type == kVideoCodecMultiplex) {
+bool VideoCodecInitializer::SetupCodec(const VideoEncoderConfig& config, const std::vector<VideoStream>& streams, VideoCodec* codec) 
+{
+  if (config.codec_type == kVideoCodecMultiplex) 
+  {
     VideoEncoderConfig associated_config = config.Copy();
     associated_config.codec_type = kVideoCodecVP9;
-    if (!SetupCodec(associated_config, streams, codec)) {
+    if (!SetupCodec(associated_config, streams, codec)) 
+	{
       RTC_LOG(LS_ERROR) << "Failed to create stereo encoder configuration.";
       return false;
     }
@@ -45,8 +46,8 @@ bool VideoCodecInitializer::SetupCodec(const VideoEncoderConfig& config,
 
 // TODO(sprang): Split this up and separate the codec specific parts.
 VideoCodec VideoCodecInitializer::VideoEncoderConfigToVideoCodec(
-    const VideoEncoderConfig& config,
-    const std::vector<VideoStream>& streams) {
+    const VideoEncoderConfig& config, const std::vector<VideoStream>& streams) 
+{
   static const int kEncoderMinBitrateKbps = 30;
   RTC_DCHECK(!streams.empty());
   RTC_DCHECK_GE(config.min_transmit_bitrate_bps, 0);
@@ -55,7 +56,8 @@ VideoCodec VideoCodecInitializer::VideoEncoderConfigToVideoCodec(
   memset(&video_codec, 0, sizeof(video_codec));
   video_codec.codecType = config.codec_type;
 
-  switch (config.content_type) {
+  switch (config.content_type) 
+  {
     case VideoEncoderConfig::ContentType::kRealtimeVideo:
       video_codec.mode = VideoCodecMode::kRealtimeVideo;
       break;
@@ -67,8 +69,7 @@ VideoCodec VideoCodecInitializer::VideoEncoderConfigToVideoCodec(
   // TODO(nisse): The plType field should be deleted. Luckily, our
   // callers don't need it.
   video_codec.plType = 0;
-  video_codec.numberOfSimulcastStreams =
-      static_cast<unsigned char>(streams.size());
+  video_codec.numberOfSimulcastStreams = static_cast<unsigned char>(streams.size());
   video_codec.minBitrate = streams[0].min_bitrate_bps / 1000;
   bool codec_active = false;
   for (const VideoStream& stream : streams) {
@@ -80,12 +81,15 @@ VideoCodec VideoCodecInitializer::VideoEncoderConfigToVideoCodec(
   // Set active for the entire video codec for the non simulcast case.
   video_codec.active = codec_active;
   if (video_codec.minBitrate < kEncoderMinBitrateKbps)
-    video_codec.minBitrate = kEncoderMinBitrateKbps;
+  {
+	  video_codec.minBitrate = kEncoderMinBitrateKbps;
+  }
   video_codec.timing_frame_thresholds = {kDefaultTimingFramesDelayMs,
                                          kDefaultOutlierFrameSizePercent};
   RTC_DCHECK_LE(streams.size(), kMaxSimulcastStreams);
 
-  for (size_t i = 0; i < streams.size(); ++i) {
+  for (size_t i = 0; i < streams.size(); ++i)
+  {
     SimulcastStream* sim_stream = &video_codec.simulcastStream[i];
     RTC_DCHECK_GT(streams[i].width, 0);
     RTC_DCHECK_GT(streams[i].height, 0);
@@ -93,7 +97,8 @@ VideoCodec VideoCodecInitializer::VideoEncoderConfigToVideoCodec(
     // Different framerates not supported per stream at the moment, unless it's
     // screenshare where there is an exception and a simulcast encoder adapter,
     // which supports different framerates, is used instead.
-    if (config.content_type != VideoEncoderConfig::ContentType::kScreen) {
+    if (config.content_type != VideoEncoderConfig::ContentType::kScreen) 
+	{
       RTC_DCHECK_EQ(streams[i].max_framerate, streams[0].max_framerate);
     }
     RTC_DCHECK_GE(streams[i].min_bitrate_bps, 0);
@@ -108,8 +113,7 @@ VideoCodec VideoCodecInitializer::VideoEncoderConfigToVideoCodec(
     sim_stream->targetBitrate = streams[i].target_bitrate_bps / 1000;
     sim_stream->maxBitrate = streams[i].max_bitrate_bps / 1000;
     sim_stream->qpMax = streams[i].max_qp;
-    sim_stream->numberOfTemporalLayers =
-        static_cast<unsigned char>(streams[i].num_temporal_layers.value_or(1));
+    sim_stream->numberOfTemporalLayers = static_cast<unsigned char>(streams[i].num_temporal_layers.value_or(1));
     sim_stream->active = streams[i].active;
 
     video_codec.width =
@@ -124,14 +128,17 @@ VideoCodec VideoCodecInitializer::VideoEncoderConfigToVideoCodec(
                                  static_cast<unsigned int>(streams[i].max_qp));
   }
 
-  if (video_codec.maxBitrate == 0) {
+  if (video_codec.maxBitrate == 0)
+  {
     // Unset max bitrate -> cap to one bit per pixel.
     video_codec.maxBitrate =
         (video_codec.width * video_codec.height * video_codec.maxFramerate) /
         1000;
   }
   if (video_codec.maxBitrate < kEncoderMinBitrateKbps)
-    video_codec.maxBitrate = kEncoderMinBitrateKbps;
+  {
+	  video_codec.maxBitrate = kEncoderMinBitrateKbps;
+  }
 
   RTC_DCHECK_GT(streams[0].max_framerate, 0);
   video_codec.maxFramerate = streams[0].max_framerate;
