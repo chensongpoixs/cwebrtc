@@ -62,6 +62,7 @@ class SendTimeHistory {
   std::map<int64_t, PacketFeedback> history_;
   // TODO@chensong 2022-12-07 上一次接受到接受端包收到确认包的序号
   absl::optional<int64_t> last_ack_seq_num_;
+  // TODO@chensong 2023-05-01  向网络通道发送数据大小累加的哈 ~~~
   std::map<RemoteAndLocalNetworkId, size_t> in_flight_bytes_;
 
   RTC_DISALLOW_IMPLICIT_CONSTRUCTORS(SendTimeHistory);

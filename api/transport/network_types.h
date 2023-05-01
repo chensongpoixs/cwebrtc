@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -157,7 +157,9 @@ struct TransportPacketsFeedback {
   TransportPacketsFeedback(const TransportPacketsFeedback& other);
   ~TransportPacketsFeedback();
 
+  //TODO@chensong 2023-05-01 这个字段为什么所有接收到feeback包的时间戳呢
   Timestamp feedback_time = Timestamp::PlusInfinity();
+ // 当前没有接收ack确认第一个包的时间戳
   Timestamp first_unacked_send_time = Timestamp::PlusInfinity();
   DataSize data_in_flight = DataSize::Zero();
   DataSize prior_in_flight = DataSize::Zero();

@@ -23,27 +23,28 @@
 namespace webrtc {
 namespace {
 
-PacketResult NetworkPacketFeedbackFromRtpPacketFeedback(
-    const webrtc::PacketFeedback& pf) {
+PacketResult NetworkPacketFeedbackFromRtpPacketFeedback(const webrtc::PacketFeedback& pf) 
+{
   PacketResult feedback;
-  if (pf.arrival_time_ms == webrtc::PacketFeedback::kNotReceived) {
+  if (pf.arrival_time_ms == webrtc::PacketFeedback::kNotReceived) 
+  {
     feedback.receive_time = Timestamp::PlusInfinity();
-  } else {
+  }
+  else 
+  {
     feedback.receive_time = Timestamp::ms(pf.arrival_time_ms);
   }
   feedback.sent_packet.sequence_number = pf.long_sequence_number;
   feedback.sent_packet.send_time = Timestamp::ms(pf.send_time_ms);
   feedback.sent_packet.size = DataSize::bytes(pf.payload_size);
   feedback.sent_packet.pacing_info = pf.pacing_info;
-  feedback.sent_packet.prior_unacked_data =
-      DataSize::bytes(pf.unacknowledged_data);
+  feedback.sent_packet.prior_unacked_data = DataSize::bytes(pf.unacknowledged_data);
   return feedback;
 }
 }  // namespace
 const int64_t kNoTimestamp = -1;
 const int64_t kSendTimeHistoryWindowMs = 60000;
-const int64_t kBaseTimestampScaleFactor =
-    rtcp::TransportFeedback::kDeltaScaleFactor * (1 << 8);
+const int64_t kBaseTimestampScaleFactor = rtcp::TransportFeedback::kDeltaScaleFactor * (1 << 8);
 const int64_t kBaseTimestampRangeSizeUs = kBaseTimestampScaleFactor * (1 << 24);
 
 TransportFeedbackAdapter::TransportFeedbackAdapter()
@@ -95,9 +96,7 @@ void TransportFeedbackAdapter::AddPacket(uint32_t ssrc, uint16_t sequence_number
 }
 absl::optional<SentPacket> TransportFeedbackAdapter::ProcessSentPacket(const rtc::SentPacket& sent_packet) 
 {
-#if 0
-  RTC_NORMAL_EX_LOG("[sent_packet = %s]", webrtc::ToString(sent_packet).c_str());
-#endif
+
 	
   rtc::CritScope cs(&lock_);
   // TODO(srte): Only use one way to indicate that packet feedback is used.
@@ -125,10 +124,8 @@ absl::optional<SentPacket> TransportFeedbackAdapter::ProcessSentPacket(const rtc
 
 absl::optional<TransportPacketsFeedback> TransportFeedbackAdapter::ProcessTransportFeedback(const rtcp::TransportFeedback& feedback,  Timestamp feedback_receive_time) 
 {
-#if 0
-  RTC_NORMAL_EX_LOG("[feedback = %s][feedback_receive_time = %s]",
-                 feedback.ToString().c_str(), webrtc::ToString(feedback_receive_time).c_str());
-#endif
+ 
+// TODO@chensong 2023-05-01 获取当前网络通道内发送的数据的大小
   DataSize prior_in_flight = GetOutstandingData();
 
   last_packet_feedback_vector_ = GetPacketFeedbackVector(feedback, feedback_receive_time);
@@ -165,6 +162,7 @@ absl::optional<TransportPacketsFeedback> TransportFeedbackAdapter::ProcessTransp
   }
   {
     rtc::CritScope cs(&lock_);
+	// TODO@chensong 2023-05-01 找到当前第一个没有确认seq序号
     absl::optional<int64_t> first_unacked_send_time_ms = send_time_history_.GetFirstUnackedSendTime();
     if (first_unacked_send_time_ms) 
 	{
@@ -192,12 +190,6 @@ DataSize TransportFeedbackAdapter::GetOutstandingData() const
 
 std::vector<PacketFeedback> TransportFeedbackAdapter::GetPacketFeedbackVector(const rtcp::TransportFeedback& feedback, Timestamp feedback_time) 
 {
-
-	#if 0
-  RTC_NORMAL_EX_LOG("[feedback = %s][feedback_time = %s]",
-                feedback.ToString() .c_str(),
-                webrtc::ToString(feedback_time).c_str());
-#endif
 
   int64_t timestamp_us = feedback.GetBaseTimeUs();
 
@@ -250,6 +242,7 @@ std::vector<PacketFeedback> TransportFeedbackAdapter::GetPacketFeedbackVector(co
         // Note: Element not removed from history because it might be reported
         // as received by another feedback.
 		// TODO@chensong 2022-12-20 
+		// TODO@chensong 2023-05-01 ack确认 获取时间
         if (!send_time_history_.GetFeedback(&packet_feedback, false)) 
 		{
           ++failed_lookups;

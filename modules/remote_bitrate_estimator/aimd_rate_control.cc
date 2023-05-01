@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -112,14 +112,16 @@ TimeDelta AimdRateControl::GetFeedbackInterval() const {
   return interval.Clamped(kMinFeedbackInterval, kMaxFeedbackInterval);
 }
 
-bool AimdRateControl::TimeToReduceFurther(Timestamp at_time,
-                                          DataRate estimated_throughput) const {
-  const TimeDelta bitrate_reduction_interval =
-      rtt_.Clamped(TimeDelta::ms(10), TimeDelta::ms(200));
-  if (at_time - time_last_bitrate_change_ >= bitrate_reduction_interval) {
+bool AimdRateControl::TimeToReduceFurther(Timestamp at_time, DataRate estimated_throughput) const 
+{
+  const TimeDelta bitrate_reduction_interval = rtt_.Clamped(TimeDelta::ms(10), TimeDelta::ms(200));
+  if (at_time - time_last_bitrate_change_ >= bitrate_reduction_interval)
+  {
     return true;
   }
-  if (ValidEstimate()) {
+  // 是否可以有效评估网络带宽
+  if (ValidEstimate()) 
+  {
     // TODO(terelius/holmer): Investigate consequences of increasing
     // the threshold to 0.95 * LatestEstimate().
     const DataRate threshold = 0.5 * LatestEstimate();
@@ -151,22 +153,27 @@ void AimdRateControl::SetRtt(TimeDelta rtt) {
   rtt_ = rtt;
 }
 
-DataRate AimdRateControl::Update(const RateControlInput* input,
-                                 Timestamp at_time) {
+DataRate AimdRateControl::Update(const RateControlInput* input, Timestamp at_time) 
+{
   RTC_CHECK(input);
 
   // Set the initial bit rate value to what we're receiving the first half
   // second.
   // TODO(bugs.webrtc.org/9379): The comment above doesn't match to the code.
-  if (!bitrate_is_initialized_) {
+  // TODO@chensong 2023-04-30 是否第一次网络带宽评估初始化
+  if (!bitrate_is_initialized_)
+  {
     const TimeDelta kInitializationTime = TimeDelta::seconds(5);
     RTC_DCHECK_LE(kBitrateWindowMs, kInitializationTime.ms());
-    if (time_first_throughput_estimate_.IsInfinite()) {
-      if (input->estimated_throughput)
-        time_first_throughput_estimate_ = at_time;
-    } else if (at_time - time_first_throughput_estimate_ >
-                   kInitializationTime &&
-               input->estimated_throughput) {
+    if (time_first_throughput_estimate_.IsInfinite()) 
+	{
+		if (input->estimated_throughput)
+		{
+			time_first_throughput_estimate_ = at_time;
+	  }
+    }
+	else if (at_time - time_first_throughput_estimate_ > kInitializationTime && input->estimated_throughput) 
+	{
       current_bitrate_ = *input->estimated_throughput;
       bitrate_is_initialized_ = true;
     }
@@ -219,20 +226,21 @@ TimeDelta AimdRateControl::GetExpectedBandwidthPeriod() const {
   return period.Clamped(kMinPeriod, kMaxPeriod);
 }
 
-DataRate AimdRateControl::ChangeBitrate(DataRate new_bitrate,
-                                        const RateControlInput& input,
-                                        Timestamp at_time) {
-  DataRate estimated_throughput =
-      input.estimated_throughput.value_or(latest_estimated_throughput_);
+DataRate AimdRateControl::ChangeBitrate(DataRate new_bitrate, const RateControlInput& input, Timestamp at_time)
+{
+  DataRate estimated_throughput = input.estimated_throughput.value_or(latest_estimated_throughput_);
   if (input.estimated_throughput)
-    latest_estimated_throughput_ = *input.estimated_throughput;
+  {
+	  latest_estimated_throughput_ = *input.estimated_throughput;
+  }
 
   // An over-use should always trigger us to reduce the bitrate, even though
   // we have not yet established our first estimate. By acting on the over-use,
   // we will end up with a valid estimate.
-  if (!bitrate_is_initialized_ &&
-      input.bw_state != BandwidthUsage::kBwOverusing)
-    return current_bitrate_;
+  if (!bitrate_is_initialized_ && input.bw_state != BandwidthUsage::kBwOverusing)
+  {
+	  return current_bitrate_;
+  }
 
   ChangeState(input, at_time);
 
@@ -241,72 +249,90 @@ DataRate AimdRateControl::ChangeBitrate(DataRate new_bitrate,
       break;
 
     case kRcIncrease:
-      if (estimated_throughput > link_capacity_.UpperBound())
-        link_capacity_.Reset();
+	{
+		if (estimated_throughput > link_capacity_.UpperBound())
+		{
+			link_capacity_.Reset();
+		}
 
-      if (link_capacity_.has_estimate()) {
-        // The link_capacity estimate is reset if the measured throughput
-        // is too far from the estimate. We can therefore assume that our target
-        // rate is reasonably close to link capacity and use additive increase.
-        DataRate additive_increase =
-            AdditiveRateIncrease(at_time, time_last_bitrate_change_);
-        new_bitrate += additive_increase;
-      } else {
-        // If we don't have an estimate of the link capacity, use faster ramp up
-        // to discover the capacity.
-        DataRate multiplicative_increase = MultiplicativeRateIncrease(
-            at_time, time_last_bitrate_change_, new_bitrate);
-        new_bitrate += multiplicative_increase;
-      }
+		if (link_capacity_.has_estimate()) 
+		{
+			// The link_capacity estimate is reset if the measured throughput
+			// is too far from the estimate. We can therefore assume that our target
+			// rate is reasonably close to link capacity and use additive increase.
+			DataRate additive_increase = AdditiveRateIncrease(at_time, time_last_bitrate_change_);
+			new_bitrate += additive_increase;
+		}
+		else 
+		{
+			// If we don't have an estimate of the link capacity, use faster ramp up
+			// to discover the capacity.
+			DataRate multiplicative_increase = MultiplicativeRateIncrease(at_time, time_last_bitrate_change_, new_bitrate);
+			new_bitrate += multiplicative_increase;
+		}
 
-      time_last_bitrate_change_ = at_time;
-      break;
+		time_last_bitrate_change_ = at_time;
+		break;
+	}
 
     case kRcDecrease:
-      if (estimated_throughput > low_throughput_threshold_) {
-        // Set bit rate to something slightly lower than the measured throughput
-        // to get rid of any self-induced delay.
-        new_bitrate = estimated_throughput * beta_;
-        if (new_bitrate > current_bitrate_) {
-          // Avoid increasing the rate when over-using.
-          if (link_capacity_.has_estimate()) {
-            new_bitrate = beta_ * link_capacity_.estimate();
-          }
-        }
-      } else {
-        new_bitrate = estimated_throughput;
-        if (link_capacity_.has_estimate()) {
-          new_bitrate = std::max(new_bitrate, link_capacity_.estimate());
-        }
-        new_bitrate = std::min(new_bitrate, low_throughput_threshold_.Get());
-      }
-      new_bitrate = std::min(new_bitrate, current_bitrate_);
+	{
+		if (estimated_throughput > low_throughput_threshold_) 
+		{
+			// Set bit rate to something slightly lower than the measured throughput
+			// to get rid of any self-induced delay.
+			new_bitrate = estimated_throughput * beta_;
+			if (new_bitrate > current_bitrate_)
+			{
+				// Avoid increasing the rate when over-using.
+				if (link_capacity_.has_estimate())
+				{
+					new_bitrate = beta_ * link_capacity_.estimate();
+				}
+			}
+		}
+		else 
+		{
+			new_bitrate = estimated_throughput;
+			if (link_capacity_.has_estimate()) 
+			{
+				new_bitrate = std::max(new_bitrate, link_capacity_.estimate());
+			}
+			new_bitrate = std::min(new_bitrate, low_throughput_threshold_.Get());
+		}
+		new_bitrate = std::min(new_bitrate, current_bitrate_);
 
-      if (bitrate_is_initialized_ && estimated_throughput < current_bitrate_) {
-        constexpr double kDegradationFactor = 0.9;
-        if (smoothing_experiment_ &&
-            new_bitrate < kDegradationFactor * beta_ * current_bitrate_) {
-          // If bitrate decreases more than a normal back off after overuse, it
-          // indicates a real network degradation. We do not let such a decrease
-          // to determine the bandwidth estimation period.
-          last_decrease_ = absl::nullopt;
-        } else {
-          last_decrease_ = current_bitrate_ - new_bitrate;
-        }
-      }
-      if (estimated_throughput < link_capacity_.LowerBound()) {
-        // The current throughput is far from the estimated link capacity. Clear
-        // the estimate to allow an immediate update in OnOveruseDetected.
-        link_capacity_.Reset();
-      }
+		if (bitrate_is_initialized_ && estimated_throughput < current_bitrate_) 
+		{
+			constexpr double kDegradationFactor = 0.9;
+			if (smoothing_experiment_ &&
+				new_bitrate < kDegradationFactor * beta_ * current_bitrate_) 
+			{
+				// If bitrate decreases more than a normal back off after overuse, it
+				// indicates a real network degradation. We do not let such a decrease
+				// to determine the bandwidth estimation period.
+				last_decrease_ = absl::nullopt;
+			}
+			else 
+			{
+				last_decrease_ = current_bitrate_ - new_bitrate;
+			}
+		}
+		if (estimated_throughput < link_capacity_.LowerBound()) 
+		{
+			// The current throughput is far from the estimated link capacity. Clear
+			// the estimate to allow an immediate update in OnOveruseDetected.
+			link_capacity_.Reset();
+		}
 
-      bitrate_is_initialized_ = true;
-      link_capacity_.OnOveruseDetected(estimated_throughput);
-      // Stay on hold until the pipes are cleared.
-      rate_control_state_ = kRcHold;
-      time_last_bitrate_change_ = at_time;
-      time_last_bitrate_decrease_ = at_time;
-      break;
+		bitrate_is_initialized_ = true;
+		link_capacity_.OnOveruseDetected(estimated_throughput);
+		// Stay on hold until the pipes are cleared.
+		rate_control_state_ = kRcHold;
+		time_last_bitrate_change_ = at_time;
+		time_last_bitrate_decrease_ = at_time;
+		break;
+	}
 
     default:
       assert(false);
@@ -351,15 +377,18 @@ DataRate AimdRateControl::AdditiveRateIncrease(Timestamp at_time,
 
 void AimdRateControl::ChangeState(const RateControlInput& input,
                                   Timestamp at_time) {
-  switch (input.bw_state) {
+  switch (input.bw_state)
+  {
     case BandwidthUsage::kBwNormal:
-      if (rate_control_state_ == kRcHold) {
+      if (rate_control_state_ == kRcHold) 
+	  {
         time_last_bitrate_change_ = at_time;
         rate_control_state_ = kRcIncrease;
       }
       break;
     case BandwidthUsage::kBwOverusing:
-      if (rate_control_state_ != kRcDecrease) {
+      if (rate_control_state_ != kRcDecrease) 
+	  {
         rate_control_state_ = kRcDecrease;
       }
       break;

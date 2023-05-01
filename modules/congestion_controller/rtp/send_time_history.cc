@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -101,6 +101,7 @@ bool SendTimeHistory::GetFeedback(PacketFeedback* packet_feedback, bool remove)
 {
   RTC_DCHECK(packet_feedback);
   int64_t unwrapped_seq_num = seq_num_unwrapper_.Unwrap(packet_feedback->sequence_number);
+  // TODO@chensong 2023-05-01 ack 收到确认
   UpdateAckedSeqNum(unwrapped_seq_num);
   RTC_DCHECK_GE(*last_ack_seq_num_, 0);
   auto it = history_.find(unwrapped_seq_num);
@@ -154,6 +155,7 @@ void SendTimeHistory::AddPacketBytes(const PacketFeedback& packet)
   {
     return;
   }
+  // TODO@chensong 2023-05-01  向这个网络通道发送数据的大小
   auto it = in_flight_bytes_.find({packet.local_net_id, packet.remote_net_id});
   if (it != in_flight_bytes_.end()) 
   {

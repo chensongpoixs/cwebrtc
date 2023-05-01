@@ -45,40 +45,51 @@ void CongestionWindowPushbackController::UpdatePacingQueue(
   pacing_bytes_ = pacing_bytes;
 }
 
-void CongestionWindowPushbackController::UpdateMaxOutstandingData(
-    size_t max_outstanding_bytes) {
+void CongestionWindowPushbackController::UpdateMaxOutstandingData(size_t max_outstanding_bytes) 
+{
   DataSize data_window = DataSize::bytes(max_outstanding_bytes);
-  if (current_data_window_) {
+  if (current_data_window_) 
+  {
     data_window = (data_window + current_data_window_.value()) / 2;
   }
   current_data_window_ = data_window;
 }
 
-void CongestionWindowPushbackController::SetDataWindow(DataSize data_window) {
+void CongestionWindowPushbackController::SetDataWindow(DataSize data_window) 
+{
   current_data_window_ = data_window;
 }
 
-uint32_t CongestionWindowPushbackController::UpdateTargetBitrate(
-    uint32_t bitrate_bps) {
-  if (!current_data_window_ || current_data_window_->IsZero())
-    return bitrate_bps;
+uint32_t CongestionWindowPushbackController::UpdateTargetBitrate(uint32_t bitrate_bps)
+{
+	if (!current_data_window_ || current_data_window_->IsZero())
+	{
+		return bitrate_bps;
+  }
   int64_t total_bytes = outstanding_bytes_;
   if (add_pacing_)
-    total_bytes += pacing_bytes_;
-  double fill_ratio =
-      total_bytes / static_cast<double>(current_data_window_->bytes());
-  if (fill_ratio > 1.5) {
+  {
+	  total_bytes += pacing_bytes_;
+  }
+  double fill_ratio = total_bytes / static_cast<double>(current_data_window_->bytes());
+  if (fill_ratio > 1.5) 
+  {
     encoding_rate_ratio_ *= 0.9;
-  } else if (fill_ratio > 1) {
+  }
+  else if (fill_ratio > 1) 
+  {
     encoding_rate_ratio_ *= 0.95;
-  } else if (fill_ratio < 0.1) {
+  }
+  else if (fill_ratio < 0.1) 
+  {
     encoding_rate_ratio_ = 1.0;
-  } else {
+  }
+  else 
+  {
     encoding_rate_ratio_ *= 1.05;
     encoding_rate_ratio_ = std::min(encoding_rate_ratio_, 1.0);
   }
-  uint32_t adjusted_target_bitrate_bps =
-      static_cast<uint32_t>(bitrate_bps * encoding_rate_ratio_);
+  uint32_t adjusted_target_bitrate_bps = static_cast<uint32_t>(bitrate_bps * encoding_rate_ratio_);
 
   // Do not adjust below the minimum pushback bitrate but do obey if the
   // original estimate is below it.

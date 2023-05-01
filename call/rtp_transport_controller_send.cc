@@ -246,9 +246,8 @@ void RtpTransportControllerSend::RegisterTargetTransferRateObserver(
     MaybeCreateControllers();
   });
 }
-void RtpTransportControllerSend::OnNetworkRouteChanged(
-    const std::string& transport_name,
-    const rtc::NetworkRoute& network_route) {
+void RtpTransportControllerSend::OnNetworkRouteChanged(const std::string& transport_name, const rtc::NetworkRoute& network_route)
+{
   // Check if the network route is connected.
   if (!network_route.connected) {
     RTC_LOG(LS_INFO) << "Transport " << transport_name << " is disconnected";
@@ -268,7 +267,8 @@ void RtpTransportControllerSend::OnNetworkRouteChanged(
   }
   if (kv->second.connected != network_route.connected ||
       kv->second.local_network_id != network_route.local_network_id ||
-      kv->second.remote_network_id != network_route.remote_network_id) {
+      kv->second.remote_network_id != network_route.remote_network_id) 
+  {
     kv->second = network_route;
     BitrateConstraints bitrate_config = bitrate_configurator_.GetConfig();
     RTC_LOG(LS_INFO) << "Network route changed on transport " << transport_name
@@ -283,9 +283,11 @@ void RtpTransportControllerSend::OnNetworkRouteChanged(
                      << " bps.";
     RTC_DCHECK_GT(bitrate_config.start_bitrate_bps, 0);
 
-    if (reset_feedback_on_route_change_)
-      transport_feedback_adapter_.SetNetworkIds(
-          network_route.local_network_id, network_route.remote_network_id);
+	if (reset_feedback_on_route_change_)
+	{
+		 // TODO@chensong 2023-05-01 设置networkid   feebeek type = 15 
+		transport_feedback_adapter_.SetNetworkIds(network_route.local_network_id, network_route.remote_network_id);
+	}
     transport_overhead_bytes_per_packet_ = network_route.packet_overhead;
 
     NetworkRouteChange msg;

@@ -58,6 +58,18 @@ class LinkCapacityTracker {
 /**
 *   TODO@chensong 20220825 
 *     基于Rtt的回退
+RttBasedBackoff是一种拥塞控制算法，其原理如下：
+
+1. 首先，RttBasedBackoff会通过发送数据包并测量往返时间（RTT）来估计网络延迟。
+  RTT是数据包从发送方到接收方再返回发送方所用的时间。
+2. 如果RTT值较小，则表明网络延迟较低，可以继续发送数据包。但如果RTT值较大，
+  则可能存在网络拥塞，此时应该减少发送数据包的频率以避免网络拥塞加剧。
+3. 当出现网络拥塞时，RttBasedBackoff会根据当前RTT值和一定的退避策略来调整数据包发送的频率。
+  例如，可以将发送数据包的时间间隔增加一定的倍数（如2倍、4倍等），以避免网络拥塞进一步恶化。
+4. 随着时间的推移，如果网络延迟逐渐恢复，则RttBasedBackoff会逐渐降低退避策略，从而提高数据包发送的频率。
+
+总之，RttBasedBackoff通过实时测量网络延迟并根据退避策略调整数据包发送的频率，
+可以在保证数据传输速度的同时避免网络拥塞的发生。
 */
 class RttBasedBackoff {
  public:
@@ -65,6 +77,7 @@ class RttBasedBackoff {
   ~RttBasedBackoff();
   void OnRouteChange();
   void UpdatePropagationRtt(Timestamp at_time, TimeDelta propagation_rtt);
+  //TODO@chensong 2023-04-30  是指已经校正过网络延迟和计算机处理时间的往返时延。它是TCP协议中用于测量网络延迟的重要参数之一，可以帮助判断网络连接质量和诊断网络故障。
   TimeDelta CorrectedRtt(Timestamp at_time) const;
 
  //private:
@@ -97,8 +110,21 @@ class RttBasedBackoff {
   Timestamp last_packet_sent_;
 };
 /**
-* TODO@chensong 20220825 
+* TODO@chensong 2022-08-25 
 *   发送侧带宽估计
+* 
+1. SendSideBandwidthEstimation的主要功能是进行带宽估算，即根据网络状况动态调整码率和分辨率。具体实现是通过计算发送端的丢包率、延迟等信息来判断网络状况，然后根据网络状况来调整发送端的码率和分辨率。
+
+2. 在源码中，SendSideBandwidthEstimation主要由以下几个部分组成：
+  ①. ProbeController：控制发送端的带宽探测，以及根据探测结果来调整码率。
+  ②. RembSender：在RTCP报文中发送REM（Receiver Estimated Maximum Bitrate）信息，通知接收端当前可以接受的最大码率。
+  ③. BitrateAllocator：根据ProbeController和RembSender的控制信号来分配发送端的带宽，以达到最佳的视频质量和稳定性。
+  ④. QualityScaler：根据网络状况和分辨率来动态调整视频的质量因子，以提高视频质量和稳定性。
+
+5. 在源码中，ProbeController是实现带宽探测的关键部分。ProbeController会周期性地发送一些数据包，并根据这些数据包的丢失率和延迟来判断网络状况。如果网络状况不佳，则ProbeController会降低发送端的码率；反之，则ProbeController会增加发送端的码率。
+6. 在源码中，RembSender则是用于向接收端发送REM信息的模块。REM信息通知接收端当前可以接受的最大码率。在发送REM信息时，RembSender会根据ProbeController的控制信号来动态地调整REM信息中的码率值。
+5. BitrateAllocator则是用于根据ProbeController和RembSender的控制信号来分配发送端的带宽的模块。具体实现是通过计算当前可用的总带宽和各个流的比例来分配带宽。
+6.最后，QualityScaler则是通过根据网络状况和分辨率来动态调整视频的质量因子，以提高视频质量和稳定性的模块。具体实现是根据网络状况和分辨率的变化来调整视频质量因子的阈值，以达到最佳的视频质量和稳定性。
 */
 class SendSideBandwidthEstimation {
  public:
@@ -110,7 +136,9 @@ class SendSideBandwidthEstimation {
   void CurrentEstimate(int* bitrate, uint8_t* loss, int64_t* rtt) const;
   DataRate GetEstimatedLinkCapacity() const;
   // Call periodically to update estimate.
+  // 该方法用于根据网络状况调整当前的发送码率
   void UpdateEstimate(Timestamp at_time);
+  // TODO@chensong 2023-04-30 该方法在每次发送数据包时被触发，用于更新网络延迟和丢包率等信息
   void OnSentPacket(const SentPacket& sent_packet);
   void UpdatePropagationRtt(Timestamp at_time, TimeDelta propagation_rtt);
 
@@ -209,7 +237,7 @@ class SendSideBandwidthEstimation {
   // 最后一次往返时间
   TimeDelta last_round_trip_time_;
 
-  // bwe传入
+  // bwe传入 --->> goog-remb算法 TODO@chensong  2023-04-30 
   DataRate bwe_incoming_;
 
   // 基于延迟的比特率

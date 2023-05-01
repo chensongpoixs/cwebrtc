@@ -405,9 +405,11 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
           case rtcp::RapidResyncRequest::kFeedbackMessageType:
             HandleSrReq(rtcp_block, packet_information);
             break;
-          case rtcp::TransportFeedback::kFeedbackMessageType:
-            HandleTransportFeedback(rtcp_block, packet_information);
-            break;
+          case rtcp::TransportFeedback::kFeedbackMessageType: // Trasnport-gcc 关键的工具
+		  {
+			  HandleTransportFeedback(rtcp_block, packet_information);
+			  break;
+		  }
           default:
             ++num_skipped_packets_;
             break;
@@ -1133,7 +1135,7 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(const PacketInformation& packe
   }
   if (rtcp_bandwidth_observer_) 
   {
-    RTC_DCHECK(!receiver_only_);
+    RTC_DCHECK(!receiver_only_);// goog-remb 宽带评估
     if (packet_information.packet_type_flags & kRtcpRemb) 
 	{
       RTC_LOG(LS_VERBOSE)

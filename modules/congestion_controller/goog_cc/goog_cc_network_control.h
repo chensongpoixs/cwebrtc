@@ -103,7 +103,9 @@ class GoogCcNetworkController : public NetworkControllerInterface {
   bool first_packet_sent_ = false;
 
   Timestamp next_loss_update_ = Timestamp::MinusInfinity();
+  // 单位时间内掉包和延迟的包数量
   int lost_packets_since_last_loss_update_ = 0;
+  // 单位时间内总自上次丢包更新以来的预期数据包数量
   int expected_packets_since_last_loss_update_ = 0;
 
   std::deque<int64_t> feedback_max_rtts_;

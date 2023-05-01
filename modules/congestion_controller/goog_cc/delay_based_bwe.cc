@@ -126,12 +126,14 @@ DelayBasedBwe::Result DelayBasedBwe::IncomingPacketFeedbackVector(
   // TODO(holmer): An empty feedback vector here likely means that
   // all acks were too late and that the send time history had
   // timed out. We should reduce the rate when this occurs.
-  if (packet_feedback_vector.empty()) {
+  if (packet_feedback_vector.empty()) 
+  {
     RTC_LOG(LS_WARNING) << "Very late feedback received.";
     return DelayBasedBwe::Result();
   }
 
-  if (!uma_recorded_) {
+  if (!uma_recorded_) 
+  {
     RTC_HISTOGRAM_ENUMERATION(kBweTypeHistogram,
                               BweNames::kSendSideTransportSeqNum,
                               BweNames::kBweNamesMax);
@@ -198,26 +200,28 @@ void DelayBasedBwe::IncomingPacketFeedback(const PacketFeedback& packet_feedback
 }
 
 DelayBasedBwe::Result DelayBasedBwe::MaybeUpdateEstimate(
-    absl::optional<DataRate> acked_bitrate,
-    absl::optional<DataRate> probe_bitrate,
-    bool recovered_from_overuse,
-    bool in_alr,
-    Timestamp at_time) {
+    absl::optional<DataRate> acked_bitrate, absl::optional<DataRate> probe_bitrate,
+    bool recovered_from_overuse, bool in_alr, Timestamp at_time) 
+{
   Result result;
 
-  // Currently overusing the bandwidth.
-  if (delay_detector_->State() == BandwidthUsage::kBwOverusing) {
+  // Currently overusing the bandwidth. 1. 宽带 带宽使用过载，网络发生拥塞。
+  if (delay_detector_->State() == BandwidthUsage::kBwOverusing) 
+  {
     if (in_alr && alr_limited_backoff_enabled_ &&
-        rate_control_.TimeToReduceFurther(at_time, prev_bitrate_)) {
-      result.updated =
-          UpdateEstimate(at_time, prev_bitrate_, &result.target_bitrate);
+        rate_control_.TimeToReduceFurther(at_time, prev_bitrate_)) 
+	{
+      result.updated = UpdateEstimate(at_time, prev_bitrate_, &result.target_bitrate);
       result.backoff_in_alr = true;
-    } else if (acked_bitrate &&
-               rate_control_.TimeToReduceFurther(at_time, *acked_bitrate)) {
-      result.updated =
-          UpdateEstimate(at_time, acked_bitrate, &result.target_bitrate);
-    } else if (!acked_bitrate && rate_control_.ValidEstimate() &&
-               rate_control_.InitialTimeToReduceFurther(at_time)) {
+    }
+	else if (acked_bitrate &&
+               rate_control_.TimeToReduceFurther(at_time, *acked_bitrate)) 
+	{
+      result.updated = UpdateEstimate(at_time, acked_bitrate, &result.target_bitrate);
+    }
+	else if (!acked_bitrate && rate_control_.ValidEstimate() &&
+               rate_control_.InitialTimeToReduceFurther(at_time)) 
+	{
       // Overusing before we have a measured acknowledged bitrate. Reduce send
       // rate by 50% every 200 ms.
       // TODO(tschumim): Improve this and/or the acknowledged bitrate estimator
@@ -227,28 +231,33 @@ DelayBasedBwe::Result DelayBasedBwe::MaybeUpdateEstimate(
       result.probe = false;
       result.target_bitrate = rate_control_.LatestEstimate();
     }
-  } else {
-    if (probe_bitrate) {
+  }
+  else 
+  {
+    if (probe_bitrate) 
+	{
       result.probe = true;
       result.updated = true;
       result.target_bitrate = *probe_bitrate;
       rate_control_.SetEstimate(*probe_bitrate, at_time);
-    } else {
+    } 
+	else 
+	{
       result.updated =
           UpdateEstimate(at_time, acked_bitrate, &result.target_bitrate);
       result.recovered_from_overuse = recovered_from_overuse;
     }
   }
   BandwidthUsage detector_state = delay_detector_->State();
-  if ((result.updated && prev_bitrate_ != result.target_bitrate) ||
-      detector_state != prev_state_) {
+  if ((result.updated && prev_bitrate_ != result.target_bitrate) || detector_state != prev_state_) 
+  {
     DataRate bitrate = result.updated ? result.target_bitrate : prev_bitrate_;
 
     BWE_TEST_LOGGING_PLOT(1, "target_bitrate_bps", at_time.ms(), bitrate.bps());
 
-    if (event_log_) {
-      event_log_->Log(absl::make_unique<RtcEventBweUpdateDelayBased>(
-          bitrate.bps(), detector_state));
+    if (event_log_) 
+	{
+      event_log_->Log(absl::make_unique<RtcEventBweUpdateDelayBased>(bitrate.bps(), detector_state));
     }
 
     prev_bitrate_ = bitrate;
@@ -257,9 +266,8 @@ DelayBasedBwe::Result DelayBasedBwe::MaybeUpdateEstimate(
   return result;
 }
 
-bool DelayBasedBwe::UpdateEstimate(Timestamp at_time,
-                                   absl::optional<DataRate> acked_bitrate,
-                                   DataRate* target_rate) {
+bool DelayBasedBwe::UpdateEstimate(Timestamp at_time, absl::optional<DataRate> acked_bitrate, DataRate* target_rate) 
+{
   const RateControlInput input(delay_detector_->State(), acked_bitrate);
   *target_rate = rate_control_.Update(&input, at_time);
   return rate_control_.ValidEstimate();
