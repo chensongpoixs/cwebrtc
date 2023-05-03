@@ -24,15 +24,20 @@ namespace {
 const char kBweLossBasedControl[] = "WebRTC-Bwe-LossBasedControl";
 
 // Increase slower when RTT is high.
-double GetIncreaseFactor(const LossBasedControlConfig& config, TimeDelta rtt) {
+double GetIncreaseFactor(const LossBasedControlConfig& config, TimeDelta rtt) 
+{
   // Clamp the RTT
-  if (rtt < config.increase_low_rtt) {
+  if (rtt < config.increase_low_rtt) 
+  {
     rtt = config.increase_low_rtt;
-  } else if (rtt > config.increase_high_rtt) {
+  }
+  else if (rtt > config.increase_high_rtt) 
+  {
     rtt = config.increase_high_rtt;
   }
   auto rtt_range = config.increase_high_rtt.Get() - config.increase_low_rtt;
-  if (rtt_range <= TimeDelta::Zero()) {
+  if (rtt_range <= TimeDelta::Zero()) 
+  {
     RTC_DCHECK(false);  // Only on misconfiguration.
     return config.min_increase_factor;
   }

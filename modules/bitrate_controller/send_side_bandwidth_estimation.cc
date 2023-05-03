@@ -167,14 +167,13 @@ void LinkCapacityTracker::OnStartingRate(DataRate start_rate)
   }
 }
 
-void LinkCapacityTracker::OnRateUpdate(DataRate acknowledged,
-                                       Timestamp at_time) {
- // BANDWIDTH_ESTIMATION_LOG();
-  if (acknowledged.bps() > capacity_estimate_bps_) {
+void LinkCapacityTracker::OnRateUpdate(DataRate acknowledged, Timestamp at_time) 
+{ 
+  if (acknowledged.bps() > capacity_estimate_bps_) 
+  {
     TimeDelta delta = at_time - last_link_capacity_update_;
     double alpha = delta.IsFinite() ? exp(-(delta / tracking_rate.Get())) : 0;
-    capacity_estimate_bps_ = alpha * capacity_estimate_bps_ +
-                             (1 - alpha) * acknowledged.bps<double>();
+    capacity_estimate_bps_ = alpha * capacity_estimate_bps_ + (1 - alpha) * acknowledged.bps<double>();
   }
   last_link_capacity_update_ = at_time;
 }
@@ -274,8 +273,7 @@ SendSideBandwidthEstimation::SendSideBandwidthEstimation(RtcEventLog* event_log)
           webrtc::field_trial::IsEnabled("WebRTC-FeedbackTimeout/Enabled/")), // TODO@chensong 2022-11-29 feedback timeout 具体什么作用还不知道
       low_loss_threshold_(kDefaultLowLossThreshold),
       high_loss_threshold_(kDefaultHighLossThreshold),
-      bitrate_threshold_(kDefaultBitrateThreshold) {
- // BANDWIDTH_ESTIMATION_LOG();
+      bitrate_threshold_(kDefaultBitrateThreshold) { 
   RTC_DCHECK(event_log);
   if (BweLossExperimentIsEnabled()) {
     uint32_t bitrate_threshold_kbps;
@@ -290,12 +288,10 @@ SendSideBandwidthEstimation::SendSideBandwidthEstimation(RtcEventLog* event_log)
   }
 }
 
-SendSideBandwidthEstimation::~SendSideBandwidthEstimation() {
- // BANDWIDTH_ESTIMATION_LOG();
+SendSideBandwidthEstimation::~SendSideBandwidthEstimation() { 
 }
 
-void SendSideBandwidthEstimation::OnRouteChange() {
-//  BANDWIDTH_ESTIMATION_LOG();
+void SendSideBandwidthEstimation::OnRouteChange() { 
   lost_packets_since_last_loss_update_ = 0;
   expected_packets_since_last_loss_update_ = 0;
   current_bitrate_ = DataRate::Zero();
@@ -327,8 +323,7 @@ void SendSideBandwidthEstimation::SetBitrates(
     absl::optional<DataRate> send_bitrate,
     DataRate min_bitrate,
     DataRate max_bitrate,
-    Timestamp at_time) {
- // BANDWIDTH_ESTIMATION_LOG();
+    Timestamp at_time) { 
   SetMinMaxBitrate(min_bitrate, max_bitrate);
   if (send_bitrate) {
     link_capacity_.OnStartingRate(*send_bitrate);
@@ -461,6 +456,8 @@ void SendSideBandwidthEstimation::UpdatePacketsLost(int packets_lost, int number
 	//这边为什么要>> 8呢 ---   >>>>>
     int64_t lost_q8 = lost_packets_since_last_loss_update_ << 8;
     int64_t expected = expected_packets_since_last_loss_update_;
+
+	///// 非常关键一步得到掉包比例啦
     last_fraction_loss_ = std::min<int>(lost_q8 / expected, 255);
 
     // Reset accumulators.
@@ -568,14 +565,17 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
       return;
     }
   }
+
+  // TODO@chensong 2023-05-02 保存当前时刻的码流数据插入到队列中去
   UpdateMinHistory(at_time);
   if (last_loss_packet_report_.IsInfinite()) 
   {
     // No feedback received.
+	  // TODO@chensong 2023-05-02 这边是没有接收到feedback反馈接收包数据的走这边？？？
     CapBitrateToThresholds(at_time, current_bitrate_);
     return;
   }
-
+  //TODO@chensong 2023-05-02 默认是不开启的 
   if (loss_based_bandwidth_estimation_.Enabled()) 
   {
     loss_based_bandwidth_estimation_.Update(at_time, min_bitrate_history_.front().second, last_round_trip_time_);
@@ -586,7 +586,7 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
 
   TimeDelta time_since_loss_packet_report = at_time - last_loss_packet_report_;
   TimeDelta time_since_loss_feedback = at_time - last_loss_feedback_;
-  // TODO@chensong 2022-10-19  [1.2 * 5 = 6ms]
+  // TODO@chensong 2022-10-19  [1.2 * 5 = 6ms]   rtcp feedback反馈包在6ms内反馈数据就走下面逻辑
   if (time_since_loss_packet_report < 1.2 * kMaxRtcpFeedbackInterval) 
   {
     // We only care about loss above a given bitrate threshold.
@@ -623,17 +623,14 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
 	  {
         // Loss > 10%: Limit the rate decreases to once a kBweDecreaseInterval
         // + rtt.
-        if (!has_decreased_since_last_fraction_loss_ &&  (at_time - time_last_decrease_) >=
-                (kBweDecreaseInterval + last_round_trip_time_)) 
+        if (!has_decreased_since_last_fraction_loss_ &&  (at_time - time_last_decrease_) >= (kBweDecreaseInterval + last_round_trip_time_)) 
 		{
           time_last_decrease_ = at_time;
 
           // Reduce rate:
           //   newRate = rate * (1 - 0.5*lossRate);
           //   where packetLoss = 256*lossRate;
-          new_bitrate = DataRate::bps((current_bitrate_.bps() *
-                             static_cast<double>(512 - last_fraction_loss_)) /
-                            512.0);
+          new_bitrate = DataRate::bps((current_bitrate_.bps() * static_cast<double>(512 - last_fraction_loss_)) /  512.0);
           has_decreased_since_last_fraction_loss_ = true;
         }
       }
@@ -678,14 +675,10 @@ bool SendSideBandwidthEstimation::IsInStartPhase(Timestamp at_time) const
 
 void SendSideBandwidthEstimation::UpdateMinHistory(Timestamp at_time) 
 {
- // BANDWIDTH_ESTIMATION_LOG();
   // Remove old data points from history.
   // Since history precision is in ms, add one so it is able to increase
   // bitrate if it is off by as little as 0.5ms
- /* BANDWIDTH_ESTIMATION_FORMAT("[at_time = %s] [TimeDelta::ms(1) = %s][kBweIncreaseInterval = %s]\n",
-							  webrtc::ToString(at_time).c_str(),
-	  webrtc::ToString(TimeDelta::ms(1)).c_str(),
-	  webrtc::ToString(kBweIncreaseInterval).c_str());*/
+  // TODO@chensong 2023-05-02 从队列中前面开始比较当前时间是否大于1000微妙 如果大于就移除， 没有大于就跳过啦~~~~
   while (!min_bitrate_history_.empty() && at_time - min_bitrate_history_.front().first + TimeDelta::ms(1) > kBweIncreaseInterval) 
   {
     min_bitrate_history_.pop_front();
@@ -693,17 +686,17 @@ void SendSideBandwidthEstimation::UpdateMinHistory(Timestamp at_time)
 
   // Typical minimum sliding-window algorithm: Pop values higher than current
   // bitrate before pushing it.
-  while (!min_bitrate_history_.empty() &&
-         current_bitrate_ <= min_bitrate_history_.back().second) {
+  // TODO@chensong 2023-05-02 移除队列中从后面去除比当前码流大的数据
+  while (!min_bitrate_history_.empty() && current_bitrate_ <= min_bitrate_history_.back().second) 
+  {
     min_bitrate_history_.pop_back();
   }
-
+  // TODO@chensong 2023-05-02 保存当前时间的码流
   min_bitrate_history_.push_back(std::make_pair(at_time, current_bitrate_));
 }
 
 DataRate SendSideBandwidthEstimation::MaybeRampupOrBackoff(DataRate new_bitrate, Timestamp at_time) 
-{
-  //BANDWIDTH_ESTIMATION_LOG();
+{ 
   // TODO(crodbro): reuse this code in UpdateEstimate instead of current
   // inlining of very similar functionality.
   const TimeDelta time_since_loss_packet_report =
@@ -730,10 +723,9 @@ DataRate SendSideBandwidthEstimation::MaybeRampupOrBackoff(DataRate new_bitrate,
   }
   return new_bitrate;
 }
-
+// TODO@chensong 2023-05-02 上限比特率到阈值
 void SendSideBandwidthEstimation::CapBitrateToThresholds(Timestamp at_time, DataRate bitrate) 
-{
-  //BANDWIDTH_ESTIMATION_LOG();
+{ 
   if (  bitrate > bwe_incoming_ && bwe_incoming_ > DataRate::Zero()) 
   { //TODO@chensong 2023-04-30  goog-remb 算法会走到这里啦
     bitrate = bwe_incoming_;
@@ -779,8 +771,7 @@ void SendSideBandwidthEstimation::CapBitrateToThresholds(Timestamp at_time, Data
 
   if (acknowledged_rate_) 
   {
-    link_capacity_.OnRateUpdate(std::min(current_bitrate_, *acknowledged_rate_),
-                                at_time);
+    link_capacity_.OnRateUpdate(std::min(current_bitrate_, *acknowledged_rate_), at_time);
   }
 }
 }  // namespace webrtc

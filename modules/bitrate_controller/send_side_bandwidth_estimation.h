@@ -103,7 +103,7 @@ class RttBasedBackoff {
 	 // 上次传播rtt更新
   Timestamp last_propagation_rtt_update_;
 
-  // rtt的最后传播
+  // rtt的最后传播（最小的rtt）
   TimeDelta last_propagation_rtt_;
 
   // 最后发送的数据包
