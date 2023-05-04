@@ -111,17 +111,24 @@ struct RemoteBitrateReport {
   DataRate bandwidth = DataRate::Infinity();
 };
 
-struct RoundTripTimeUpdate {
+struct RoundTripTimeUpdate
+{
+	// TODO@chensong 2023-05-04 当前的时刻 
   Timestamp receive_time = Timestamp::PlusInfinity();
+  // TODO@chensong 2023-05-04  记录rtt的网络时常 RR ->到发送端的时长
   TimeDelta round_trip_time = TimeDelta::PlusInfinity();
   bool smoothed = false;
 };
 
 struct TransportLossReport {
+	// 这次汇报的时刻
   Timestamp receive_time = Timestamp::PlusInfinity();
+  // 上一次汇报的时刻
   Timestamp start_time = Timestamp::PlusInfinity();
   Timestamp end_time = Timestamp::PlusInfinity();
+  // TODO@chensong 2023-05-04 上一个时刻与当前汇报掉包总数量
   uint64_t packets_lost_delta = 0;
+  // TODO@chensong 2023-05-04 上一个时刻与当前汇报数据之间真正接收到数据包的数量
   uint64_t packets_received_delta = 0;
 };
 

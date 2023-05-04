@@ -814,26 +814,30 @@ int32_t RTCPSender::SendCompoundRTCP(
 
     // Prevent sending streams to send SR before any media has been sent.
     const bool can_calculate_rtp_timestamp = (last_frame_capture_time_ms_ >= 0);
-    if (!can_calculate_rtp_timestamp) {
+    if (!can_calculate_rtp_timestamp)
+	{
       bool consumed_sr_flag = ConsumeFlag(kRtcpSr);
       bool consumed_report_flag = sending_ && ConsumeFlag(kRtcpReport);
       bool sender_report = consumed_report_flag || consumed_sr_flag;
-      if (sender_report && AllVolatileFlagsConsumed()) {
+      if (sender_report && AllVolatileFlagsConsumed()) 
+	  {
         // This call was for Sender Report and nothing else.
         return 0;
       }
-      if (sending_ && method_ == RtcpMode::kCompound) {
+      if (sending_ && method_ == RtcpMode::kCompound) 
+	  {
         // Not allowed to send any RTCP packet without sender report.
         return -1;
       }
     }
 
-    if (packet_type_counter_.first_packet_time_ms == -1)
+	if (packet_type_counter_.first_packet_time_ms == -1)
+	{
       packet_type_counter_.first_packet_time_ms = clock_->TimeInMilliseconds();
+	}
 
     // We need to send our NTP even if we haven't received any reports.
-    RtcpContext context(feedback_state, nack_size, nack_list,
-                        clock_->TimeInMicroseconds());
+    RtcpContext context(feedback_state, nack_size, nack_list, clock_->TimeInMicroseconds());
 
     PrepareReport(feedback_state);
 
@@ -948,7 +952,7 @@ std::vector<rtcp::ReportBlock> RTCPSender::CreateReportBlocks(
                           (feedback_state.last_rr_ntp_frac != 0))) {
     // Get our NTP as late as possible to avoid a race.
     uint32_t now = CompactNtp(TimeMicrosToNtp(clock_->TimeInMicroseconds()));
-
+	// TODO@chensong 2023-05-04 发送端发送RR的信息包啦 ^_^ ~~~
     uint32_t receive_time = feedback_state.last_rr_ntp_secs & 0x0000FFFF;
     receive_time <<= 16;
     receive_time += (feedback_state.last_rr_ntp_frac & 0xffff0000) >> 16;
