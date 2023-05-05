@@ -115,8 +115,7 @@ DelayBasedBwe::DelayBasedBwe(const WebRtcKeyValueConfig* key_value_config,
 DelayBasedBwe::~DelayBasedBwe() {}
 
 DelayBasedBwe::Result DelayBasedBwe::IncomingPacketFeedbackVector(
-    const std::vector<PacketFeedback>& packet_feedback_vector, absl::optional<DataRate> acked_bitrate,
-    absl::optional<DataRate> probe_bitrate, bool in_alr, Timestamp at_time) 
+    const std::vector<PacketFeedback>& packet_feedback_vector, absl::optional<DataRate> acked_bitrate, absl::optional<DataRate> probe_bitrate, bool in_alr, Timestamp at_time) 
 {
   RTC_DCHECK(std::is_sorted(packet_feedback_vector.begin(),
                             packet_feedback_vector.end(),

@@ -563,8 +563,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
   bool backoff_in_alr = false;
   // TODO@chensong 2022-11-30  基于延迟（delay-based）的拥塞控制算法
   DelayBasedBwe::Result result;
-  result = delay_based_bwe_->IncomingPacketFeedbackVector( received_feedback_vector, acknowledged_bitrate, probe_bitrate,
-      alr_start_time.has_value(), report.feedback_time);
+  result = delay_based_bwe_->IncomingPacketFeedbackVector( received_feedback_vector, acknowledged_bitrate, probe_bitrate, alr_start_time.has_value(), report.feedback_time);
 
   if (result.updated)
   {
@@ -584,12 +583,15 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
   recovered_from_overuse = result.recovered_from_overuse;
   backoff_in_alr = result.backoff_in_alr;
 
-  if (recovered_from_overuse) {
+  if (recovered_from_overuse) 
+  {
     probe_controller_->SetAlrStartTimeMs(alr_start_time);
     auto probes = probe_controller_->RequestProbe(report.feedback_time.ms());
     update.probe_cluster_configs.insert(update.probe_cluster_configs.end(),
                                         probes.begin(), probes.end());
-  } else if (backoff_in_alr) {
+  } 
+  else if (backoff_in_alr) 
+  {
     // If we just backed off during ALR, request a new probe.
     auto probes = probe_controller_->RequestProbe(report.feedback_time.ms());
     update.probe_cluster_configs.insert(update.probe_cluster_configs.end(),
@@ -598,28 +600,30 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
 
   // No valid RTT could be because send-side BWE isn't used, in which case
   // we don't try to limit the outstanding packets.
-  if (rate_control_settings_.UseCongestionWindow() &&
-      max_feedback_rtt.IsFinite()) {
+  if (rate_control_settings_.UseCongestionWindow() && max_feedback_rtt.IsFinite()) 
+  {
     int64_t min_feedback_max_rtt_ms =
         *std::min_element(feedback_max_rtts_.begin(), feedback_max_rtts_.end());
 
     const DataSize kMinCwnd = DataSize::bytes(2 * 1500);
-    TimeDelta time_window = TimeDelta::ms(
-        min_feedback_max_rtt_ms +
-        rate_control_settings_.GetCongestionWindowAdditionalTimeMs());
+    TimeDelta time_window = TimeDelta::ms( min_feedback_max_rtt_ms + rate_control_settings_.GetCongestionWindowAdditionalTimeMs());
     DataSize data_window = last_raw_target_rate_ * time_window;
-    if (current_data_window_) {
-      data_window =
-          std::max(kMinCwnd, (data_window + current_data_window_.value()) / 2);
-    } else {
+    if (current_data_window_) 
+	{
+      data_window = std::max(kMinCwnd, (data_window + current_data_window_.value()) / 2);
+    }
+	else 
+	{
       data_window = std::max(kMinCwnd, data_window);
     }
     current_data_window_ = data_window;
   }
-  if (congestion_window_pushback_controller_ && current_data_window_) {
-    congestion_window_pushback_controller_->SetDataWindow(
-        *current_data_window_);
-  } else {
+  if (congestion_window_pushback_controller_ && current_data_window_) 
+  {
+	  congestion_window_pushback_controller_->SetDataWindow(*current_data_window_);
+  } 
+  else 
+  {
     update.congestion_window = current_data_window_;
   }
 
