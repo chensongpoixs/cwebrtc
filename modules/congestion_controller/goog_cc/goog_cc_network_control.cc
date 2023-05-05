@@ -109,15 +109,11 @@ GoogCcNetworkController::GoogCcNetworkController(
               ? absl::make_unique<CongestionWindowPushbackController>(
                     key_value_config_)
               : nullptr),
-      bandwidth_estimation_(
-          absl::make_unique<SendSideBandwidthEstimation>(event_log_)),
+      bandwidth_estimation_(absl::make_unique<SendSideBandwidthEstimation>(event_log_)),
       alr_detector_(absl::make_unique<AlrDetector>()),
       probe_bitrate_estimator_(new ProbeBitrateEstimator(event_log)),
-      delay_based_bwe_(new DelayBasedBwe(key_value_config_,
-                                         event_log_,
-                                         network_state_predictor.get())),
-      acknowledged_bitrate_estimator_(
-          absl::make_unique<AcknowledgedBitrateEstimator>(key_value_config_)),
+      delay_based_bwe_(new DelayBasedBwe(key_value_config_, event_log_, network_state_predictor.get())),
+      acknowledged_bitrate_estimator_(absl::make_unique<AcknowledgedBitrateEstimator>(key_value_config_)),
       initial_config_(config),
       last_raw_target_rate_(*config.constraints.starting_rate),
       last_pushback_target_rate_(last_raw_target_rate_),
@@ -125,13 +121,15 @@ GoogCcNetworkController::GoogCcNetworkController(
       min_total_allocated_bitrate_(config.stream_based_config.min_total_allocated_bitrate.value_or(DataRate::Zero())),
       max_padding_rate_(config.stream_based_config.max_padding_rate.value_or(DataRate::Zero())),
       max_total_allocated_bitrate_(DataRate::Zero()),
-      network_state_predictor_(std::move(network_state_predictor)) {
+      network_state_predictor_(std::move(network_state_predictor)) 
+{
   RTC_DCHECK(config.constraints.at_time.IsFinite());
-  ParseFieldTrial(
-      {&safe_reset_on_route_change_, &safe_reset_acknowledged_rate_},
+  ParseFieldTrial({&safe_reset_on_route_change_, &safe_reset_acknowledged_rate_},
       key_value_config_->Lookup("WebRTC-Bwe-SafeResetOnRouteChange"));
   if (delay_based_bwe_)
+  {
     delay_based_bwe_->SetMinBitrate(congestion_controller::GetMinBitrate());
+  }
 }
 
 GoogCcNetworkController::~GoogCcNetworkController() {}
@@ -413,6 +411,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportLossReport(TransportLos
 	{
 		return NetworkControlUpdate();
   }
+	// TODO@chensong 2023-05-04 神奇一面出现啦    接收的总包 + 掉包的总数量  要干嘛 没有看懂你   看看下面的逻辑
   int64_t total_packets_delta = msg.packets_received_delta + msg.packets_lost_delta;
   bandwidth_estimation_->UpdatePacketsLost( msg.packets_lost_delta, total_packets_delta, msg.receive_time);
  

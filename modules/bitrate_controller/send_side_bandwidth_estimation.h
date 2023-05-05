@@ -217,7 +217,9 @@ class SendSideBandwidthEstimation {
   // 最后一个低比特率日志
   Timestamp last_low_bitrate_log_;
 
+  
   // 自上次部分损失以来已减少
+  // TODO@chensong 2023-05-04 该变量在SendSideBandwidthEstimation::UpdatePacketsLost方法中更新false变量
   bool has_decreased_since_last_fraction_loss_;
 
   // 最后损失反馈

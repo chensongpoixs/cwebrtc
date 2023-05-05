@@ -63,7 +63,7 @@ class ReportBlock {
   int32_t cumulative_lost_;  // Signed 24-bit value 自接收开始漏包总数，迟到包不算漏包，重传有可以导致负数
   uint32_t extended_high_seq_num_;  // 32 bits  低16位表式收到的最大seq，高16位表式seq循环次数 
   uint32_t jitter_;                 // 32 bits RTP包到达时间间隔的统计方差
-  uint32_t last_sr_;                // 32 bits NTP时间戳的中间32位
+  uint32_t last_sr_;                // 32 bits NTP时间戳的中间32位 --> 从源 SSRC_n 来的最近的 RTCPSR。如果尚未接收到 SR，域设置为零。
   uint32_t delay_since_last_sr_;    // 32 bits, units of 1/65536 seconds//记录接收SR的时间与发送SR的时间差
 };
 

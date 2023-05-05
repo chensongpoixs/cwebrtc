@@ -72,7 +72,7 @@ struct RTCPReceiver::PacketInformation {
   uint32_t remote_ssrc = 0; // 远端的ssrc
   std::vector<uint16_t> nack_sequence_numbers;  // 保存掉包的seq
   ReportBlockList report_blocks; // 
-  int64_t rtt_ms = 0;// 数据包周期时长 一个包一去一回的时间长
+  int64_t rtt_ms = 0;// [RR -> 接收端的毫秒数]数据包周期时长 一个包一去一回的时间长
   uint32_t receiver_estimated_max_bitrate_bps = 0; //接受端评估最大的带宽
   std::unique_ptr<rtcp::TransportFeedback> transport_feedback;
   absl::optional<VideoBitrateAllocation> target_bitrate_allocation;
@@ -112,12 +112,12 @@ struct RTCPReceiver::RrtrInformation {
 
 struct RTCPReceiver::ReportBlockWithRtt {
   RTCPReportBlock report_block;
-
-  int64_t last_rtt_ms = 0;
-  int64_t min_rtt_ms = 0;
-  int64_t max_rtt_ms = 0;
-  int64_t sum_rtt_ms = 0;
-  size_t num_rtts = 0;
+  // TODO@chensong 2023-05-04 当前的rtt的时间毫秒数
+  int64_t last_rtt_ms = 0;  // 当前rtt的毫秒数
+  int64_t min_rtt_ms = 0;   // rtt的最小毫秒数
+  int64_t max_rtt_ms = 0;   // rtt的最大毫秒数
+  int64_t sum_rtt_ms = 0;   // rtt中数据统计反馈的总时长 
+  size_t num_rtts = 0;      //  rtt中数据统计中总个数
 };
 
 struct RTCPReceiver::LastFirStatus {
@@ -578,12 +578,14 @@ void RTCPReceiver::HandleReportBlock(const ReportBlock& report_block, PacketInfo
   // are configured with an associated audio send stream.
   if (send_time_ntp != 0) 
   {
+	// TODO@chensong 2023-05-04 神奇的地方 我居然没有看到一个范围统计 而是统计RR包和SR包网络时常 ^_^
     uint32_t delay_ntp = report_block.delay_since_last_sr();
     // Local NTP time.
 	// 微妙 
     uint32_t receive_time_ntp = CompactNtp(TimeMicrosToNtp(clock_->TimeInMicroseconds()));
 
     // RTT in 1/(2^16) seconds.
+	// TODO@chensong 2023-05-04 计算得到RR到发送端的时间长度rtt_ntp
     uint32_t rtt_ntp = receive_time_ntp - delay_ntp /*发送时间与接收到时间差值*/ - send_time_ntp;
     // Convert to 1/1000 seconds (milliseconds).
 	// 微妙转换 毫秒级
@@ -1146,7 +1148,7 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(const PacketInformation& packe
     if ((packet_information.packet_type_flags & kRtcpSr) || (packet_information.packet_type_flags & kRtcpRr)) 
 	{
       int64_t now_ms = clock_->TimeInMilliseconds();
-	  // TODO@chensong 2023-04-29 网络带宽评估输入参数
+	  // TODO@chensong 2023-04-29 网络带宽评估输入参数   这边只是进行计算并没有计算出目标码流
       rtcp_bandwidth_observer_->OnReceivedRtcpReceiverReport(packet_information.report_blocks, packet_information.rtt_ms, now_ms);
     }
   }

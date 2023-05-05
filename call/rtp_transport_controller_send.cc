@@ -304,34 +304,44 @@ void RtpTransportControllerSend::OnNetworkRouteChanged(const std::string& transp
     });
   }
 }
-void RtpTransportControllerSend::OnNetworkAvailability(bool network_available) {
-  RTC_LOG(LS_INFO) << "SignalNetworkState "
-                   << (network_available ? "Up" : "Down");
+void RtpTransportControllerSend::OnNetworkAvailability(bool network_available) 
+{
+  RTC_LOG(LS_INFO) << "SignalNetworkState " << (network_available ? "Up" : "Down");
   NetworkAvailability msg;
   msg.at_time = Timestamp::ms(clock_->TimeInMilliseconds());
   msg.network_available = network_available;
   task_queue_.PostTask([this, msg]() {
     RTC_DCHECK_RUN_ON(&task_queue_);
-    if (network_available_ == msg.network_available)
+	if (network_available_ == msg.network_available)
+	{
       return;
+	}
     network_available_ = msg.network_available;
-    if (network_available_) {
+    if (network_available_) 
+	{
       pacer_.Resume();
-    } else {
+    }
+	else
+	{
       pacer_.Pause();
     }
     pacer_.UpdateOutstandingData(0);
 
-    if (controller_) {
+    if (controller_) 
+	{
       control_handler_->SetNetworkAvailability(network_available_);
       PostUpdates(controller_->OnNetworkAvailability(msg));
       UpdateControlState();
-    } else {
+    }
+	else 
+	{
+		// TODO@chensong 2023-05-04 网络ice协商结束 后会创建GCC模块初始化
       MaybeCreateControllers();
     }
   });
 
-  for (auto& rtp_sender : video_rtp_senders_) {
+  for (auto& rtp_sender : video_rtp_senders_) 
+  {
     rtp_sender->OnNetworkAvailability(network_available);
   }
 }
@@ -446,23 +456,26 @@ void RtpTransportControllerSend::OnReceivedEstimatedBitrate(uint32_t bitrate) {
   });
 }
 
-void RtpTransportControllerSend::OnReceivedRtcpReceiverReport(
-    const ReportBlockList& report_blocks,
-    int64_t rtt_ms,
-    int64_t now_ms) {
-  task_queue_.PostTask([this, report_blocks, now_ms]() {
+void RtpTransportControllerSend::OnReceivedRtcpReceiverReport(const ReportBlockList& report_blocks, int64_t rtt_ms, int64_t now_ms) 
+{
+  task_queue_.PostTask([this, report_blocks, now_ms]() 
+  {
     RTC_DCHECK_RUN_ON(&task_queue_);
     OnReceivedRtcpReceiverReportBlocks(report_blocks, now_ms);
   });
 
-  task_queue_.PostTask([this, now_ms, rtt_ms]() {
+  task_queue_.PostTask([this, now_ms, rtt_ms]() 
+  {
     RTC_DCHECK_RUN_ON(&task_queue_);
     RoundTripTimeUpdate report;
     report.receive_time = Timestamp::ms(now_ms);
     report.round_trip_time = TimeDelta::ms(rtt_ms);
     report.smoothed = false;
-    if (controller_ && !report.round_trip_time.IsZero())
+	if (controller_ && !report.round_trip_time.IsZero())
+	{
+		// TODO@chensong 2023-05-04 这边更新rtt值哈 ^_^ OnRoundTripTimeUpdate中
       PostUpdates(controller_->OnRoundTripTimeUpdate(report));
+	}
   });
 }
 
@@ -521,6 +534,7 @@ void RtpTransportControllerSend::MaybeCreateControllers() {
   else 
   {
     RTC_LOG(LS_INFO) << "Creating fallback congestion controller";
+	// TODO@chensong 2023-05-04 创建GCC模块网络评估模块
     controller_ = controller_factory_fallback_->Create(initial_config_);
     process_interval_ = controller_factory_fallback_->GetProcessInterval();
   }
@@ -614,22 +628,26 @@ void RtpTransportControllerSend::PostUpdates(NetworkControlUpdate update) {
   }
 }
 
-void RtpTransportControllerSend::OnReceivedRtcpReceiverReportBlocks(
-    const ReportBlockList& report_blocks,
-    int64_t now_ms) {
-  if (report_blocks.empty())
+void RtpTransportControllerSend::OnReceivedRtcpReceiverReportBlocks(const ReportBlockList& report_blocks, int64_t now_ms) 
+{
+	if (report_blocks.empty())
+	{
     return;
+  }
 
   int total_packets_lost_delta = 0;
   int total_packets_delta = 0;
 
   // Compute the packet loss from all report blocks.
-  for (const RTCPReportBlock& report_block : report_blocks) {
+  for (const RTCPReportBlock& report_block : report_blocks)
+  {
     auto it = last_report_blocks_.find(report_block.source_ssrc);
-    if (it != last_report_blocks_.end()) {
-      auto number_of_packets = report_block.extended_highest_sequence_number -
-                               it->second.extended_highest_sequence_number;
+    if (it != last_report_blocks_.end()) 
+	{
+	// TODO@chensong 2023-05-04 统计这次汇报接收包的数量
+      auto number_of_packets = report_block.extended_highest_sequence_number - it->second.extended_highest_sequence_number;
       total_packets_delta += number_of_packets;
+	  // TODO@chensong 2023-05-04 加到上次与当前汇报的数据掉包的总数量
       auto lost_delta = report_block.packets_lost - it->second.packets_lost;
       total_packets_lost_delta += lost_delta;
     }
@@ -637,15 +655,21 @@ void RtpTransportControllerSend::OnReceivedRtcpReceiverReportBlocks(
   }
   // Can only compute delta if there has been previous blocks to compare to. If
   // not, total_packets_delta will be unchanged and there's nothing more to do.
+  // TODO@chensong 2023-05-04 说明再次没有发送数据包 直接退出
   if (!total_packets_delta)
+  {
     return;
+  }
+  // TODO@chensong 2023-05-04   [这次汇报与上一次汇报接收包总数量差 - 当前汇报与上次汇报掉包总数差 = 接收包的总数量]
   int packets_received_delta = total_packets_delta - total_packets_lost_delta;
   // To detect lost packets, at least one packet has to be received. This check
   // is needed to avoid bandwith detection update in
   // VideoSendStreamTest.SuspendBelowMinBitrate
-
+  // TODO@chensong 2023-05-04 这边很神奇 我也好奇呢  当前接收的包为小余0就直接退出了 有点懵逼 ^_^ 
   if (packets_received_delta < 1)
+  {
     return;
+  }
   Timestamp now = Timestamp::ms(now_ms);
   TransportLossReport msg;
   msg.packets_lost_delta = total_packets_lost_delta;
@@ -654,7 +678,9 @@ void RtpTransportControllerSend::OnReceivedRtcpReceiverReportBlocks(
   msg.start_time = last_report_block_time_;
   msg.end_time = now;
   if (controller_)
+  {
     PostUpdates(controller_->OnTransportLossReport(msg));
+  }
   last_report_block_time_ = now;
 }
 

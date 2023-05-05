@@ -143,24 +143,22 @@ bool ReadBweLossExperimentParameters(float* low_loss_threshold,
 }  // namespace
 
 LinkCapacityTracker::LinkCapacityTracker()
-    : tracking_rate("rate", TimeDelta::seconds(10)) {
-//  BANDWIDTH_ESTIMATION_LOG();
+    : tracking_rate("rate", TimeDelta::seconds(10)) 
+{ 
   ParseFieldTrial({&tracking_rate},
                   field_trial::FindFullName("WebRTC-Bwe-LinkCapacity"));
 }
 
 LinkCapacityTracker::~LinkCapacityTracker() {}
 
-void LinkCapacityTracker::OnOveruse(DataRate acknowledged_rate,
-                                    Timestamp at_time) {
- // BANDWIDTH_ESTIMATION_LOG();
+void LinkCapacityTracker::OnOveruse(DataRate acknowledged_rate, Timestamp at_time) 
+{ 
   capacity_estimate_bps_ = std::min(capacity_estimate_bps_, acknowledged_rate.bps<double>());
   last_link_capacity_update_ = at_time;
 }
 
 void LinkCapacityTracker::OnStartingRate(DataRate start_rate) 
-{
- // BANDWIDTH_ESTIMATION_LOG();
+{ 
 	if (last_link_capacity_update_.IsInfinite())
 	{
 		capacity_estimate_bps_ = start_rate.bps<double>();
@@ -169,9 +167,11 @@ void LinkCapacityTracker::OnStartingRate(DataRate start_rate)
 
 void LinkCapacityTracker::OnRateUpdate(DataRate acknowledged, Timestamp at_time) 
 { 
+	// TODO@chensong 2023-05-04  根据网络掉包评估处理的码流大于当前就使用
   if (acknowledged.bps() > capacity_estimate_bps_) 
   {
     TimeDelta delta = at_time - last_link_capacity_update_;
+	// alpha 公式 TODO@chensong 2023-05-04 
     double alpha = delta.IsFinite() ? exp(-(delta / tracking_rate.Get())) : 0;
     capacity_estimate_bps_ = alpha * capacity_estimate_bps_ + (1 - alpha) * acknowledged.bps<double>();
   }
@@ -179,14 +179,13 @@ void LinkCapacityTracker::OnRateUpdate(DataRate acknowledged, Timestamp at_time)
 }
 
 void LinkCapacityTracker::OnRttBackoff(DataRate backoff_rate, Timestamp at_time) 
-{
- // BANDWIDTH_ESTIMATION_LOG();
+{ 
   capacity_estimate_bps_ = std::min(capacity_estimate_bps_, backoff_rate.bps<double>());
   last_link_capacity_update_ = at_time;
 }
 
-DataRate LinkCapacityTracker::estimate() const {
- // BANDWIDTH_ESTIMATION_LOG();
+DataRate LinkCapacityTracker::estimate() const 
+{ 
   return DataRate::bps(capacity_estimate_bps_);
 }
 
@@ -271,9 +270,9 @@ SendSideBandwidthEstimation::SendSideBandwidthEstimation(RtcEventLog* event_log)
       last_rtc_event_log_(Timestamp::MinusInfinity()),
       in_timeout_experiment_(
           webrtc::field_trial::IsEnabled("WebRTC-FeedbackTimeout/Enabled/")), // TODO@chensong 2022-11-29 feedback timeout 具体什么作用还不知道
-      low_loss_threshold_(kDefaultLowLossThreshold),
-      high_loss_threshold_(kDefaultHighLossThreshold),
-      bitrate_threshold_(kDefaultBitrateThreshold) { 
+      low_loss_threshold_(kDefaultLowLossThreshold /*0.02f;*/),
+      high_loss_threshold_(kDefaultHighLossThreshold /*0.1f*/),
+      bitrate_threshold_(kDefaultBitrateThreshold /*0.0f*/) { 
   RTC_DCHECK(event_log);
   if (BweLossExperimentIsEnabled()) {
     uint32_t bitrate_threshold_kbps;
@@ -416,11 +415,8 @@ void SendSideBandwidthEstimation::IncomingPacketFeedbackVector(const TransportPa
   }
 }
 
-void SendSideBandwidthEstimation::UpdateReceiverBlock(uint8_t fraction_loss,
-                                                      TimeDelta rtt,
-                                                      int number_of_packets,
-                                                      Timestamp at_time) {
-  //BANDWIDTH_ESTIMATION_LOG();
+void SendSideBandwidthEstimation::UpdateReceiverBlock(uint8_t fraction_loss, TimeDelta rtt,  int number_of_packets, Timestamp at_time)
+{
   const int kRoundingConstant = 128;
   int packets_lost = (static_cast<int>(fraction_loss) * number_of_packets +
                       kRoundingConstant) >>
@@ -446,17 +442,21 @@ void SendSideBandwidthEstimation::UpdatePacketsLost(int packets_lost, int number
     expected_packets_since_last_loss_update_ += number_of_packets;
 
     // Don't generate a loss rate until it can be based on enough packets.
+	// TODO@chensong 2023-05-04 预期接收包的总数量 小于20时啥事情都不干哈 ^_^
 	if (expected_packets_since_last_loss_update_ < kLimitNumPackets /*20*/)
 	{
 		return;
 	}
 
     has_decreased_since_last_fraction_loss_ = false;
-	//这边为什么要>> 8呢 ---   >>>>>
+	//这边为什么要是  8呢 ---   >>>>> 
+	// TODO@chensong 2023-05-04   2的8次方正好是256 计算掉包乘以256  也就是<<8  ， 这样做的目的避免后面计算使用浮点表示
     int64_t lost_q8 = lost_packets_since_last_loss_update_ << 8;
     int64_t expected = expected_packets_since_last_loss_update_;
 
 	///// 非常关键一步得到掉包比例啦
+	// TODO@chensong 2023-05-04 这边掉包概率 为什么是 [0, 255] 好奇
+	// 这边我就好奇 这个公式？？？？？？？？ = (掉包数 * 256)/ 正在应该收的数据包(不掉包)   好奇吧  这是放大系数为了更好计算出精确的掉包率
     last_fraction_loss_ = std::min<int>(lost_q8 / expected, 255);
 
     // Reset accumulators.
@@ -583,17 +583,19 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
     return;
   }
 
+  // TODO@chensong 2023-05-04 正常情况下面两个反馈时间都是0 
   TimeDelta time_since_loss_packet_report = at_time - last_loss_packet_report_;
   TimeDelta time_since_loss_feedback = at_time - last_loss_feedback_;
   // TODO@chensong 2022-10-19  [1.2 * 5 = 6ms]   rtcp feedback反馈包在6ms内反馈数据就走下面逻辑
   if (time_since_loss_packet_report < 1.2 * kMaxRtcpFeedbackInterval) 
   {
     // We only care about loss above a given bitrate threshold.
-    float loss = last_fraction_loss_ / 256.0f;
+    float loss = last_fraction_loss_ / 256.0f; // 取出掉包概率  2的8次方 
     // We only make decisions based on loss when the bitrate is above a
     // threshold. This is a crude way of handling loss which is uncorrelated
     // to congestion.
-    if (current_bitrate_ < bitrate_threshold_ || loss <= low_loss_threshold_) 
+	// TODO@chensong 2023-05-04 掉包概率小于等于0.02f就需要增大码流
+    if (current_bitrate_ < bitrate_threshold_ || loss <= low_loss_threshold_ /*0.02f*/) 
 	{
       // Loss < 2%: Increase rate by 8% of the min bitrate in the last
       // kBweIncreaseInterval.
@@ -614,36 +616,51 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
     } 
 	else if (current_bitrate_ > bitrate_threshold_) 
 	{
+		// TODO@chensong 2023-05-04 掉包概率小于等于0.1f时啥都不处理
       if (loss <= high_loss_threshold_) 
 	  {
         // Loss between 2% - 10%: Do nothing.
       }
 	  else 
 	  {
+		  // TODO@chensong 2023-05-04 掉包概率打印百分之十就需要降低码流啦 ^_^
+		  // 降低码流
         // Loss > 10%: Limit the rate decreases to once a kBweDecreaseInterval
         // + rtt.
-        if (!has_decreased_since_last_fraction_loss_ &&  (at_time - time_last_decrease_) >= (kBweDecreaseInterval + last_round_trip_time_)) 
+		  // TODO@chensong 2023-05-04
+		  // 1. has_decreased_since_last_fraction_loss_ 该变量在SendSideBandwidthEstimation::UpdatePacketsLost方法中更新false变量
+		  // 2. time_last_decrease_这个变量几乎可以忽略在其它地方更新， 正常情况下只有在下面更新一下呢
+		  // 3. last_round_trip_time_ 即是最近的一个rtt的时长  ---> [接收端发送RR ---> 到发送端时长]
+		  // 
+		  // TODO@chensong 2023-05-04 
+		  // 问题： 
+		  // 1. kBweDecreaseInterval 这个值是300毫秒 我第一觉得会不会太大了呢 ~~~~
+
+        if (!has_decreased_since_last_fraction_loss_ &&  (at_time - time_last_decrease_) >= (kBweDecreaseInterval/*300微妙*/ + last_round_trip_time_)) 
 		{
+
           time_last_decrease_ = at_time;
 
           // Reduce rate:
           //   newRate = rate * (1 - 0.5*lossRate);
           //   where packetLoss = 256*lossRate;
+		  // TODO@chensong 2023-05-04  这个降低码流公式   上面有一个乘以256 即就是 0.5 计算机的字节整数是1024 
+		  // 把系数放到512倍数 精确系数     然后在还原系数
+		  // 根据掉包率 从新评估网络带宽的大小发送
           new_bitrate = DataRate::bps((current_bitrate_.bps() * static_cast<double>(512 - last_fraction_loss_)) /  512.0);
           has_decreased_since_last_fraction_loss_ = true;
         }
       }
     }
   } 
-  else if (time_since_loss_feedback >
-                 kFeedbackTimeoutIntervals * kMaxRtcpFeedbackInterval &&
-             (last_timeout_.IsInfinite() ||
-              at_time - last_timeout_ > kTimeoutInterval)) 
+  else if (time_since_loss_feedback > kFeedbackTimeoutIntervals/*3*/ * kMaxRtcpFeedbackInterval &&
+             (last_timeout_.IsInfinite() || at_time - last_timeout_ > kTimeoutInterval)) 
   {
 	  // [(5 * 3 ) = 15ms ]
     if (in_timeout_experiment_) 
 	{
       RTC_LOG(LS_WARNING) << "Feedback timed out (" << ToString(time_since_loss_feedback)<< "), reducing bitrate.";
+	  // TODO@chensong 2023-05-04 降低码流到原理0.8的码流
       new_bitrate = new_bitrate * 0.8;
       // Reset accumulators since we've already acted on missing feedback and
       // shouldn't to act again on these old lost packets.
@@ -756,13 +773,10 @@ void SendSideBandwidthEstimation::CapBitrateToThresholds(Timestamp at_time, Data
     bitrate = min_bitrate_configured_;
   }
 
-  if (bitrate != current_bitrate_ ||
-      last_fraction_loss_ != last_logged_fraction_loss_ ||
-      at_time - last_rtc_event_log_ > kRtcEventLogPeriod) 
+  if (bitrate != current_bitrate_ || last_fraction_loss_ != last_logged_fraction_loss_ || at_time - last_rtc_event_log_ > kRtcEventLogPeriod) 
   {
     event_log_->Log(absl::make_unique<RtcEventBweUpdateLossBased>(
-        bitrate.bps(), last_fraction_loss_,
-        expected_packets_since_last_loss_update_));
+        bitrate.bps(), last_fraction_loss_, expected_packets_since_last_loss_update_));
     last_logged_fraction_loss_ = last_fraction_loss_;
     last_rtc_event_log_ = at_time;
   }
