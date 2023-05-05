@@ -407,12 +407,11 @@ void SendSideBandwidthEstimation::SetAcknowledgedRate(absl::optional<DataRate> a
   }
 }
 
-void SendSideBandwidthEstimation::IncomingPacketFeedbackVector(
-    const TransportPacketsFeedback& report) {
- // BANDWIDTH_ESTIMATION_LOG();
-  if (loss_based_bandwidth_estimation_.Enabled()) {
-    loss_based_bandwidth_estimation_.UpdateLossStatistics(
-        report.packet_feedbacks, report.feedback_time);
+void SendSideBandwidthEstimation::IncomingPacketFeedbackVector(const TransportPacketsFeedback& report) 
+{ 
+  if (loss_based_bandwidth_estimation_.Enabled()) 
+  {
+    loss_based_bandwidth_estimation_.UpdateLossStatistics(report.packet_feedbacks, report.feedback_time);
   }
 }
 
