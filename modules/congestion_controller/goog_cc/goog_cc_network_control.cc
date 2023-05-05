@@ -601,8 +601,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
   // we don't try to limit the outstanding packets.
   if (rate_control_settings_.UseCongestionWindow() && max_feedback_rtt.IsFinite()) 
   {
-    int64_t min_feedback_max_rtt_ms =
-        *std::min_element(feedback_max_rtts_.begin(), feedback_max_rtts_.end());
+    int64_t min_feedback_max_rtt_ms = *std::min_element(feedback_max_rtts_.begin(), feedback_max_rtts_.end());
 
     const DataSize kMinCwnd = DataSize::bytes(2 * 1500);
     TimeDelta time_window = TimeDelta::ms( min_feedback_max_rtt_ms + rate_control_settings_.GetCongestionWindowAdditionalTimeMs());

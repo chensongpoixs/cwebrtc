@@ -369,6 +369,26 @@ void RtpVideoStreamReceiver::OnRtpPacket(const RtpPacketReceived& packet) {
       RTC_LOG(LS_INFO) << ss.str();
       last_packet_log_ms_ = now_ms;
     }
+    /*else
+    {
+  rtc::StringBuilder ss;
+  ss << "
+  : " << packet.Ssrc()
+     << " with payload type: " << static_cast<int>(packet.PayloadType())
+     << ", cur_timestamp: " << now_ms
+              << ", timestamp: " << packet.Timestamp()
+     << ", sequence number: " << packet.SequenceNumber()
+     << ", arrival time: " << packet.arrival_time_ms();
+  int32_t time_offset;
+  if (packet.GetExtension<TransmissionOffset>(&time_offset)) {
+    ss << ", toffset: " << time_offset;
+  }
+  uint32_t send_time;
+  if (packet.GetExtension<AbsoluteSendTime>(&send_time)) {
+    ss << ", abs send time: " << send_time;
+  }
+  RTC_LOG(LS_INFO) << ss.str();
+    }*/
   }
 
   ReceivePacket(packet);

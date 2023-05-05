@@ -922,7 +922,7 @@ void VideoStreamEncoder::OnFrame(const VideoFrame& video_frame)
   }
 
   // Capture time may come from clock with an offset and drift from clock_.
-  // 默认延迟时间 [delta_ntp_internal_ms_]为什么呢
+  // TODO@chensong 2023-05-05 设置发送rtp包的时间戳、 默认延迟时间 [delta_ntp_internal_ms_]为什么呢
   int64_t capture_ntp_time_ms;
   if (video_frame.ntp_time_ms() > 0) 
   {

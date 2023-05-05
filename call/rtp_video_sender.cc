@@ -430,6 +430,7 @@ EncodedImageCallback::Result RtpVideoSender::OnEncodedImage(
   RTC_NORMAL_EX_LOG("[rtp_video_header = %s]",
                 webrtc::ToString(rtp_video_header).c_str());
   #endif
+  // TODO@chensong 2023-05-05 ntp 的时间戳 是当前时间戳加上开始编码的时间戳
   uint32_t rtp_timestamp = encoded_image.Timestamp() + rtp_streams_[stream_index].rtp_rtcp->StartTimestamp();
 
   // RTCPSender has it's own copy of the timestamp offset, added in

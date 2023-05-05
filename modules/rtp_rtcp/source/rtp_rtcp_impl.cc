@@ -268,6 +268,7 @@ uint32_t ModuleRtpRtcpImpl::StartTimestamp() const {
 }
 
 // Configure start timestamp, default is a random number.
+// TODO@chensong 2023-05-05 发送ntp包时间戳开始是随机数 
 void ModuleRtpRtcpImpl::SetStartTimestamp(const uint32_t timestamp) {
   rtcp_sender_.SetTimestampOffset(timestamp);
   rtp_sender_->SetTimestampOffset(timestamp);

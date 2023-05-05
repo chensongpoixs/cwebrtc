@@ -110,11 +110,12 @@ void DesktopCapture::OnCaptureResult(
   webrtc::VideoFrame captureFrame =
 	  webrtc::VideoFrame::Builder()
 	  .set_video_frame_buffer(i420_buffer_)
-	  .set_timestamp_rtp(0)
+	  .set_timestamp_rtp(0)//set_ntp_time_ms
+          .set_ntp_time_ms(rtc::TimeMillis())
 	  .set_timestamp_ms(rtc::TimeMillis())
 	  .set_rotation(webrtc::kVideoRotation_0)
 	  .build();
-  captureFrame.set_ntp_time_ms(0);
+ // captureFrame.set_ntp_time_ms(0);
   DesktopCaptureSource::OnFrame(captureFrame);
   // rtc media info 
  /* DesktopCaptureSource::OnFrame(

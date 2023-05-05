@@ -151,10 +151,22 @@ RTPSender::RTPSender(
           field_trials.Lookup("WebRTC-SendSideBwe-WithOverhead")
               .find("Enabled") == 0) {
   // This random initialization is not intended to be cryptographic strong.
+	// TODO@chensong 2023-05-04 开始发送rtp的开始时间戳
+  
   timestamp_offset_ = random_.Rand<uint32_t>();
   // Random start, 16 bits. Can't be 0.
   sequence_number_rtx_ = random_.Rand(1, kMaxInitRtpSeqNumber);
   sequence_number_ = random_.Rand(1, kMaxInitRtpSeqNumber);
+
+  FILE* out_file_ptr = ::fopen("./timestamp_offset.cfg", "r");
+  if (out_file_ptr)
+  {
+    timestamp_offset_ = 2023u;
+    sequence_number_rtx_ = 2023u;
+    sequence_number_ = 2023u;
+    fclose(out_file_ptr);
+    out_file_ptr = NULL;
+  }
 
   // Store FlexFEC packets in the packet history data structure, so they can
   // be found when paced.
