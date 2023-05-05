@@ -36,12 +36,12 @@ CongestionWindowPushbackController::CongestionWindowPushbackController(
               .find("Enabled") == 0),
       min_pushback_target_bitrate_bps_(min_pushback_target_bitrate_bps) {}
 
-void CongestionWindowPushbackController::UpdateOutstandingData(
-    int64_t outstanding_bytes) {
+void CongestionWindowPushbackController::UpdateOutstandingData(int64_t outstanding_bytes) 
+{
   outstanding_bytes_ = outstanding_bytes;
 }
-void CongestionWindowPushbackController::UpdatePacingQueue(
-    int64_t pacing_bytes) {
+void CongestionWindowPushbackController::UpdatePacingQueue(int64_t pacing_bytes)
+{
   pacing_bytes_ = pacing_bytes;
 }
 

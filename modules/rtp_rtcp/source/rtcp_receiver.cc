@@ -391,20 +391,27 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
         break;
       case rtcp::Rtpfb::kPacketType:
         switch (rtcp_block.fmt()) {
-          case rtcp::Nack::kFeedbackMessageType: {
+          case rtcp::Nack::kFeedbackMessageType: 
+		  {
             // TODO@chensong 处理Nack信息包 丢包的处理
             HandleNack(rtcp_block, packet_information);
             break;
           }
           case rtcp::Tmmbr::kFeedbackMessageType:
+		  {
             HandleTmmbr(rtcp_block, packet_information);
             break;
+		  }
           case rtcp::Tmmbn::kFeedbackMessageType:
+		  {
             HandleTmmbn(rtcp_block, packet_information);
             break;
+		  }
           case rtcp::RapidResyncRequest::kFeedbackMessageType:
+		  {
             HandleSrReq(rtcp_block, packet_information);
             break;
+		  }
           case rtcp::TransportFeedback::kFeedbackMessageType: // Trasnport-gcc 关键的工具
 		  {
 			  HandleTransportFeedback(rtcp_block, packet_information);

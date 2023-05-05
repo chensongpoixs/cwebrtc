@@ -168,6 +168,7 @@ struct TransportPacketsFeedback {
   Timestamp feedback_time = Timestamp::PlusInfinity();
  // 当前没有接收ack确认第一个包的时间戳
   Timestamp first_unacked_send_time = Timestamp::PlusInfinity();
+  // 当前双方发送数据的大小
   DataSize data_in_flight = DataSize::Zero();
   DataSize prior_in_flight = DataSize::Zero();
   std::vector<PacketResult> packet_feedbacks;

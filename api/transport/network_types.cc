@@ -35,11 +35,13 @@ TransportPacketsFeedback::TransportPacketsFeedback(
     const TransportPacketsFeedback& other) = default;
 TransportPacketsFeedback::~TransportPacketsFeedback() = default;
 
-std::vector<PacketResult> TransportPacketsFeedback::ReceivedWithSendInfo()
-    const {
+std::vector<PacketResult> TransportPacketsFeedback::ReceivedWithSendInfo() const 
+{
   std::vector<PacketResult> res;
-  for (const PacketResult& fb : packet_feedbacks) {
-    if (fb.receive_time.IsFinite()) {
+  for (const PacketResult& fb : packet_feedbacks)
+  {
+    if (fb.receive_time.IsFinite()) 
+	{
       res.push_back(fb);
     }
   }
