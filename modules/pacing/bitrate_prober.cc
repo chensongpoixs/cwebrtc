@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -37,17 +37,15 @@ BitrateProberConfig::BitrateProberConfig(
     : min_probe_packets_sent("min_probe_packets_sent", 5),
       min_probe_delta("min_probe_delta", TimeDelta::ms(1)),
       min_probe_duration("min_probe_duration", TimeDelta::ms(15)),
-      max_probe_delay("max_probe_delay", TimeDelta::ms(3)) {
-  ParseFieldTrial({&min_probe_packets_sent, &min_probe_delta,
-                   &min_probe_duration, &max_probe_delay},
-                  key_value_config->Lookup("WebRTC-Bwe-ProbingConfiguration"));
+      max_probe_delay("max_probe_delay", TimeDelta::ms(3))   // TODO@chensong 2023-05-08  发送数据的时间间隔 
+{
+  ParseFieldTrial({&min_probe_packets_sent, &min_probe_delta, &min_probe_duration, &max_probe_delay}, key_value_config->Lookup("WebRTC-Bwe-ProbingConfiguration"));
 }
 
-BitrateProber::~BitrateProber() {
-  RTC_HISTOGRAM_COUNTS_1000("WebRTC.BWE.Probing.TotalProbeClustersRequested",
-                            total_probe_count_);
-  RTC_HISTOGRAM_COUNTS_1000("WebRTC.BWE.Probing.TotalFailedProbeClusters",
-                            total_failed_probe_count_);
+BitrateProber::~BitrateProber() 
+{
+  RTC_HISTOGRAM_COUNTS_1000("WebRTC.BWE.Probing.TotalProbeClustersRequested", total_probe_count_);
+  RTC_HISTOGRAM_COUNTS_1000("WebRTC.BWE.Probing.TotalFailedProbeClusters", total_failed_probe_count_);
 }
 
 BitrateProber::BitrateProber(const WebRtcKeyValueConfig& field_trials)
@@ -125,15 +123,23 @@ void BitrateProber::CreateProbeCluster(int bitrate_bps, int64_t now_ms, int clus
     probing_state_ = ProbingState::kInactive;
 }
 
-int BitrateProber::TimeUntilNextProbe(int64_t now_ms) {
+int BitrateProber::TimeUntilNextProbe(int64_t now_ms) 
+{
   // Probing is not active or probing is already complete.
-  if (probing_state_ != ProbingState::kActive || clusters_.empty())
-    return -1;
+	if (probing_state_ != ProbingState::kActive || clusters_.empty())
+	{
+		return -1;
+  }
 
   int time_until_probe_ms = 0;
-  if (next_probe_time_ms_ >= 0) {
+  if (next_probe_time_ms_ >= 0) 
+  {
     time_until_probe_ms = next_probe_time_ms_ - now_ms;
-    if (time_until_probe_ms < -config_.max_probe_delay->ms()) {
+	// TODO@chensong 2023-05-08    webrtc中提供平稳发送数据时间间隔  默认 5ms  max_probe_delay : 默认值是3ms
+    /*int32_t config_max_dealy = config_.max_probe_delay->ms();
+        (void)(config_max_dealy);*/
+    if (time_until_probe_ms < -config_.max_probe_delay->ms()) 
+	{
       RTC_DLOG(LS_WARNING) << "Probe delay too high"
                            << " (next_ms:" << next_probe_time_ms_
                            << ", now_ms: " << now_ms << ")";

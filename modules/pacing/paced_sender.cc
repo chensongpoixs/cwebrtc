@@ -164,9 +164,11 @@ bool PacedSender::Congested() const {
   return outstanding_bytes_ >= congestion_window_bytes_;
 }
 
-int64_t PacedSender::TimeMilliseconds() const {
+int64_t PacedSender::TimeMilliseconds() const 
+{
   int64_t time_ms = clock_->TimeInMilliseconds();
-  if (time_ms < last_timestamp_ms_) {
+  if (time_ms < last_timestamp_ms_)
+  {
     RTC_LOG(LS_WARNING)
         << "Non-monotonic clock behavior observed. Previous timestamp: "
         << last_timestamp_ms_ << ", new timestamp: " << time_ms;
@@ -287,20 +289,31 @@ int64_t PacedSender::QueueInMs() const {
   return TimeMilliseconds() - oldest_packet;
 }
 
-int64_t PacedSender::TimeUntilNextProcess() {
+int64_t PacedSender::TimeUntilNextProcess() 
+{
   rtc::CritScope cs(&critsect_);
-  int64_t elapsed_time_us =
-      clock_->TimeInMicroseconds() - time_last_process_us_;
+  int64_t elapsed_time_us = clock_->TimeInMicroseconds() - time_last_process_us_;
   int64_t elapsed_time_ms = (elapsed_time_us + 500) / 1000;
   // When paused we wake up every 500 ms to send a padding packet to ensure
   // we won't get stuck in the paused state due to no feedback being received.
   if (paused_)
+  {
     return std::max<int64_t>(kPausedProcessIntervalMs - elapsed_time_ms, 0);
+  }
 
-  if (prober_.IsProbing()) {
+  if (prober_.IsProbing()) 
+  {
+	  // TODO@chensong 2023-05-08 网络发送定时器时间间隔 5ms 这边还需要判断发送队列中没有数据的如果有数据 就不走定时器每各5ms发送数据了 而是立即发送的逻辑
+	  if (packets_.SizeInPackets() > 0)
+	  {
+            return -1;
+	  }
+
     int64_t ret = prober_.TimeUntilNextProbe(TimeMilliseconds());
-    if (ret > 0 || (ret == 0 && !probing_send_failure_))
+	if (ret > 0 || (ret == 0 && !probing_send_failure_))
+	{
       return ret;
+	}
   }
   return std::max<int64_t>(min_packet_limit_ms_ - elapsed_time_ms, 0);
 }
@@ -417,6 +430,7 @@ void PacedSender::Process()
   }
   // The paused state is checked in the loop since it leaves the critical
   // section allowing the paused state to be changed from other code.
+ 
   while (!packets_.Empty() && !paused_) 
   {
     const auto* packet = GetPendingPacket(pacing_info);
@@ -426,8 +440,7 @@ void PacedSender::Process()
 	}
 
     critsect_.Leave();
-    bool success = packet_sender_->TimeToSendPacket( packet->ssrc, packet->sequence_number, packet->capture_time_ms,
-        packet->retransmission, pacing_info);
+    bool success = packet_sender_->TimeToSendPacket( packet->ssrc, packet->sequence_number, packet->capture_time_ms, packet->retransmission, pacing_info);
     critsect_.Enter(); 
     if (success) 
 	{

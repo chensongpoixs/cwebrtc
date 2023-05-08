@@ -204,11 +204,14 @@ bool ProcessThreadImpl::Process()
         m.next_callback = GetNextCallbackTime(m.module, new_now);
       }
 
-      if (m.next_callback < next_checkpoint)
+	  if (m.next_callback < next_checkpoint)
+	  {
         next_checkpoint = m.next_callback;
+	  }
     }
 
-    while (!queue_.empty()) {
+    while (!queue_.empty()) 
+	{
       QueuedTask* task = queue_.front();
       queue_.pop();
       lock_.Leave();
@@ -220,7 +223,9 @@ bool ProcessThreadImpl::Process()
 
   int64_t time_to_wait = next_checkpoint - rtc::TimeMillis();
   if (time_to_wait > 0)
+  {
     wake_up_.Wait(static_cast<int>(time_to_wait));
+  }
 
   return true;
 }
