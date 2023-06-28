@@ -587,16 +587,18 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
   TimeDelta time_since_loss_packet_report = at_time - last_loss_packet_report_;
   TimeDelta time_since_loss_feedback = at_time - last_loss_feedback_;
   // TODO@chensong 2022-10-19  [1.2 * 5 = 6ms]   rtcp feedback反馈包在6ms内反馈数据就走下面逻辑
+  
   if (time_since_loss_packet_report < 1.2 * kMaxRtcpFeedbackInterval) 
   {
     // We only care about loss above a given bitrate threshold.
     float loss = last_fraction_loss_ / 256.0f; // 取出掉包概率  2的8次方 
-    // We only make decisions based on loss when the bitrate is above a
+	// We only make decisions based on loss when the bitrate is above a
     // threshold. This is a crude way of handling loss which is uncorrelated
     // to congestion.
 	// TODO@chensong 2023-05-04 掉包概率小于等于0.02f就需要增大码流
     if (current_bitrate_ < bitrate_threshold_ || loss <= low_loss_threshold_ /*0.02f*/) 
 	{
+		
       // Loss < 2%: Increase rate by 8% of the min bitrate in the last
       // kBweIncreaseInterval.
       // Note that by remembering the bitrate over the last second one can
@@ -652,6 +654,9 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
         }
       }
     }
+
+	RTC_LOG(LS_INFO) << "[bitrate_threshold_ " << bitrate_threshold_ << "][loss = " << loss << "][low_loss_threshold_ = " << low_loss_threshold_ << "][high_loss_threshold_ " << high_loss_threshold_ << "][new_bitrate = "<<new_bitrate<<"]";
+
   } 
   else if (time_since_loss_feedback > kFeedbackTimeoutIntervals/*3*/ * kMaxRtcpFeedbackInterval &&
              (last_timeout_.IsInfinite() || at_time - last_timeout_ > kTimeoutInterval)) 
@@ -703,11 +708,12 @@ void SendSideBandwidthEstimation::UpdateMinHistory(Timestamp at_time)
   // Typical minimum sliding-window algorithm: Pop values higher than current
   // bitrate before pushing it.
   // TODO@chensong 2023-05-02 移除队列中从后面去除比当前码流大的数据
-  while (!min_bitrate_history_.empty() && current_bitrate_ <= min_bitrate_history_.back().second) 
+  while (!min_bitrate_history_.empty() && current_bitrate_ <= (min_bitrate_history_.back().second * 0.65)) 
   {
     min_bitrate_history_.pop_back();
   }
   // TODO@chensong 2023-05-02 保存当前时间的码流
+  RTC_LOG(LS_INFO) << "[min bitrate_history insert --> "<<current_bitrate_<<"]";
   min_bitrate_history_.push_back(std::make_pair(at_time, current_bitrate_));
 }
 
@@ -742,22 +748,27 @@ DataRate SendSideBandwidthEstimation::MaybeRampupOrBackoff(DataRate new_bitrate,
 // TODO@chensong 2023-05-02 上限比特率到阈值
 void SendSideBandwidthEstimation::CapBitrateToThresholds(Timestamp at_time, DataRate bitrate) 
 { 
-  if (  bitrate > bwe_incoming_ && bwe_incoming_ > DataRate::Zero()) 
-  { //TODO@chensong 2023-04-30  goog-remb 算法会走到这里啦
-    bitrate = bwe_incoming_;
-  }
+	//TODO@chensong 20230628  网络评估bwe出问题 在世注释该代码
+ // if (  bitrate > bwe_incoming_ && bwe_incoming_ > DataRate::Zero()) 
+ // { //TODO@chensong 2023-04-30  goog-remb 算法会走到这里啦
+ //   bitrate = bwe_incoming_;
+	//RTC_LOG(LS_INFO) << "[bwe_incoming_ = "<<bwe_incoming_<<"]";
+ // }
   if (bitrate > delay_based_bitrate_ && delay_based_bitrate_ > DataRate::Zero() )
   {
     bitrate = delay_based_bitrate_;
+	RTC_LOG(LS_INFO) << "[delay_based_bitrate_ = "<<delay_based_bitrate_<<"]";
   }
   if (loss_based_bandwidth_estimation_.Enabled() &&
       loss_based_bandwidth_estimation_.GetEstimate() > DataRate::Zero()) 
   {
     bitrate = std::min(bitrate, loss_based_bandwidth_estimation_.GetEstimate());
+	RTC_LOG(LS_INFO) << "[bitrate = "<<bitrate<<"]";
   }
   if (bitrate > max_bitrate_configured_)
   {
     bitrate = max_bitrate_configured_;
+	RTC_LOG(LS_INFO) << "[max_bitrate_configured_ = "<<max_bitrate_configured_<<"]";
   }
   if (bitrate < min_bitrate_configured_) 
   {
@@ -771,6 +782,7 @@ void SendSideBandwidthEstimation::CapBitrateToThresholds(Timestamp at_time, Data
       last_low_bitrate_log_ = at_time;
     }
     bitrate = min_bitrate_configured_;
+	RTC_LOG(LS_INFO) << "[min_bitrate_configured_ = "<<min_bitrate_configured_<<"]";
   }
 
   if (bitrate != current_bitrate_ || last_fraction_loss_ != last_logged_fraction_loss_ || at_time - last_rtc_event_log_ > kRtcEventLogPeriod) 

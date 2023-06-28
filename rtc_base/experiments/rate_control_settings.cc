@@ -65,7 +65,7 @@ RateControlSettings::RateControlSettings(
     : congestion_window_("QueueSize"),
       congestion_window_pushback_("MinBitrate"),
       pacing_factor_("pacing_factor"),
-      alr_probing_("alr_probing", false),
+      alr_probing_("alr_probing", true),
       trust_vp8_("trust_vp8", IsEnabled(key_value_config, kVp8TrustedRateControllerFieldTrialName)),
       trust_vp9_( "trust_vp9", IsEnabled(key_value_config, kVp9TrustedRateControllerFieldTrialName)),
       video_hysteresis_("video_hysteresis", ParseHysteresisFactor(key_value_config,

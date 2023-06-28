@@ -304,10 +304,10 @@ int64_t PacedSender::TimeUntilNextProcess()
   if (prober_.IsProbing()) 
   {
 	  // TODO@chensong 2023-05-08 网络发送定时器时间间隔 5ms 这边还需要判断发送队列中没有数据的如果有数据 就不走定时器每各5ms发送数据了 而是立即发送的逻辑
-	  if (packets_.SizeInPackets() > 0)
+	  /*if (packets_.SizeInPackets() > 0)
 	  {
-            return -1;
-	  }
+			return -1;
+	  }*/
 
     int64_t ret = prober_.TimeUntilNextProbe(TimeMilliseconds());
 	if (ret > 0 || (ret == 0 && !probing_send_failure_))
@@ -426,11 +426,17 @@ void PacedSender::Process()
   {
     // 从当前探测包簇中获取探测码率
     pacing_info = prober_.CurrentCluster();
-    recommended_probe_size = prober_.RecommendedMinProbeSize();
+    recommended_probe_size = prober_.RecommendedMinProbeSize() ;
   }
   // The paused state is checked in the loop since it leaves the critical
   // section allowing the paused state to be changed from other code.
- 
+  /*static FILE * out_file_ptr = fopen("./test_rtc.log", "wb+");
+  if (out_file_ptr)
+  {
+	  
+	  fprintf(out_file_ptr, "[info][is_probing = %u][probe_cluster_id = %u][send_bitrate_bps = %u][recommended_probe_size = %zu]\n", is_probing, pacing_info.probe_cluster_id, pacing_info.send_bitrate_bps , recommended_probe_size);
+	  fflush(out_file_ptr);
+  }*/
   while (!packets_.Empty() && !paused_) 
   {
     const auto* packet = GetPendingPacket(pacing_info);
@@ -440,6 +446,14 @@ void PacedSender::Process()
 	}
 
     critsect_.Leave();
+
+
+	/*static FILE * out_file_ptr = ::fopen("./paced_sender_sequence_number.log", "wb+");
+	if (out_file_ptr)
+	{
+		fprintf(out_file_ptr, "[ssrc = %u][seq = %u][cap ms = %lld][retra = %u]\n", packet->ssrc, packet->sequence_number, packet->capture_time_ms, packet->retransmission);
+		fflush(out_file_ptr);
+	}*/
     bool success = packet_sender_->TimeToSendPacket( packet->ssrc, packet->sequence_number, packet->capture_time_ms, packet->retransmission, pacing_info);
     critsect_.Enter(); 
     if (success) 
@@ -447,8 +461,15 @@ void PacedSender::Process()
       bytes_sent += packet->bytes;
       // Send succeeded, remove it from the queue.
       OnPacketSent(packet);
-	  if (is_probing && bytes_sent > recommended_probe_size)
+	  if (is_probing && bytes_sent > (recommended_probe_size ))
 	  {
+		  /* if (out_file_ptr)
+		   {
+
+			   fprintf(out_file_ptr, "[info][probe_cluster_id = %u][send_bitrate_bps = %u][bytes_sent = %zu][recommended_probe_size = %zu]\n", pacing_info.probe_cluster_id, pacing_info.send_bitrate_bps, bytes_sent, recommended_probe_size);
+			   fflush(out_file_ptr);
+		   }*/
+		  RTC_LOG(LS_WARNING) << "[probe_cluster_id = "<<pacing_info.probe_cluster_id<<"][send_bitrate_bps = "<<pacing_info.send_bitrate_bps<<"][bytes_sent = "<<bytes_sent<<"][recommended_probe_size = "<<recommended_probe_size<<"] " ;
         break;
 	  }
     } 
@@ -507,9 +528,8 @@ const RoundRobinPacketQueue::Packet* PacedSender::GetPendingPacket(const PacedPa
   const RoundRobinPacketQueue::Packet* packet = &packets_.BeginPop();
   bool audio_packet = packet->priority == kHighPriority;
   bool apply_pacing = !audio_packet || pace_audio_;
-  if (apply_pacing && (Congested() || (media_budget_.bytes_remaining() == 0 &&
-                                       pacing_info.probe_cluster_id ==
-                                           PacedPacketInfo::kNotAProbe))) {
+  if (apply_pacing && (Congested() || (media_budget_.bytes_remaining() == 0 && pacing_info.probe_cluster_id == PacedPacketInfo::kNotAProbe))) 
+  {
     packets_.CancelPop(*packet);
     return nullptr;
   }

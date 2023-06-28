@@ -284,17 +284,32 @@ VideoSendStreamImpl::VideoSendStreamImpl(
   RTC_CHECK(AlrExperimentSettings::MaxOneFieldTrialEnabled());
   // If send-side BWE is enabled, check if we should apply updated probing and
   // pacing settings.
+ /* static FILE * out_stream_ptr = fopen("./test_enable.log", "wb+");
+  if (out_stream_ptr)
+  {
+	  fprintf(out_stream_ptr, "[config = %s]\n", config_-> ToString().c_str());
+	  fflush(out_stream_ptr);
+  }*/
   if (TransportSeqNumExtensionConfigured(*config_)) {
     has_packet_feedback_ = true;
 
-    absl::optional<AlrExperimentSettings> alr_settings =
-        GetAlrSettings(content_type);
+    absl::optional<AlrExperimentSettings> alr_settings = GetAlrSettings(content_type);
     if (alr_settings) {
+		/*if (out_stream_ptr)
+		{
+			fprintf(out_stream_ptr, "[content_type = %u]\n", content_type);
+			fflush(out_stream_ptr);
+		}*/
       transport->EnablePeriodicAlrProbing(true);
       transport->SetPacingFactor(alr_settings->pacing_factor);
       configured_pacing_factor_ = alr_settings->pacing_factor;
       transport->SetQueueTimeLimit(alr_settings->max_paced_queue_time);
     } else {
+		/*if (out_stream_ptr)
+		{
+			fprintf(out_stream_ptr, "[alr][content_type = %u]\n", content_type);
+			fflush(out_stream_ptr);
+		}*/
       RateControlSettings rate_control_settings =
           RateControlSettings::ParseFromFieldTrials();
 
@@ -309,7 +324,13 @@ VideoSendStreamImpl::VideoSendStreamImpl(
     }
   }
 
-  if (config_->periodic_alr_bandwidth_probing) {
+  if (config_->periodic_alr_bandwidth_probing) 
+  {
+	  /*  if (out_stream_ptr)
+		{
+			fprintf(out_stream_ptr, "[periodic_alr_bandwidth_probing]EnablePeriodicAlrProbing \n");
+			fflush(out_stream_ptr);
+		}*/
     transport->EnablePeriodicAlrProbing(true);
   }
 

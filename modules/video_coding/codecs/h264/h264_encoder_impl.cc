@@ -29,7 +29,7 @@
 #include "system_wrappers/include/metrics.h"
 #include "third_party/libyuv/include/libyuv/convert.h"
 #include "third_party/libyuv/include/libyuv/scale.h"
-
+#include <chrono>
 namespace webrtc {
 
 namespace {
@@ -568,9 +568,36 @@ int32_t H264EncoderImpl::Encode(const VideoFrame& input_frame, const std::vector
     // EncodeFrame output.
     SFrameBSInfo info;
     memset(&info, 0, sizeof(SFrameBSInfo));
+	/*using namespace std::chrono;
 
+	uint32_t elapse = 0;
+	steady_clock::time_point cur_time;
+	steady_clock::time_point pre_time = steady_clock::now();
+	steady_clock::duration dur;
+	milliseconds ms;
+	cur_time = steady_clock::now();
+	dur = cur_time - pre_time;
+	ms = duration_cast<milliseconds>(dur);
+	elapse = static_cast<uint32_t>(ms.count());
+	pre_time = cur_time;*/
     // Encode!
     int enc_ret = encoders_[i]->EncodeFrame(&pictures_[i], &info);
+	/*cur_time = steady_clock::now();
+
+	dur = cur_time - pre_time;
+	ms = duration_cast<milliseconds>(dur);
+	elapse = static_cast<uint32_t>(ms.count());*/
+	/*if (elapse < TICK_TIME)
+	{
+		std::this_thread::sleep_for(milliseconds(TICK_TIME - elapse));
+	}*/
+	/*static FILE * out_file_ptr = ::fopen("./h264_encoder_impl.log", "wb+");
+	if (out_file_ptr)
+	{
+	fprintf(out_file_ptr, "[ms = %u]\n", elapse);
+	fflush(out_file_ptr);
+	}*/
+
     if (enc_ret != 0) {
       RTC_LOG(LS_ERROR)
           << "OpenH264 frame encoding failed, EncodeFrame returned " << enc_ret

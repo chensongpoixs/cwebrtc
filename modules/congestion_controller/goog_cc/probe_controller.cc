@@ -284,10 +284,12 @@ std::vector<ProbeClusterConfig> ProbeController::SetEstimatedBitrate(
 
   estimated_bitrate_bps_ = bitrate_bps;
   return pending_probes;
-}
-
-void ProbeController::EnablePeriodicAlrProbing(bool enable) {
+} 
+void ProbeController::EnablePeriodicAlrProbing(bool enable) 
+{
+	
   enable_periodic_alr_probing_ = enable;
+
 }
 
 void ProbeController::SetAlrStartTimeMs(
@@ -366,18 +368,17 @@ std::vector<ProbeClusterConfig> ProbeController::Process(int64_t at_time_ms) {
       min_bitrate_to_probe_further_bps_ = kExponentialProbingDisabled;
     }
   }
-
-  if (enable_periodic_alr_probing_ && state_ == State::kProbingComplete) {
+  RTC_LOG(LS_INFO) << "probe--->[enable_periodic_alr_probing_ = "<<enable_periodic_alr_probing_<<"][state_ = "<<state_<<"][alr_start_time_ms_ = "<<*alr_start_time_ms_<<"][estimated_bitrate_bps_ = "<<estimated_bitrate_bps_<<"]";
+  if (enable_periodic_alr_probing_ && state_ == State::kProbingComplete)
+  {
     // Probe bandwidth periodically when in ALR state.
-    if (alr_start_time_ms_ && estimated_bitrate_bps_ > 0) {
-      int64_t next_probe_time_ms =
-          std::max(*alr_start_time_ms_, time_last_probing_initiated_ms_) +
-          config_.alr_probing_interval->ms();
-      if (at_time_ms >= next_probe_time_ms) {
-        return InitiateProbing(at_time_ms,
-                               {static_cast<int64_t>(estimated_bitrate_bps_ *
-                                                     config_.alr_probe_scale)},
-                               true);
+    if (alr_start_time_ms_ && estimated_bitrate_bps_ > 0) 
+	{
+      int64_t next_probe_time_ms = std::max(*alr_start_time_ms_, time_last_probing_initiated_ms_) + config_.alr_probing_interval->ms();
+	  RTC_LOG(LS_INFO) << "\n        [at_time_ms = "<<at_time_ms<<"]\n[next_probe_time_ms = "<<next_probe_time_ms<<"]";
+	  if (at_time_ms >= next_probe_time_ms) 
+	  {
+        return InitiateProbing(at_time_ms, {static_cast<int64_t>(estimated_bitrate_bps_ * config_.alr_probe_scale)}, true);
       }
     }
   }
@@ -417,18 +418,23 @@ std::vector<ProbeClusterConfig> ProbeController::InitiateProbing(
     config.target_duration = TimeDelta::ms(kMinProbeDurationMs);
     config.target_probe_count = kMinProbePacketsSent;
     config.id = next_probe_cluster_id_;
+	RTC_LOG(LS_INFO) << "[probe_cluster_id = " << config.id << "][target_data_rate = "<< ToString(config.target_data_rate)<<"][max_probe_bitrate_bps = "<<max_probe_bitrate_bps<<"][limit_probes_with_allocateable_rate_ = "<<limit_probes_with_allocateable_rate_<<":"<<max_total_allocated_bitrate_<<"]";
     next_probe_cluster_id_++;
     MaybeLogProbeClusterCreated(event_log_, config);
     pending_probes.push_back(config);
   }
   time_last_probing_initiated_ms_ = now_ms;
-  if (probe_further) {
+  // TODO@chensong 20230628 produce 
+  /*if (probe_further) {
     state_ = State::kWaitingForProbingResult;
     min_bitrate_to_probe_further_bps_ =
         (*(bitrates_to_probe.end() - 1)) * config_.further_probe_threshold;
-  } else {
+  } else*/ 
+  {
     state_ = State::kProbingComplete;
-    min_bitrate_to_probe_further_bps_ = kExponentialProbingDisabled;
+    //min_bitrate_to_probe_further_bps_ = kExponentialProbingDisabled;
+	min_bitrate_to_probe_further_bps_ =
+		(*(bitrates_to_probe.end() - 1)) * config_.further_probe_threshold;
   }
   return pending_probes;
 }

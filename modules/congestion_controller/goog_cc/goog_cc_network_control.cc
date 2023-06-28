@@ -232,12 +232,17 @@ NetworkControlUpdate GoogCcNetworkController::OnProcessInterval(ProcessInterval 
   probe_controller_->SetAlrStartTimeMs(start_time_ms);
 
   // 检测当前是否因alr状态而需要做probe了，获取probe_cluster_config
-  auto probes = probe_controller_->Process(msg.at_time.ms());
-  update.probe_cluster_configs.insert(update.probe_cluster_configs.end(),
-                                      probes.begin(), probes.end());
+  
+  std::vector<ProbeClusterConfig> probes = probe_controller_->Process(msg.at_time.ms());
+  //RTC_LOG(LS_INFO)  << " [ProbeClusterConfig probes = " << probes.size() << "]";
+  update.probe_cluster_configs.insert(update.probe_cluster_configs.end(), probes.begin(), probes.end());
 
    // 获取更新后的码率，probe等，同时对alr， probe_controller中的码率进行更新
   MaybeTriggerOnNetworkChanged(&update, msg.at_time);
+  for (const ProbeClusterConfig& probecluster : update.probe_cluster_configs)
+  {
+	  RTC_LOG(LS_INFO)  << " [ProbeClusterConfig id = " << probecluster.id<< "][bitate = "<< ToString(probecluster.target_data_rate)<<"]";
+  }
   return update;
 }
 
@@ -317,6 +322,7 @@ NetworkControlUpdate GoogCcNetworkController::OnStreamsConfig(StreamsConfig msg)
     }
 	else 
 	{
+		//TODO@chensong 20230628 修改码流
       probe_controller_->SetMaxBitrate(msg.max_total_allocated_bitrate->bps());
     }
     max_total_allocated_bitrate_ = *msg.max_total_allocated_bitrate;
@@ -666,6 +672,7 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(NetworkControlUpdate*
                         estimated_bitrate_bps / 1000);
 
   DataRate target_rate = DataRate::bps(estimated_bitrate_bps);
+  RTC_LOG(LS_INFO) << "[target_rate = " << ToString(target_rate) << "]";
   if (congestion_window_pushback_controller_) {
     int64_t pushback_rate =
         congestion_window_pushback_controller_->UpdateTargetBitrate(
@@ -705,10 +712,8 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(NetworkControlUpdate*
 
     update->target_rate = target_rate_msg;
 
-    auto probes = probe_controller_->SetEstimatedBitrate(
-        last_raw_target_rate_.bps(), at_time.ms());
-    update->probe_cluster_configs.insert(update->probe_cluster_configs.end(),
-                                         probes.begin(), probes.end());
+    auto probes = probe_controller_->SetEstimatedBitrate(last_raw_target_rate_.bps(), at_time.ms());
+    update->probe_cluster_configs.insert(update->probe_cluster_configs.end(), probes.begin(), probes.end());
     update->pacer_config = GetPacingRates(at_time);
 
     RTC_LOG(LS_VERBOSE) << "bwe " << at_time.ms() << " pushback_target_bps="

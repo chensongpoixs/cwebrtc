@@ -30,11 +30,13 @@ constexpr size_t kMinProbePacketSize = 200;
 
 constexpr int64_t kProbeClusterTimeoutMs = 5000;
 
+
+constexpr int64_t kProbeClusterPacketSentCount = 5;
 }  // namespace
 
 BitrateProberConfig::BitrateProberConfig(
     const WebRtcKeyValueConfig* key_value_config)
-    : min_probe_packets_sent("min_probe_packets_sent", 5),
+    : min_probe_packets_sent("min_probe_packets_sent", kProbeClusterPacketSentCount),
       min_probe_delta("min_probe_delta", TimeDelta::ms(1)),
       min_probe_duration("min_probe_duration", TimeDelta::ms(15)),
       max_probe_delay("max_probe_delay", TimeDelta::ms(3))   // TODO@chensong 2023-05-08  发送数据的时间间隔 
@@ -93,7 +95,7 @@ void BitrateProber::CreateProbeCluster(int bitrate_bps, int64_t now_ms, int clus
 {
   RTC_DCHECK(probing_state_ != ProbingState::kDisabled);
   RTC_DCHECK_GT(bitrate_bps, 0);
-
+  
   total_probe_count_++;
   while (!clusters_.empty() &&
          now_ms - clusters_.front().time_created_ms > kProbeClusterTimeoutMs) 
@@ -101,7 +103,7 @@ void BitrateProber::CreateProbeCluster(int bitrate_bps, int64_t now_ms, int clus
     clusters_.pop();
     total_failed_probe_count_++;
   }
-
+  //bitrate_bps *= 5;
   ProbeCluster cluster;
   cluster.time_created_ms = now_ms;
   cluster.pace_info.probe_cluster_min_probes = config_.min_probe_packets_sent;
@@ -113,7 +115,7 @@ void BitrateProber::CreateProbeCluster(int bitrate_bps, int64_t now_ms, int clus
   cluster.pace_info.probe_cluster_id = cluster_id;
   clusters_.push(cluster);
 
-  RTC_LOG(LS_INFO) << "Probe cluster (bitrate:min bytes:min packets): ("
+  RTC_LOG(LS_INFO) << "Probe cluster id : "<< cluster_id <<" (bitrate:min bytes:min packets): ("
                    << cluster.pace_info.send_bitrate_bps << ":"
                    << cluster.pace_info.probe_cluster_min_bytes << ":"
                    << cluster.pace_info.probe_cluster_min_probes << ")";
@@ -159,10 +161,11 @@ PacedPacketInfo BitrateProber::CurrentCluster() const {
 // Probe size is recommended based on the probe bitrate required. We choose
 // a minimum of twice |kMinProbeDeltaMs| interval to allow scheduling to be
 // feasible.
-size_t BitrateProber::RecommendedMinProbeSize() const {
+size_t BitrateProber::RecommendedMinProbeSize() const 
+{
   RTC_DCHECK(!clusters_.empty());
-  return clusters_.front().pace_info.send_bitrate_bps * 2 *
-         config_.min_probe_delta->ms() / (8 * 1000);
+	// TODO@chensong 2023-06-27 每个探针包的大小的
+  return clusters_.front().pace_info.send_bitrate_bps * 2 * config_.min_probe_delta->ms() / (8 * 1000);
 }
 
 void BitrateProber::ProbeSent(int64_t now_ms, size_t bytes) {
@@ -179,18 +182,22 @@ void BitrateProber::ProbeSent(int64_t now_ms, size_t bytes) {
     cluster->sent_probes += 1;
     next_probe_time_ms_ = GetNextProbeTime(*cluster);
     if (cluster->sent_bytes >= cluster->pace_info.probe_cluster_min_bytes &&
-        cluster->sent_probes >= cluster->pace_info.probe_cluster_min_probes) {
+        cluster->sent_probes >= cluster->pace_info.probe_cluster_min_probes  )
+	{
       RTC_HISTOGRAM_COUNTS_100000("WebRTC.BWE.Probing.ProbeClusterSizeInBytes",
                                   cluster->sent_bytes);
       RTC_HISTOGRAM_COUNTS_100("WebRTC.BWE.Probing.ProbesPerCluster",
                                cluster->sent_probes);
       RTC_HISTOGRAM_COUNTS_10000("WebRTC.BWE.Probing.TimePerProbeCluster",
                                  now_ms - cluster->time_started_ms);
-
+	  RTC_LOG(LS_WARNING) << "[delete ][cluster_id = "<<cluster->pace_info.probe_cluster_id<<"]";
       clusters_.pop();
     }
-    if (clusters_.empty())
-      probing_state_ = ProbingState::kSuspended;
+	if (clusters_.empty())
+	{
+		probing_state_ = ProbingState::kSuspended;
+		RTC_LOG(LS_WARNING) << "clusters_ empty";
+	}
   }
 }
 

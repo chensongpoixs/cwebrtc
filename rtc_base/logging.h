@@ -71,6 +71,10 @@ namespace rtc {
 
 //////////////////////////////////////////////////////////////////////
 
+
+typedef  void(*rtc_log_out_log_ptr)(const char * data, size_t len);
+
+void 	register_log_callback(rtc_log_out_log_ptr callback);
 // Note that the non-standard LoggingSeverity aliases exist because they are
 // still in broad use.  The meanings of the levels are:
 //  LS_VERBOSE: This level is for data which we do not want to appear in the

@@ -45,6 +45,12 @@ static const int kMaxLogLineSize = 1024 - 60;
 #include "rtc_base/time_utils.h"
 
 namespace rtc {
+
+	static rtc_log_out_log_ptr rtc_log_callback_ptr = NULL;
+void 	register_log_callback(rtc_log_out_log_ptr callback)
+{
+	rtc_log_callback_ptr = callback;
+}
 namespace {
 // By default, release builds don't log, debug builds at info level
 #if !defined(NDEBUG)
@@ -203,6 +209,10 @@ LogMessage::~LogMessage() {
 #else
     OutputToDebug(str, severity_);
 #endif
+  }
+  if (rtc_log_callback_ptr)
+  {
+	  rtc_log_callback_ptr(str.c_str(), str.length());
   }
 
   CritScope cs(&g_log_crit);
@@ -494,9 +504,10 @@ void Log(const LogArgType* fmt, ...) {
     }
   }
 
-  if (LogMessage::IsNoop(meta.meta.Severity())) {
-    va_end(args);
-    return;
+  if (!rtc_log_callback_ptr && LogMessage::IsNoop(meta.meta.Severity())) 
+  {
+		  va_end(args);
+		  return; 
   }
 
   LogMessage log_message(meta.meta.File(), meta.meta.Line(),
