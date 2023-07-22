@@ -677,8 +677,7 @@ bool RtpDepacketizerH264::ParseFuaNalu(
   if (first_fragment) {
     offset_ = 0;
     length_ -= kNalHeaderSize;
-    absl::optional<uint32_t> pps_id = PpsParser::ParsePpsIdFromSlice(
-        payload_data + 2 * kNalHeaderSize, length_ - kNalHeaderSize);
+    absl::optional<uint32_t> pps_id = PpsParser::ParsePpsIdFromSlice(payload_data + 2 * kNalHeaderSize, length_ - kNalHeaderSize);
     if (pps_id) {
       nalu.pps_id = *pps_id;
     } else {

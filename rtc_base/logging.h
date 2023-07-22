@@ -126,11 +126,17 @@ namespace webrtc_logging_impl {
 class LogMetadata {
  public:
   LogMetadata(const char* file, int line, LoggingSeverity severity)
-      : file_(file),
-        line_and_sev_(static_cast<uint32_t>(line) << 3 | severity) {}
+      : file_(file)
+	  , func_(NULL)
+      ,  line_and_sev_(static_cast<uint32_t>(line) << 3 | severity) {}
+  LogMetadata(const char* file, const char * func, int line, LoggingSeverity severity)
+	  : file_(file  )
+	  , func_(func)
+	  , line_and_sev_(static_cast<uint32_t>(line) << 3 | severity) {}
   LogMetadata() = default;
 
   const char* File() const { return file_; }
+  const char *Func() const { return func_; }
   int Line() const { return line_and_sev_ >> 3; }
   LoggingSeverity Severity() const {
     return static_cast<LoggingSeverity>(line_and_sev_ & 0x7);
@@ -138,7 +144,7 @@ class LogMetadata {
 
  private:
   const char* file_;
-
+  const char *func_;
   // Line number and severity, the former in the most significant 29 bits, the
   // latter in the least significant 3 bits. (This is an optimization; since
   // both numbers are usually compile-time constants, this way we can load them
@@ -423,10 +429,11 @@ class LogMessage {
   // Android code should use the 'const char*' version since tags are static
   // and we want to avoid allocating a std::string copy per log line.
   RTC_DEPRECATED
-  LogMessage(const char* file,
+  LogMessage(const char* file, 
              int line,
              LoggingSeverity sev,
              const std::string& tag);
+  
 
   ~LogMessage();
 
@@ -541,7 +548,12 @@ class LogMessage {
       rtc::webrtc_logging_impl::LogStreamer<>() \
           << rtc::webrtc_logging_impl::LogMetadata(file, line, sev)
 
-#define RTC_LOG(sev) RTC_LOG_FILE_LINE(rtc::sev, __FILE__, __LINE__)
+#define RTC_LOG_FILE_FUNC_LINE(sev, file, func, line)      \
+  rtc::webrtc_logging_impl::LogCall() &         \
+      rtc::webrtc_logging_impl::LogStreamer<>() \
+          << rtc::webrtc_logging_impl::LogMetadata(file, func, line, sev)
+
+#define RTC_LOG(sev) RTC_LOG_FILE_FUNC_LINE(rtc::sev, __FILE__ , __FUNCTION__ , __LINE__)
 
 // The _V version is for when a variable is passed in.
 #define RTC_LOG_V(sev) RTC_LOG_FILE_LINE(sev, __FILE__, __LINE__)

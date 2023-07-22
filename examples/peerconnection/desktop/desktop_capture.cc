@@ -97,7 +97,7 @@ void DesktopCapture::OnCaptureResult(
       i420_buffer_->width() * i420_buffer_->height() < width * height) {
     i420_buffer_ = webrtc::I420Buffer::Create(width, height);
   }
-  
+  i420_buffer_->set_texture
   libyuv::ConvertToI420(frame->data(), 0, i420_buffer_->MutableDataY(),
                         i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
                         i420_buffer_->StrideU(), i420_buffer_->MutableDataV(),

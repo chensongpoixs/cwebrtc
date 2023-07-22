@@ -239,26 +239,26 @@ NetworkControlUpdate GoogCcNetworkController::OnProcessInterval(ProcessInterval 
 
    // 获取更新后的码率，probe等，同时对alr， probe_controller中的码率进行更新
   MaybeTriggerOnNetworkChanged(&update, msg.at_time);
-  for (const ProbeClusterConfig& probecluster : update.probe_cluster_configs)
+  /*for (const ProbeClusterConfig& probecluster : update.probe_cluster_configs)
   {
 	  RTC_LOG(LS_INFO)  << " [ProbeClusterConfig id = " << probecluster.id<< "][bitate = "<< ToString(probecluster.target_data_rate)<<"]";
-  }
+  }*/
   return update;
 }
 
-NetworkControlUpdate GoogCcNetworkController::OnRemoteBitrateReport(
-    RemoteBitrateReport msg) {
-  if (packet_feedback_only_) {
+NetworkControlUpdate GoogCcNetworkController::OnRemoteBitrateReport(RemoteBitrateReport msg) 
+{
+  if (packet_feedback_only_) 
+  {
     RTC_LOG(LS_ERROR) << "Received REMB for packet feedback only GoogCC";
     return NetworkControlUpdate();
   }
-  bandwidth_estimation_->UpdateReceiverEstimate(msg.receive_time,
-                                                msg.bandwidth);
+  RTC_LOG(LS_INFO) << "["<<__FUNCTION__<<"][receive_time = "<<msg.receive_time<<"][bandwidth = "<<msg.bandwidth<<"]";
+  bandwidth_estimation_->UpdateReceiverEstimate(msg.receive_time, msg.bandwidth);
 
  
 
-  BWE_TEST_LOGGING_PLOT(1, "REMB_kbps", msg.receive_time.ms(),
-                        msg.bandwidth.bps() / 1000);
+  BWE_TEST_LOGGING_PLOT(1, "REMB_kbps", msg.receive_time.ms(), msg.bandwidth.bps() / 1000);
   return NetworkControlUpdate();
 }
 

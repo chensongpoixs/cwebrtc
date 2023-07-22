@@ -82,6 +82,10 @@ std::vector<uint8_t> ParseRbsp(const uint8_t* data, size_t length) {
     // i + 3 can overflow, but byte_length_ - i can't, because i < byte_length_
     // above, and that expression will produce the number of bytes left in
     // the stream including the byte at i.
+	//小心这里的溢流。字节长度-3可以下溢，并且
+	//i+3可以溢出，但byte_length-我不能，因为i＜byte_llength_
+	//并且该表达式将产生
+	//该流包括i处的字节
     if (length - i >= 3 && !data[i] && !data[i + 1] && data[i + 2] == 3) {
       // Two rbsp bytes.
       out.push_back(data[i++]);

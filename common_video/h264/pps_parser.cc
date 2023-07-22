@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -64,12 +64,16 @@ absl::optional<uint32_t> PpsParser::ParsePpsIdFromSlice(const uint8_t* data,
 
   uint32_t golomb_tmp;
   // first_mb_in_slice: ue(v)
+  // 表示该slice的第一个宏块在图像中的位置。一个图像可能分为多个slice单独编码，因此可以通过first_mb_in_slice确定该slice是否为一个完整的图像。
+  // 1）如果MbaffFrameFlag 等于 0, 也就是该slice不是mbaff，则first_mb_in_slice 表示该slice的第一个宏块位置。first_mb_in_slice 的数值范围是 0 到 PicSizeInMbs − 1。
+  //2）否则（该slice是mbaff），first_mb_in_slice * 2 是该slice的第一个宏块位置, 也就是第一个宏块对的顶场宏块。此时 first_mb_in_slice 的数值范围是 0 到 PicSizeInMbs / 2 − 1。  
   if (!slice_reader.ReadExponentialGolomb(&golomb_tmp))
     return absl::nullopt;
   // slice_type: ue(v)
   if (!slice_reader.ReadExponentialGolomb(&golomb_tmp))
     return absl::nullopt;
   // pic_parameter_set_id: ue(v)
+  //表示该slice对应的PPS参数，通过pps_id可以找到对应的PPS
   uint32_t slice_pps_id;
   if (!slice_reader.ReadExponentialGolomb(&slice_pps_id))
     return absl::nullopt;

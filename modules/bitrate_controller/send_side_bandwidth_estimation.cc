@@ -708,7 +708,7 @@ void SendSideBandwidthEstimation::UpdateMinHistory(Timestamp at_time)
   // Typical minimum sliding-window algorithm: Pop values higher than current
   // bitrate before pushing it.
   // TODO@chensong 2023-05-02 移除队列中从后面去除比当前码流大的数据
-  while (!min_bitrate_history_.empty() && current_bitrate_ <= (min_bitrate_history_.back().second * 0.65)) 
+  while (!min_bitrate_history_.empty() && current_bitrate_ <= (min_bitrate_history_.back().second )) 
   {
     min_bitrate_history_.pop_back();
   }
@@ -749,11 +749,11 @@ DataRate SendSideBandwidthEstimation::MaybeRampupOrBackoff(DataRate new_bitrate,
 void SendSideBandwidthEstimation::CapBitrateToThresholds(Timestamp at_time, DataRate bitrate) 
 { 
 	//TODO@chensong 20230628  网络评估bwe出问题 在世注释该代码
- // if (  bitrate > bwe_incoming_ && bwe_incoming_ > DataRate::Zero()) 
- // { //TODO@chensong 2023-04-30  goog-remb 算法会走到这里啦
- //   bitrate = bwe_incoming_;
-	//RTC_LOG(LS_INFO) << "[bwe_incoming_ = "<<bwe_incoming_<<"]";
- // }
+  if (  bitrate > bwe_incoming_ && bwe_incoming_ > DataRate::Zero()) 
+  { //TODO@chensong 2023-04-30  goog-remb 算法会走到这里啦
+    bitrate = bwe_incoming_;
+	RTC_LOG(LS_INFO) << "[bwe_incoming_ = "<<bwe_incoming_<<"]";
+  }
   if (bitrate > delay_based_bitrate_ && delay_based_bitrate_ > DataRate::Zero() )
   {
     bitrate = delay_based_bitrate_;

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2014 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -70,7 +70,7 @@ class RtpDepacketizer {
 
     const uint8_t* payload;
     size_t payload_length;
-    VideoFrameType frame_type; // µ±Ç°Ö¡µÄÀàĞÍ
+    VideoFrameType frame_type; // å½“å‰å¸§çš„ç±»å‹
   };
 
   static RtpDepacketizer* Create(VideoCodecType type);

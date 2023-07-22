@@ -197,7 +197,7 @@ LogMessage::LogMessage(const char* file,
     : LogMessage(file, line, sev) {
   print_stream_ << tag << ": ";
 }
-
+ 
 LogMessage::~LogMessage() {
   FinishPrintStream();
 
@@ -509,9 +509,14 @@ void Log(const LogArgType* fmt, ...) {
 		  va_end(args);
 		  return; 
   }
-
-  LogMessage log_message(meta.meta.File(), meta.meta.Line(),
-                         meta.meta.Severity(), meta.err_ctx, meta.err);
+  std::string file_func = meta.meta.File();
+  if (meta.meta.Func())
+  {
+	  file_func += " " + std::string(meta.meta.Func());
+  }
+  LogMessage log_message(file_func.c_str(), meta.meta.Line(),
+		  meta.meta.Severity(), meta.err_ctx, meta.err);
+  
   if (tag) {
     log_message.AddTag(tag);
   }
