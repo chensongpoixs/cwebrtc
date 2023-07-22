@@ -74,6 +74,21 @@ rtc::scoped_refptr<VideoFrameBuffer> VideoFrameBuffer::GetMappedFrameBuffer(
   return nullptr;
 }
 
+bool I420BufferInterface::set_texture(void* texture) {
+  m_texture = texture;
+  return true;
+}
+
+ void* I420BufferInterface::get_texture() {
+  return m_texture;
+}
+
+const void* I420BufferInterface::get_texture() const {
+  return m_texture;
+}
+
+
+
 VideoFrameBuffer::Type I420BufferInterface::type() const {
   return Type::kI420;
 }

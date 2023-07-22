@@ -277,8 +277,7 @@ CreateFullScreenWinApplicationHandler(DesktopCapturer::SourceId source_id) {
   HWND hwnd = reinterpret_cast<HWND>(source_id);
   std::wstring exe_path = GetPathByWindowId(hwnd);
   std::wstring file_name = FileNameFromPath(exe_path);
-  std::transform(file_name.begin(), file_name.end(), file_name.begin(),
-                 std::towupper);
+  std::transform(file_name.begin(), file_name.end(), file_name.begin(), ::towupper);
 
   if (file_name == L"POWERPNT.EXE") {
     result = std::make_unique<FullScreenPowerPointHandler>(source_id);

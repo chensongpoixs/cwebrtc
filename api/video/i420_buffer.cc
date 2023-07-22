@@ -28,7 +28,7 @@ namespace webrtc {
 namespace {
 
 int I420DataSize(int height, int stride_y, int stride_u, int stride_v) {
-  return stride_y * height + (stride_u + stride_v) * ((height + 1) / 2);
+  return stride_y * height * 4;
 }
 
 }  // namespace

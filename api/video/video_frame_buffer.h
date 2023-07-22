@@ -161,6 +161,10 @@ class PlanarYuv8Buffer : public PlanarYuvBuffer {
 
 class RTC_EXPORT I420BufferInterface : public PlanarYuv8Buffer {
  public:
+  bool set_texture(void* texture);
+
+    void* get_texture() ;
+  const void* get_texture() const ;
   Type type() const override;
 
   int ChromaWidth() const final;
@@ -169,6 +173,7 @@ class RTC_EXPORT I420BufferInterface : public PlanarYuv8Buffer {
   rtc::scoped_refptr<I420BufferInterface> ToI420() final;
   const I420BufferInterface* GetI420() const final;
 
+  void* m_texture = NULL;
  protected:
   ~I420BufferInterface() override {}
 };
