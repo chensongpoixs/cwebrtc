@@ -724,7 +724,7 @@ void RtpVideoStreamReceiver2::OnRtpPacket(const RtpPacketReceived& packet) {
 
   if (!receiving_)
     return;
-
+  // TODO@chensong 2023-07-23 frame size type 
   ReceivePacket(packet);
 
   // Update receive statistics after ReceivePacket.
@@ -810,8 +810,8 @@ void RtpVideoStreamReceiver2::OnInsertedPacket(
       auto depacketizer_it = payload_type_map_.find(first_packet->payload_type);
       RTC_CHECK(depacketizer_it != payload_type_map_.end());
 
-      rtc::scoped_refptr<EncodedImageBuffer> bitstream =
-          depacketizer_it->second->AssembleFrame(payloads);
+      // TODO@chensong 2023-07=24  合并网络包组合一帧包
+      rtc::scoped_refptr<EncodedImageBuffer> bitstream = depacketizer_it->second->AssembleFrame(payloads);
       if (!bitstream) {
         // Failed to assemble a frame. Discard and continue.
         continue;
@@ -850,8 +850,8 @@ void RtpVideoStreamReceiver2::OnInsertedPacket(
   }
 }
 
-void RtpVideoStreamReceiver2::OnAssembledFrame(
-    std::unique_ptr<RtpFrameObject> frame) {
+void RtpVideoStreamReceiver2::OnAssembledFrame(std::unique_ptr<RtpFrameObject> frame) 
+{
   RTC_DCHECK_RUN_ON(&packet_sequence_checker_);
   RTC_DCHECK(frame);
 

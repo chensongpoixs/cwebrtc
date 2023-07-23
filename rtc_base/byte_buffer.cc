@@ -117,6 +117,13 @@ bool ByteBufferReader::ReadUVarint(uint64_t* val) {
       return false;
     }
     // Read the first 7 bits of the byte, then offset by bits read so far.
+    // 读取字节的前7位，然后按迄今为止读取的位进行偏移。
+    /* TODO@chensong 2023-07-24  AV1文件格式 读取
+    >>:右移，将一个数的二进制位全部右移N位，高位舍弃，低位补零。
+>>1:相当于将一个数的二进制全部右移1位，高位舍弃，低位补零。
+整数中：8>>1,的含意与8/2，相同。
+<<:左移，用来将一个数的二进制位全部左移N位，高位舍弃，低位补零。
+    */
     v |= (static_cast<uint64_t>(byte) & 0x7F) << i;
     // True if the msb is not a continuation byte.
     if (static_cast<uint64_t>(byte) < 0x80) {
