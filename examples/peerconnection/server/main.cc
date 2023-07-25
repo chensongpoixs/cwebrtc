@@ -17,7 +17,7 @@
 
 #include <string>
 #include <vector>
-
+#include "rtc_base/win32_socket_init.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
@@ -36,7 +36,7 @@ ABSL_FLAG(
     "--force_fieldtrials=WebRTC-FooFeature/Enabled/ "
     "will assign the group Enabled to field trial WebRTC-FooFeature. Multiple "
     "trials are separated by \"/\"");
-ABSL_FLAG(int, port, 8888, "default: 8888");
+ABSL_FLAG(int, port, 9999, "default: 9999");
 
 static const size_t kMaxConnections = (FD_SETSIZE - 2);
 
@@ -67,9 +67,9 @@ void HandleBrowserRequest(DataSocket* ds, bool* quit) {
 
 int main(int argc, char* argv[]) {
   absl::SetProgramUsageMessage(
-      "Example usage: ./peerconnection_server --port=8888\n");
+      "Example usage: ./peerconnection_server --port=9999\n");
   absl::ParseCommandLine(argc, argv);
-
+  rtc::WinsockInitializer winsock_init;
   // InitFieldTrialsFromString stores the char*, so the char array must outlive
   // the application.
   const std::string force_field_trials = absl::GetFlag(FLAGS_force_fieldtrials);

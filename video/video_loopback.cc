@@ -64,7 +64,7 @@ ABSL_FLAG(int,
           "0 - enabled, 1 - disabled, 2 - enabled only for key pictures.");
 
 // Flags common with screenshare loopback, with equal default values.
-ABSL_FLAG(std::string, codec, "VP8", "Video codec to use.");
+ABSL_FLAG(std::string, codec, "AV1", "Video codec to use.");
 
 ABSL_FLAG(int,
           selected_tl,
@@ -165,7 +165,7 @@ ABSL_FLAG(std::string,
           "The base path for encoded frame logs. Created files will have "
           "the form <encoded_frame_path>.<n>.(recv|send.<m>).ivf");
 
-ABSL_FLAG(bool, logs, false, "print logs to stderr");
+ABSL_FLAG(bool, logs, true, "print logs to stderr");
 
 ABSL_FLAG(bool, send_side_bwe, true, "Use send-side bandwidth estimation");
 
@@ -200,7 +200,7 @@ ABSL_FLAG(bool, video, true, "Add video stream");
 ABSL_FLAG(
     std::string,
     force_fieldtrials,
-    "",
+    "WebRTC-SlackedTaskQueuePacedSender/Enabled:0,max_queue_time:89,send_burst_interval:90/WebRTC-BurstyPacer/burst:9000000/",
     "Field trials control experimental feature code which can be forced. "
     "E.g. running with --force_fieldtrials=WebRTC-FooFeature/Enabled/"
     " will assign the group Enable to field trial WebRTC-FooFeature. Multiple "

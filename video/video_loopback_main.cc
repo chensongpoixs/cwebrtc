@@ -9,7 +9,8 @@
  */
 
 #include "video/video_loopback.h"
-
+#include "rtc_base/logging.h"
 int main(int argc, char* argv[]) {
+  rtc::LogMessage::LogToDebug(rtc::LS_INFO);
   webrtc::RunLoopbackTest(argc, argv);
 }
