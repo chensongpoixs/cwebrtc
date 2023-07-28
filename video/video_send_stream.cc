@@ -118,13 +118,12 @@ std::unique_ptr<VideoStreamEncoder> CreateVideoStreamEncoder(
     webrtc::VideoEncoderFactory::EncoderSelectorInterface* encoder_selector) {
   std::unique_ptr<TaskQueueBase, TaskQueueDeleter> encoder_queue =
       task_queue_factory->CreateTaskQueue("EncoderQueue",
-                                          TaskQueueFactory::Priority::NORMAL);
+                                          TaskQueueFactory::Priority::LOW);
   TaskQueueBase* encoder_queue_ptr = encoder_queue.get();
   return std::make_unique<VideoStreamEncoder>(
       clock, num_cpu_cores, stats_proxy, encoder_settings,
       std::make_unique<OveruseFrameDetector>(stats_proxy, field_trials),
-      FrameCadenceAdapterInterface::Create(clock, encoder_queue_ptr,
-                                           field_trials),
+      FrameCadenceAdapterInterface::Create(clock, encoder_queue_ptr, field_trials),
       std::move(encoder_queue), bitrate_allocation_callback_type, field_trials,
       encoder_selector);
 }

@@ -18,6 +18,8 @@
 #include "rtc_base/ref_count.h"
 #include "rtc_base/system/rtc_export.h"
 
+#include <chrono>
+
 namespace webrtc {
 
 class I420BufferInterface;
@@ -174,6 +176,9 @@ class RTC_EXPORT I420BufferInterface : public PlanarYuv8Buffer {
   const I420BufferInterface* GetI420() const final;
 
   void* m_texture = NULL;
+
+
+  std::chrono::steady_clock::time_point time_point_= std::chrono::steady_clock::now();
  protected:
   ~I420BufferInterface() override {}
 };

@@ -254,6 +254,22 @@ void RtpSenderEgress::SendPacket(RtpPacketToSend* packet,
     UpdateOnSendPacket(options.packet_id, packet->capture_time().ms(),
                        packet_ssrc);
   }
+  std::chrono::steady_clock::time_point cur_time_ms =
+      std::chrono::steady_clock::now();
+  std::chrono::steady_clock::duration dur;
+  std::chrono::milliseconds milliseconds;
+  uint32_t elapse = 0;
+  dur = cur_time_ms - packet->time_point_;
+  milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+  elapse = static_cast<uint32_t>(milliseconds.count());
+  if (elapse > 2) {
+    RTC_LOG(LS_WARNING) << " sent net  --> [seq= "
+                        << packet->SequenceNumber()
+                        << "][key_frame = " << packet->is_key_frame()
+                        << " ][first = " << packet->is_first_packet_of_frame()
+                        << "]["
+                        << elapse << "]ms";
+  }
 
   const bool send_success = SendPacketToNetwork(*packet, options, pacing_info);
 

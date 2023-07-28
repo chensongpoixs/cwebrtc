@@ -25,7 +25,7 @@
 #include "modules/rtp_rtcp/include/rtp_rtcp_defines.h"
 #include "modules/rtp_rtcp/source/rtp_header_extensions.h"
 #include "modules/rtp_rtcp/source/rtp_packet.h"
-
+#include <chrono>
 namespace webrtc {
 // Class to hold rtp packet with metadata for sender side.
 // The metadata is not send over the wire, but packet sender may use it to
@@ -44,7 +44,8 @@ class RtpPacketToSend : public RtpPacket {
   RtpPacketToSend& operator=(RtpPacketToSend&& packet);
 
   ~RtpPacketToSend();
-
+  std::chrono::steady_clock::time_point time_point_ =
+      std::chrono::steady_clock::now();
   // Time in local time base as close as it can to frame capture time.
   webrtc::Timestamp capture_time() const { return capture_time_; }
   void set_capture_time(webrtc::Timestamp time) { capture_time_ = time; }

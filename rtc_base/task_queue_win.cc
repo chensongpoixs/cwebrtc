@@ -9,7 +9,8 @@
  */
 
 #include "rtc_base/task_queue_win.h"
-
+#include <chrono>
+#include <thread>
 // clang-format off
 // clang formating would change include order.
 
@@ -43,6 +44,8 @@
 #include "rtc_base/platform_thread.h"
 #include "rtc_base/synchronization/mutex.h"
 #include "rtc_base/time_utils.h"
+#include "rtc_base/thread.h"
+#include "rtc_base/platform_thread_types.h"
 
 namespace webrtc {
 namespace {
@@ -263,29 +266,107 @@ void TaskQueueWin::RunPendingTasks() {
 void TaskQueueWin::RunThreadMain() {
   CurrentTaskQueueSetter set_current(this);
   HANDLE handles[2] = {*timer_.event_for_wait(), in_queue_};
+  
+  static std::chrono::steady_clock::time_point pre_time =
+      std::chrono::steady_clock::now();
+   
+  std::chrono::steady_clock::duration dur;
+  std::chrono::milliseconds milliseconds;
+  uint32_t elapse = 0;
   while (true) {
     // Make sure we do an alertable wait as that's required to allow APCs to run
     // (e.g. required for InitializeQueueThread and stopping the thread in
     // PlatformThread).
+   #if 0
+
+       std::thread::id thread_id_ = std::this_thread::get_id();
+    std::ostringstream str_p;
+    str_p << thread_id_;
+    WCHAR* data;
+    HRESULT hr = ::GetThreadDescription(::GetCurrentThread(), &data);
+    if (SUCCEEDED(hr)) 
+    {
+      char descBuf[1024] = {0};
+      // sprintf(descBuf,"%ws",strDesc.c_str());
+      sprintf(descBuf, "%S", data);
+      RTC_LOG(LS_INFO) << "[thread_id = " << str_p.str()
+                       << "]rtc_thread_name  = " << descBuf;
+     // wprintf(¡°% ls\n¡±, data);
+      LocalFree(data);
+    }
+    
+    #endif 
     DWORD result = ::MsgWaitForMultipleObjectsEx(
         arraysize(handles), handles, INFINITE, QS_ALLEVENTS, MWMO_ALERTABLE);
     RTC_CHECK_NE(WAIT_FAILED, result);
     if (result == (WAIT_OBJECT_0 + 2)) {
       // There are messages in the message queue that need to be handled.
-      if (!ProcessQueuedMessages())
-        break;
-    }
+      if (!ProcessQueuedMessages()) {
+#if 0
 
+        std::chrono::steady_clock::time_point cur_time_ms =
+            std::chrono::steady_clock::now();
+        dur = cur_time_ms - pre_time;
+        milliseconds =
+            std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+        elapse = static_cast<uint32_t>(milliseconds.count());
+        pre_time = cur_time_ms;
+        if (elapse > 2) {
+          std::thread::id thread_id_ = std::this_thread::get_id();
+          std::ostringstream str_p;
+          str_p << thread_id_;
+          RTC_LOG(LS_WARNING)
+              << "app rtc -> task_queue win  frame   milliseconds = " << elapse
+              << ", thread_id = " << str_p.str();
+        }
+        #endif 
+        break;
+      }
+        
+    }
+    
+    
     if (result == WAIT_OBJECT_0 ||
         (!timer_tasks_.empty() &&
          ::WaitForSingleObject(*timer_.event_for_wait(), 0) == WAIT_OBJECT_0)) {
       // The multimedia timer was signaled.
+        #if 0
+
+      std::chrono::steady_clock::time_point cur_time_ms =
+          std::chrono::steady_clock::now();
+      dur = cur_time_ms - pre_time;
+      milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+      elapse = static_cast<uint32_t>(milliseconds.count());
+      pre_time = cur_time_ms;
+      if (elapse > 2) {
+        std::thread::id thread_id_ = std::this_thread::get_id();
+        std::ostringstream str_p;
+        str_p << thread_id_;
+        RTC_LOG(LS_WARNING)
+            << "app rtc -> task_queue win  frame   milliseconds = " << elapse
+            << ", thread_id = " << str_p.str();
+      }
+      #endif 
       timer_.Cancel();
       RunDueTasks();
       ScheduleNextTimer();
     }
 
     if (result == (WAIT_OBJECT_0 + 1)) {
+      std::chrono::steady_clock::time_point cur_time_ms =
+          std::chrono::steady_clock::now();
+      dur = cur_time_ms - pre_time;
+      milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+      elapse = static_cast<uint32_t>(milliseconds.count());
+      pre_time = cur_time_ms;
+      if (elapse > 2) {
+        std::thread::id thread_id_ = std::this_thread::get_id();
+        std::ostringstream str_p;
+        str_p << thread_id_;
+        RTC_LOG(LS_WARNING)
+            << "app rtc -> task_queue win  frame   milliseconds = " << elapse
+            << ", thread_id = " << str_p.str();
+      }
       ::ResetEvent(in_queue_);
       RunPendingTasks();
     }
@@ -344,8 +425,10 @@ void TaskQueueWin::RunDueTasks() {
   Timestamp now = CurrentTime();
   do {
     const auto& top = timer_tasks_.top();
-    if (top.due_time() > now)
+    if (top.due_time() > now  ) 
+    {
       break;
+    }
     top.Run();
     timer_tasks_.pop();
   } while (!timer_tasks_.empty());
@@ -357,9 +440,11 @@ void TaskQueueWin::ScheduleNextTimer() {
     return;
 
   const auto& next_task = timer_tasks_.top();
-  TimeDelta delay =
-      std::max(TimeDelta::Zero(), next_task.due_time() - CurrentTime());
+  TimeDelta delay = std::max(TimeDelta::Zero(), next_task.due_time() - CurrentTime());
   uint32_t milliseconds = delay.RoundUpTo(TimeDelta::Millis(1)).ms<uint32_t>();
+ /* if (milliseconds > 5) {
+    milliseconds = 5;
+  }*/
   if (!timer_.StartOneShotTimer(milliseconds))
     timer_id_ = ::SetTimer(nullptr, 0, milliseconds, nullptr);
 }

@@ -107,6 +107,10 @@ enum LogErrorContext {
   ERRCTX_HR = ERRCTX_HRESULT,  // LOG_E(sev, HR, x)
 };
 
+typedef void (* rtc_log_callback)(const char * data, size_t size);
+
+
+void set_rtc_log_callback(rtc_log_callback callback);
 class LogMessage;
 
 // LogLineRef encapsulates all the information required to generate a log line.

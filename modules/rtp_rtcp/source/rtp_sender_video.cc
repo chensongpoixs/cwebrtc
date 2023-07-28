@@ -664,8 +664,13 @@ bool RTPSenderVideo::SendVideo(
 
   if (num_packets == 0)
     return false;
-
+  std::chrono::steady_clock::time_point cur_time_point_ =
+      std::chrono::steady_clock::now();
+  RTC_LOG(LS_INFO) << "rtp packet [num = " << num_packets << "]";
   bool first_frame = first_frame_sent_();
+
+
+
   std::vector<std::unique_ptr<RtpPacketToSend>> rtp_packets;
   for (size_t i = 0; i < num_packets; ++i) {
     std::unique_ptr<RtpPacketToSend> packet;
@@ -716,8 +721,11 @@ bool RTPSenderVideo::SendVideo(
       // Append `red_packet` instead of `packet` to output.
       red_packet->set_packet_type(RtpPacketMediaType::kVideo);
       red_packet->set_allow_retransmission(packet->allow_retransmission());
+      packet->time_point_ = cur_time_point_;
       rtp_packets.emplace_back(std::move(red_packet));
+
     } else {
+      packet->time_point_ = cur_time_point_;
       packet->set_packet_type(RtpPacketMediaType::kVideo);
       rtp_packets.emplace_back(std::move(packet));
     }
@@ -775,6 +783,17 @@ bool RTPSenderVideo::SendEncodedImage(
     return frame_transformer_delegate_->TransformFrame(
         payload_type, codec_type, rtp_timestamp, encoded_image, video_header,
         expected_retransmission_time_ms);
+  }
+  std::chrono::steady_clock::time_point cur_time_ms =
+      std::chrono::steady_clock::now();
+  std::chrono::steady_clock::duration dur;
+  std::chrono::milliseconds milliseconds;
+  uint32_t elapse = 0;
+  dur = cur_time_ms - encoded_image.time_point_;
+  milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+  elapse = static_cast<uint32_t>(milliseconds.count());
+  if (elapse > 2) {
+    RTC_LOG(LS_WARNING) << " encoded_image post --> [" << elapse << "]ms";
   }
   return SendVideo(payload_type, codec_type, rtp_timestamp,
                    encoded_image.capture_time_ms_, encoded_image, video_header,

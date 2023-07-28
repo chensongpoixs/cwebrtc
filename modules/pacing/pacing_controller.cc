@@ -313,7 +313,9 @@ Timestamp PacingController::NextSendTime() const {
   const Timestamp now = CurrentTime();
   Timestamp next_send_time = Timestamp::PlusInfinity();
 
-  if (paused_) {
+  if (paused_) 
+  {
+    RTC_LOG(LS_WARNING) << "==============";
     return last_send_time_ + kPausedProcessInterval;
   }
 
@@ -328,12 +330,16 @@ Timestamp PacingController::NextSendTime() const {
   // If queue contains a packet which should not be paced, its target send time
   // is the time at which it was enqueued.
   Timestamp unpaced_send_time = NextUnpacedSendTime();
-  if (unpaced_send_time.IsFinite()) {
+  if (unpaced_send_time.IsFinite()) 
+  {
+    RTC_LOG(LS_WARNING) << "======unpaced_send_time = "
+                     << ToString(unpaced_send_time) << "========";
     return unpaced_send_time;
   }
 
   if (congested_ || !seen_first_packet_) {
     // We need to at least send keep-alive packets with some interval.
+    RTC_LOG(LS_WARNING) << "====================";
     return last_send_time_ + kCongestedPacketInterval;
   }
 
@@ -345,6 +351,10 @@ Timestamp PacingController::NextSendTime() const {
     next_send_time =
         last_process_time_ +
         ((send_burst_interval_ > drain_time) ? TimeDelta::Zero() : drain_time);
+    RTC_LOG(LS_WARNING) << "======send_burst_interval_ = "
+                     << ToString(send_burst_interval_)
+                     << "======drain_time = " << ToString(drain_time)
+                     << "========";
   } else if (padding_rate_ > DataRate::Zero() && packet_queue_.Empty()) {
     // If we _don't_ have pending packets, check how long until we have
     // bandwidth for padding packets. Both media and padding debts must
@@ -360,9 +370,13 @@ Timestamp PacingController::NextSendTime() const {
       drain_time = TimeDelta::Micros(1);
     }
     next_send_time = last_process_time_ + drain_time;
+    RTC_LOG(LS_WARNING) << "========next_send_time = "
+                        << ToString(next_send_time) << " ====== ";
   } else {
     // Nothing to do.
     next_send_time = last_process_time_ + kPausedProcessInterval;
+    RTC_LOG(LS_WARNING) << "============= next_send_time ="
+                        << ToString(next_send_time); 
   }
 
   if (send_padding_if_silent_) {
@@ -482,7 +496,7 @@ void PacingController::ProcessPackets() {
         packet_size += DataSize::Bytes(rtp_packet->headers_size()) +
                        transport_overhead_per_packet_;
       }
-
+      
       packet_sender_->SendPacket(std::move(rtp_packet), pacing_info);
       for (auto& packet : packet_sender_->FetchFec()) {
         EnqueuePacket(std::move(packet));

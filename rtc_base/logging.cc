@@ -85,6 +85,10 @@ webrtc::Mutex& GetLoggingLock() {
 
 }  // namespace
 
+static rtc_log_callback g_rtc_log_callback= NULL;
+void set_rtc_log_callback(rtc_log_callback callback) {
+  g_rtc_log_callback = callback;
+}
 std::string LogLineRef::DefaultLogLine() const {
   rtc::StringBuilder log_output;
   if (timestamp_ != webrtc::Timestamp::MinusInfinity()) {
@@ -358,6 +362,10 @@ void LogMessage::UpdateMinLogSeverity()
 
 void LogMessage::OutputToDebug(const LogLineRef& log_line) {
   std::string msg_str = log_line.DefaultLogLine();
+  if (g_rtc_log_callback) {
+  
+    g_rtc_log_callback(msg_str.c_str(), msg_str.length());
+  }
   bool log_to_stderr = log_to_stderr_;
 #if defined(WEBRTC_MAC) && !defined(WEBRTC_IOS) && defined(NDEBUG)
   // On the Mac, all stderr output goes to the Console log and causes clutter.

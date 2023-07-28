@@ -1467,7 +1467,27 @@ void VideoStreamEncoder::OnFrame(Timestamp post_time,
                                  const VideoFrame& video_frame) {
   RTC_DCHECK_RUN_ON(&encoder_queue_);
   VideoFrame incoming_frame = video_frame;
+#if 0
 
+  static std::chrono::steady_clock::time_point pre_time =
+      std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point cur_time_ms =
+      std::chrono::steady_clock::now();
+  std::chrono::steady_clock::duration dur;
+  std::chrono::milliseconds milliseconds;
+  uint32_t elapse = 0;
+  dur = cur_time_ms - pre_time;
+  milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+  elapse = static_cast<uint32_t>(milliseconds.count());
+  pre_time = cur_time_ms;
+  if (elapse > 2) {
+   std::thread::id  thread_id_ = std::this_thread::get_id();
+    std::ostringstream str_p;
+    str_p << thread_id_;
+    RTC_LOG(LS_WARNING) << "app rtc -> encoder frame OnFrame  milliseconds = "
+                        << elapse << ", thread_id = " << str_p.str();
+  }
+  #endif 
   // In some cases, e.g., when the frame from decoder is fed to encoder,
   // the timestamp may be set to the future. As the encoding pipeline assumes
   // capture time to be less than present time, we should reset the capture
@@ -1826,7 +1846,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   frame_dropper_.Leak(framerate_fps);
   // Frame dropping is enabled iff frame dropping is not force-disabled, and
   // rate controller is not trusted.
-  const bool frame_dropping_enabled =
+ /* const bool frame_dropping_enabled =
       !force_disable_frame_dropper_ &&
       !encoder_info_.has_trusted_rate_controller;
   frame_dropper_.Enable(frame_dropping_enabled);
@@ -1843,7 +1863,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
     accumulated_update_rect_.Union(video_frame.update_rect());
     accumulated_update_rect_is_valid_ &= video_frame.has_update_rect();
     return;
-  }
+  }*/
 
   EncodeVideoFrame(video_frame, time_when_posted_us);
 }
@@ -1988,10 +2008,42 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
 
   TRACE_EVENT1("webrtc", "VCMGenericEncoder::Encode", "timestamp",
                out_frame.timestamp());
-
+  
   frame_encode_metadata_writer_.OnEncodeStarted(out_frame);
+#if 1
 
+  static std::chrono::steady_clock::time_point  pre_time = std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point cur_time_ms =
+      std::chrono::steady_clock::now();
+  std::chrono::steady_clock::duration dur;
+  std::chrono::milliseconds milliseconds;
+  uint32_t elapse = 0; 
+  dur = cur_time_ms - pre_time;
+  milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+  elapse = static_cast<uint32_t>(milliseconds.count());
+  pre_time = cur_time_ms;
+  if (elapse > 2) {
+    std::thread::id thred_id = std::this_thread::get_id();
+    std::ostringstream osd; 
+    osd << thred_id;
+
+    RTC_LOG(LS_WARNING) << "app rtc -> encoder frame   milliseconds = "
+                        << elapse << ", thread_id =" << osd.str();
+  }
+  #endif 
   const int32_t encode_status = encoder_->Encode(out_frame, &next_frame_types_);
+#if 0
+
+  cur_time_ms = std::chrono::steady_clock::now();
+  dur = cur_time_ms - pre_time;
+  milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+  elapse = static_cast<uint32_t>(milliseconds.count());
+  pre_time = cur_time_ms;
+  if (elapse > 2) {
+    RTC_LOG(LS_WARNING) << "app rtc -> encoder frame use   milliseconds = "
+                        << elapse;
+  }
+  #endif 
   was_encode_called_since_last_initialization_ = true;
 
   if (encode_status < 0) {

@@ -28,7 +28,7 @@
 #include "rtc_base/checks.h"
 #include "rtc_base/ref_count.h"
 #include "rtc_base/system/rtc_export.h"
-
+#include <chrono>
 namespace webrtc {
 
 // Abstract interface for buffer storage. Intended to support buffers owned by
@@ -74,7 +74,8 @@ class RTC_EXPORT EncodedImage {
   EncodedImage(const EncodedImage&);
 
   ~EncodedImage();
-
+  std::chrono::steady_clock::time_point time_point_ =
+      std::chrono::steady_clock::now();
   EncodedImage& operator=(EncodedImage&&);
   EncodedImage& operator=(const EncodedImage&);
 
@@ -219,6 +220,9 @@ class RTC_EXPORT EncodedImage {
   bool retransmission_allowed_ = true;
   // True if the encoded image can be considered to be of target quality.
   bool at_target_quality_ = false;
+
+
+
 };
 
 }  // namespace webrtc

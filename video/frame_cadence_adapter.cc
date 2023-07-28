@@ -375,18 +375,18 @@ void ZeroHertzAdapterMode::OnFrame(Timestamp post_time,
                          << " cancel repeat and restart with original";
     queued_frames_.pop_front();
   }
-
+  RTC_LOG(LS_INFO) << "=================>>>";
   // Store the frame in the queue and schedule deferred processing.
   queued_frames_.push_back(frame);
   current_frame_id_++;
   scheduled_repeat_ = absl::nullopt;
-  queue_->PostDelayedHighPrecisionTask(
+   queue_->PostDelayedHighPrecisionTask(
       SafeTask(safety_.flag(),
                [this] {
                  RTC_DCHECK_RUN_ON(&sequence_checker_);
                  ProcessOnDelayedCadence();
                }),
-      frame_delay_);
+      frame_delay_); 
 }
 
 void ZeroHertzAdapterMode::OnDiscardedFrame() {
@@ -667,7 +667,46 @@ void FrameCadenceAdapterImpl::OnFrame(const VideoFrame& frame) {
           "WebRTC.Screenshare.ZeroHz.TimeUntilFirstFrameMs",
           time_until_first_frame.ms());
     }
+#if 1
 
+  static std::chrono::steady_clock::time_point pre_time =
+      std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point cur_time_ms =
+      std::chrono::steady_clock::now();
+  std::chrono::steady_clock::duration dur;
+  std::chrono::milliseconds milliseconds;
+  uint32_t elapse = 0;
+  dur = cur_time_ms - pre_time;
+  milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
+  elapse = static_cast<uint32_t>(milliseconds.count());
+  pre_time = cur_time_ms;
+
+
+  if (elapse > 2) {
+   std::thread::id  thread_id_ = std::this_thread::get_id();
+    std::ostringstream str_p;
+    str_p << thread_id_;
+    RTC_LOG(LS_WARNING) << "app rtc -> PostTask frame OnFrame  milliseconds = "
+                        << elapse << ", thread_id = " << str_p.str();
+  }
+  static auto timestamp =
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch())
+          .count();
+  static size_t cnt = 0;
+
+  cnt++;
+  auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
+                            std::chrono::system_clock::now().time_since_epoch())
+                            .count();
+  if (timestamp_curr - timestamp > 1000) 
+  {
+    // RTC_LOG(LS_INFO) << "FPS: " << cnt;
+   RTC_LOG(LS_WARNING) <<"app rtc -> PostTask frame OnFrame   encoder fps = " << cnt;
+    cnt = 0;
+    timestamp = timestamp_curr;
+  }
+#endif 
     const int frames_scheduled_for_processing =
         frames_scheduled_for_processing_.fetch_sub(1,
                                                    std::memory_order_relaxed);
