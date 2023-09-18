@@ -358,6 +358,8 @@ void DataChannelController::OnTransportChannelClosed(RTCError error) {
   temp_sctp_dcs.swap(sctp_data_channels_);
   for (const auto& channel : temp_sctp_dcs) {
     channel->OnTransportChannelClosed(error);
+    // TODO@chensong 2023-09-18 dataChannel debug
+    sid_allocator_.ReleaseSid(channel->id());
   }
 }
 
