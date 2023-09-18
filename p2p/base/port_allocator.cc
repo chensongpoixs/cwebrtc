@@ -92,7 +92,8 @@ uint32_t PortAllocatorSession::generation() {
 void PortAllocatorSession::set_generation(uint32_t generation) {
   generation_ = generation;
 }
-
+// TODO@chensong 2023-09-18 min port - max port 
+// Gathered candidate:
 PortAllocator::PortAllocator()
     : flags_(kDefaultPortAllocatorFlags),
       min_port_(0),
