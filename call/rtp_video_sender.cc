@@ -56,7 +56,7 @@ static const int kMinSendSidePacketHistorySize = 600;
 static const size_t kPathMTU = 1500;
 
 using webrtc_internal_rtp_video_sender::RtpStreamSender;
-
+// TODO@chensong 2023-09-23 这个难道是H264不支持 fec
 bool PayloadTypeSupportsSkippingFecPackets(absl::string_view payload_name,
                                            const FieldTrialsView& trials) {
   const VideoCodecType codecType =
@@ -99,13 +99,16 @@ bool ShouldDisableRedAndUlpfec(bool flexfec_enabled,
     }
     should_disable_red_and_ulpfec = true;
   }
-
+  // TODO@chensong 2023-09-27
+    //没有图片ID的有效负载类型无法确定流是否完整 
+    //而不重传FEC，因此对H.264使用ULPFEC+NACK（例如）  是带宽的浪费，因为FEC分组仍然必须被发送。
+    //请注意，FlexFEC并非如此。
   // Payload types without picture ID cannot determine that a stream is complete
   // without retransmitting FEC, so using ULPFEC + NACK for H.264 (for instance)
   // is a waste of bandwidth since FEC packets still have to be transmitted.
   // Note that this is not the case with FlexFEC.
-  if (nack_enabled && IsUlpfecEnabled() &&
-      !PayloadTypeSupportsSkippingFecPackets(rtp_config.payload_name, trials)) {
+  if (nack_enabled && IsUlpfecEnabled() && !PayloadTypeSupportsSkippingFecPackets(rtp_config.payload_name, trials)) 
+  {
     RTC_LOG(LS_WARNING)
         << "Transmitting payload type without picture ID using "
            "NACK+ULPFEC is a waste of bandwidth since ULPFEC packets "
@@ -131,15 +134,18 @@ std::unique_ptr<VideoFecGenerator> MaybeCreateFecGenerator(
     int simulcast_index,
     const FieldTrialsView& trials) {
   // If flexfec is configured that takes priority.
-  if (rtp.flexfec.payload_type >= 0) {
+  if (rtp.flexfec.payload_type >= 0)
+  {
     RTC_DCHECK_GE(rtp.flexfec.payload_type, 0);
     RTC_DCHECK_LE(rtp.flexfec.payload_type, 127);
-    if (rtp.flexfec.ssrc == 0) {
+    if (rtp.flexfec.ssrc == 0)
+    {
       RTC_LOG(LS_WARNING) << "FlexFEC is enabled, but no FlexFEC SSRC given. "
                              "Therefore disabling FlexFEC.";
       return nullptr;
     }
-    if (rtp.flexfec.protected_media_ssrcs.empty()) {
+    if (rtp.flexfec.protected_media_ssrcs.empty())
+    {
       RTC_LOG(LS_WARNING)
           << "FlexFEC is enabled, but no protected media SSRC given. "
              "Therefore disabling FlexFEC.";
@@ -155,9 +161,8 @@ std::unique_ptr<VideoFecGenerator> MaybeCreateFecGenerator(
       return nullptr;
     }
 
-    if (absl::c_find(rtp.flexfec.protected_media_ssrcs,
-                     rtp.ssrcs[simulcast_index]) ==
-        rtp.flexfec.protected_media_ssrcs.end()) {
+    if (absl::c_find(rtp.flexfec.protected_media_ssrcs, rtp.ssrcs[simulcast_index]) == rtp.flexfec.protected_media_ssrcs.end())
+    {
       // Media SSRC not among flexfec protected SSRCs.
       return nullptr;
     }
@@ -231,8 +236,7 @@ std::vector<RtpStreamSender> CreateRtpStreamSenders(
   configuration.retransmission_rate_limiter = retransmission_rate_limiter;
   configuration.rtp_stats_callback = observers.rtp_stats;
   configuration.frame_encryptor = frame_encryptor;
-  configuration.require_frame_encryption =
-      crypto_options.sframe.require_frame_encryption;
+  configuration.require_frame_encryption = crypto_options.sframe.require_frame_encryption;
   configuration.extmap_allow_mixed = rtp_config.extmap_allow_mixed;
   configuration.rtcp_report_interval_ms = rtcp_report_interval_ms;
   configuration.field_trials = &trials;
@@ -251,14 +255,11 @@ std::vector<RtpStreamSender> CreateRtpStreamSenders(
     RTPSenderVideo::Config video_config;
     configuration.local_media_ssrc = rtp_config.ssrcs[i];
 
-    std::unique_ptr<VideoFecGenerator> fec_generator =
-        MaybeCreateFecGenerator(clock, rtp_config, suspended_ssrcs, i, trials);
+    std::unique_ptr<VideoFecGenerator> fec_generator = MaybeCreateFecGenerator(clock, rtp_config, suspended_ssrcs, i, trials);
     configuration.fec_generator = fec_generator.get();
 
-    configuration.rtx_send_ssrc =
-        rtp_config.GetRtxSsrcAssociatedWithMediaSsrc(rtp_config.ssrcs[i]);
-    RTC_DCHECK_EQ(configuration.rtx_send_ssrc.has_value(),
-                  !rtp_config.rtx.ssrcs.empty());
+    configuration.rtx_send_ssrc = rtp_config.GetRtxSsrcAssociatedWithMediaSsrc(rtp_config.ssrcs[i]);
+    RTC_DCHECK_EQ(configuration.rtx_send_ssrc.has_value(), !rtp_config.rtx.ssrcs.empty());
 
     configuration.rid = (i < rtp_config.rids.size()) ? rtp_config.rids[i] : "";
 
@@ -275,18 +276,15 @@ std::vector<RtpStreamSender> CreateRtpStreamSenders(
     video_config.clock = configuration.clock;
     video_config.rtp_sender = rtp_rtcp->RtpSender();
     video_config.frame_encryptor = frame_encryptor;
-    video_config.require_frame_encryption =
-        crypto_options.sframe.require_frame_encryption;
+    video_config.require_frame_encryption = crypto_options.sframe.require_frame_encryption;
     video_config.enable_retransmit_all_layers = false;
     video_config.field_trials = &trials;
 
-    const bool using_flexfec =
-        fec_generator &&
-        fec_generator->GetFecType() == VideoFecGenerator::FecType::kFlexFec;
-    const bool should_disable_red_and_ulpfec =
-        ShouldDisableRedAndUlpfec(using_flexfec, rtp_config, trials);
+    const bool using_flexfec = fec_generator && fec_generator->GetFecType() == VideoFecGenerator::FecType::kFlexFec;
+    const bool should_disable_red_and_ulpfec = ShouldDisableRedAndUlpfec(using_flexfec, rtp_config, trials);
     if (!should_disable_red_and_ulpfec &&
-        rtp_config.ulpfec.red_payload_type != -1) {
+        rtp_config.ulpfec.red_payload_type != -1)
+    {
       video_config.red_payload_type = rtp_config.ulpfec.red_payload_type;
     }
     if (fec_generator) {
@@ -450,6 +448,8 @@ RtpVideoSender::RtpVideoSender(
       fec_enabled = true;
     }
   }
+  //目前ULPFEC和FlexFEC都使用相同的FEC速率计算逻辑，
+  //因此如果启用了这些FEC方案中的任一方案，则启用该逻辑。
   // Currently, both ULPFEC and FlexFEC use the same FEC rate calculation logic,
   // so enable that logic if either of those FEC schemes are enabled.
   fec_controller_->SetProtectionMethod(fec_enabled, NackEnabled());

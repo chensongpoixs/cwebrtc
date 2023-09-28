@@ -35,6 +35,9 @@ namespace webrtc {
 // This subclass of the RtpTransport is used for SRTP which is reponsible for
 // protecting/unprotecting the packets. It provides interfaces to set the crypto
 // parameters for the SrtpSession underneath.
+
+void set_send_enable_packet(bool enbale);
+
 class SrtpTransport : public RtpTransport {
  public:
   SrtpTransport(bool rtcp_mux_enabled, const FieldTrialsView& field_trials);

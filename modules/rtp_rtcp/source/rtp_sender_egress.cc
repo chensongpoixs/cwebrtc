@@ -254,7 +254,7 @@ void RtpSenderEgress::SendPacket(RtpPacketToSend* packet,
     UpdateOnSendPacket(options.packet_id, packet->capture_time().ms(),
                        packet_ssrc);
   }
-  std::chrono::steady_clock::time_point cur_time_ms =
+  /*std::chrono::steady_clock::time_point cur_time_ms =
       std::chrono::steady_clock::now();
   std::chrono::steady_clock::duration dur;
   std::chrono::milliseconds milliseconds;
@@ -269,7 +269,7 @@ void RtpSenderEgress::SendPacket(RtpPacketToSend* packet,
                         << " ][first = " << packet->is_first_packet_of_frame()
                         << "]["
                         << elapse << "]ms";
-  }
+  }*/
 
   const bool send_success = SendPacketToNetwork(*packet, options, pacing_info);
 
@@ -553,6 +553,8 @@ bool RtpSenderEgress::SendPacketToNetwork(const RtpPacketToSend& packet,
                                           const PacketOptions& options,
                                           const PacedPacketInfo& pacing_info) {
   int bytes_sent = -1;
+  RTC_LOG(LS_INFO) << "[rtp payload_type = " << packet.PayloadType() <<
+                      "][seq ="<< packet.SequenceNumber() <<"]";
   if (transport_) {
     bytes_sent = transport_->SendRtp(packet.data(), packet.size(), options)
                      ? static_cast<int>(packet.size())

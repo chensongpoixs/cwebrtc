@@ -360,6 +360,7 @@ void SctpDataChannel::OnClosingProcedureComplete(int sid) {
     // all pending data and transitioned to kClosing already.
     RTC_DCHECK_EQ(state_, kClosing);
     RTC_DCHECK(queued_send_data_.Empty());
+    RTC_LOG(LS_INFO) << "dataChannel sid = " << sid;
     DisconnectFromTransport();
     SetState(kClosed);
   }
@@ -399,7 +400,9 @@ DataChannelStats SctpDataChannel::GetStats() const {
 void SctpDataChannel::OnDataReceived(const cricket::ReceiveDataParams& params,
                                      const rtc::CopyOnWriteBuffer& payload) {
   RTC_DCHECK_RUN_ON(signaling_thread_);
-  if (params.sid != config_.id) {
+  if (params.sid != config_.id) 
+  {
+    RTC_LOG(LS_ERROR) << "dataChannel  sid = " << params.sid << ", id = " << config_.id;
     return;
   }
 
@@ -438,11 +441,16 @@ void SctpDataChannel::OnDataReceived(const cricket::ReceiveDataParams& params,
 
   bool binary = (params.type == webrtc::DataMessageType::kBinary);
   auto buffer = std::make_unique<DataBuffer>(payload, binary);
-  if (state_ == kOpen && observer_) {
+  if (state_ == kOpen && observer_) 
+  {
     ++messages_received_;
     bytes_received_ += buffer->size();
+    RTC_LOG(LS_INFO) << "dataChannel  sid = " << params.sid
+                     << ", id = " << config_.id << ", state_ = " << state_;
     observer_->OnMessage(*buffer.get());
   } else {
+    RTC_LOG(LS_INFO) << "dataChannel  sid = " << params.sid
+                     << ", id = " << config_.id << ", state_ = " << state_;
     if (queued_received_data_.byte_count() + payload.size() >
         kMaxQueuedReceivedDataBytes) {
       RTC_LOG(LS_ERROR) << "Queued received data exceeds the max buffer size.";
@@ -480,6 +488,7 @@ void SctpDataChannel::CloseAbruptlyWithError(RTCError error) {
   }
 
   if (connected_to_transport_) {
+    RTC_LOG(LS_INFO) << "dataChannel sid = " ;
     DisconnectFromTransport();
   }
 

@@ -98,8 +98,7 @@ std::unique_ptr<ModuleRtpRtcpImpl2> CreateRtpRtcpModule(
   configuration.non_sender_rtt_measurement = non_sender_rtt_measurement;
   configuration.event_log = rtc_event_log;
 
-  std::unique_ptr<ModuleRtpRtcpImpl2> rtp_rtcp =
-      ModuleRtpRtcpImpl2::Create(configuration);
+  std::unique_ptr<ModuleRtpRtcpImpl2> rtp_rtcp = ModuleRtpRtcpImpl2::Create(configuration);
   rtp_rtcp->SetRTCPStatus(RtcpMode::kCompound);
 
   return rtp_rtcp;

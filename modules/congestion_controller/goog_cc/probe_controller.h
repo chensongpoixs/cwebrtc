@@ -163,6 +163,7 @@ class ProbeController {
       std::vector<DataRate> bitrates_to_probe,
       bool probe_further);
   bool TimeForAlrProbe(Timestamp at_time) const;
+  //bool TimeForAlrProbe(Timestamp at_time);
   bool TimeForNetworkStateProbe(Timestamp at_time) const;
 
   bool network_available_;

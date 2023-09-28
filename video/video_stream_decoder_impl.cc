@@ -124,12 +124,13 @@ VideoDecoder* VideoStreamDecoderImpl::GetDecoder(int payload_type) {
 }
 
 void VideoStreamDecoderImpl::SaveFrameInfo(const EncodedFrame& frame) {
+    // TODO@chensong 2023-09-25 设置视频帧解码信息
   FrameInfo* frame_info = &frame_info_[next_frame_info_index_];
   frame_info->timestamp = frame.Timestamp();
   frame_info->decode_start_time_ms = rtc::TimeMillis();
   frame_info->render_time_us = frame.RenderTimeMs() * 1000;
   frame_info->content_type = frame.EncodedImage().content_type_;
-
+  //保存视频解码前的信息数据
   next_frame_info_index_ = Add<kFrameInfoMemory>(next_frame_info_index_, 1);
 }
 
@@ -256,8 +257,7 @@ void VideoStreamDecoderImpl::OnDecodedFrameCallback(
     }
     decoded_image.set_processing_time(
         {Timestamp::Millis(frame_info->decode_start_time_ms),
-         Timestamp::Millis(frame_info->decode_start_time_ms +
-                           *decode_time_ms)});
+         Timestamp::Millis(frame_info->decode_start_time_ms +  *decode_time_ms)});
     decoded_image.set_timestamp_us(frame_info->render_time_us);
     timing_.StopDecodeTimer(TimeDelta::Millis(*decode_time_ms),
                             Timestamp::Millis(decode_stop_time_ms));

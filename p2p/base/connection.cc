@@ -240,7 +240,8 @@ Connection::Connection(rtc::WeakPtr<Port> port,
       rtt_estimate_(DEFAULT_RTT_ESTIMATE_HALF_TIME_MS) {
   RTC_DCHECK_RUN_ON(network_thread_);
   RTC_DCHECK(port_);
-  RTC_LOG(LS_INFO) << ToString() << ": Connection created";
+  RTC_LOG(LS_INFO) << ToString() << ": Connection created"
+                   << ", username=" << remote_candidate_.username() << ", password=" << remote_candidate.password();
 }
 
 Connection::~Connection() {
@@ -485,7 +486,11 @@ void Connection::OnReadPacket(const char* data,
           // TODO(bugs.webrtc.org/14578): Do a better thing
           RTC_LOG(LS_INFO) << "STUN code error - Different passwords, old = "
                            << absl::CHexEscape(msg->password()) << ", new "
-                           << absl::CHexEscape(remote_candidate().password());
+                           << absl::CHexEscape(remote_candidate().password())
+                           << ", msg_type = " << msg->type()
+                           << ", old username= " << remote_ufrag
+                           << ", new username ="
+                           << remote_candidate().username();
         }
         break;
       default:
@@ -499,8 +504,10 @@ void Connection::OnReadPacket(const char* data,
         RTC_LOG_V(sev) << ToString() << ": Received "
                        << StunMethodToString(msg->type())
                        << ", id=" << rtc::hex_encode(msg->transaction_id());
-        if (remote_ufrag == remote_candidate_.username()) {
+        if (remote_ufrag == remote_candidate_.username()) 
+        {
           HandleStunBindingOrGoogPingRequest(msg.get());
+          RTC_LOG(LS_INFO) << "[remote] username =" << remote_ufrag;
         } else {
           // The packet had the right local username, but the remote username
           // was not the right one for the remote address.
@@ -950,7 +957,9 @@ void Connection::Ping(int64_t now) {
   pings_since_last_response_.push_back(SentPing(req->id(), now, nomination));
   RTC_LOG(LS_VERBOSE) << ToString() << ": Sending STUN ping, id="
                       << rtc::hex_encode(req->id())
-                      << ", nomination=" << nomination_;
+                      << ", nomination=" << nomination_
+                      << ", username=" << remote_candidate_.username()
+                      << ", password= " << remote_candidate_.password();
   requests_.Send(req.release());
   state_ = IceCandidatePairState::IN_PROGRESS;
   num_pings_sent_++;

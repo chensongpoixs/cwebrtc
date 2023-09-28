@@ -34,7 +34,18 @@ class VCMProtectionCallback {
  protected:
   virtual ~VCMProtectionCallback() {}
 };
-
+// FecController计算分配的网络
+//编码器可使用的容量以及容量
+//对于诸如FEC和NACK之类的冗余分组是需要的。它使用
+//实现“VCMProtectionCallback”以设置新的FEC参数并获取
+//当前用于FEC和NACK的比特率。
+//用法：
+//通过调用SetProtectionMethod和SetEncodingData进行安装。
+//对于每个编码的图像，调用UpdateWithEncodedData。
+//每次带宽估计值更改时，请调用UpdateFecRates。更新FecRates
+//将返回编码器可以使用的比特率。
+//锁用于保护内部状态，因此可以在
+//任意线程。
 // FecController calculates how much of the allocated network
 // capacity that can be used by an encoder and how much that
 // is needed for redundant packets such as FEC and NACK. It uses an

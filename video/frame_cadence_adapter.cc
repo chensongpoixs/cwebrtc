@@ -375,7 +375,7 @@ void ZeroHertzAdapterMode::OnFrame(Timestamp post_time,
                          << " cancel repeat and restart with original";
     queued_frames_.pop_front();
   }
-  RTC_LOG(LS_INFO) << "=================>>>";
+ // RTC_LOG(LS_INFO) << "=================>>>";
   // Store the frame in the queue and schedule deferred processing.
   queued_frames_.push_back(frame);
   current_frame_id_++;
@@ -667,7 +667,7 @@ void FrameCadenceAdapterImpl::OnFrame(const VideoFrame& frame) {
           "WebRTC.Screenshare.ZeroHz.TimeUntilFirstFrameMs",
           time_until_first_frame.ms());
     }
-#if 1
+#if 0
 
   static std::chrono::steady_clock::time_point pre_time =
       std::chrono::steady_clock::now();

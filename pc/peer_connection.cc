@@ -2097,6 +2097,8 @@ void PeerConnection::ResetSctpDataMid() {
 void PeerConnection::OnSctpDataChannelClosed(DataChannelInterface* channel) {
   // Since data_channel_controller doesn't do signals, this
   // signal is relayed here.
+  RTC_LOG(LS_WARNING) << "dataChannel closed --> [id = " << channel->id()
+                      << "][ label = " << channel->label() << "]";
   data_channel_controller_.OnSctpDataChannelClosed(
       static_cast<SctpDataChannel*>(channel));
 }

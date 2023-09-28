@@ -30,13 +30,19 @@ struct BitrateProberConfig {
   ~BitrateProberConfig() = default;
 
   // A minimum interval between probes to allow scheduling to be feasible.
+  //探测之间的最小间隔，以使调度可行。
   FieldTrialParameter<TimeDelta> min_probe_delta;
   // Maximum amount of time each probe can be delayed.
+  //每个探测器可以延迟的最长时间。
   FieldTrialParameter<TimeDelta> max_probe_delay;
   // This is used to start sending a probe after a large enough packet.
   // The min packet size is scaled with the bitrate we're probing at.
   // This defines the max min packet size, meaning that on high bitrates
   // a packet of at least this size is needed to trigger sending a probe.
+  //这用于在足够大的数据包之后开始发送探测。 
+  //最小数据包大小根据我们正在探测的比特率进行缩放。 
+  //这定义了最大-最小数据包大小，这意味着在高比特率下 
+  //需要至少该大小的分组来触发发送探测。
   FieldTrialParameter<DataSize> min_packet_size;
 };
 

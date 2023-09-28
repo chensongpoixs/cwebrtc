@@ -33,6 +33,11 @@
 
 namespace webrtc {
 
+static bool g_send_packet = true;
+void set_send_enable_packet(bool enbale) 
+{
+  g_send_packet = enbale;
+}
 SrtpTransport::SrtpTransport(bool rtcp_mux_enabled,
                              const FieldTrialsView& field_trials)
     : RtpTransport(rtcp_mux_enabled), field_trials_(field_trials) {}
@@ -119,13 +124,19 @@ RTCError SrtpTransport::SetSrtpReceiveKey(const cricket::CryptoParams& params) {
 
 bool SrtpTransport::SendRtpPacket(rtc::CopyOnWriteBuffer* packet,
                                   const rtc::PacketOptions& options,
-                                  int flags) {
+                                  int flags) 
+{
+  rtc::PacketOptions updated_options = options;
+  if (!g_send_packet) 
+  {
+    return SendPacket(/*rtcp=*/false, packet, updated_options, flags);
+  }
   if (!IsSrtpActive()) {
     RTC_LOG(LS_ERROR)
         << "Failed to send the packet because SRTP transport is inactive.";
     return false;
   }
-  rtc::PacketOptions updated_options = options;
+  
   TRACE_EVENT0("webrtc", "SRTP Encode");
   bool res;
   uint8_t* data = packet->MutableData();
@@ -175,7 +186,12 @@ bool SrtpTransport::SendRtpPacket(rtc::CopyOnWriteBuffer* packet,
 
 bool SrtpTransport::SendRtcpPacket(rtc::CopyOnWriteBuffer* packet,
                                    const rtc::PacketOptions& options,
-                                   int flags) {
+                                   int flags) 
+{
+  rtc::PacketOptions updated_options = options;
+  if (!g_send_packet) {
+    return SendPacket(/*rtcp=*/true, packet, updated_options, flags);
+  }
   if (!IsSrtpActive()) {
     RTC_LOG(LS_ERROR)
         << "Failed to send the packet because SRTP transport is inactive.";

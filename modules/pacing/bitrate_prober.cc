@@ -47,6 +47,7 @@ void BitrateProber::SetEnabled(bool enable) {
   if (enable) {
     if (probing_state_ == ProbingState::kDisabled) {
       probing_state_ = ProbingState::kInactive;
+      //已启用带宽探测，设置为非活动
       RTC_LOG(LS_INFO) << "Bandwidth probing enabled, set to inactive";
     }
   } else {
@@ -60,33 +61,33 @@ void BitrateProber::OnIncomingPacket(DataSize packet_size) {
   // probing.
   // Note that the pacer can send several packets at once when sending a probe,
   // and thus, packets can be smaller than needed for a probe.
+  //除非我们有足够大的东西可以启动，否则不要初始化探测   
+  //注意，起搏器在发送探测时可以同时发送多个分组， 
+  //并且因此分组可以比探测所需的更小。
   if (probing_state_ == ProbingState::kInactive && !clusters_.empty() &&
-      packet_size >=
-          std::min(RecommendedMinProbeSize(), config_.min_packet_size.Get())) {
+      packet_size >= std::min(RecommendedMinProbeSize(), config_.min_packet_size.Get())) 
+  {
     // Send next probe right away.
     next_probe_time_ = Timestamp::MinusInfinity();
     probing_state_ = ProbingState::kActive;
   }
 }
 
-void BitrateProber::CreateProbeCluster(
-    const ProbeClusterConfig& cluster_config) {
+void BitrateProber::CreateProbeCluster(const ProbeClusterConfig& cluster_config)
+{
   RTC_DCHECK(probing_state_ != ProbingState::kDisabled);
 
   while (!clusters_.empty() &&
-         (cluster_config.at_time - clusters_.front().requested_at >
-              kProbeClusterTimeout ||
-          clusters_.size() > kMaxPendingProbeClusters)) {
+         (cluster_config.at_time - clusters_.front().requested_at > kProbeClusterTimeout 
+             || clusters_.size() > kMaxPendingProbeClusters))
+  {
     clusters_.pop();
   }
 
   ProbeCluster cluster;
   cluster.requested_at = cluster_config.at_time;
-  cluster.pace_info.probe_cluster_min_probes =
-      cluster_config.target_probe_count;
-  cluster.pace_info.probe_cluster_min_bytes =
-      (cluster_config.target_data_rate * cluster_config.target_duration)
-          .bytes();
+  cluster.pace_info.probe_cluster_min_probes = cluster_config.target_probe_count;
+  cluster.pace_info.probe_cluster_min_bytes = (cluster_config.target_data_rate * cluster_config.target_duration) .bytes();
   RTC_DCHECK_GE(cluster.pace_info.probe_cluster_min_bytes, 0);
   cluster.pace_info.send_bitrate_bps = cluster_config.target_data_rate.bps();
   cluster.pace_info.probe_cluster_id = cluster_config.id;
@@ -99,8 +100,10 @@ void BitrateProber::CreateProbeCluster(
 
   // If we are already probing, continue to do so. Otherwise set it to
   // kInactive and wait for OnIncomingPacket to start the probing.
-  if (probing_state_ != ProbingState::kActive)
+  if (probing_state_ != ProbingState::kActive) 
+  {
     probing_state_ = ProbingState::kInactive;
+  }
 }
 
 Timestamp BitrateProber::NextProbeTime(Timestamp now) const {

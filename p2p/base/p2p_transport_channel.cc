@@ -932,7 +932,7 @@ void P2PTransportChannel::MaybeStartGathering() {
       }
       session->StopGettingPorts();
     }
-
+    // TODO@chensong ice port pool 
     // Time for a new allocator.
     std::unique_ptr<PortAllocatorSession> pooled_session =
         allocator_->TakePooledSession(transport_name(), component(),
@@ -1090,6 +1090,7 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
   if (ice_param != nullptr) {
     remote_password = ice_param->pwd;
   }
+  RTC_LOG(LS_INFO) << "[remote]username=" << remote_username << ", password=" << remote_password;
 
   Candidate remote_candidate;
   bool remote_candidate_is_new = (candidate == nullptr);
@@ -1139,6 +1140,8 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
     remote_candidate.set_foundation(
         rtc::ToString(rtc::ComputeCrc32(remote_candidate.id())));
   }
+  RTC_LOG(LS_INFO) << "[remote_candidate]username=" << remote_candidate.username()
+                   << ", password=" << remote_candidate.password();
 
   // RFC5245, the agent constructs a pair whose local candidate is equal to
   // the transport address on which the STUN request was received, and a
@@ -1162,7 +1165,7 @@ void P2PTransportChannel::OnUnknownAddress(PortInterface* port,
       return;
     }
   }
-
+  //TODO@chensong 2023-08-02 stun/RTSP/RTP/SCTP 连接类实例化
   Connection* connection =
       port->CreateConnection(remote_candidate, PortInterface::ORIGIN_THIS_PORT);
   if (!connection) {
@@ -1298,7 +1301,8 @@ void P2PTransportChannel::AddRemoteCandidate(const Candidate& candidate) {
           << candidate.username();
     }
   }
-
+  RTC_LOG(LS_INFO) << "=====>>[remote candidate  ip = "<<new_remote_candidate.address().ToString()<<"][username = " << new_remote_candidate.username()
+                   << "][password = " << new_remote_candidate.password()<< "]";
   if (new_remote_candidate.address().IsUnresolvedIP()) {
     // Don't do DNS lookups if the IceTransportPolicy is "none" or "relay".
     bool sharing_host = ((allocator_->candidate_filter() & CF_HOST) != 0);

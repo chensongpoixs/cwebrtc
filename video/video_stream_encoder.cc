@@ -2010,7 +2010,7 @@ void VideoStreamEncoder::EncodeVideoFrame(const VideoFrame& video_frame,
                out_frame.timestamp());
   
   frame_encode_metadata_writer_.OnEncodeStarted(out_frame);
-#if 1
+#if 0
 
   static std::chrono::steady_clock::time_point  pre_time = std::chrono::steady_clock::now();
   std::chrono::steady_clock::time_point cur_time_ms =

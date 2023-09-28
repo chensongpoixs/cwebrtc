@@ -61,15 +61,11 @@ PacingController::PacingController(Clock* clock,
     : clock_(clock),
       packet_sender_(packet_sender),
       field_trials_(field_trials),
-      drain_large_queues_(
-          !IsDisabled(field_trials_, "WebRTC-Pacer-DrainQueue")),
-      send_padding_if_silent_(
-          IsEnabled(field_trials_, "WebRTC-Pacer-PadInSilence")),
+      drain_large_queues_(!IsDisabled(field_trials_, "WebRTC-Pacer-DrainQueue")),
+      send_padding_if_silent_(IsEnabled(field_trials_, "WebRTC-Pacer-PadInSilence")),
       pace_audio_(IsEnabled(field_trials_, "WebRTC-Pacer-BlockAudio")),
-      ignore_transport_overhead_(
-          IsEnabled(field_trials_, "WebRTC-Pacer-IgnoreTransportOverhead")),
-      fast_retransmissions_(
-          IsEnabled(field_trials_, "WebRTC-Pacer-FastRetransmissions")),
+      ignore_transport_overhead_(IsEnabled(field_trials_, "WebRTC-Pacer-IgnoreTransportOverhead")),
+      fast_retransmissions_(IsEnabled(field_trials_, "WebRTC-Pacer-FastRetransmissions")),
       min_packet_limit_(kDefaultMinPacketLimit),
       transport_overhead_per_packet_(DataSize::Zero()),
       send_burst_interval_(TimeDelta::Zero()),
@@ -96,8 +92,7 @@ PacingController::PacingController(Clock* clock,
                            "pushback experiment must be enabled.";
   }
   FieldTrialParameter<int> min_packet_limit_ms("", min_packet_limit_.ms());
-  ParseFieldTrial({&min_packet_limit_ms},
-                  field_trials_.Lookup("WebRTC-Pacer-MinPacketLimitMs"));
+  ParseFieldTrial({&min_packet_limit_ms}, field_trials_.Lookup("WebRTC-Pacer-MinPacketLimitMs"));
   min_packet_limit_ = TimeDelta::Millis(min_packet_limit_ms.Get());
   UpdateBudgetWithElapsedTime(min_packet_limit_);
 }
@@ -110,11 +105,18 @@ void PacingController::CreateProbeCluster(DataRate bitrate, int cluster_id) {
                               .target_duration = TimeDelta::Millis(15),
                               .target_probe_count = 5,
                               .id = cluster_id});
+  RTC_LOG(LS_INFO) << "[bew][cluster_id = " << cluster_id
+                   << "][DataRate.target_data_rate = " << ToString(bitrate)
+                   << "]";
 }
 
 void PacingController::CreateProbeClusters(
     rtc::ArrayView<const ProbeClusterConfig> probe_cluster_configs) {
   for (const ProbeClusterConfig probe_cluster_config : probe_cluster_configs) {
+    RTC_LOG(LS_INFO) << "[bew][cluster_id = " << probe_cluster_config.id
+                     << "][DataRate.target_data_rate = "
+                     << ToString(probe_cluster_config.target_data_rate)
+                     << "]";
     prober_.CreateProbeCluster(probe_cluster_config);
   }
 }
@@ -315,11 +317,12 @@ Timestamp PacingController::NextSendTime() const {
 
   if (paused_) 
   {
-    RTC_LOG(LS_WARNING) << "==============";
+    //RTC_LOG(LS_WARNING) << "==============";
     return last_send_time_ + kPausedProcessInterval;
   }
 
   // If probing is active, that always takes priority.
+  //如果探测是活动的，那么它总是优先考虑的。
   if (prober_.is_probing() && !probing_send_failure_) {
     Timestamp probe_time = prober_.NextProbeTime(now);
     if (!probe_time.IsPlusInfinity()) {
@@ -332,14 +335,14 @@ Timestamp PacingController::NextSendTime() const {
   Timestamp unpaced_send_time = NextUnpacedSendTime();
   if (unpaced_send_time.IsFinite()) 
   {
-    RTC_LOG(LS_WARNING) << "======unpaced_send_time = "
-                     << ToString(unpaced_send_time) << "========";
+   // RTC_LOG(LS_WARNING) << "======unpaced_send_time = "
+     //                << ToString(unpaced_send_time) << "========";
     return unpaced_send_time;
   }
 
   if (congested_ || !seen_first_packet_) {
     // We need to at least send keep-alive packets with some interval.
-    RTC_LOG(LS_WARNING) << "====================";
+   // RTC_LOG(LS_WARNING) << "====================";
     return last_send_time_ + kCongestedPacketInterval;
   }
 
@@ -351,10 +354,10 @@ Timestamp PacingController::NextSendTime() const {
     next_send_time =
         last_process_time_ +
         ((send_burst_interval_ > drain_time) ? TimeDelta::Zero() : drain_time);
-    RTC_LOG(LS_WARNING) << "======send_burst_interval_ = "
-                     << ToString(send_burst_interval_)
-                     << "======drain_time = " << ToString(drain_time)
-                     << "========";
+   // RTC_LOG(LS_WARNING) << "======send_burst_interval_ = "
+     //                << ToString(send_burst_interval_)
+       //              << "======drain_time = " << ToString(drain_time)
+         //            << "========";
   } else if (padding_rate_ > DataRate::Zero() && packet_queue_.Empty()) {
     // If we _don't_ have pending packets, check how long until we have
     // bandwidth for padding packets. Both media and padding debts must
@@ -370,13 +373,13 @@ Timestamp PacingController::NextSendTime() const {
       drain_time = TimeDelta::Micros(1);
     }
     next_send_time = last_process_time_ + drain_time;
-    RTC_LOG(LS_WARNING) << "========next_send_time = "
-                        << ToString(next_send_time) << " ====== ";
+   // RTC_LOG(LS_WARNING) << "========next_send_time = "
+   //                     << ToString(next_send_time) << " ====== ";
   } else {
     // Nothing to do.
     next_send_time = last_process_time_ + kPausedProcessInterval;
-    RTC_LOG(LS_WARNING) << "============= next_send_time ="
-                        << ToString(next_send_time); 
+   // RTC_LOG(LS_WARNING) << "============= next_send_time ="
+   //                     << ToString(next_send_time); 
   }
 
   if (send_padding_if_silent_) {
@@ -446,7 +449,8 @@ void PacingController::ProcessPackets() {
       is_probing = false;
     }
   }
-
+  RTC_LOG(LS_INFO) << "[bew][recommended_probe_size = "
+                   << ToString(recommended_probe_size) << "]";
   DataSize data_sent = DataSize::Zero();
   int iteration = 0;
   int packets_sent = 0;
@@ -498,7 +502,9 @@ void PacingController::ProcessPackets() {
       }
       
       packet_sender_->SendPacket(std::move(rtp_packet), pacing_info);
-      for (auto& packet : packet_sender_->FetchFec()) {
+      for (auto& packet : packet_sender_->FetchFec()) 
+      {
+        RTC_LOG(LS_INFO) << "[fec] seq = " << packet->SequenceNumber();
         EnqueuePacket(std::move(packet));
       }
       data_sent += packet_size;

@@ -498,6 +498,7 @@ if (!build_with_chromium) {
       "pc:libjingle_peerconnection",
       "pc:rtc_pc",
       "rtc_base",
+      "rtc_base:rtc_json",
       "sdk",
       "video",
     ]

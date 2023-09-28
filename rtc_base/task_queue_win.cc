@@ -267,12 +267,14 @@ void TaskQueueWin::RunThreadMain() {
   CurrentTaskQueueSetter set_current(this);
   HANDLE handles[2] = {*timer_.event_for_wait(), in_queue_};
   
+  #if 0
   static std::chrono::steady_clock::time_point pre_time =
       std::chrono::steady_clock::now();
    
   std::chrono::steady_clock::duration dur;
   std::chrono::milliseconds milliseconds;
   uint32_t elapse = 0;
+  #endif 
   while (true) {
     // Make sure we do an alertable wait as that's required to allow APCs to run
     // (e.g. required for InitializeQueueThread and stopping the thread in
@@ -353,7 +355,8 @@ void TaskQueueWin::RunThreadMain() {
     }
 
     if (result == (WAIT_OBJECT_0 + 1)) {
-      std::chrono::steady_clock::time_point cur_time_ms =
+      #if 0
+        std::chrono::steady_clock::time_point cur_time_ms =
           std::chrono::steady_clock::now();
       dur = cur_time_ms - pre_time;
       milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(dur);
@@ -367,6 +370,7 @@ void TaskQueueWin::RunThreadMain() {
             << "app rtc -> task_queue win  frame   milliseconds = " << elapse
             << ", thread_id = " << str_p.str();
       }
+      #endif 
       ::ResetEvent(in_queue_);
       RunPendingTasks();
     }

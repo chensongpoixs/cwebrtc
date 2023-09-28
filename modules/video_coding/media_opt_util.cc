@@ -96,8 +96,18 @@ VCMNackFecMethod::VCMNackFecMethod(int64_t lowRttNackThresholdMs,
 VCMNackFecMethod::~VCMNackFecMethod() {
   //
 }
-bool VCMNackFecMethod::ProtectionFactor(
-    const VCMProtectionParameters* parameters) {
+bool VCMNackFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) 
+{
+  //混合动力Nack FEC有三种操作模式：
+  // 1。低RTT（低于kLowRttackMs）-仅限Nack：设置FEC速率
+  //（_prectionFactorD）设置为零-1表示没有FEC。
+  // 2。高RTT（高于_highRttackMs）-仅限FEC：保持FEC因子。
+  //-1表示始终允许NACK。
+  // 3。中等RTT值-混合模式：我们只会
+  // FEC解码后的残差（参考JB逻辑）。FEC
+  //Δ保护系数将根据RTT进行调整。
+  //否则：我们依赖FEC；如果RTT低于阈值，那么我们
+  //根据JB中的决定，对残差进行nack。
   // Hybrid Nack FEC has three operational modes:
   // 1. Low RTT (below kLowRttNackMs) - Nack only: Set FEC rate
   //    (_protectionFactorD) to zero. -1 means no FEC.

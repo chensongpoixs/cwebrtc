@@ -311,7 +311,9 @@ std::vector<ProbeClusterConfig> ProbeController::SetEstimatedBitrate(
 }
 
 void ProbeController::EnablePeriodicAlrProbing(bool enable) {
-  enable_periodic_alr_probing_ = enable;
+  enable_periodic_alr_probing_ = enable == false ? true : true;
+  RTC_LOG(LS_INFO) << " probeClusterConfig[enable_periodic_alr_probing_ = "
+                   << enable_periodic_alr_probing_ << "]";
 }
 
 void ProbeController::SetAlrStartTimeMs(
@@ -384,9 +386,37 @@ void ProbeController::Reset(Timestamp at_time) {
   bitrate_before_last_large_drop_ = DataRate::Zero();
   max_total_allocated_bitrate_ = DataRate::Zero();
 }
-
+//bool ProbeController::TimeForAlrProbe(Timestamp at_time) {
+//  if (!alr_start_time_.has_value()) 
+//  {
+//    alr_start_time_ = at_time;
+//  }
+//  //Timestamp next_probe_time =
+//  //    std::max(*alr_start_time_, time_last_probing_initiated_) +
+//  //    config_.alr_probing_interval;
+//
+//  bool ret = at_time >= (*alr_start_time_) + config_.alr_probing_interval; 
+//  if (ret) 
+//  {
+//    alr_start_time_ = at_time;
+//  }
+//  return ret;
+//}
 bool ProbeController::TimeForAlrProbe(Timestamp at_time) const {
-  if (enable_periodic_alr_probing_ && alr_start_time_) {
+    if (alr_start_time_.has_value())
+    {
+    RTC_LOG(LS_INFO) << " probeClusterConfig[enable_periodic_alr_probing_ = "
+                       << enable_periodic_alr_probing_
+                       << "][alr_start_time_ = " << ToString(alr_start_time_.value())
+                       << "]";
+    }
+    else
+    {
+      RTC_LOG(LS_INFO) << " probeClusterConfig[enable_periodic_alr_probing_ = "
+                       << enable_periodic_alr_probing_ << "][alr_start_time_] ";
+    }
+  if ( enable_periodic_alr_probing_ &&  alr_start_time_) 
+  {
     Timestamp next_probe_time =
         std::max(*alr_start_time_, time_last_probing_initiated_) +
         config_.alr_probing_interval;
@@ -428,22 +458,30 @@ bool ProbeController::TimeForNetworkStateProbe(Timestamp at_time) const {
 }
 
 std::vector<ProbeClusterConfig> ProbeController::Process(Timestamp at_time) {
-  if (at_time - time_last_probing_initiated_ >
-      kMaxWaitingTimeForProbingResult) {
+  if (at_time - time_last_probing_initiated_ > kMaxWaitingTimeForProbingResult) 
+  {
     if (state_ == State::kWaitingForProbingResult) {
       RTC_LOG(LS_INFO) << "kWaitingForProbingResult: timeout";
       state_ = State::kProbingComplete;
       min_bitrate_to_probe_further_ = DataRate::PlusInfinity();
     }
   }
-  if (estimated_bitrate_.IsZero() || state_ != State::kProbingComplete) {
+  if (estimated_bitrate_.IsZero() || state_ != State::kProbingComplete) 
+  {
+    RTC_LOG(LS_INFO) << "probeClusterConfig";
     return {};
   }
-  if (TimeForAlrProbe(at_time) || TimeForNetworkStateProbe(at_time)) {
+  bool timeforalr = TimeForAlrProbe(at_time);
+  bool timefornetwork = TimeForNetworkStateProbe(at_time);
+   if (timeforalr || timefornetwork) {
     return InitiateProbing(
         at_time, {estimated_bitrate_ * config_.alr_probe_scale}, true);
-  }
-  return std::vector<ProbeClusterConfig>();
+  } 
+  RTC_LOG(LS_INFO) << "probeClusterConfig [timeforalr = " << timeforalr
+                   << "][timefornetwork = " << timefornetwork << "]";
+ /* return InitiateProbing(at_time,
+                         {estimated_bitrate_ * config_.alr_probe_scale}, true);*/
+   return std::vector<ProbeClusterConfig>();
 }
 
 std::vector<ProbeClusterConfig> ProbeController::InitiateProbing(
@@ -462,6 +500,7 @@ std::vector<ProbeClusterConfig> ProbeController::InitiateProbing(
         config_.skip_if_estimate_larger_than_fraction_of_max * max_probe_rate) {
       state_ = State::kProbingComplete;
       min_bitrate_to_probe_further_ = DataRate::PlusInfinity();
+      RTC_LOG(LS_INFO) << "probeClusterConfig";
       return {};
     }
   }
@@ -484,6 +523,7 @@ std::vector<ProbeClusterConfig> ProbeController::InitiateProbing(
       case BandwidthLimitedCause::kLossLimitedBweDecreasing:
         // If bandwidth estimate is decreasing because of packet loss, do not
         // send probes.
+        RTC_LOG(LS_INFO) << "probeClusterConfig";
         return {};
       case BandwidthLimitedCause::kLossLimitedBweIncreasing:
         estimate_capped_bitrate =
@@ -499,6 +539,7 @@ std::vector<ProbeClusterConfig> ProbeController::InitiateProbing(
   if (config_.not_probe_if_delay_increased &&
       bandwidth_limited_cause_ ==
           BandwidthLimitedCause::kDelayBasedLimitedDelayIncreased) {
+    RTC_LOG(LS_INFO) << "probeClusterConfig";
     return {};
   }
 
@@ -506,16 +547,16 @@ std::vector<ProbeClusterConfig> ProbeController::InitiateProbing(
       network_estimate_ && network_estimate_->link_capacity_upper.IsFinite()) {
     if (network_estimate_->link_capacity_upper.IsZero()) {
       RTC_LOG(LS_INFO) << "Not sending probe, Network state estimate is zero";
+      RTC_LOG(LS_INFO) << "probeClusterConfig";
       return {};
     }
     estimate_capped_bitrate =
-        std::min({estimate_capped_bitrate, max_probe_bitrate,
-                  network_estimate_->link_capacity_upper *
-                      config_.network_state_probe_scale});
+        std::min({estimate_capped_bitrate, max_probe_bitrate, network_estimate_->link_capacity_upper * config_.network_state_probe_scale});
   }
 
   std::vector<ProbeClusterConfig> pending_probes;
-  for (DataRate bitrate : bitrates_to_probe) {
+  for (DataRate bitrate : bitrates_to_probe) 
+  {
     RTC_DCHECK(!bitrate.IsZero());
 
     bitrate = std::min(bitrate, estimate_capped_bitrate);
@@ -538,6 +579,9 @@ std::vector<ProbeClusterConfig> ProbeController::InitiateProbing(
     config.id = next_probe_cluster_id_;
     next_probe_cluster_id_++;
     MaybeLogProbeClusterCreated(event_log_, config);
+    RTC_LOG(LS_INFO) << "[bew][cluster_id = " << config.id
+                     << "][config.target_data_rate = "
+                     << ToString(config.target_data_rate) << "]";
     pending_probes.push_back(config);
   }
   time_last_probing_initiated_ = now;

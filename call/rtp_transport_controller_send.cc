@@ -686,9 +686,11 @@ void RtpTransportControllerSend::OnReceivedRtcpReceiverReportBlocks(
   int total_packets_delta = 0;
 
   // Compute the packet loss from all report blocks.
-  for (const RTCPReportBlock& report_block : report_blocks) {
+  for (const RTCPReportBlock& report_block : report_blocks) 
+{
     auto it = last_report_blocks_.find(report_block.source_ssrc);
-    if (it != last_report_blocks_.end()) {
+    if (it != last_report_blocks_.end()) 
+    {
       auto number_of_packets = report_block.extended_highest_sequence_number -
                                it->second.extended_highest_sequence_number;
       total_packets_delta += number_of_packets;
@@ -716,7 +718,9 @@ void RtpTransportControllerSend::OnReceivedRtcpReceiverReportBlocks(
   msg.start_time = last_report_block_time_;
   msg.end_time = now;
   if (controller_)
+  {
     PostUpdates(controller_->OnTransportLossReport(msg));
+  }
   last_report_block_time_ = now;
 }
 
