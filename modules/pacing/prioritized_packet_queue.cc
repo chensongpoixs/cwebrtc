@@ -28,13 +28,13 @@ int GetPriorityForType(RtpPacketMediaType type) {
       return kAudioPrioLevel;
     case RtpPacketMediaType::kRetransmission:
       // Send retransmissions before new media.
-      return kAudioPrioLevel + 1;
+      return kAudioPrioLevel +1;
     case RtpPacketMediaType::kVideo:
     case RtpPacketMediaType::kForwardErrorCorrection:
       // Video has "normal" priority, in the old speak.
       // Send redundancy concurrently to video. If it is delayed it might have a
       // lower chance of being useful.
-      return kAudioPrioLevel + 2;
+      return kAudioPrioLevel +2;
     case RtpPacketMediaType::kPadding:
       // Packets that are in themselves likely useless, only sent to keep the
       // BWE high.
