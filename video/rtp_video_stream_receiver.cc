@@ -566,6 +566,16 @@ void RtpVideoStreamReceiver::ReceivePacket(const RtpPacketReceived& packet) {
     RTC_LOG(LS_WARNING) << "Failed parsing payload.";
     return;
   }
+#if 0
+  static FILE *out_file_ptr = ::fopen("test_chensong.mp4", "wb+");
+  if (out_file_ptr)
+  {
+	  ::fwrite(parsed_payload.payload, 1, parsed_payload.payload_length, out_file_ptr);
+
+	  ::fflush(out_file_ptr);
+  }
+
+#endif // #if 0
 
   RTPHeader rtp_header;
   packet.GetHeader(&rtp_header);

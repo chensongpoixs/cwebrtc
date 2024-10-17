@@ -509,7 +509,7 @@ VideoStreamEncoder::VideoStreamEncoder(
       pending_frame_post_time_us_(0),
       accumulated_update_rect_{0, 0, 0, 0},
       bitrate_observer_(nullptr),
-      force_disable_frame_dropper_(false),
+      force_disable_frame_dropper_(true),
       input_framerate_(kFrameRateAvergingWindowSizeMs, 1000),
       pending_frame_drops_(0),
       next_frame_types_(1, VideoFrameType::kVideoFrameDelta),
@@ -828,10 +828,12 @@ void VideoStreamEncoder::ReconfigureEncoder()
   // Force-disable frame dropper if either:
   //  * We have screensharing with layers.
   //  * "WebRTC-FrameDropper" field trial is "Disabled".
-  force_disable_frame_dropper_ =
-      field_trial::IsDisabled(kFrameDropperFieldTrial) ||
-      (num_layers > 1 && codec.mode == VideoCodecMode::kScreensharing);
 
+  force_disable_frame_dropper_ =  
+	   field_trial::IsDisabled(kFrameDropperFieldTrial) ||
+	  (num_layers > 1 && codec.mode == VideoCodecMode::kScreensharing); 
+	   //  TODO@chensong 20240913 frame num count 
+  force_disable_frame_dropper_ = true;
   VideoEncoder::EncoderInfo info = encoder_->GetEncoderInfo();
   if (rate_control_settings_.UseEncoderBitrateAdjuster()) 
   {

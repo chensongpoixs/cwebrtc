@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -35,7 +35,7 @@ static const size_t kTraceArgBufferLength = 32;
 namespace webrtc {
 
 namespace {
-
+	// TODO@chensong 2023-07-23 WebRTC 事件日志系统
 GetCategoryEnabledPtr g_get_category_enabled_ptr = nullptr;
 AddTraceEventPtr g_add_trace_event_ptr = nullptr;
 
@@ -367,7 +367,7 @@ void SetupInternalTracer() {
   RTC_CHECK(rtc::AtomicOps::CompareAndSwapPtr(
                 &g_event_logger, static_cast<EventLogger*>(nullptr),
                 new EventLogger()) == nullptr);
-  // ����loger event ��־ϵͳ�ص�����
+  // ÉèÖÃloger event ÈÕÖ¾ÏµÍ³»Øµ÷º¯Êý
   webrtc::SetupEventTracer(InternalGetCategoryEnabled, InternalAddTraceEvent);
 }
 

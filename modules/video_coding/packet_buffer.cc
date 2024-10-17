@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -65,7 +65,8 @@ PacketBuffer::PacketBuffer(Clock* clock,
 PacketBuffer::~PacketBuffer() {
   Clear();
 }
-
+// TODO@chensong 2023-07-23  
+// RtpVideoStreamReceiver::OnReceivedPayloadData
 bool PacketBuffer::InsertPacket(VCMPacket* packet) {
   std::vector<std::unique_ptr<RtpFrameObject>> found_frames;
   {
@@ -130,9 +131,20 @@ bool PacketBuffer::InsertPacket(VCMPacket* packet) {
 
     found_frames = FindFrames(seq_num);
   }
-
+ 
   for (std::unique_ptr<RtpFrameObject>& frame : found_frames)
-    assembled_frame_callback_->OnAssembledFrame(std::move(frame));
+  {
+
+#if 0
+	  static FILE * out_file_ptr = ::fopen("./test_packet_buffer.mp4", "wb+");
+	  if (out_file_ptr)
+	  {
+		  ::fwrite(frame->data(), 1, frame->size(), out_file_ptr);
+		  ::fflush(out_file_ptr);
+	  }
+#endif // #if 0
+	  assembled_frame_callback_->OnAssembledFrame(std::move(frame));
+  }
 
   return true;
 }
@@ -282,7 +294,10 @@ std::vector<std::unique_ptr<RtpFrameObject>> PacketBuffer::FindFrames(
 
     // If all packets of the frame is continuous, find the first packet of the
     // frame and create an RtpFrameObject.
-    if (sequence_buffer_[index].frame_end) {
+	//如果帧的所有数据包都是连续的，则查找
+	//框架并创建RtpFrameObject。
+    if (sequence_buffer_[index].frame_end) 
+	{
       size_t frame_size = 0;
       int max_nack_count = -1;
       uint16_t start_seq_num = seq_num;
@@ -305,42 +320,51 @@ std::vector<std::unique_ptr<RtpFrameObject>> PacketBuffer::FindFrames(
       while (true) {
         ++tested_packets;
         frame_size += data_buffer_[start_index].sizeBytes;
-        max_nack_count =
-            std::max(max_nack_count, data_buffer_[start_index].timesNacked);
+        max_nack_count = std::max(max_nack_count, data_buffer_[start_index].timesNacked);
         sequence_buffer_[start_index].frame_created = true;
 
-        min_recv_time =
-            std::min(min_recv_time, data_buffer_[start_index].receive_time_ms);
-        max_recv_time =
-            std::max(max_recv_time, data_buffer_[start_index].receive_time_ms);
+        min_recv_time = std::min(min_recv_time, data_buffer_[start_index].receive_time_ms);
+        max_recv_time = std::max(max_recv_time, data_buffer_[start_index].receive_time_ms);
 
-        if (!is_h264 && sequence_buffer_[start_index].frame_begin)
-          break;
+		if (!is_h264 && sequence_buffer_[start_index].frame_begin)
+		{
+			break;
+		}
 
-        if (is_h264 && !is_h264_keyframe) {
-          const auto* h264_header = absl::get_if<RTPVideoHeaderH264>(
-              &data_buffer_[start_index].video_header.video_type_header);
-          if (!h264_header || h264_header->nalus_length >= kMaxNalusPerPacket)
-            return found_frames;
+        if (is_h264 && !is_h264_keyframe) 
+		{
+          const RTPVideoHeaderH264* h264_header = absl::get_if<RTPVideoHeaderH264>( &data_buffer_[start_index].video_header.video_type_header);
+		  if (!h264_header || h264_header->nalus_length >= kMaxNalusPerPacket)
+		  {
+			  return found_frames;
+		  }
 
-          for (size_t j = 0; j < h264_header->nalus_length; ++j) {
-            if (h264_header->nalus[j].type == H264::NaluType::kSps) {
+          for (size_t j = 0; j < h264_header->nalus_length; ++j) 
+		  {
+            if (h264_header->nalus[j].type == H264::NaluType::kSps)
+			{
               has_h264_sps = true;
-            } else if (h264_header->nalus[j].type == H264::NaluType::kPps) {
+            } 
+			else if (h264_header->nalus[j].type == H264::NaluType::kPps) 
+			{
               has_h264_pps = true;
-            } else if (h264_header->nalus[j].type == H264::NaluType::kIdr) {
+            } 
+			else if (h264_header->nalus[j].type == H264::NaluType::kIdr)
+			{
               has_h264_idr = true;
             }
           }
-          if ((sps_pps_idr_is_h264_keyframe_ && has_h264_idr && has_h264_sps &&
-               has_h264_pps) ||
-              (!sps_pps_idr_is_h264_keyframe_ && has_h264_idr)) {
+          if ((sps_pps_idr_is_h264_keyframe_ && has_h264_idr && has_h264_sps && has_h264_pps) ||
+			  (!sps_pps_idr_is_h264_keyframe_ && has_h264_idr)) 
+		  {
             is_h264_keyframe = true;
           }
         }
 
-        if (tested_packets == size_)
-          break;
+		if (tested_packets == size_)
+		{
+			break;
+		}
 
         start_index = start_index > 0 ? start_index - 1 : size_ - 1;
 

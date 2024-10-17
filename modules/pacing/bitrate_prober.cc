@@ -165,7 +165,7 @@ size_t BitrateProber::RecommendedMinProbeSize() const
 {
   RTC_DCHECK(!clusters_.empty());
 	// TODO@chensong 2023-06-27 每个探针包的大小的
-  return clusters_.front().pace_info.send_bitrate_bps * 2 * config_.min_probe_delta->ms() / (8 * 1000);
+  return clusters_.front().pace_info.send_bitrate_bps * 2 * config_.min_probe_delta->ms() / (8 * 100000);
 }
 
 void BitrateProber::ProbeSent(int64_t now_ms, size_t bytes) {

@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright (c) 2013 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -205,8 +205,8 @@ VideoReceiveStream::VideoReceiveStream(
                                  rtp_receive_statistics_.get(),
                                  &stats_proxy_,
                                  process_thread_,
-                                 this,  // NackSender   // TODO@chensong 2023-03-30 ·¢ËÍµô°ünack°üÇëÇó
-                                 this,  // KeyFrameRequestSender   // TODO@chensong 2023-03-30  ÇëÇó¹Ø¼üÖ¡
+                                 this,  // NackSender   // TODO@chensong 2023-03-30 å‘é€æ‰åŒ…nackåŒ…è¯·æ±‚
+                                 this,  // KeyFrameRequestSender   // TODO@chensong 2023-03-30  è¯·æ±‚å…³é”®å¸§
                                  this,  // OnCompleteFrameCallback
                                  config_.frame_decryptor),
       rtp_stream_sync_(this),
@@ -403,7 +403,7 @@ void VideoReceiveStream::Start() {
     });
   }
   decoder_running_ = true;
-  // TODO@chensong 2023-03-30 ¿ªÊ¼½ÓÊÜÊÓÆµÖ¡
+  // TODO@chensong 2023-03-30 å¼€å§‹æ¥å—è§†é¢‘å¸§
   rtp_video_stream_receiver_.StartReceive();
 }
 

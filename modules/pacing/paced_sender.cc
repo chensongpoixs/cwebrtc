@@ -455,7 +455,9 @@ void PacedSender::Process()
 		fflush(out_file_ptr);
 	}*/
     bool success = packet_sender_->TimeToSendPacket( packet->ssrc, packet->sequence_number, packet->capture_time_ms, packet->retransmission, pacing_info);
-    critsect_.Enter(); 
+   
+	//RTC_LOG(LS_WARNING) << "[ssrc = " << packet->ssrc << "][ sequence_number = " << packet->sequence_number << "][capture_time_ms "<< packet->capture_time_ms<<"]";
+	critsect_.Enter(); 
     if (success) 
 	{
       bytes_sent += packet->bytes;

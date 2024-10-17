@@ -254,6 +254,15 @@ int32_t H264DecoderImpl::Decode(const EncodedImage& input_image,
     return WEBRTC_VIDEO_CODEC_ERROR;
   }
   packet.size = static_cast<int>(input_image.size());
+#if 0
+  // TODO@chensong 2023-07-23 rtp packet parse media data 
+  static FILE * out_file_ptr = fopen("test_webrtc_chensong.mp4", "wb+");
+  if (out_file_ptr)
+  {
+	  ::fwrite(input_image.mutable_data(), 1, input_image.size(), out_file_ptr);
+	  ::fflush(out_file_ptr);
+  }
+#endif
   int64_t frame_timestamp_us = input_image.ntp_time_ms_ * 1000;  // ms -> μs
   av_context_->reordered_opaque = frame_timestamp_us;
 #if 0

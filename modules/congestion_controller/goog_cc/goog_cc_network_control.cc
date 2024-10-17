@@ -609,7 +609,7 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
   {
     int64_t min_feedback_max_rtt_ms = *std::min_element(feedback_max_rtts_.begin(), feedback_max_rtts_.end());
 
-    const DataSize kMinCwnd = DataSize::bytes(2 * 1500);
+    const DataSize kMinCwnd = DataSize::bytes(2 * 1500  );
     TimeDelta time_window = TimeDelta::ms( min_feedback_max_rtt_ms + rate_control_settings_.GetCongestionWindowAdditionalTimeMs());
     DataSize data_window = last_raw_target_rate_ * time_window;
     if (current_data_window_) 

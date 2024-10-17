@@ -301,6 +301,19 @@ Connection* UDPPort::CreateConnection(const Candidate& address, CandidateOrigin 
   return conn;
 }
 
+
+//static std::string g_hexmem(const void* buf, size_t len)
+//{
+//	std::string ret;
+//	char tmp[8];
+//	const uint8_t* data = (const uint8_t*)buf;
+//	for (size_t i = 0; i < len; ++i) {
+//		int sz = sprintf(tmp, "%.2x ", data[i]);
+//		ret.append(tmp, sz);
+//	}
+//	return ret;
+//}
+
 int UDPPort::SendTo(const void* data,
                     size_t size,
                     const rtc::SocketAddress& addr,
@@ -309,7 +322,8 @@ int UDPPort::SendTo(const void* data,
   rtc::PacketOptions modified_options(options);
   CopyPortInformationToPacketInfo(&modified_options.info_signaled_after_sent);
   int sent = socket_->SendTo(data, size, addr, modified_options);
- // RTC_LOG(INFO) << "[" << __FUNCTION__ << "][" << __LINE__ << "][data " << data <<"][addr = " << addr.ToString() <<"]";
+
+ // RTC_LOG(INFO) << "[" << __FUNCTION__ << "][" << __LINE__ << "][addr = " << addr.ToString() <<"][data " << g_hexmem(data, size) <<"]";
   if (sent < 0) {
     error_ = socket_->GetError();
     // Rate limiting added for crbug.com/856088.
