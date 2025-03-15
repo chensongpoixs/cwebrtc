@@ -518,7 +518,7 @@ void RTCPReceiver::HandleReceiverReport(const CommonHeader& rtcp_block,
 		‌A 发送 SR‌：记录发送时间 t1（即 LSR，Last SR Timestamp）‌2。
 		‌B 接收 SR‌：记录接收时间 last_recv_time‌2。
 		‌B 发送 RR‌：计算从 last_recv_time 到当前时间的延迟（即 DLSR），并附加到 RR 报文‌2。
-		‌A 接收 RR‌：根据公式 RTT = 当前时间 - LSR - DLSR 计算往返时间‌12。
+		‌A 接收 RR‌：根据公式 RTT = 当前时间 - LSR - DLSR 计算往返时间。
 		
 		3. ‌应用场景‌
 		‌
@@ -610,8 +610,8 @@ void RTCPReceiver::HandleReportBlock(const ReportBlock& report_block,
 
     // RTT in 1/(2^16) seconds.
     // TODO@chensong 2023-05-04 计算得到RR到发送端的时间长度rtt_ntp
-    uint32_t rtt_ntp = receive_time_ntp -
-                       delay_ntp /*发送时间与接收到时间差值*/ - send_time_ntp;
+	// TODO@chensong 2025-03-15  公式 ==> RTT = 当前时间 - LSR - DLSR 计算往返时间 （找半天 才看到 send_time_ntp 变量  注释太多了 给当着了 ^_^）
+    uint32_t rtt_ntp = receive_time_ntp - delay_ntp  - send_time_ntp;  // /*发送时间与接收到时间差值*/
     // Convert to 1/1000 seconds (milliseconds).
     // 微妙转换 毫秒级
     rtt_ms = CompactNtpRttToMs(rtt_ntp);
