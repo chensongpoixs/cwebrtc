@@ -31,6 +31,7 @@ const int kMaxReorderedPackets = 128;
 const int kNumReorderingBuckets = 10;
 const int kDefaultSendNackDelayMs = 0;
 
+// TODO@chensong 2025-03-15   发送Nack 包延迟 毫秒数设置
 int64_t GetSendNackDelay() {
   int64_t delay_ms = strtol(
       webrtc::field_trial::FindFullName("WebRTC-SendNackDelayMs").c_str(),
@@ -332,6 +333,7 @@ std::vector<uint16_t> NackModule::GetNackBatch(NackFilterOptions options)
   {
     // TODO@chensong 2022-05-30
 	  // 1. send_nack_delay_ms_ 默认为0 ， 可修改
+	  // TODO@chensong 2025-03-15   发送  nack 包 延迟发送   是否延迟nack包的修改
     bool delay_timed_out = now_ms - it->second.created_at_time >= send_nack_delay_ms_;
     // TODO@chensong 2022-05-30
 	// 2. 从一次发送开始到现在， 是否超过了一个RTT的回路的时长 时间  

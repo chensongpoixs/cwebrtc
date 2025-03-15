@@ -665,6 +665,7 @@ int32_t H264EncoderImpl::Encode(const VideoFrame& input_frame, const std::vector
           tl0sync_limit_ = num_temporal_layers_;
         }
       }
+	  // TODO@chensong 2025-03-12 encoded_image_callback_ == > VideoStreamEncoder
       encoded_image_callback_->OnEncodedImage(encoded_images_[i],
                                               &codec_specific, &frag_header);
     }

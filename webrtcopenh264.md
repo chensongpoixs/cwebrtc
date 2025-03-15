@@ -1,5 +1,8 @@
 gn gen out/vs_h264_openssl --args="is_debug=true target_os=\"win\" target_cpu=\"x86\" is_component_build=false proprietary_codecs=true rtc_use_h264=true ffmpeg_branding=\"Chrome\" rtc_build_ssl=true  --ide=vs2017
 
+
+gn gen --ide=vs2017 --winsdk=10.0.17134.0  --args='target_os=\"win\" target_cpu=\"x64\" is_debug=true is_clang=true use_lld=false is_component_build=false rtc_use_h264=true ffmpeg_branding=\"Chrome\" rtc_build_ssl=true'  out/test_vs2017_debug
+
 gn gen --ide=vs2017 --winsdk=10.0.17763.132 --args='is_debug=true is_clang=true proprietary_codecs=true rtc_use_h264=true rtc_build_ssl=true   ffmpeg_branding=\"Chrome\" target_cpu=\"x64\"' out/vs_h264
 
 

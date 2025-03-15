@@ -181,6 +181,7 @@ bool RtpPacketizerH264::GeneratePackets(H264PacketizationMode packetization_mode
   {
     switch (packetization_mode) 
 	{
+		// TODO@chensong  2025-03-12  每个NAL的包都小于MTU的大小左右才能使用这种模式
       case H264PacketizationMode::SingleNalUnit:
 	  {
 		  if (!PacketizeSingleNalu(i))
@@ -206,7 +207,10 @@ bool RtpPacketizerH264::GeneratePackets(H264PacketizationMode packetization_mode
 		  {
               single_packet_capacity -= limits_.last_packet_reduction_len;
 		  }
-
+          // TODO@chensong  2025-03-12 
+		  //NAL  非交错模式发送NAL的数据包的流程
+		  // 1. FU-A 是将较大NAL包分多个包发送
+		  // 2. STAPA 是将较小NAL包 合并一个包中发送
 		  if (fragment_len > single_packet_capacity) 
 		  {
 			  if (!PacketizeFuA(i))

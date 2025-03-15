@@ -608,8 +608,8 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
   if (rate_control_settings_.UseCongestionWindow() && max_feedback_rtt.IsFinite()) 
   {
     int64_t min_feedback_max_rtt_ms = *std::min_element(feedback_max_rtts_.begin(), feedback_max_rtts_.end());
-
-    const DataSize kMinCwnd = DataSize::bytes(2 * 1500  );
+	//TODO@chensong 2024-10-24  设置最小带宽  // 设置为 6M
+    const DataSize kMinCwnd = DataSize::bytes(2 * 1500   );
     TimeDelta time_window = TimeDelta::ms( min_feedback_max_rtt_ms + rate_control_settings_.GetCongestionWindowAdditionalTimeMs());
     DataSize data_window = last_raw_target_rate_ * time_window;
     if (current_data_window_) 
@@ -622,15 +622,21 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
     }
     current_data_window_ = data_window;
   }
+ // const DataSize kMinCwnd = DataSize::bytes(2 * 1500 * 2);
+  
   if (congestion_window_pushback_controller_ && current_data_window_) 
   {
+	//  current_data_window_ = kMinCwnd;
 	  congestion_window_pushback_controller_->SetDataWindow(*current_data_window_);
   } 
   else 
   {
+	//  current_data_window_ = kMinCwnd;
     update.congestion_window = current_data_window_;
   }
-
+  //
+  
+  update.congestion_window = current_data_window_;
   return update;
 }
 

@@ -246,6 +246,7 @@ void RtpPacketHistory::Reset() {
 
 void RtpPacketHistory::CullOldPackets(int64_t now_ms) 
 {
+    //TODO@chensong 2025-03-15 比如NACK（否定确认）或ARQ（自动重传请求）中的缓冲区管理策略有关。
   int64_t packet_duration_ms = std::max(kMinPacketDurationRtt * rtt_ms_, kMinPacketDurationMs);
   while (!packet_history_.empty())
   {

@@ -341,7 +341,8 @@ class ModuleRtpRtcpImpl : public RtpRtcp, public RTCPReceiver::ModuleRtpRtcp {
 
   // The processed RTT from RtcpRttStats.
   rtc::CriticalSection critical_section_rtt_;
-  int64_t rtt_ms_;
+  // TODO@chensong 2025-03-15  Íù·µrttÊ±¼ä²î
+  int64_t rtt_ms_;  
 };
 
 }  // namespace webrtc

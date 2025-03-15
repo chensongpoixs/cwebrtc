@@ -41,6 +41,18 @@ class NackModule : public Module {
 
   // Module implementation
   int64_t TimeUntilNextProcess() override;
+  /*
+  TODO@chensong 2025-03-15  定时检查nack包延迟发送包  nack包发送的情况
+  // 接收端检测丢包并发送NACK
+void OnPacketLoss(const RtpPacket& packet) {
+    uint16_t seq_num = packet.SequenceNumber();
+    nack_list_.insert(seq_num);  // 记录丢失的包序号
+    SendNack(seq_num);           // 发送NACK到发送端
+
+
+
+}
+  */
   void Process() override;
 
  private:
