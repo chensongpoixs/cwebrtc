@@ -371,7 +371,7 @@ RTCPSender::FeedbackState ModuleRtpRtcpImpl::GetFeedbackState() {
     state.send_bitrate = rtp_sender_->BitrateSent();
   }
   state.module = this;
-
+  // TODO@chensong 2025-03-15 获取远端发送信息包时间 和当前最后接收一包记录时间
   LastReceivedNTP(&state.last_rr_ntp_secs, &state.last_rr_ntp_frac,
                   &state.remote_sr);
 

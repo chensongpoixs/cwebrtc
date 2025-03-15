@@ -284,11 +284,14 @@ bool RTCPReceiver::NTP(uint32_t* received_ntp_secs,
   }
 
   // Rtp time from incoming SenderReport.
-  if (rtcp_timestamp) {
+  // TODO@chensong 2025-03-15 远端接受最后一个rtp包的时间
+  if (rtcp_timestamp) 
+  {
     *rtcp_timestamp = remote_sender_rtp_time_;
   }
 
   // Local NTP time when we received a RTCP packet with a send block.
+  // TODO@chensong 2025-03-15 本地接受最后一个rtcp包的时间
   if (rtcp_arrival_time_secs) {
     *rtcp_arrival_time_secs = last_received_sr_ntp_.seconds();
   }

@@ -570,6 +570,7 @@ std::unique_ptr<rtcp::RtcpPacket> RTCPSender::BuildSR(const RtcpContext& ctx) {
   report->SetRtpTimestamp(rtp_timestamp);
   report->SetPacketCount(ctx.feedback_state_.packets_sent);
   report->SetOctetCount(ctx.feedback_state_.media_bytes_sent);
+  // TODO@chensong  2025-03-15  获取当前发送 
   report->SetReportBlocks(CreateReportBlocks(ctx.feedback_state_));
 
   return std::unique_ptr<rtcp::RtcpPacket>(report);
@@ -947,6 +948,7 @@ std::vector<rtcp::ReportBlock> RTCPSender::CreateReportBlocks(
   // TODO(danilchap): Support sending more than |RTCP_MAX_REPORT_BLOCKS| per
   // compound rtcp packet when single rtcp module is used for multiple media
   // streams.
+  // TODO@chensong 2025-03-15   获取接受端 jitter值
   result = receive_statistics_->RtcpReportBlocks(RTCP_MAX_REPORT_BLOCKS);
 
   if (!result.empty() && ((feedback_state.last_rr_ntp_secs != 0) ||
