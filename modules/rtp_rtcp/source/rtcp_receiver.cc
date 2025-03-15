@@ -501,36 +501,35 @@ void RTCPReceiver::HandleReceiverReport(const CommonHeader& rtcp_block,
   UpdateTmmbrRemoteIsAlive(remote_ssrc);
 
   packet_information->packet_type_flags |= kRtcpRr;
-  /*
-  
-  // TODO@chensong 2025-03-15  接受发送RR包rtcp发送时间戳  ？？？
+   
         /*
-        
-        1. ‌基本定义‌
-        ‌DLSR‌ 表示自接收端最后一次收到发送端 Sender Report (SR) 到生成当前
-  Receiver Report (RR) 的时间间隔，单位为 ‌1/65536 秒‌‌1。
-        若接收端未收到过 SR 报文，则 DLSR 值为零‌1。
-        2. ‌计算 RTT 的原理‌
-        在端到端通信中（以端点 A 和 B 为例）：
+        TODO@chensong 2025-03-15  接受发送RR包rtcp发送时间戳  ？？？
+        Delay Since Last SR (DLSR) 是 RTCP 协议中用于计算网络往返时间 (RTT) 的关键参数，其定义和应用场景如下：
 
-        ‌A 发送 SR‌：记录发送时间 t1（即 LSR，Last SR
-	  Timestamp）‌2。 ‌B 接收 SR‌：记录接收时间
-	  last_recv_time‌2。 ‌B 发送 RR‌：计算从 last_recv_time
-	  到当前时间的延迟（即 DLSR），并附加到 RR 报文‌2。 ‌A
-	  接收 RR‌：根据公式 RTT = 当前时间 - LSR - DLSR
-	  计算往返时间‌12。
-			3. ‌应用场景‌
-			‌WebRTC 的 QOS 策略‌：DLSR 结合 SR/RR 实现端到端 RTT
-	  探测，用于动态调整编码、网络拥塞控制等‌36。
-			‌单向流传输场景‌：如接收端仅拉流（不发送媒体数据），通过 RTCP XR
-	  扩展报告支持接收端 RTT 计算‌3。
-			4. ‌协议实现‌
-			‌RTCP 报文结构‌：RR 报文携带 DLSR 字段，SR
-	  报文包含发送者信息（如发送包数、字节数），而 RR
-	  仅反馈接收质量‌45。
-			‌与 RTP 协同‌：RTP 传输媒体数据，RTCP 通过 SR/RR 报文（含
-	  DLSR）实现传输层质量监控‌78。 通过上述机制，DLSR
-	  为实时音视频通信提供了基础网络状态反馈，支撑动态码率调整、抗丢包等优化策略‌68。
+		1. ‌基本定义‌
+		
+		‌DLSR‌ 表示自接收端最后一次收到发送端 Sender Report (SR) 到生成当前 Receiver Report (RR) 的时间间隔，单位为 ‌1/65536 秒‌‌1。
+		若接收端未收到过 SR 报文，则 DLSR 值为零‌1。
+		
+		2. ‌计算 RTT 的原理‌
+		
+		在端到端通信中（以端点 A 和 B 为例）：
+
+		‌A 发送 SR‌：记录发送时间 t1（即 LSR，Last SR Timestamp）‌2。
+		‌B 接收 SR‌：记录接收时间 last_recv_time‌2。
+		‌B 发送 RR‌：计算从 last_recv_time 到当前时间的延迟（即 DLSR），并附加到 RR 报文‌2。
+		‌A 接收 RR‌：根据公式 RTT = 当前时间 - LSR - DLSR 计算往返时间‌12。
+		
+		3. ‌应用场景‌
+		‌
+		WebRTC 的 QOS 策略‌：DLSR 结合 SR/RR 实现端到端 RTT 探测，用于动态调整编码、网络拥塞控制等‌36。
+		‌单向流传输场景‌：如接收端仅拉流（不发送媒体数据），通过 RTCP XR 扩展报告支持接收端 RTT 计算‌3。
+		
+		4. ‌协议实现‌
+		‌
+		RTCP 报文结构‌：RR 报文携带 DLSR 字段，SR 报文包含发送者信息（如发送包数、字节数），而 RR 仅反馈接收质量‌45。
+		‌与 RTP 协同‌：RTP 传输媒体数据，RTCP 通过 SR/RR 报文（含 DLSR）实现传输层质量监控‌78。
+		通过上述机制，DLSR 为实时音视频通信提供了基础网络状态反馈，支撑动态码率调整、抗丢包等优化策略‌。
 
 
         */
