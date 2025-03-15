@@ -1,5 +1,4 @@
-use strict
-
+ 
 //本地视频窗口
 
 var localVideo = document.querySelector('video#localvideo');

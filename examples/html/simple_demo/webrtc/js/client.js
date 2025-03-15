@@ -503,7 +503,21 @@ function getOffer(desc)
 	sendMessage(roomid, offerdesc);
 }
 
+ function onsignalingstatechange (state)
+		{
+			 console.log('onsignalingstatechange ---> [' +  pc.iceConnectionState + '] ^_^ !!!');
+            console.info('signaling state change:', state)
+        };
 
+  function      oniceconnectionstatechange (state) {
+			 console.log('oniceconnectionstatechange ---> [' +  pc.iceConnectionState + '] ^_^ !!!');
+            console.info('ice connection state change:', state)
+        };
+
+    function     onicegatheringstatechange(state) {
+			 console.log('onicegatheringstatechange ---> [' +  pc.iceConnectionState + '] ^_^ !!!');
+            console.info('ice gathering state change:', state)
+        };
 
 /**
  功能: 创建PeerConnection对象
@@ -550,6 +564,9 @@ function createPeerConnection()
 		
 		*/
 		pc.ontrack = getRemoteStream;
+		  pc.onsignalingstatechange = onsignalingstatechange;
+            pc.oniceconnectionstatechange = oniceconnectionstatechange;
+            pc.onicegatheringstatechange = onicegatheringstatechange;
 	}
 	else 
 	{

@@ -50,8 +50,10 @@ static constexpr uint8_t kTotalBitsSize =
 
 bool SetExperimentId(VideoContentType* content_type, uint8_t experiment_id) {
   // Store in bits 2-4.
-  if (experiment_id >= (1 << kExperimentBitsSize))
+	if (experiment_id >= (1 << kExperimentBitsSize))
+	{
     return false;
+  }
   *content_type = static_cast<VideoContentType>(
       (static_cast<uint8_t>(*content_type) & ~kExperimentBitsMask) |
       ((experiment_id << kExperimentShift) & kExperimentBitsMask));

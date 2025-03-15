@@ -48,8 +48,7 @@ PacketRouter::~PacketRouter() {
 
 void PacketRouter::AddSendRtpModule(RtpRtcp* rtp_module, bool remb_candidate) {
   rtc::CritScope cs(&modules_crit_);
-  RTC_DCHECK(std::find(rtp_send_modules_.begin(), rtp_send_modules_.end(),
-                       rtp_module) == rtp_send_modules_.end());
+  RTC_DCHECK(std::find(rtp_send_modules_.begin(), rtp_send_modules_.end(), rtp_module) == rtp_send_modules_.end());
   // Put modules which can use regular payload packets (over rtx) instead of
   // padding first as it's less of a waste
   if ((rtp_module->RtxSendStatus() & kRtxRedundantPayloads) > 0) {
@@ -194,12 +193,12 @@ void PacketRouter::OnReceiveBitrateChanged(const std::vector<uint32_t>& ssrcs,
 
     // If we already have an estimate, check if the new total estimate is below
     // kSendThresholdPercent of the previous estimate.
-    if (last_send_bitrate_bps_ > 0) {
-      int64_t new_remb_bitrate_bps =
-          last_send_bitrate_bps_ - bitrate_bps_ + receive_bitrate_bps;
+    if (last_send_bitrate_bps_ > 0) 
+	{
+      int64_t new_remb_bitrate_bps = last_send_bitrate_bps_ - bitrate_bps_ + receive_bitrate_bps;
 
-      if (new_remb_bitrate_bps <
-          kSendThresholdPercent * last_send_bitrate_bps_ / 100) {
+      if (new_remb_bitrate_bps < kSendThresholdPercent * last_send_bitrate_bps_ / 100) 
+	  {
         // The new bitrate estimate is less than kSendThresholdPercent % of the
         // last report. Send a REMB asap.
         last_remb_time_ms_ = now_ms - kRembSendIntervalMs;
@@ -207,7 +206,8 @@ void PacketRouter::OnReceiveBitrateChanged(const std::vector<uint32_t>& ssrcs,
     }
     bitrate_bps_ = receive_bitrate_bps;
 
-    if (now_ms - last_remb_time_ms_ < kRembSendIntervalMs) {
+    if (now_ms - last_remb_time_ms_ < kRembSendIntervalMs) 
+	{
       return;
     }
     // NOTE: Updated if we intend to send the data; we might not have
@@ -274,14 +274,11 @@ bool PacketRouter::SendTransportFeedback(rtcp::TransportFeedback* packet)
   return false;
 }
 
-void PacketRouter::AddRembModuleCandidate(
-    RtcpFeedbackSenderInterface* candidate_module,
-    bool media_sender) {
+void PacketRouter::AddRembModuleCandidate(RtcpFeedbackSenderInterface* candidate_module, bool media_sender) 
+{
   RTC_DCHECK(candidate_module);
-  std::vector<RtcpFeedbackSenderInterface*>& candidates =
-      media_sender ? sender_remb_candidates_ : receiver_remb_candidates_;
-  RTC_DCHECK(std::find(candidates.cbegin(), candidates.cend(),
-                       candidate_module) == candidates.cend());
+  std::vector<RtcpFeedbackSenderInterface*>& candidates = media_sender ? sender_remb_candidates_ : receiver_remb_candidates_;
+  RTC_DCHECK(std::find(candidates.cbegin(), candidates.cend(), candidate_module) == candidates.cend());
   candidates.push_back(candidate_module);
   DetermineActiveRembModule();
 }

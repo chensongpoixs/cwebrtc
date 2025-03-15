@@ -509,7 +509,7 @@ VideoStreamEncoder::VideoStreamEncoder(
       pending_frame_post_time_us_(0),
       accumulated_update_rect_{0, 0, 0, 0},
       bitrate_observer_(nullptr),
-      force_disable_frame_dropper_(true),
+      force_disable_frame_dropper_(false),
       input_framerate_(kFrameRateAvergingWindowSizeMs, 1000),
       pending_frame_drops_(0),
       next_frame_types_(1, VideoFrameType::kVideoFrameDelta),
@@ -833,7 +833,7 @@ void VideoStreamEncoder::ReconfigureEncoder()
 	   field_trial::IsDisabled(kFrameDropperFieldTrial) ||
 	  (num_layers > 1 && codec.mode == VideoCodecMode::kScreensharing); 
 	   //  TODO@chensong 20240913 frame num count 
-  force_disable_frame_dropper_ = true;
+  //force_disable_frame_dropper_ = true;
   VideoEncoder::EncoderInfo info = encoder_->GetEncoderInfo();
   if (rate_control_settings_.UseEncoderBitrateAdjuster()) 
   {
@@ -1249,21 +1249,23 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   // rate controller is not trusted.
   const bool frame_dropping_enabled = !force_disable_frame_dropper_ && !encoder_info_.has_trusted_rate_controller;
   frame_dropper_.Enable(frame_dropping_enabled);
-  if (frame_dropping_enabled && frame_dropper_.DropFrame()) 
+#if 0
+  if (frame_dropping_enabled && frame_dropper_.DropFrame())
   {
-    RTC_LOG(LS_VERBOSE)
-        << "Drop Frame: "
-        << "target bitrate "
-        << (last_encoder_rate_settings_
-                ? last_encoder_rate_settings_->encoder_target.bps()
-                : 0)
-        << ", input frame rate " << framerate_fps;
-    OnDroppedFrame(
-        EncodedImageCallback::DropReason::kDroppedByMediaOptimizations);
-    accumulated_update_rect_.Union(video_frame.update_rect());
-    return;
+	  RTC_LOG(LS_VERBOSE)
+		  << "Drop Frame: "
+		  << "target bitrate "
+		  << (last_encoder_rate_settings_
+			  ? last_encoder_rate_settings_->encoder_target.bps()
+			  : 0)
+		  << ", input frame rate " << framerate_fps;
+	  OnDroppedFrame(
+		  EncodedImageCallback::DropReason::kDroppedByMediaOptimizations);
+	  accumulated_update_rect_.Union(video_frame.update_rect());
+	  return;
   }
 
+#endif
   EncodeVideoFrame(video_frame, time_when_posted_us);
 }
 
@@ -1479,11 +1481,16 @@ EncodedImageCallback::Result VideoStreamEncoder::OnEncodedImage(
   frame_encoder_timer_.FillTimingInfo( spatial_idx, &image_copy, rtc::TimeMicros() / rtc::kNumMicrosecsPerMillisec);
 
   // Piggyback ALR experiment group id and simulcast id into the content type.
+  // 背负式ALR实验组id和联播id分为内容类型。
+  //  experiment_groups_ ==> 存储扩展信息
   const uint8_t experiment_id = experiment_groups_[videocontenttypehelpers::IsScreenshare(image_copy.content_type_)];
 
   // TODO(ilnik): This will force content type extension to be present even
   // for realtime video. At the expense of miniscule overhead we will get
   // sliced receive statistics.
+  ///TODO（ilnik）：这将强制内容类型扩展存在，甚至
+	//用于实时视频。以微小的开销为代价，我们将获得
+	//切片接收统计数据。
   RTC_CHECK(videocontenttypehelpers::SetExperimentId(&image_copy.content_type_, experiment_id));
   // We count simulcast streams from 1 on the wire. That's why we set simulcast
   // id in content type to +1 of that is actual simulcast index. This is because

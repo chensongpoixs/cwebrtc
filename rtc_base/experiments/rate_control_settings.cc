@@ -26,7 +26,7 @@ namespace {
 
 const int kDefaultAcceptedQueueMs = 250;
 
-const int kDefaultMinPushbackTargetBitrateBps = 30000;
+const int kDefaultMinPushbackTargetBitrateBps = (30000 );
 
 const char kVp8TrustedRateControllerFieldTrialName[] =
     "WebRTC-LibvpxVp8TrustedRateController";

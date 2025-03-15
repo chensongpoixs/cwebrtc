@@ -437,6 +437,14 @@ void PacedSender::Process()
 	  fprintf(out_file_ptr, "[info][is_probing = %u][probe_cluster_id = %u][send_bitrate_bps = %u][recommended_probe_size = %zu]\n", is_probing, pacing_info.probe_cluster_id, pacing_info.send_bitrate_bps , recommended_probe_size);
 	  fflush(out_file_ptr);
   }*/
+  /*if (recommended_probe_size> 0)
+  {
+	  recommended_probe_size *= 100;
+  }
+  else
+  {
+	  recommended_probe_size = 8000;
+  }*/
   while (!packets_.Empty() && !paused_) 
   {
     const auto* packet = GetPendingPacket(pacing_info);
@@ -528,13 +536,13 @@ const RoundRobinPacketQueue::Packet* PacedSender::GetPendingPacket(const PacedPa
   // element from the priority queue but keep it in storage, so that we can
   // reinsert it if send fails.
   const RoundRobinPacketQueue::Packet* packet = &packets_.BeginPop();
-  bool audio_packet = packet->priority == kHighPriority;
-  bool apply_pacing = !audio_packet || pace_audio_;
-  if (apply_pacing && (Congested() || (media_budget_.bytes_remaining() == 0 && pacing_info.probe_cluster_id == PacedPacketInfo::kNotAProbe))) 
-  {
-    packets_.CancelPop(*packet);
-    return nullptr;
-  }
+  /* bool audio_packet = packet->priority == kHighPriority;
+   bool apply_pacing = !audio_packet || pace_audio_;*/
+  /* if (apply_pacing && (Congested() || (media_budget_.bytes_remaining() == 0 && pacing_info.probe_cluster_id == PacedPacketInfo::kNotAProbe)))
+   {
+	 packets_.CancelPop(*packet);
+	 return nullptr;
+   }*/
   return packet;
 }
 
