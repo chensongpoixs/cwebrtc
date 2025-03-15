@@ -42,7 +42,10 @@ constexpr int kFeedbackTimeoutIntervals = 3;
 constexpr TimeDelta kTimeoutInterval = TimeDelta::Millis<1000>();
 
 constexpr float kDefaultLowLossThreshold = 0.02f;
+// TODO@chensong 2025-03-15 
+// 支持动态拥塞控制（如 BBR 算法）和 ARQ 重传机制，保障kDefaultHighLossThreshold 30% 丢包率下的画面连续性‌
 constexpr float kDefaultHighLossThreshold = 0.1f;
+
 constexpr DataRate kDefaultBitrateThreshold = DataRate::Zero();
 
 struct UmaRampUpMetric {
