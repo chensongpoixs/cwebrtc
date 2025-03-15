@@ -210,7 +210,30 @@ void ModuleRtpRtcpImpl::Process() {
     last_rtt_process_time_ = now;
     next_process_time_ = std::min(
         next_process_time_, last_rtt_process_time_ + kRtpRtcpRttProcessTimeMs);
-    if (rtt_stats_) {
+    if (rtt_stats_) 
+	{
+		// TODO@chensong 2025-03-15  1秒更新一次 rtt    公式
+    
+		  /*
+  TODO@chensong 2025-03-15 
+  加权平均RTT计算机制‌
+	在实时通信场景（如WebRTC）中，RTT（往返时延）的平滑计算对网络状态感知和拥塞控制至关重要。通过 ‌加权移动平均（Weighted Moving Average）‌ 
+	对RTT值进行动态调整，可有效平衡历史数据与实时测量值的影响，抑制短期波动带来的干扰。以下是核心实现逻辑：
+
+	‌1. 公式定义‌
+	‌计算方式‌：
+	新平均RTT由 ‌历史平均值（old_avg）‌ 与 ‌最新测量值（new_sample）‌ 按权重合成，公式为：
+
+	text
+	Copy Code
+	avg_rtt = 0.7 * old_avg + 0.3 * new_sample  
+	其中，历史数据权重为70%（0.7），新样本权重为30%（0.3）‌23。
+
+	‌数学意义‌：
+
+	‌旧值主导（70%）‌：确保长期趋势稳定，避免偶发延迟突变（如网络抖动）对整体估计的过度影响‌23。
+	‌新值补充（30%）‌：快速响应网络状态的渐进变化（如带宽增减或路由切换）‌
+  */
       // Make sure we have a valid RTT before setting.
       int64_t last_rtt = rtt_stats_->LastProcessedRtt();
       if (last_rtt >= 0)
@@ -841,9 +864,9 @@ bool ModuleRtpRtcpImpl::LastReceivedNTP(
   // Remote SR: NTP inside the last received (mid 16 bits from sec and frac).
   uint32_t ntp_secs = 0;
   uint32_t ntp_frac = 0;
-
-  if (!rtcp_receiver_.NTP(&ntp_secs, &ntp_frac, rtcp_arrival_time_secs,
-                          rtcp_arrival_time_frac, NULL)) {
+  // TOTO@chensong 2025-03-15   SR  => RR => SR 流程操作
+  if (!rtcp_receiver_.NTP(&ntp_secs, &ntp_frac, rtcp_arrival_time_secs, rtcp_arrival_time_frac, NULL)) 
+  {
     return false;
   }
   *remote_sr =

@@ -471,7 +471,7 @@ void RTCPReceiver::HandleSenderReport(const CommonHeader& rtcp_block,
   if (remote_ssrc_ == remote_ssrc) {
     // Only signal that we have received a SR when we accept one.
     packet_information->packet_type_flags |= kRtcpSr;
-
+	// TODO@chensong 2025-03-15   SR => RR 
     remote_sender_ntp_time_ = sender_report.ntp();
     remote_sender_rtp_time_ = sender_report.rtp_timestamp();
     last_received_sr_ntp_ = TimeMicrosToNtp(clock_->TimeInMicroseconds());
@@ -534,7 +534,7 @@ void RTCPReceiver::HandleReceiverReport(const CommonHeader& rtcp_block,
 
 
         */
-  * / for (const ReportBlock& report_block : receiver_report.report_blocks()) {
+   for (const ReportBlock& report_block : receiver_report.report_blocks()) {
     HandleReportBlock(report_block, packet_information, remote_ssrc);
   }
 }
@@ -625,30 +625,23 @@ void RTCPReceiver::HandleReportBlock(const ReportBlock& report_block,
       report_block_info->min_rtt_ms = rtt_ms;
     }
     // TODO@chensong 2025-03-15
-    // 延迟梯度用来判断网络拥塞的程度，那怎么计算延迟梯度呢。
-    //	            Sender
-    //Receiver
-    //                |
-    //                |
-    //        (T-1)   |
-    //        |
-    //                |          video frame (i-1)						    |
-    //                接受段时间戳差 = T -(T-1) |
-    //                | |
-    //                到达时间戳(t-1) |
-    //                |
-    //                |
-    //                |
-    //        (T)     |
-    //        |
-    //                |          video frame (i)			                |
-    //                接受段时间戳差 = t -(t-1) |
-    //                | |
-    //                到达时间戳(t) |
-    //                |
-    // 用两个数据包的到达时间间隔减去他们的发送时间间隔，就可以得到一个延迟的变化，
-    // 这里我们称这个延迟的变化为单向延迟梯度（one way delay gradient），
-    // 其公式可记:       延迟 rtt = (t - (t - 1))  - （T -(T -1)）
+	// TODO@chensong 2025-03-15  延迟梯度用来判断网络拥塞的程度，那怎么计算延迟梯度呢。
+	//	            Sender												 Receiver
+	//                |													    |
+	//        (T-1)   |													    |
+	//                |          video frame (i-1)						    |   接受段时间戳差 = T -(T-1)
+	//                |													    |
+	//                |										           到达时间戳(t-1)
+	//                |										                |
+    //                |										                |
+    //        (T)     |										                |
+    //                |          video frame (i)			                |   接受段时间戳差 = t -(t-1)
+    //                |										                |
+    //                |										           到达时间戳(t)  
+    //                |										                |
+	// 用两个数据包的到达时间间隔减去他们的发送时间间隔，就可以得到一个延迟的变化，
+	// 这里我们称这个延迟的变化为单向延迟梯度（one way delay gradient），
+	// 其公式可记:       延迟 rtt = (t - (t - 1))  - （T -(T -1)）
 
     report_block_info->last_rtt_ms = rtt_ms;
     report_block_info->sum_rtt_ms += rtt_ms;

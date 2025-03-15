@@ -341,7 +341,7 @@ class ModuleRtpRtcpImpl : public RtpRtcp, public RTCPReceiver::ModuleRtpRtcp {
 
   // The processed RTT from RtcpRttStats.
   rtc::CriticalSection critical_section_rtt_;
-  // TODO@chensong 2025-03-15  往返rtt时间差
+  // TODO@chensong 2025-03-15  delay_since_last_sr_ 往返rtt时间差     --->  根据接受 RR 反馈 rtt 保持rtp包的时间长 
   int64_t rtt_ms_;  
 };
 

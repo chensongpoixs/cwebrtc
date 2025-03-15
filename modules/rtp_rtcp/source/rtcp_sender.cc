@@ -957,6 +957,15 @@ std::vector<rtcp::ReportBlock> RTCPSender::CreateReportBlocks(
     receive_time <<= 16;
     receive_time += (feedback_state.last_rr_ntp_frac & 0xffff0000) >> 16;
 
+	
+		//   TODO@chensong 2025-03-15  delay_since_last_sr =    SR包到了接收端时间戳
+    //   -  发送RR包时的时间戳
+    //        Sender                                                 Render
+    //          |                                                      |
+    //          |                    SR  -->                           |  t - 1
+    //          |                    <--  RR                           |  t
+    //        delay_since_last_sr  = (t - (t-1))
+	//   TODO@chensong 2025-03-15  delay_since_last_sr =    SR包到了接收端时间戳 -  发送RR包时的时间戳  
     uint32_t delay_since_last_sr = now - receive_time;
     // TODO(danilchap): Instead of setting same value on all report blocks,
     // set only when media_ssrc match sender ssrc of the sender report
