@@ -247,6 +247,9 @@ void RtpPacketHistory::Reset() {
 void RtpPacketHistory::CullOldPackets(int64_t now_ms) 
 {
     //TODO@chensong 2025-03-15 比如NACK（否定确认）或ARQ（自动重传请求）中的缓冲区管理策略有关。
+	//  根据 rtt 放弃 rtp包 
+	// 公式 ： 淘汰时间 = 3 × max(基准时间, 3 × 当前RTT)
+    // 基准时间通常为 1000ms（兜底值，防止 RTT 过小导致缓存不足）
   int64_t packet_duration_ms = std::max(kMinPacketDurationRtt * rtt_ms_, kMinPacketDurationMs);
   while (!packet_history_.empty())
   {
