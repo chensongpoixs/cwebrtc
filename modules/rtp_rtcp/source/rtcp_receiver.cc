@@ -374,11 +374,14 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
       case rtcp::Sdes::kPacketType:
         HandleSdes(rtcp_block, packet_information);
         break;
-      case rtcp::ExtendedReports::kPacketType:  // TODO@chensong 2022-12-20
-                                                // 反馈target_bitrate带宽 kbps/s
-                                                // ==> 意义是什么呢
+      case rtcp::ExtendedReports::kPacketType: 
+	  {
+        // TODO@chensong 2022-12-20
+        // 反馈target_bitrate带宽 kbps/s
+        // ==> 意义是什么呢
         HandleXr(rtcp_block, packet_information);
         break;
+      }
       case rtcp::Bye::kPacketType:
         HandleBye(rtcp_block);
         break;
@@ -401,9 +404,10 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
             HandleSrReq(rtcp_block, packet_information);
             break;
           }
-          case rtcp::TransportFeedback::kFeedbackMessageType:  // Trasnport-gcc
-                                                               // 关键的工具
+          case rtcp::TransportFeedback::kFeedbackMessageType: 
           {
+            // Trasnport-gcc
+            // 关键的工具
             HandleTransportFeedback(rtcp_block, packet_information);
             break;
           }
@@ -420,9 +424,10 @@ bool RTCPReceiver::ParseCompoundPacket(const uint8_t* packet_begin,
           case rtcp::Fir::kFeedbackMessageType:
             HandleFir(rtcp_block, packet_information);
             break;
-          case rtcp::Psfb::kAfbMessageType:  // TODO@chensong 2022-11-28
-                                             // 接受网络带宽bps [goole old net ]
+          case rtcp::Psfb::kAfbMessageType:  
           {
+            // TODO@chensong 2022-11-28
+            // 接受网络带宽bps [goole old net ]
             HandlePsfbApp(rtcp_block, packet_information);
             break;
           }
@@ -504,9 +509,11 @@ void RTCPReceiver::HandleReceiverReport(const CommonHeader& rtcp_block,
   UpdateTmmbrRemoteIsAlive(remote_ssrc);
 
   packet_information->packet_type_flags |= kRtcpRr;
-   
+  
+ 
         /*
-        TODO@chensong 2025-03-15  接受发送RR包rtcp发送时间戳  ？？？
+        TODO@chensong 2025-03-15  接受发送RR包rtcp发送时间戳  ？？？
+
         Delay Since Last SR (DLSR) 是 RTCP 协议中用于计算网络往返时间 (RTT) 的关键参数，其定义和应用场景如下：
 
 		1. ‌基本定义‌
@@ -791,7 +798,8 @@ void RTCPReceiver::HandleNack(const CommonHeader& rtcp_block,
       packet_information->nack_sequence_numbers.end(),
       nack.packet_ids().begin(), nack.packet_ids().end());
 
-  // 把丢包的seq的序号放到数据统计中去
+  // 把丢包的seq的序号放到数据统计中去 
+  // TODO@chensong 2025-03-15   记录 得到 requests （nack包个数）和unique_requests（ 最大seq序列）
   for (uint16_t packet_id : nack.packet_ids()) {
     nack_stats_.ReportRequest(packet_id);
   }
@@ -1187,7 +1195,9 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
     }
   }
   // TODO@chensong 2022-12-20 接受sr或者rr信息做ack确认 没有看懂啥意思？？？
-  // 感觉啥好像都没有干是的
+  // 感觉啥好像都没有干是的    
+  // TODO@chensong 2025-03-16  设置rtp 扩展 播放端延迟播放设置参数 PlayDelay （）
+  // ‌渲染延迟公式 =   Render time = Capture time in receiver time + playout  delay
   if ((packet_information.packet_type_flags & kRtcpSr) ||
       (packet_information.packet_type_flags & kRtcpRr)) {
     rtp_rtcp_->OnReceivedRtcpReportBlocks(packet_information.report_blocks);

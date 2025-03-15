@@ -475,6 +475,8 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
       video_header->frame_marking.temporal_id != kNoTemporalIdx;
 
   // 根据video_header信息，更新播放延迟(current_playout_delay_)
+   //  TODO@chensong 2025-03-15 播放端 播放延迟设置   rtp包中扩展中设置延迟播放毫秒数
+   // ‌渲染延迟公式 =   Render time = Capture time in receiver time + playout delay
   const absl::optional<PlayoutDelay> playout_delay = playout_delay_oracle_->PlayoutDelayToSend(video_header->playout_delay);
   {
     rtc::CritScope cs(&crit_);

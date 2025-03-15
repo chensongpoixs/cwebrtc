@@ -31,11 +31,17 @@ constexpr size_t kRedForFecHeaderLength = 1;
 // This controls the maximum amount of excess overhead (actual - target)
 // allowed in order to trigger EncodeFec(), before |params_.max_fec_frames|
 // is reached. Overhead here is defined as relative to number of media packets.
+//这控制了额外开销的最大金额（实际-目标） 
+//允许在|params_.maxfec_frames之前触发EncodeFec（）| 
+//已达到。这里的开销被定义为相对于媒体数据包的数量。
 constexpr int kMaxExcessOverhead = 50;  // Q8.
 
 // This is the minimum number of media packets required (above some protection
 // level) in order to trigger EncodeFec(), before |params_.max_fec_frames| is
 // reached.
+//这是所需的最小媒体数据包数量（高于某些保护）
+// level）以触发EncodeFec（），在|params_.maxfec_frames|之前
+//到达。
 constexpr size_t kMinMediaPackets = 4;
 
 // Threshold on the received FEC protection level, above which we enforce at
@@ -44,12 +50,20 @@ constexpr size_t kMinMediaPackets = 4;
 //
 // The range is between 0 and 255, where 255 corresponds to 100% overhead
 // (relative to the number of protected media packets).
+//接收到的FEC保护级别的阈值，超过该阈值，我们将强制执行 
+// FEC码的最少|kMinMediaPackets|个数据包。下面这个 
+//阈值|kMinMediaPackets|设置为默认值1。 
+//范围在0到255之间，其中255对应于100%的开销
+
+//（相对于受保护的媒体数据包的数量）。
 constexpr uint8_t kHighProtectionThreshold = 80;
 
 // This threshold is used to adapt the |kMinMediaPackets| threshold, based
 // on the average number of packets per frame seen so far. When there are few
 // packets per frame (as given by this threshold), at least
 // |kMinMediaPackets| + 1 packets are sent to the FEC code.
+//此阈值用于调整|kMinMediaPackets|阈值，基于
+//关于每帧的平均数据包数量
 constexpr float kMinMediaPacketsAdaptationThreshold = 2.0f;
 
 // At construction time, we don't know the SSRC that is used for the generated

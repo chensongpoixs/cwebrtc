@@ -67,7 +67,7 @@ struct RtcpPacketTypeCounter {
   }
 
   int64_t first_packet_time_ms;   // Time when first packet is sent/received.
-  uint32_t nack_packets;          // Number of RTCP NACK packets.
+  uint32_t nack_packets;          // Number of RTCP NACK packets.   记录nack丢包请求的次数 （rtcp 包 次数nack） 
   uint32_t fir_packets;           // Number of RTCP FIR packets.
   uint32_t pli_packets;           // Number of RTCP PLI packets.
   uint32_t nack_requests;         // Number of NACKed RTP packets.
