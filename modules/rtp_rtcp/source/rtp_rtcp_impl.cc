@@ -161,19 +161,25 @@ void ModuleRtpRtcpImpl::Process() {
     // Process RTT if we have received a report block and we haven't
     // processed RTT for at least |kRtpRtcpRttProcessTimeMs| milliseconds.
     if (rtcp_receiver_.LastReceivedReportBlockMs() > last_rtt_process_time_ &&
-        process_rtt) {
+        process_rtt) 
+	{
       std::vector<RTCPReportBlock> receive_blocks;
+	  // TODO@chensong 20250317 取所有ssrc通道的根据 RR 中rtt值最大max_rtt信息
       rtcp_receiver_.StatisticsReceived(&receive_blocks);
       int64_t max_rtt = 0;
       for (std::vector<RTCPReportBlock>::iterator it = receive_blocks.begin();
-           it != receive_blocks.end(); ++it) {
+           it != receive_blocks.end(); ++it) 
+	  {
         int64_t rtt = 0;
         rtcp_receiver_.RTT(it->sender_ssrc, &rtt, NULL, NULL, NULL);
         max_rtt = (rtt > max_rtt) ? rtt : max_rtt;
       }
       // Report the rtt.
+	  // TODO@chensong 20250318汇报到call_stats类中去
       if (rtt_stats_ && max_rtt != 0)
+      {
         rtt_stats_->OnRttUpdate(max_rtt);
+	  }
     }
 
     // Verify receiver reports are delivered and the reported sequence number
@@ -691,6 +697,10 @@ int32_t ModuleRtpRtcpImpl::SendNACK(const uint16_t* nack_list,
   uint16_t nack_length = size;
   uint16_t start_id = 0;
   int64_t now_ms = clock_->TimeInMilliseconds();
+  // TODO@chensong  20250318 
+  //   ‌RTT 敏感重传‌：
+  //    1. 重传超时时间设为 1.5×RTT，避免过早或过晚重传‌  
+  //    2. 高RTT 时延长缓冲区窗口（如 2 秒），提高弱网下的恢复概率‌
   if (TimeToSendFullNackList(now_ms)) {
     nack_last_time_sent_full_ms_ = now_ms;
   } else {
@@ -732,7 +742,9 @@ bool ModuleRtpRtcpImpl::TimeToSendFullNackList(int64_t now) const {
   if (rtt == 0) {
     rtcp_receiver_.RTT(rtcp_receiver_.RemoteSSRC(), NULL, &rtt, NULL, NULL);
   }
-
+  // TODO@chensong  20250318 ‌RTT 敏感重传‌：
+  //    1. 重传超时时间设为 1.5×RTT，避免过早或过晚重传‌  高 RTT
+  //    时延长缓冲区窗口（如 2 秒），提高弱网下的恢复概率‌
   const int64_t kStartUpRttMs = 100;
   int64_t wait_time = 5 + ((rtt * 3) >> 1);  // 5 + RTT * 1.5.
   if (rtt == 0) {

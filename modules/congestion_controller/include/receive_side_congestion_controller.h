@@ -27,6 +27,11 @@ class RemoteBitrateObserver;
 // relaying for each received RTP packet back to the sender. While for
 // receive side bandwidth estimation, we do the estimation locally and
 // send our results back to the sender.
+//此类表示接收的拥塞控制状态
+//流。对于发送侧带宽估计，这很简单
+//将每个接收到的RTP分组中继回发送方。而for
+//接收侧带宽估计，我们在本地进行估计
+//将我们的结果发送回发件人。
 class ReceiveSideCongestionController : public CallStatsObserver,
                                         public Module {
  public:

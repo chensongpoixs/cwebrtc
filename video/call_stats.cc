@@ -53,10 +53,12 @@ int64_t GetNewAvgRttMs(const std::list<CallStats::RttTime>& reports,
                        int64_t prev_avg_rtt) {
   if (reports.empty())
     return -1;  // Reset (invalid average).
-
+  // TODO@chensong 20250318 异常情况的处理
   int64_t cur_rtt_ms = GetAvgRttMs(reports);
   if (prev_avg_rtt == -1)
+  {
     return cur_rtt_ms;  // New initial average value.
+  }
 
   // Weight factor to apply to the average rtt.
   // We weigh the old average at 70% against the new average (30%).
@@ -147,8 +149,11 @@ void CallStats::Process()
   last_process_time_ = now;
 
   int64_t avg_rtt_ms = avg_rtt_ms_;
+  // TODO@chensong 2025-03-17 1. 清除大约kRttTimeoutMs （1500ms）的数据
   RemoveOldReports(now, &reports_);
+  // TODO@chensong 2025-03-17 2. kRttTimeoutMs 最大  rtt
   max_rtt_ms_ = GetMaxRttMs(reports_);
+  // TODO@chensong 20250317  3. 得到加权平均RTT值
   avg_rtt_ms = GetNewAvgRttMs(reports_, avg_rtt_ms);
   {
     rtc::CritScope lock(&avg_rtt_ms_lock_);
@@ -160,6 +165,7 @@ void CallStats::Process()
   {
     RTC_DCHECK_GE(avg_rtt_ms, 0);
 	// TODO@chensong 2022-12-20 observers_是什么时候的创建的 需要跟一下  track
+	// TODO@chensong 20250317  4.  call类中ReceiveSideCongestionController 成员类中方法OnRttUpdate方法 进行网络拥塞控制
 	for (CallStatsObserver* observer : observers_)
 	{
       observer->OnRttUpdate(avg_rtt_ms, max_rtt_ms_);

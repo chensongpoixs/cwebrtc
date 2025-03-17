@@ -552,6 +552,7 @@ void Call::RegisterRateObserver() {
   } else {
     transport_send_ptr_->RegisterTargetTransferRateObserver(this);
 
+	// TODO@chensong 20250317 rtt 回调方法  
     call_stats_->RegisterStatsObserver(&receive_side_cc_);
 
     module_process_thread_->RegisterModule(receive_side_cc_.GetRemoteBitrateEstimator(true), RTC_FROM_HERE);
