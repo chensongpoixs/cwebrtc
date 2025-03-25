@@ -70,7 +70,7 @@ struct RtcpPacketTypeCounter {
   uint32_t nack_packets;          // Number of RTCP NACK packets.   记录nack丢包请求的次数 （rtcp 包 次数nack） 
   uint32_t fir_packets;           // Number of RTCP FIR packets.
   uint32_t pli_packets;           // Number of RTCP PLI packets.
-  uint32_t nack_requests;         // Number of NACKed RTP packets.
+  uint32_t nack_requests;         // Number of NACKed RTP packets.  
   uint32_t unique_nack_requests;  // Number of unique NACKed RTP packets.
 };
 

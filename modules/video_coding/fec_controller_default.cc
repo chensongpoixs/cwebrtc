@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -19,7 +19,13 @@
 
 namespace webrtc {
 using rtc::CritScope;
+/*
 
+fec 两种算法
+
+1. 异或（XOR) （ulpfec）
+2. Reed-Solomon 编码 （FlexFEC‌）
+*/
 const float kProtectionOverheadRateThreshold = 0.5;
 
 FecControllerDefault::FecControllerDefault(
@@ -135,6 +141,10 @@ uint32_t FecControllerDefault::UpdateFecRates(
   // consecutive losses and little/no packet re-ordering. As we currently
   // do not have feedback data on the degree of correlated losses and packet
   // re-ordering, we keep default setting to |kFecMaskRandom| for now.
+  //设置FEC数据包掩码类型|kFecMaskBursty |对以下情况更有效
+  //连续丢失和很少/没有数据包重新排序。正如我们目前所做的那样
+  //没有关于相关丢失和数据包程度的反馈数据
+  //重新排序后，我们暂时将默认设置保留为|kFecMaskRandom|。
   delta_fec_params.fec_mask_type = kFecMaskRandom;
   key_fec_params.fec_mask_type = kFecMaskRandom;
   // Update protection callback with protection settings.

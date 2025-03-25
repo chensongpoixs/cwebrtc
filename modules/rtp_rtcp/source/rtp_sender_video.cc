@@ -400,6 +400,7 @@ void RTPSenderVideo::SetUlpfecConfig(int red_payload_type,
   ulpfec_payload_type_ = ulpfec_payload_type;
 
   // Must not enable ULPFEC without RED.
+  // 不得在没有red的情况下启用ULPFEC
   RTC_DCHECK(!(red_enabled() ^ ulpfec_enabled()));
 
   // Reset FEC parameters.
@@ -722,7 +723,9 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
       first_sequence_number = packet->SequenceNumber();
     }
 
-    if (i == 0) {
+    if (i == 0) 
+	{
+		// 20250324@chensong  设置Jitterbuffer的的大小   解码延迟 PlayeDelay rtt 3 max 
       playout_delay_oracle_->OnSentPacket(packet->SequenceNumber(),
                                           playout_delay);
     }

@@ -58,7 +58,7 @@ CreateModularPeerConnectionFactory(
   dependencies.event_log_factory = std::move(event_log_factory);
   return CreateModularPeerConnectionFactory(std::move(dependencies));
 }
-
+// 创建对象时Fec工厂对象  20250425 TODO@chensong
 rtc::scoped_refptr<PeerConnectionFactoryInterface>
 CreateModularPeerConnectionFactory(
     rtc::Thread* network_thread,

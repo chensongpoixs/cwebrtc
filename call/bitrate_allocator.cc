@@ -32,6 +32,7 @@ namespace {
 // Allow packets to be transmitted in up to 2 times max video bitrate if the
 // bandwidth estimate allows it.
 const uint8_t kTransmissionMaxBitrateMultiplier = 2;
+// 默认带宽大小  3M
 const int kDefaultBitrateBps = 300000;
 
 // Require a bitrate increase of max(10%, 20kbps) to resume paused streams.
@@ -180,13 +181,14 @@ void BitrateAllocator::AddObserver(BitrateAllocatorObserver* observer,
         config.enforce_min_bitrate, config.track_id, config.bitrate_priority));
   }
 
-  if (last_target_bps_ > 0) {
+  if (last_target_bps_ > 0) 
+  {
     // Calculate a new allocation and update all observers.
-
+	  // 计算新的分配并更新所有观察者   平均分配带宽 observer上去
     ObserverAllocation allocation = AllocateBitrates(last_target_bps_);
-    ObserverAllocation bandwidth_allocation =
-        AllocateBitrates(last_link_capacity_bps_);
-    for (auto& config : bitrate_observer_configs_) {
+    ObserverAllocation bandwidth_allocation = AllocateBitrates(last_link_capacity_bps_);
+    for (auto& config : bitrate_observer_configs_) 
+	{
       uint32_t allocated_bitrate = allocation[config.observer];
       uint32_t bandwidth = bandwidth_allocation[config.observer];
       BitrateAllocationUpdate update;
@@ -194,11 +196,14 @@ void BitrateAllocator::AddObserver(BitrateAllocatorObserver* observer,
       update.link_capacity = DataRate::bps(bandwidth);
       update.packet_loss_ratio = last_fraction_loss_ / 256.0;
       update.round_trip_time = TimeDelta::ms(last_rtt_);
+      // 已弃用，请改用链路容量分配
       update.bwe_period = TimeDelta::ms(last_bwe_period_ms_);
       uint32_t protection_bitrate = config.observer->OnBitrateUpdated(update);
       config.allocated_bitrate_bps = allocated_bitrate;
-      if (allocated_bitrate > 0)
+      if (allocated_bitrate > 0) 
+	  {
         config.media_ratio = MediaRatio(allocated_bitrate, protection_bitrate);
+	  }
     }
   } else {
     // Currently, an encoder is not allowed to produce frames.
@@ -347,6 +352,9 @@ BitrateAllocator::ObserverAllocation BitrateAllocator::AllocateBitrates(
   // Not enough for all observers to get an allocation, allocate according to:
   // enforced min bitrate -> allocated bitrate previous round -> restart paused
   // streams.
+  // 不足以让所有观察者获得分配，请根据以下内容进行分配：
+//强制最小比特率->上一轮分配的比特率->重启暂停
+//溪流。
   if (!EnoughBitrateForAllObservers(bitrate, sum_min_bitrates))
     return LowRateAllocation(bitrate);
 

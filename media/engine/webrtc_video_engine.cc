@@ -46,7 +46,7 @@ const int kMinLayerSize = 16;
 bool IsFlexfecFieldTrialEnabled() 
 {
 	//TODO@chensong 2022-10-06  开启FlexFEC功能 constexpr char kVideoFlexfecFieldTrial[] = "WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/";
-	// field_trial::InitFieldTrialsFromString(kVideoFlexfecFieldTrial);
+	// webrtc::field_trial::InitFieldTrialsFromString(kVideoFlexfecFieldTrial);
   return webrtc::field_trial::IsEnabled("WebRTC-FlexFEC-03");
 }
 

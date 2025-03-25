@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -65,6 +65,43 @@ class FakeNetworkPipeModule : public Module {
   bool pending_process_ RTC_GUARDED_BY(process_thread_lock_) = false;
 };
 
+/*
+TODO@chensong  20250325  
+
+
+
+
+
+‌Call‌ 是基础通信单元，‌DegradedCall‌
+是其针对网络劣化的增强扩展。
+区别核心在于‌网络适应策略‌（激进降级 vs 保守调整）和‌容错能力‌（标准机制
+vs 冗余增强）。
+实际开发中，二者可能通过‌状态模式‌或‌策略模式‌动态切换，而非严格继承
+
+
+
+‌1. 功能与行为差异‌
+
+‌特性‌	‌Call 类‌	‌DegradedCall 类‌
+‌网络适应策略‌
+使用基础的自适应码率（如GCC算法），仅响应轻微网络波动（丢包率＜5%）。
+主动触发‌激进降级‌（如强制降低分辨率至240p、关闭视频仅保留音频），容忍丢包率＞30%。
+‌容错机制‌	依赖标准NACK/FEC恢复丢包，无冗余备份。
+启用分层FEC、多路径传输（如QUIC）、AI预测丢包恢复等‌增强容错技术‌。
+‌资源占用‌	资源消耗较低（如CPU/内存），优先保证低延迟。
+可能增加资源消耗（如冗余包处理、AI计算），以牺牲部分性能换取稳定性。
+‌用户体验‌	提供完整功能（高清视频、立体声音频），延迟＜200ms。
+功能降级（如模糊画面、单声道音频），延迟可能升高至500ms，但避免通话中断。 
+‌3.典型应用场景‌ 
+
+‌场景‌	‌Call 类‌	‌DegradedCall 类‌
+‌网络环境‌	稳定WiFi/5G，带宽＞2Mbps，丢包率＜5%。
+弱网（如2G/拥挤WiFi），带宽＜500kbps，丢包率＞20%。 ‌业务需求‌
+视频会议、高清直播、实时游戏。	应急通信（如救灾）、车联网、偏远地区通信。
+‌技术实现‌	默认模式，无需特殊配置。
+需集成降级策略库（如动态码率切换、AI网络预测）。
+
+*/
 class DegradedCall : public Call, private Transport, private PacketReceiver {
  public:
   explicit DegradedCall(

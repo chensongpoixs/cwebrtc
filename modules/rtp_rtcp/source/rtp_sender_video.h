@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -186,21 +186,89 @@ class RTPSenderVideo {
 
 
   ///////////////////////////////////////////////////////////////////////
-  //    TODO@chensong 2022-07-24  RTC ��FEC��ǰ�������  
-  //    ULPFEC(Uneven Level Protection FEC  ֱ��Ϊ�Ǿ��ȱ���ǰ�������
+  //    TODO@chensong 2022-07-24  RTC 中FEC中前向纠错，  
+  //    ULPFEC(Uneven Level Protection FEC  直译为非均等保护前向纠错）
   // RED/ULPFEC.
   int red_payload_type_ RTC_GUARDED_BY(crit_);
   int ulpfec_payload_type_ RTC_GUARDED_BY(crit_);
+  /*20250324 关键帧 XOR */
   UlpfecGenerator ulpfec_generator_ RTC_GUARDED_BY(crit_);
 
-  //RTC �Կ����綪��:
-  //     1. �����ش�(NACK)
-  //     2. ǰ�����(FEC)
+  //RTC 对抗网络丢包:
+  //     1. 丢包重传(NACK)
+  //     2. 前向纠错(FEC)
   ///////////////////////////////////////////////////////////////
     
 
   // FlexFEC.
-  FlexfecSender* const flexfec_sender_;
+  /*
+  ‌一、协议标准与编码方式‌
+
+技术	协议/草案	编码方式	冗余生成策略
+‌ULPFEC‌	RFC5109	XOR（异或）	针对关键帧生成冗余包，抗离散丢包能力有限 ‌34
+‌FlexFEC‌	IETF 草案（未最终定稿）	Reed-Solomon 等	支持更大冗余块，可恢复连续丢包 ‌58
+‌X-ULPFECUC‌	无明确公开标准	未明确（推测类似ULPFEC）	可能是定制扩展，具体实现未公开（无搜索结果支持）
+‌RED‌	RFC2198	无独立编码	直接复制旧包到新包，仅冗余封装 ‌45
+
+‌二、冗余能力与恢复效果‌
+
+‌ULPFEC‌
+
+‌优势‌：计算效率高，适合实时场景（如 WebRTC 视频通话）‌38。
+‌限制‌：仅能恢复单个丢包或少量离散丢包，冗余比例固定 ‌48。
+
+‌FlexFEC‌
+
+‌优势‌：支持动态冗余块数量，恢复连续丢包能力更强（如 30% 连续丢包）‌58。
+‌限制‌：计算复杂度较高，需额外带宽开销 ‌58。
+
+‌X-ULPFECUC‌
+
+‌推测‌：可能针对特定场景优化（如超低延迟），但无公开技术细节支持。
+‌RED‌
+
+‌劣势‌：冗余数据直接复制旧包，带宽占用高，恢复能力弱（仅恢复单包丢失）‌46。
+
+‌三、封装方式与依赖关系‌
+
+技术	封装依赖	数据独立性
+‌ULPFEC‌	需依赖 RED 格式封装	冗余包与原始包分离，通过 RED 协议打包 ‌48
+‌FlexFEC‌	独立封装	不依赖 RED，直接生成独立冗余包 ‌58
+‌RED‌	自封装	冗余包直接嵌入原始包中，无独立编解码 ‌58
+
+‌四、应用场景‌
+
+‌ULPFEC‌：
+
+‌适用场景‌：WebRTC 视频通话中保护关键帧（如 SVC 时域层 Level 0），丢包时降帧率保流畅 ‌48。
+‌典型用例‌：实时会议、在线教育 ‌34。
+‌FlexFEC‌：
+
+‌适用场景‌：高丢包网络（如移动蜂窝网络），需恢复连续丢包的关键数据 ‌58。
+‌典型用例‌：云游戏、4K 直播 ‌58。
+‌RED‌：
+
+‌历史场景‌：早期传真（T38）、收号（RFC2833），音视频领域已逐步淘汰 ‌68。
+
+‌五、WebRTC 中的实现差异‌
+
+‌ULPFEC‌：
+
+仅对 SVC 编码的时域基础层生成冗余包，丢包时逐步降帧率 ‌48。
+与 RED 配合使用，冗余包通过 RFC2198 格式封装 ‌8。
+‌FlexFEC‌：
+
+独立于 RED，支持更灵活的冗余策略（如跨帧冗余）‌58。
+目前处于草案阶段，WebRTC 中尚未完全标准化 ‌58。
+‌RED‌：
+
+WebRTC 中仅用于封装 ULPFEC 冗余包，不直接参与编解码 ‌48。
+‌总结‌
+‌抗丢包能力‌：FlexFEC > ULPFEC > RED ‌58。
+‌带宽效率‌：ULPFEC（动态调整） > FlexFEC（高冗余） > RED（固定复制）‌45。
+‌适用性‌：实时交互场景优选 ULPFEC；高丢包网络可尝试 FlexFEC；RED 已逐渐被替代
+  */
+  FlexfecSender* const flexfec_sender_; // 支持更大冗余块，可恢复连续丢包
 
   // FEC parameters, applicable to either ULPFEC or FlexFEC.
   FecProtectionParams delta_fec_params_ RTC_GUARDED_BY(crit_);

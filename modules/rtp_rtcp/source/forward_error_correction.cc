@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -185,8 +185,79 @@ int ForwardErrorCorrection::EncodeFec(const PacketList& media_packets,
 }
 
 int ForwardErrorCorrection::NumFecPackets(int num_media_packets,
-                                          int protection_factor) {
+                                          int protection_factor)
+{
+  /*
+  // 示例：4 原始块 + 2 冗余块（可容忍 2 个丢包）
+	int k = 4, m = 2; 
+
+  // 冗余比例 = m/(k+m) = 33%，需权衡带宽与抗丢包能力
+
+  ‌一、数学原理‌
+
+	‌公式分解‌
+
+	‌输入参数‌：
+	num_media_packets：原始媒体包数量（整数）。
+	protection_factor：保护因子（8.8 定点数，范围 0~255，对应 0%~100% 冗余比例）。
+	‌运算过程‌：
+	num_media_packets * protection_factor：计算未舍入的冗余包数量（定点数乘法）。
+	+ (1 << 7)：加上 128（即 2^7），用于四舍五入。
+	>> 8：右移 8 位，等价于除以 256（完成定点数转整数）。
+	‌四舍五入机制‌
+
+	若 num_media_packets * protection_factor 的低 8 位余数 ≥ 128，则加法后进位，实现 ‌整数运算的四舍五入‌。
+	‌示例‌：
+	设 num_media_packets = 10，protection_factor = 128（50%）：
+	text
+	Copy Code
+	(10 * 128 + 128) >> 8 = (1280 + 128) / 256 = 5.5 → 5（实际结果为 5 个冗余包）  
+	若需严格向上取整，需调整偏移量（如 +255 代替 +128）。
+
+‌二、应用场景‌
+
+	‌冗余包数量计算‌
+
+	该公式用于动态计算需要生成的 FEC 冗余包数量，例如：
+	当 protection_factor = 51（对应 20%）时，生成约 20% 的冗余包。
+	‌优势‌：
+	纯整数运算，避免浮点性能开销，适用于实时音视频传输。
+	代码简洁，适合嵌入式或低算力场景。
+	‌与 WebRTC 模块的协作‌
+
+	‌FecControllerDefault‌ 通过此公式生成 fec_params.protection_factor，传递给 UlpFECGenerator 或 FlexFECSender‌1。
+	‌动态调整‌：根据网络丢包率（如 loss_rate > 5%）实时更新 protection_factor。
+
+‌三、潜在问题与优化‌
+
+	‌精度损失问题‌
+
+	‌现象‌：当 protection_factor 非 256 的整数倍时，计算结果可能存在误差。
+	例如：protection_factor = 51（20%）时，实际结果为 (10*51 + 128)/256 = 2.52 → 2，误差 0.52。
+	‌优化方案‌：
+	使用更高精度定点数（如 16.16 格式），但需权衡计算开销。
+	调整偏移量为 +255 实现向上取整：
+	cpp
+	Copy Code
+	(num_media_packets * protection_factor + 255) >> 8  
+	‌溢出风险‌
+
+	‌场景‌：当 num_media_packets 较大（如 1000+）且 protection_factor = 255 时，乘法可能导致 32 位整数溢出。
+	‌解决方案‌：
+	使用 64 位整数（int64_t）存储中间结果。
+	限制单帧最大媒体包数量（如 WebRTC 默认限制为 48 包/帧）。
+	‌保护因子范围约束‌
+
+	‌问题‌：protection_factor 超过 255 时，冗余比例超过 100%，可能导致带宽浪费。
+	‌约束逻辑‌：
+	cpp
+	Copy Code
+	protection_factor = std::clamp(protection_factor, 0, 255); // 限制范围  
+  */
   // Result in Q0 with an unsigned round.
+	// 结果是Q0有一个无符号回合。
+	//  128 = 1 << 7
+	//   1 >> 8 == /256
   int num_fec_packets = (num_media_packets * protection_factor + (1 << 7)) >> 8;
   // Generate at least one FEC packet if we need protection.
   if (protection_factor > 0 && num_fec_packets == 0) {

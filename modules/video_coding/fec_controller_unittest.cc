@@ -62,6 +62,7 @@ TEST_F(ProtectionBitrateCalculatorTest, ProtectsUsingFecBitrate) {
   fec_controller_.SetEncodingData(640, 480, 1, 1000);
 
   // Using 10% of codec bitrate for FEC.
+  // 使用10%的编解码器比特率进行FEC。
   protection_callback_.fec_rate_bps_ = kCodecBitrateBps / 10;
   uint32_t target_bitrate = fec_controller_.UpdateFecRates(
       kMaxBitrateBps, 30, 0, std::vector<bool>(1, false), 0);
@@ -71,6 +72,8 @@ TEST_F(ProtectionBitrateCalculatorTest, ProtectsUsingFecBitrate) {
 
   // Using as much for codec bitrate as fec rate, new target rate should share
   // both equally, but only be half of max (since that ceiling should be hit).
+  //使用与fec速率一样多的编解码器比特率，新的目标速率应该共享
+	//两者相等，但只有最大值的一半（因为应该达到上限）。
   protection_callback_.fec_rate_bps_ = kCodecBitrateBps;
   target_bitrate = fec_controller_.UpdateFecRates(
       kMaxBitrateBps, 30, 128, std::vector<bool>(1, false), 100);

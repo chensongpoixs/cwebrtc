@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2015 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -270,6 +270,39 @@ class FakeFlexfecReceiveStream final : public webrtc::FlexfecReceiveStream {
   webrtc::FlexfecReceiveStream::Config config_;
 };
 
+/*
+FakeCall 的核心作用‌
+‌定义与用途‌：
+FakeCall（如 FakeWebRTCCall 类）是 WebRTC 测试框架中用于‌模拟真实 Call
+行为的替代实现‌，主要用于单元测试或集成测试场景‌3。
+
+通过模拟网络行为（如丢包、延迟）或硬件限制（如编解码器性能），验证 DegradedCall
+在异常条件下的容错逻辑‌35。
+避免依赖真实网络环境，实现可重复、可控的测试用例
+
+
+
+2. DegradedCall 的降级策略与 FakeCall 的协作‌
+‌功能关联‌：
+
+DegradedCall 作为 Call
+的子类，在网络劣化时动态调整媒体流参数（如码率、分辨率）‌1。
+FakeCall 在测试中模拟网络降级事件（如带宽骤降、高丢包），触发 DegradedCall
+的降级逻辑（如切换低分辨率编码、启用冗余传输）
+
+
+
+// 伪代码示例：通过 FakeCall 模拟网络丢包，观察 DegradedCall 的响应
+auto fake_call = CreateFakeWebRTCCall();
+auto degraded_call = std::make_unique<DegradedCall>(fake_call);
+
+// 模拟 30% 丢包率
+fake_call->SetNetworkLossRate(0.3);
+degraded_call->SendVideoFrame(frame);
+
+// 验证 DegradedCall 是否启用 FEC 冗余
+EXPECT_TRUE(fake_call->GetLastSentPacket().HasFecHeader()); ‌‌
+*/
 class FakeCall final : public webrtc::Call, public webrtc::PacketReceiver {
  public:
   FakeCall();

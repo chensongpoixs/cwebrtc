@@ -337,8 +337,8 @@ VideoSendStreamImpl::VideoSendStreamImpl(
   RTC_DCHECK_GE(config_->rtp.payload_type, 0);
   RTC_DCHECK_LE(config_->rtp.payload_type, 127);
 
-  video_stream_encoder_->SetStartBitrate(
-      bitrate_allocator_->GetStartBitrate(this));
+  // 注册网络带宽回调函数
+  video_stream_encoder_->SetStartBitrate(bitrate_allocator_->GetStartBitrate(this));
 
   // Only request rotation at the source when we positively know that the remote
   // side doesn't support the rotation extension. This allows us to prepare the
@@ -709,11 +709,13 @@ uint32_t VideoSendStreamImpl::OnBitrateUpdated(BitrateAllocationUpdate update) {
   RTC_DCHECK_RUN_ON(worker_queue_);
   RTC_DCHECK(rtp_video_sender_->IsActive())
       << "VideoSendStream::Start has not been called.";
-
+  // 向fec控制器中发送当前网络 情况    1. 码流 2. 丢包率  3. rtt  4. 发送视频帧率 
   rtp_video_sender_->OnBitrateUpdated(
       update.target_bitrate.bps(),
       rtc::dchecked_cast<uint8_t>(update.packet_loss_ratio * 256),
       update.round_trip_time.ms(), stats_proxy_->GetSendFrameRate());
+
+
   encoder_target_rate_bps_ = rtp_video_sender_->GetPayloadBitrateBps();
   const uint32_t protection_bitrate_bps =
       rtp_video_sender_->GetProtectionBitrateBps();

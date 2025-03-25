@@ -325,8 +325,10 @@ RtpVideoSender::RtpVideoSender(
 
   fec_controller_->SetProtectionCallback(this);
   // Signal congestion controller this object is ready for OnPacket* callbacks.
+   // 信号拥塞控制器此对象已准备好进行OnPacket*回调。
   if (fec_controller_->UseLossVectorMask()) 
   {
+	  // 20250325 接收一个就回调OnPacketAdded和OnPacketFeedbackVector 函数
     transport_->RegisterPacketFeedbackObserver(this);
   }
 }
@@ -763,6 +765,8 @@ void RtpVideoSender::OnBitrateUpdated(uint32_t bitrate_bps,
 
   // Get the encoder target rate. It is the estimated network rate -
   // protection overhead.
+  // 获取编码器目标速率。这是估计的网络速率-
+//保护开销。
   encoder_target_rate_bps_ = fec_controller_->UpdateFecRates(
       payload_bitrate_bps, framerate, fraction_loss, loss_mask_vector_, rtt);
 
@@ -772,6 +776,10 @@ void RtpVideoSender::OnBitrateUpdated(uint32_t bitrate_bps,
     // is really low, cap the overhead at 50%. This also avoids the case where
     // |encoder_target_rate_bps_| is 0 due to encoder pause event while the
     // packetization rate is positive since packets are still flowing.
+	  // /从编码器目标中减去打包开销。如果目标利率
+//确实很低，将开销限制在50%。这也避免了以下情况
+//由于编码器暂停事件，|encoder_target_rate_bps_|为0，而
+//分组率为正，因为分组仍在流动
     packetization_rate_bps =
         std::min(GetPacketizationOverheadRate(), encoder_target_rate_bps_ / 2);
     encoder_target_rate_bps_ -= packetization_rate_bps;
@@ -793,6 +801,8 @@ void RtpVideoSender::OnBitrateUpdated(uint32_t bitrate_bps,
 
   // When the field trial "WebRTC-SendSideBwe-WithOverhead" is enabled
   // protection_bitrate includes overhead.
+  ///启用现场试验“WebRTC SendSideBwe WithOverhead”时
+  // protection_比特率包括开销。
   const uint32_t media_rate = encoder_target_rate_bps_ +
                               encoder_overhead_rate_bps +
                               packetization_rate_bps;
@@ -840,7 +850,12 @@ int RtpVideoSender::ProtectionRequest(const FecProtectionParams* delta_params,
   return 0;
 }
 
-void RtpVideoSender::OnPacketAdded(uint32_t ssrc, uint16_t seq_num) {
+/*
+
+tcc 中回调函数发送rtp包seq记录
+*/
+void RtpVideoSender::OnPacketAdded(uint32_t ssrc, uint16_t seq_num) 
+{
   const auto ssrcs = rtp_config_.ssrcs;
   if (std::find(ssrcs.begin(), ssrcs.end(), ssrc) != ssrcs.end()) {
     feedback_packet_seq_num_set_.insert(seq_num);
@@ -858,8 +873,11 @@ void RtpVideoSender::OnPacketFeedbackVector(
   // Lost feedbacks are not considered to be lost packets.
   for (const PacketFeedback& packet : packet_feedback_vector) {
     auto it = feedback_packet_seq_num_set_.find(packet.sequence_number);
-    if (it != feedback_packet_seq_num_set_.end()) {
+    if (it != feedback_packet_seq_num_set_.end()) 
+	{
+		// 20250325 根据接收端查看记录中是否有没有接收rtp信息包
       const bool lost = packet.arrival_time_ms == PacketFeedback::kNotReceived;
+
       loss_mask_vector_.push_back(lost);
       feedback_packet_seq_num_set_.erase(it);
     }

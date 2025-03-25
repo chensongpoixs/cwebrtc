@@ -26,6 +26,7 @@ class TargetTransferRateObserver {
   virtual void OnTargetTransferRate(TargetTransferRate) = 0;
   // Called to provide updates to the expected target rate in case it changes
   // before the first call to OnTargetTransferRate.
+  // Call   --> Create Audio Video Send Stream  regiter зЂВс
   virtual void OnStartRateUpdate(DataRate) {}
 };
 

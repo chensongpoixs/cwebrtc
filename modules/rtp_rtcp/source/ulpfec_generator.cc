@@ -153,6 +153,10 @@ int UlpfecGenerator::AddRtpPacketAndGenerateFec(const uint8_t* data_buffer,
   if (media_packets_.empty()) {
     params_ = new_params_;
   }
+  // 示例：4 原始块 + 2 冗余块（可容忍 2 个丢包）
+  // int k = 4, m = 2;
+  // 冗余比例 = m/(k+m) = 33%，需权衡带宽与抗丢包能力
+  // 20250324 TODO@chensong 找到M 和 K的值
   bool complete_frame = false;
   const bool marker_bit = (data_buffer[1] & kRtpMarkerBitMask) ? true : false;
   if (media_packets_.size() < kUlpfecMaxMediaPackets) {

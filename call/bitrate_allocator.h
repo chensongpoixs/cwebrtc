@@ -31,6 +31,9 @@ class Clock;
 // allocated bitrate for the send stream. The current network properties are
 // given at the same time, to let the send stream decide about possible loss
 // protection.
+// 20250325  触发条件有两种
+//       1.  刚刚注册发送流AddObserver
+//       2.  tcc 中网络改变时会 OnNetworkChanged 函数触发
 class BitrateAllocatorObserver {
  public:
   // Returns the amount of protection used by the BitrateAllocatorObserver
@@ -76,13 +79,20 @@ class BitrateAllocatorInterface {
 // Usage: this class will register multiple RtcpBitrateObserver's one at each
 // RTCP module. It will aggregate the results and run one bandwidth estimation
 // and push the result to the encoders via BitrateAllocatorObserver(s).
+//用法：此类将注册多个RtcpBitrateObserver，每个RtcpBitrateObserver一个
+// RTCP模块。它将汇总结果并运行一次带宽估计
+//并通过BitrateAllocatorObserver将结果推送到编码器。
 class BitrateAllocator : public BitrateAllocatorInterface {
  public:
   // Used to get notified when send stream limits such as the minimum send
   // bitrate and max padding bitrate is changed.
+  //用于在发送流限制（如最小发送量）时收到通知
+  //比特率和最大填充比特率被改变。
+	
   class LimitObserver {
    public:
-    virtual void OnAllocationLimitsChanged(uint32_t min_send_bitrate_bps,
+    // Call virtual  function 
+	   virtual void OnAllocationLimitsChanged(uint32_t min_send_bitrate_bps,
                                            uint32_t max_padding_bitrate_bps,
                                            uint32_t total_bitrate_bps) = 0;
 
@@ -119,6 +129,9 @@ class BitrateAllocator : public BitrateAllocatorInterface {
   // Sets external allocation strategy. If strategy is not set default WebRTC
   // allocation mechanism will be used. The strategy may be changed during call.
   // Setting NULL value will restore default WEBRTC allocation strategy.
+  //设置外部分配策略。如果未设置策略，则默认WebRTC
+  //将使用分配机制。通话期间可能会更改策略。
+  //设置NULL值将恢复默认的WEBRTC分配策略。
   void SetBitrateAllocationStrategy(
       std::unique_ptr<rtc::BitrateAllocationStrategy>
           bitrate_allocation_strategy);
@@ -230,7 +243,10 @@ class BitrateAllocator : public BitrateAllocatorInterface {
   LimitObserver* const limit_observer_ RTC_GUARDED_BY(&sequenced_checker_);
   // Stored in a list to keep track of the insertion order.
   ObserverConfigs bitrate_observer_configs_ RTC_GUARDED_BY(&sequenced_checker_);
+
+  // 评估出来目标总带宽大小
   uint32_t last_target_bps_ RTC_GUARDED_BY(&sequenced_checker_);
+  // 评估出来带宽的max大小
   uint32_t last_link_capacity_bps_ RTC_GUARDED_BY(&sequenced_checker_);
   uint32_t last_non_zero_bitrate_bps_ RTC_GUARDED_BY(&sequenced_checker_);
   uint8_t last_fraction_loss_ RTC_GUARDED_BY(&sequenced_checker_);
@@ -243,6 +259,7 @@ class BitrateAllocator : public BitrateAllocatorInterface {
   uint32_t total_requested_padding_bitrate_ RTC_GUARDED_BY(&sequenced_checker_);
   uint32_t total_requested_min_bitrate_ RTC_GUARDED_BY(&sequenced_checker_);
   uint32_t total_requested_max_bitrate_ RTC_GUARDED_BY(&sequenced_checker_);
+  //外部分配带宽
   std::unique_ptr<rtc::BitrateAllocationStrategy> bitrate_allocation_strategy_
       RTC_GUARDED_BY(&sequenced_checker_);
   const uint8_t transmission_max_bitrate_multiplier_;

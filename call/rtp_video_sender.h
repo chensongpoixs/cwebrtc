@@ -149,7 +149,7 @@ class RtpVideoSender : public RtpVideoSenderInterface,
       uint32_t ssrc,
       rtc::ArrayView<const uint16_t> sequence_numbers) const override;
 
-  // From PacketFeedbackObserver.
+  // TCC  From PacketFeedbackObserver.
   void OnPacketAdded(uint32_t ssrc, uint16_t seq_num) override;
   void OnPacketFeedbackVector(
       const std::vector<PacketFeedback>& packet_feedback_vector) override;
@@ -196,7 +196,9 @@ class RtpVideoSender : public RtpVideoSenderInterface,
   uint32_t encoder_target_rate_bps_;
 
   std::unordered_set<uint16_t> feedback_packet_seq_num_set_;
-  std::vector<bool> loss_mask_vector_ RTC_GUARDED_BY(crit_);
+
+  // 20250325 记录包接送到和没有接收到数量 数组 |0 101110010|
+  std::vector<bool> loss_mask_vector_ RTC_GUARDED_BY(crit_);   
 
   std::vector<FrameCounts> frame_counts_ RTC_GUARDED_BY(crit_);
   FrameCountObserver* const frame_count_observer_;

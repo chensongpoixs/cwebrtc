@@ -227,32 +227,35 @@ class VCMLossProtectionLogic {
   void UpdateRtt(int64_t rtt);
 
   // Update the filtered packet loss.
-  //
+  // 更新已过滤的数据包丢失情况。
   // Input:
   //          - packetLossEnc :  The reported packet loss filtered
   //                             (max window or average)
+  // 已过滤报告的数据包丢失
   void UpdateFilteredLossPr(uint8_t packetLossEnc);
 
   // Update the current target bit rate.
   //
   // Input:
   //          - bitRate          : The current target bit rate in kbits/s
+  // 实时更新编码码率
   void UpdateBitRate(float bitRate);
 
   // Update the number of packets per frame estimate, for delta frames
-  //
+  // 更新增量帧的每帧数据包估计数
   // Input:
   //          - nPackets         : Number of packets in the latest sent frame.
+  // 最新发送帧中的数据包数。
   void UpdatePacketsPerFrame(float nPackets, int64_t nowMs);
 
   // Update the number of packets per frame estimate, for key frames
-  //
+  // 更新关键帧的每帧数据包估计数
   // Input:
   //          - nPackets         : umber of packets in the latest sent frame.
   void UpdatePacketsPerFrameKey(float nPackets, int64_t nowMs);
 
   // Update the keyFrameSize estimate
-  //
+  // 更新keyFrameSize估计值
   // Input:
   //          - keyFrameSize     : The size of the latest sent key frame.
   void UpdateKeyFrameSize(float keyFrameSize);
@@ -271,7 +274,7 @@ class VCMLossProtectionLogic {
   void UpdateFrameSize(size_t width, size_t height);
 
   // Update the number of active layers
-  //
+  // 更新活动层的数量
   // Input:
   //          - numLayers    : Number of layers used.
   void UpdateNumLayers(int numLayers);
@@ -323,7 +326,8 @@ class VCMLossProtectionLogic {
   VCMProtectionParameters _currentParameters;
   int64_t _rtt;
   float _lossPr;
-  float _bitRate;
+  // 实时更新编码码率
+  float _bitRate; 
   float _frameRate;
   float _keyFrameSize;
   uint8_t _fecRateKey;

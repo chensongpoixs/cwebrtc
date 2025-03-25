@@ -247,6 +247,7 @@ class Call final : public webrtc::Call,
   void OnStartRateUpdate(DataRate start_rate) override;
 
   // Implements BitrateAllocator::LimitObserver.
+  // BitrateAllocator observer Callback function 
   void OnAllocationLimitsChanged(uint32_t min_send_bitrate_bps, uint32_t max_padding_bitrate_bps, uint32_t total_bitrate_bps) override;
 
   // This method is invoked when the media transport is created and when the

@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -60,6 +60,9 @@ struct BuiltInNetworkBehaviorConfig {
   // If packets are allowed to be reordered.
   bool allow_reordering = false;
   // The average length of a burst of lost packets.
+  // vgBurstLossLength 是网络质量监测中的关键指标，用于衡量‌连续丢包事件的平均长度‌。
+//核心意义‌：反映网络拥塞或链路异常的突发性特征，连续丢包对实时通信（如视频会议、VoIP）的影响远高于随机丢包‌37。 ‌
+  //计算方式‌：统计周期内所有突发丢包事件（连续丢失≥2个数据包）的持续时间（包数），取算术平均值‌
   int avg_burst_loss_length = -1;
   // Additional bytes to add to packet size.
   int packet_overhead = 0;

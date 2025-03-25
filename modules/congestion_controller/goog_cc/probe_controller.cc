@@ -368,7 +368,7 @@ std::vector<ProbeClusterConfig> ProbeController::Process(int64_t at_time_ms) {
       min_bitrate_to_probe_further_bps_ = kExponentialProbingDisabled;
     }
   }
-  RTC_LOG(LS_INFO) << "probe--->[enable_periodic_alr_probing_ = "<<enable_periodic_alr_probing_<<"][state_ = "<<state_<<"][alr_start_time_ms_ = "<<*alr_start_time_ms_<<"][estimated_bitrate_bps_ = "<<estimated_bitrate_bps_<<"]";
+ // RTC_LOG(LS_INFO) << "probe--->[enable_periodic_alr_probing_ = "<<enable_periodic_alr_probing_<<"][state_ = "<<state_<<"][alr_start_time_ms_ = "<<*alr_start_time_ms_<<"][estimated_bitrate_bps_ = "<<estimated_bitrate_bps_<<"]";
   if (enable_periodic_alr_probing_ && state_ == State::kProbingComplete)
   {
     // Probe bandwidth periodically when in ALR state.
