@@ -105,7 +105,11 @@ class Conductor : public webrtc::PeerConnectionObserver /*好玩东西给webrtc�
   // MainWndCallback implementation.
   //
 
-  void StartLogin(const std::string& server, int port) override;
+  void StartLogin(const std::string& server,
+                  int port,
+                  const std::string& turn_url,
+                  const std::string& user_name,
+                  const std::string& pass_word) override;
 
   void DisconnectFromServer() override;
 
@@ -132,6 +136,9 @@ class Conductor : public webrtc::PeerConnectionObserver /*好玩东西给webrtc�
   MainWindow* main_wnd_;
   std::deque<std::string*> pending_messages_;
   std::string server_;
+  std::string turn_url_;
+  std::string user_name_;
+  std::string pass_word_;
 };
 
 #endif  // EXAMPLES_PEERCONNECTION_DESKTOP_CONDUCTOR_H_

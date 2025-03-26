@@ -141,7 +141,10 @@ class CapturerTrackSource : public webrtc::VideoTrackSource {
 }  // namespace
 
 Conductor::Conductor(PeerConnectionClient* client, MainWindow* main_wnd)
-    : peer_id_(-1), loopback_(false), client_(client), main_wnd_(main_wnd) {
+    : peer_id_(-1), loopback_(false), client_(client), main_wnd_(main_wnd),
+       turn_url_ ("")
+, user_name_("")
+, pass_word_(""){
 	RTC_LOG(LS_INFO) << __FUNCTION__;
   client_->RegisterObserver(this);
   main_wnd->RegisterObserver(this);
@@ -226,10 +229,10 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = GetPeerConnectionString();
  // server.hostname = "localhost"; //域名
-  server.username = "chensong";
-  server.password = "0123456789";
+  server.username = user_name_;
+  server.password = pass_word_;
   std::vector<std::string> turnservers;
-  turnservers.push_back("turn:192.168.1.6:23333?transport=udp");
+  turnservers.push_back(turn_url_);
   server.urls = turnservers;
   // 设置走 turn server 进行转发媒体数据 哈
   config.type = webrtc::PeerConnectionInterface::kRelay;
@@ -454,11 +457,18 @@ void Conductor::OnServerConnectionFailure() {
 // MainWndCallback implementation.
 //
 
-void Conductor::StartLogin(const std::string& server, int port) {
+void Conductor::StartLogin(const std::string& server,
+                           int port,
+                           const std::string& turn_url,
+                           const std::string& user_name,
+                           const std::string& pass_word) {
 	RTC_LOG(LS_INFO) << __FUNCTION__;
   if (client_->is_connected())
     return;
   server_ = server;
+  turn_url_ = turn_url;
+  user_name_ = user_name;
+  pass_word_ = pass_word;
   client_->Connect(server, port, GetPeerName());
 }
 

@@ -73,14 +73,23 @@ MainWnd::MainWnd(const char* server,
       wnd_(NULL),
       edit1_(NULL),
       edit2_(NULL),
+      edit3_(NULL),
+      edit4_(NULL),
+      edit5_(NULL),
       label1_(NULL),
       label2_(NULL),
+      label3_(NULL),
+      label4_(NULL),
+      label5_(NULL),
       button_(NULL),
       listbox_(NULL),
       destroyed_(false),
       nested_msg_(NULL),
       callback_(NULL),
       server_(server),
+      turn_url_("turn:192.168.1.6:23333?transport=udp"),
+      user_name_("chensong"),
+      pass_word_("0123456789"),
       auto_connect_(auto_connect),
       auto_call_(auto_call) {
   char buffer[10];
@@ -107,9 +116,9 @@ bool MainWnd::Create() {
   wnd_ =
       ::CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, kClassName, L"WebRTC_DESKTOP",
                         WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
-		  -1920,200, 
-		   CW_USEDEFAULT, CW_USEDEFAULT,  800,
-	  800, NULL, NULL, GetModuleHandle(NULL), this);
+                  -1920,200,
+                   CW_USEDEFAULT, CW_USEDEFAULT,  800,
+          800, NULL, NULL, GetModuleHandle(NULL), this);
   */
   ::SendMessage(wnd_, WM_SETFONT, reinterpret_cast<WPARAM>(GetDefaultFont()),
                 TRUE);
@@ -343,15 +352,17 @@ void MainWnd::OnDefaultAction() {
   if (ui_ == CONNECT_TO_SERVER) {
     std::string server(GetWindowText(edit1_));
     std::string port_str(GetWindowText(edit2_));
-    int port = port_str.length() ? atoi(port_str.c_str()) : 0;
-    callback_->StartLogin(server, port);
+    std::string turn_url(GetWindowText(edit3_));
+    std::string user_name(GetWindowText(edit4_));
+    std::string pass_word(GetWindowText(edit5_));
+	int port = port_str.length() ? atoi(port_str.c_str()) : 0;
+    callback_->StartLogin(server, port, turn_url, user_name, pass_word);
   } else if (ui_ == LIST_PEERS) {
     LRESULT sel = ::SendMessage(listbox_, LB_GETCURSEL, 0, 0);
     if (sel != LB_ERR) {
       LRESULT peer_id = ::SendMessage(listbox_, LB_GETITEMDATA, sel, 0);
-      if (peer_id != -1 && callback_) 
-	  {
-		// Á¬½Ó¶Ô·½->peer
+      if (peer_id != -1 && callback_) {
+        // Á¬½Ó¶Ô·½->peer
         callback_->ConnectToPeer(peer_id);
       }
     }
@@ -410,39 +421,36 @@ bool MainWnd::OnMessage(UINT msg, WPARAM wp, LPARAM lp, LRESULT* result) {
 }
 
 // static
-LRESULT CALLBACK MainWnd::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
-{
+LRESULT CALLBACK MainWnd::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
+  //	WM_LBUTTONDOWN
 
-//	WM_LBUTTONDOWN
+  //#define WM_LBUTTONDOWN                  0x0201
+  //#define WM_LBUTTONUP                    0x0202
+  //#define WM_LBUTTONDBLCLK                0x0203
 
-//#define WM_LBUTTONDOWN                  0x0201
-//#define WM_LBUTTONUP                    0x0202
-//#define WM_LBUTTONDBLCLK                0x0203
+  // static FILE * out_file_ptr = fopen("./test.log", "wb+");
+  // if (out_file_ptr)
+  //{
+  //	if (WM_LBUTTONDOWN == msg)
+  //	{
+  //		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONDOWN][]\n", msg);
+  //	}
+  //	else if (WM_LBUTTONUP == msg)
+  //	{
+  //		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONUP][]\n", msg);
+  //	}
+  //	else if (WM_LBUTTONDBLCLK == msg)
+  //	{
+  //		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONDBLCLK][]\n", msg);
+  //	}
+  //	else
+  //	{
+  //		fprintf(out_file_ptr, "[msg = %u][][]\n", msg);
+  //	}
+  //	fflush(out_file_ptr);
+  //}
 
-
-	//static FILE * out_file_ptr = fopen("./test.log", "wb+");
-	//if (out_file_ptr)
-	//{
-	//	if (WM_LBUTTONDOWN == msg)
-	//	{
-	//		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONDOWN][]\n", msg);
-	//	}
-	//	else if (WM_LBUTTONUP == msg)
-	//	{
-	//		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONUP][]\n", msg);
-	//	}
-	//	else if (WM_LBUTTONDBLCLK == msg)
-	//	{
-	//		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONDBLCLK][]\n", msg);
-	//	}
-	//	else
-	//	{
-	//		fprintf(out_file_ptr, "[msg = %u][][]\n", msg);
-	//	}
-	//	fflush(out_file_ptr);
-	//}
-
- // RTC_LOG(LS_INFO) << "msg = " << msg << ", wp " << wp << ", lp = " << lp;
+  // RTC_LOG(LS_INFO) << "msg = " << msg << ", wp " << wp << ", lp = " << lp;
   MainWnd* me =
       reinterpret_cast<MainWnd*>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
   if (!me && WM_CREATE == msg) {
@@ -516,15 +524,31 @@ void MainWnd::CreateChildWindow(HWND* wnd,
 void MainWnd::CreateChildWindows() {
   // Create the child windows in tab order.
   CreateChildWindow(&label1_, LABEL1_ID, L"Static", ES_CENTER | ES_READONLY, 0);
-  CreateChildWindow(&edit1_, EDIT_ID, L"Edit", ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
+  CreateChildWindow(&edit1_, EDIT_ID, L"Edit",
+                    ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
   CreateChildWindow(&label2_, LABEL2_ID, L"Static", ES_CENTER | ES_READONLY, 0);
-  CreateChildWindow(&edit2_, EDIT_ID, L"Edit", ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
+  CreateChildWindow(&edit2_, EDIT_ID, L"Edit",
+                    ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
   CreateChildWindow(&button_, BUTTON_ID, L"Button", BS_CENTER | WS_TABSTOP, 0);
 
-  CreateChildWindow(&listbox_, LISTBOX_ID, L"ListBox", LBS_HASSTRINGS | LBS_NOTIFY, WS_EX_CLIENTEDGE);
+  CreateChildWindow(&listbox_, LISTBOX_ID, L"ListBox",
+                    LBS_HASSTRINGS | LBS_NOTIFY, WS_EX_CLIENTEDGE);
+
+  CreateChildWindow(&label3_, LABEL3_ID, L"Static", ES_CENTER | ES_READONLY, 0);
+  CreateChildWindow(&edit3_, EDIT_ID, L"Edit",
+                    ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
+  CreateChildWindow(&label4_, LABEL4_ID, L"Static", ES_CENTER | ES_READONLY, 0);
+  CreateChildWindow(&edit4_, EDIT_ID, L"Edit",
+                    ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
+  CreateChildWindow(&label5_, LABEL5_ID, L"Static", ES_CENTER | ES_READONLY, 0);
+  CreateChildWindow(&edit5_, EDIT_ID, L"Edit",
+                    ES_LEFT | ES_NOHIDESEL | WS_TABSTOP, WS_EX_CLIENTEDGE);
 
   ::SetWindowTextA(edit1_, server_.c_str());
   ::SetWindowTextA(edit2_, port_.c_str());
+  ::SetWindowTextA(edit3_, turn_url_.c_str());   // turn_url
+  ::SetWindowTextA(edit4_, user_name_.c_str());  // username;
+  ::SetWindowTextA(edit5_, pass_word_.c_str());  // password
 }
 
 void MainWnd::LayoutConnectUI(bool show) {
@@ -539,6 +563,17 @@ void MainWnd::LayoutConnectUI(bool show) {
       {button_, L"Connect"},
   };
 
+  Windows turn_windows[] = {
+      {label1_, L"Server"},
+      {edit1_, L"XXXyyyYYYgggXXXyyyYYYggg"},
+      {label3_, L"TurnUrl:"},
+      {edit3_, L"XXXyyyYYYgggXXXyyyYYYgggXXXyyyYYYgggXXXyyyYYYggg"},
+      {label4_, L"UserName:"},
+      {edit4_, L"XXXyyyYYYgggXXXyyyYYYggg"},
+      {label5_, L"PassWord:"},
+      {edit5_, L"XXXyyyYYYgggXXXyyyYYYggg"},
+  };
+
   if (show) {
     const size_t kSeparator = 5;
     size_t total_width = (ARRAYSIZE(windows) - 1) * kSeparator;
@@ -548,24 +583,56 @@ void MainWnd::LayoutConnectUI(bool show) {
                                  &windows[i].width, &windows[i].height);
       total_width += windows[i].width;
     }
-
+    for (size_t i = 2; i < ARRAYSIZE(turn_windows); ++i) {
+      CalculateWindowSizeForText(turn_windows[i].wnd, turn_windows[i].text,
+                                 &turn_windows[i].width,
+                                 &turn_windows[i].height);
+      //total_width += windows[i].width;
+    }
     RECT rc;
     ::GetClientRect(wnd_, &rc);
     size_t x = (rc.right / 2) - (total_width / 2);
     size_t y = rc.bottom / 2;
-    for (size_t i = 0; i < ARRAYSIZE(windows); ++i) {
-      size_t top = y - (windows[i].height / 2);
+    size_t w_h = ARRAYSIZE(turn_windows)/2;
+     for (size_t i = 0; i < ARRAYSIZE(windows); ++i) {
+      size_t top = y  - (windows[i].height * w_h / 2);
       ::MoveWindow(windows[i].wnd, static_cast<int>(x), static_cast<int>(top),
                    static_cast<int>(windows[i].width),
                    static_cast<int>(windows[i].height), TRUE);
       x += kSeparator + windows[i].width;
-      if (windows[i].text[0] != 'X')
+      if (windows[i].text[0] != 'X') {
         ::SetWindowTextW(windows[i].wnd, windows[i].text);
+      }
       ::ShowWindow(windows[i].wnd, SW_SHOWNA);
+    } 
+    size_t top = y - (turn_windows[0].height * w_h ); 
+    for (size_t i = 1; i < w_h; ++i)
+	{
+      top += turn_windows[(i*2)].height;
+      x = (rc.right / 2) - (total_width / 2);
+      
+      ::MoveWindow(turn_windows[(i * 2)].wnd, static_cast<int>(x),
+                   static_cast<int>(top),
+                   static_cast<int>(turn_windows[(i * 2)].width),
+                   static_cast<int>(turn_windows[(i * 2)].height), TRUE);
+      x += kSeparator + turn_windows[(i * 2)].width;
+      ::MoveWindow(turn_windows[(i * 2)+1].wnd, static_cast<int>(x),
+                   static_cast<int>(top),
+                   static_cast<int>(turn_windows[(i * 2) + 1].width),
+                   static_cast<int>(turn_windows[(i * 2) + 1].height), TRUE);
+      if (turn_windows[(i*2)].text[0] != 'X') {
+        ::SetWindowTextW(turn_windows[(i * 2) ].wnd,
+                         turn_windows[(i * 2)].text);
+      }
+      ::ShowWindow(turn_windows[(i * 2)  ].wnd, SW_SHOWNA);
+      ::ShowWindow(turn_windows[(i * 2) + 1].wnd, SW_SHOWNA);
     }
   } else {
     for (size_t i = 0; i < ARRAYSIZE(windows); ++i) {
       ::ShowWindow(windows[i].wnd, SW_HIDE);
+    }
+    for (size_t i = 1; i < ARRAYSIZE(turn_windows); ++i) {
+      ::ShowWindow(turn_windows[i].wnd, SW_HIDE);
     }
   }
 }
@@ -615,8 +682,7 @@ MainWnd::VideoRenderer::VideoRenderer(
     int width,
     int height,
     webrtc::VideoTrackInterface* track_to_render)
-    : wnd_(wnd), rendered_track_(track_to_render) 
-{
+    : wnd_(wnd), rendered_track_(track_to_render) {
   ::InitializeCriticalSection(&buffer_lock_);
   ZeroMemory(&bmi_, sizeof(bmi_));
   bmi_.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -661,28 +727,21 @@ void MainWnd::VideoRenderer::OnFrame(const webrtc::VideoFrame& video_frame) {
 
     SetSize(buffer->width(), buffer->height());
 
+    // RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height
+    // = " << buffer->height();
 
-	//RTC_LOG(INFO) << "++++++++++++++width = " << buffer->width() <<", height = " << buffer->height();
+    static const std::string outfilefix = "./desktop/desktop_";
+    static uint64_t frames = 0;
+    std::string outfilename = outfilefix + std::to_string(buffer->width()) +
+                              "_" + std::to_string(buffer->height()) + "_" +
+                              std::to_string(++frames) + ".yuv";
 
-
-
-	static const std::string outfilefix = "./desktop/desktop_";
-	static uint64_t frames = 0;
-	std::string outfilename = outfilefix + std::to_string(buffer->width()) + "_" + std::to_string(buffer->height()) + "_" + std::to_string(++frames) + ".yuv";
-
-
-	/*FILE *outfile = fopen(outfilename.c_str(), "wb+");
-	if (outfile)
-	{
-		fwrite(buffer->DataY(), 1, buffer->width()* buffer->height(), outfile);
-		fflush(outfile);
-		fclose(outfile);
-	}*/
-
-
-
-
-
+    /*FILE *outfile = fopen(outfilename.c_str(), "wb+");
+    if (outfile)
+    {
+            fwrite(buffer->DataY(), 1, buffer->width()* buffer->height(),
+    outfile); fflush(outfile); fclose(outfile);
+    }*/
 
     RTC_DCHECK(image_.get() != NULL);
     libyuv::I420ToARGB(buffer->DataY(), buffer->StrideY(), buffer->DataU(),

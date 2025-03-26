@@ -13,6 +13,7 @@
 #include <functional>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "absl/algorithm/container.h"
 #include "absl/memory/memory.h"
@@ -722,6 +723,10 @@ bool TurnPort::HandleIncomingPacket(rtc::AsyncPacketSocket* socket,
 
   // This must be a response for one of our requests.
   // Check success responses, but not errors, for MESSAGE-INTEGRITY.
+#if TURN_LOG
+  std::cout << "[turn][hash()  = " << hash() << "]" << std::endl;
+  RTC_LOG(LS_INFO) << "[turn][hash()  = " << hash() << "]";
+#endif // #if TURN_LOG
   if (IsStunSuccessResponseType(msg_type) &&
       !StunMessage::ValidateMessageIntegrity(data, size, hash())) {
     RTC_LOG(LS_WARNING) << ToString()
@@ -1134,7 +1139,18 @@ int TurnPort::Send(const void* data,
   return socket_->SendTo(data, len, server_address_.address, options);
 }
 
-void TurnPort::UpdateHash() {
+void TurnPort::UpdateHash() 
+{
+#if TURN_LOG
+  std::cout << "[turn][credentials_.username  = " << credentials_.username
+            << "][realm_  = " << realm_
+            << "][credentials_.password  = " << credentials_.password
+            << "]" << std::endl;
+  RTC_LOG(LS_INFO) << "[turn][credentials_.username  = "
+                   << credentials_.username << "][realm_  = " << realm_
+                   << "][credentials_.password  = " << credentials_.password
+                   << "]";
+#endif // #if TURN_LOG
   const bool success = ComputeStunCredentialHash(credentials_.username, realm_,
                                                  credentials_.password, &hash_);
   RTC_DCHECK(success);

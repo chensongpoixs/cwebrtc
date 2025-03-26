@@ -364,7 +364,10 @@ bool TurnServer::CheckAuthorization(TurnServerConnection* conn,
                                        STUN_ERROR_REASON_STALE_NONCE);
     return false;
   }
-
+#if TURN_LOG
+  std::cout << "[turn][key  = " << key << "]" << std::endl;
+  RTC_LOG(LS_INFO) << "[turn][key  = " << key << "]";
+#endif
   // Fail if bad username or M-I.
   // We need |data| and |size| for the call to ValidateMessageIntegrity.
   if (key.empty() || !StunMessage::ValidateMessageIntegrity(data, size, key)) {

@@ -26,7 +26,11 @@
 
 class MainWndCallback {
  public:
-  virtual void StartLogin(const std::string& server, int port) = 0;
+  virtual void StartLogin(const std::string& server,
+                          int port,
+                          const std::string& turn_url,
+                          const std::string& user_name,
+                          const std::string& pass_word) = 0;
   virtual void DisconnectFromServer() = 0;
   virtual void ConnectToPeer(int peer_id) = 0;
   virtual void DisconnectFromCurrentPeer() = 0;
@@ -155,6 +159,9 @@ class MainWnd : public MainWindow {
     BUTTON_ID,
     LABEL1_ID,
     LABEL2_ID,
+    LABEL3_ID,
+    LABEL4_ID,
+    LABEL5_ID, 
     LISTBOX_ID,
   };
 
@@ -188,8 +195,14 @@ class MainWnd : public MainWindow {
   DWORD ui_thread_id_;
   HWND edit1_;
   HWND edit2_;
+  HWND edit3_;
+  HWND edit4_;
+  HWND edit5_;
   HWND label1_;
   HWND label2_;
+  HWND label3_; // turn
+  HWND label4_; // username;
+  HWND label5_; // password
   HWND button_;
   HWND listbox_;
   bool destroyed_;
@@ -198,6 +211,9 @@ class MainWnd : public MainWindow {
   static ATOM wnd_class_;
   std::string server_;
   std::string port_;
+  std::string turn_url_;
+  std::string user_name_;
+  std::string pass_word_;
   bool auto_connect_;
   bool auto_call_;
 };

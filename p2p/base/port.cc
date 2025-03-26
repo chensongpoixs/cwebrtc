@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <utility>
 #include <vector>
-
+#include <iostream>
 #include "absl/algorithm/container.h"
 #include "absl/memory/memory.h"
 #include "absl/strings/match.h"
@@ -661,7 +661,10 @@ bool Port::GetStunMessage(const char* data, size_t size, const rtc::SocketAddres
                                STUN_ERROR_REASON_UNAUTHORIZED);
       return true;
     }
-
+#if TURN_LOG
+    std::cout << "[turn][password_  = " << password_ << "]" << std::endl;
+    RTC_LOG(LS_INFO) << "[turn][password_  = " << password_ << "]";
+#endif 
     // If ICE, and the MESSAGE-INTEGRITY is bad, fail with a 401 Unauthorized
 	// TODO@chensong 2023-04-07 stun协议数据的完整性验证 还有拿到密码
     if (!stun_msg->ValidateMessageIntegrity(data, size, password_)) 
@@ -1427,14 +1430,22 @@ void Connection::OnReadPacket(const char* data, size_t size, int64_t packet_time
       // This doesn't just check, it makes callbacks if transaction
       // id's match.
       case STUN_BINDING_RESPONSE:
-      case STUN_BINDING_ERROR_RESPONSE:
-        if (msg->ValidateMessageIntegrity(data, size, remote_candidate().password())) 
-		{
+      case STUN_BINDING_ERROR_RESPONSE: 
+	  {
+#if TURN_LOG
+        std::cout << "[turn][remote_candidate().password()  = " << remote_candidate().password() << "]"
+                  << std::endl;
+        RTC_LOG(LS_INFO) << "[turn][remote_candidate().password()  = " << remote_candidate().password()
+                         << "]";
+#endif // #if TURN_LOG
+        if (msg->ValidateMessageIntegrity(data, size,
+                                          remote_candidate().password())) {
           requests_.CheckResponse(msg.get());
         }
         // Otherwise silently discard the response message.
         break;
 
+	  }
       // Remote end point sent an STUN indication instead of regular binding
       // request. In this case |last_ping_received_| will be updated but no
       // response will be sent.
