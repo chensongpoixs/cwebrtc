@@ -329,6 +329,7 @@ class VCMLossProtectionLogic {
   // 实时更新编码码率
   float _bitRate; 
   float _frameRate;
+  // 真实编码关键帧数
   float _keyFrameSize;
   uint8_t _fecRateKey;
   uint8_t _fecRateDelta;

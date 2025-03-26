@@ -128,9 +128,7 @@ RtpTransportControllerSend::RtpTransportControllerSend(
       transport_overhead_bytes_per_packet_(0),
       network_available_(false),
       retransmission_rate_limiter_(clock, kRetransmitWindowSizeMs),
-      task_queue_(task_queue_factory->CreateTaskQueue(
-          "rtp_send_controller",
-          TaskQueueFactory::Priority::NORMAL)) {
+      task_queue_(task_queue_factory->CreateTaskQueue("rtp_send_controller",TaskQueueFactory::Priority::NORMAL)) {
   initial_config_.constraints = ConvertConstraints(bitrate_config, clock_);
   RTC_DCHECK(bitrate_config.start_bitrate_bps > 0);
 
@@ -623,6 +621,7 @@ void RtpTransportControllerSend::PostUpdates(NetworkControlUpdate update) {
     int64_t bitrate_bps = probe.target_data_rate.bps();
     pacer_.CreateProbeCluster(bitrate_bps, probe.id);
   }
+  // 目标码流大于0 触发 FEC函数 UpdateControlState - > Call  observer_->OnTargetTransferRate(*update);
   if (update.target_rate) 
   {
     control_handler_->SetTargetRate(*update.target_rate);

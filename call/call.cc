@@ -894,6 +894,7 @@ webrtc::VideoSendStream* Call::CreateVideoSendStream(
   if (config_.fec_controller_factory) {
     RTC_LOG(LS_INFO) << "External FEC Controller will be used.";
   }
+  // 默认创建fec控制类
   std::unique_ptr<FecController> fec_controller =
       config_.fec_controller_factory
           ? config_.fec_controller_factory->CreateFecController()
@@ -1229,6 +1230,7 @@ void Call::OnTargetTransferRate(TargetTransferRate msg) {
   }
   // For controlling the rate of feedback messages.
   receive_side_cc_.OnBitrateChanged(target_bitrate_bps);
+  // 触发FEC 控制类 传入 1. 目标码流 2. 带宽  3. 丢包率  4. rtt  5. bwe ms
   bitrate_allocator_->OnNetworkChanged(target_bitrate_bps, bandwidth_bps,
                                        fraction_loss, rtt_ms,
                                        probing_interval_ms);

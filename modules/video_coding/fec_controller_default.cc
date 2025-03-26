@@ -110,11 +110,14 @@ uint32_t FecControllerDefault::UpdateFecRates(
     // Use max window filter for now.
     media_optimization::FilterPacketLossMode filter_mode =
         media_optimization::kMaxFilter;
-    uint8_t packet_loss_enc = loss_prot_logic_->FilteredLoss(
-        clock_->TimeInMilliseconds(), filter_mode, fraction_lost);
+	// 取附近10s内最大丢包率 ， 把当然丢包率保存丢包率数组中取
+    uint8_t packet_loss_enc = loss_prot_logic_->FilteredLoss(clock_->TimeInMilliseconds(), filter_mode, fraction_lost);
     // For now use the filtered loss for computing the robustness settings.
+	// 目前，使用滤波损失来计算鲁棒性设置。
     loss_prot_logic_->UpdateFilteredLossPr(packet_loss_enc);
-    if (loss_prot_logic_->SelectedType() == media_optimization::kNone) {
+	// 判断一些当前fec模式  [Fec, FecNack, Nack]
+    if (loss_prot_logic_->SelectedType() == media_optimization::kNone)
+	{
       return estimated_bitrate_bps;
     }
     // Update method will compute the robustness settings for the given
@@ -125,17 +128,14 @@ uint32_t FecControllerDefault::UpdateFecRates(
     // overhead data actually transmitted (including headers) the last
     // second.
     // Get the FEC code rate for Key frames (set to 0 when NA).
-    key_fec_params.fec_rate =
-        loss_prot_logic_->SelectedMethod()->RequiredProtectionFactorK();
+	// 确保FEC码率不超过总带宽的30%：
+    key_fec_params.fec_rate = loss_prot_logic_->SelectedMethod()->RequiredProtectionFactorK();
     // Get the FEC code rate for Delta frames (set to 0 when NA).
-    delta_fec_params.fec_rate =
-        loss_prot_logic_->SelectedMethod()->RequiredProtectionFactorD();
+    delta_fec_params.fec_rate = loss_prot_logic_->SelectedMethod()->RequiredProtectionFactorD();
     // The RTP module currently requires the same |max_fec_frames| for both
     // key and delta frames.
-    delta_fec_params.max_fec_frames =
-        loss_prot_logic_->SelectedMethod()->MaxFramesFec();
-    key_fec_params.max_fec_frames =
-        loss_prot_logic_->SelectedMethod()->MaxFramesFec();
+    delta_fec_params.max_fec_frames = loss_prot_logic_->SelectedMethod()->MaxFramesFec();
+    key_fec_params.max_fec_frames = loss_prot_logic_->SelectedMethod()->MaxFramesFec();
   }
   // Set the FEC packet mask type. |kFecMaskBursty| is more effective for
   // consecutive losses and little/no packet re-ordering. As we currently

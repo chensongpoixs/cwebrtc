@@ -345,10 +345,13 @@ void RTPSenderVideo::SendVideoPacketWithFlexfec(
   RTC_DCHECK(flexfec_sender_);
 
   if (protect_media_packet)
+  {
     flexfec_sender_->AddRtpPacketAndGenerateFec(*media_packet);
+  }
 
+  // 1. 发送rtp原数据
   SendVideoPacket(std::move(media_packet), media_packet_storage);
-
+  // 2. 发送 fec(rtp)的数据
   if (flexfec_sender_->FecAvailable()) {
     std::vector<std::unique_ptr<RtpPacketToSend>> fec_packets =
         flexfec_sender_->GetFecPackets();
@@ -557,9 +560,12 @@ bool RTPSenderVideo::SendVideo(VideoFrameType frame_type,
   auto last_packet = absl::make_unique<RtpPacketToSend>(*single_packet);
   // Simplest way to estimate how much extensions would occupy is to set them.
   // 根据video_header 给packet添加extension
+  //  1. 设置rtp的masker 
+  //  2. 设置rtp解码延迟PlayoutDelay   max （3 * rtt）
   AddRtpHeaderExtensions(*video_header, playout_delay, frame_type,
                          set_video_rotation, set_color_space, set_frame_marking,
                          /*first=*/true, /*last=*/true, single_packet.get());
+
   AddRtpHeaderExtensions(*video_header, playout_delay, frame_type,
                          set_video_rotation, set_color_space, set_frame_marking,
                          /*first=*/true, /*last=*/false, first_packet.get());

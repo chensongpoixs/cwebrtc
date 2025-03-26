@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2012 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -95,8 +95,7 @@ VCMNackFecMethod::VCMNackFecMethod(int64_t lowRttNackThresholdMs,
 VCMNackFecMethod::~VCMNackFecMethod() {
   //
 }
-bool VCMNackFecMethod::ProtectionFactor(
-    const VCMProtectionParameters* parameters) {
+bool VCMNackFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) {
   // Hybrid Nack FEC has three operational modes:
   // 1. Low RTT (below kLowRttNackMs) - Nack only: Set FEC rate
   //    (_protectionFactorD) to zero. -1 means no FEC.
@@ -254,9 +253,11 @@ uint8_t VCMFecMethod::BoostCodeRateKey(uint8_t packetFrameDelta,
                                        uint8_t packetFrameKey) const {
   uint8_t boostRateKey = 2;
   // Default: ratio scales the FEC protection up for I frames
+  // 默认值：比率可放大I帧的FEC保护
   uint8_t ratio = 1;
 
-  if (packetFrameDelta > 0) {
+  if (packetFrameDelta > 0) 
+  {
     ratio = (int8_t)(packetFrameKey / packetFrameDelta);
   }
   ratio = VCM_MAX(boostRateKey, ratio);
@@ -266,8 +267,7 @@ uint8_t VCMFecMethod::BoostCodeRateKey(uint8_t packetFrameDelta,
 
 uint8_t VCMFecMethod::ConvertFECRate(uint8_t codeRateRTP) const {
   return rtc::saturated_cast<uint8_t>(
-      VCM_MIN(255, (0.5 + 255.0 * codeRateRTP /
-                              rtc::saturated_cast<float>(255 - codeRateRTP))));
+      VCM_MIN(255, (0.5 + 255.0 * codeRateRTP / rtc::saturated_cast<float>(255 - codeRateRTP))));
 }
 
 // Update FEC with protectionFactorD
@@ -293,73 +293,110 @@ bool VCMFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) {
 
   // Parameters for FEC setting:
   // first partition size, thresholds, table pars, spatial resoln fac.
-
+  // 第一分区大小、阈值、表部分、空间分辨率fac。
   // First partition protection: ~ 20%
+  // 第一分区保护： ~20%
   uint8_t firstPartitionProt = rtc::saturated_cast<uint8_t>(255 * 0.20);
 
   // Minimum protection level needed to generate one FEC packet for one
   // source packet/frame (in RTP sender)
+  //生成一个FEC数据包所需的最低保护级别
+  //源数据包/帧（在RTP发送器中）
   uint8_t minProtLevelFec = 85;
 
   // Threshold on packetLoss and bitRrate/frameRate (=average #packets),
   // above which we allocate protection to cover at least first partition.
+  //分组丢失阈值和比特率/帧率（=平均分组数），
+  //超过该阈值，我们分配保护以覆盖至少第一个分区。
   uint8_t lossThr = 0;
   uint8_t packetNumThr = 1;
 
   // Parameters for range of rate index of table.
+  /// 表速率指标范围参数
   const uint8_t ratePar1 = 5;
   const uint8_t ratePar2 = 49;
 
   // Spatial resolution size, relative to a reference size.
+  // 空间分辨率大小，相对于参考大小
   float spatialSizeToRef = rtc::saturated_cast<float>(parameters->codecWidth *
                                                       parameters->codecHeight) /
                            (rtc::saturated_cast<float>(704 * 576));
   // resolnFac: This parameter will generally increase/decrease the FEC rate
   // (for fixed bitRate and packetLoss) based on system size.
   // Use a smaller exponent (< 1) to control/soften system size effect.
+  // resolnFac：此参数通常会增加/减少FEC速率
+  //（适用于固定比特率和丢包率）基于系统大小。
+  //使用较小的指数（<1）来控制/软化系统大小效应
   const float resolnFac = 1.0 / powf(spatialSizeToRef, 0.3f);
 
+  // 根据 目标码率和帧率  计算出一帧的码流
+  // 每像素比特数（BPP）模型平衡视频质量 = 目标码率 / (分辨率 * 帧率)
   const int bitRatePerFrame = BitsPerFrame(parameters);
 
   // Average number of packets per frame (source and fec):
+  // 计算每帧的平均数据包数（源和fec）：
   const uint8_t avgTotPackets = rtc::saturated_cast<uint8_t>(
-      1.5f + rtc::saturated_cast<float>(bitRatePerFrame) * 1000.0f /
-                 rtc::saturated_cast<float>(8.0 * _maxPayloadSize));
+      1.5f + rtc::saturated_cast<float>(bitRatePerFrame) * 1000.0f /rtc::saturated_cast<float>(8.0 * _maxPayloadSize));
 
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // 1. 查表映射公式
+  // 根据实时丢包率（Loss Rate）从kFecRateTable中获取基础冗余度
+  // BaseFecRate = Interpolate(kFecRateTable,LossRate)
+  // 其中Interpolate为线性插值函数，当丢包率介于表项之间时按比例加权计算
+  //
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // FEC rate parameters: for P and I frame
+  // FEC速率参数：适用于P和I帧
   uint8_t codeRateDelta = 0;
   uint8_t codeRateKey = 0;
 
   // Get index for table: the FEC protection depends on an effective rate.
   // The range on the rate index corresponds to rates (bps)
   // from ~200k to ~8000k, for 30fps
-  const uint16_t effRateFecTable =
-      rtc::saturated_cast<uint16_t>(resolnFac * bitRatePerFrame);
-  uint8_t rateIndexTable = rtc::saturated_cast<uint8_t>(
-      VCM_MAX(VCM_MIN((effRateFecTable - ratePar1) / ratePar1, ratePar2), 0));
+  //获取表索引：FEC保护取决于有效速率。
+  //费率指数上的范围对应于费率（bps）
+  //从200k到8000k，帧率为30fps
+  //////////////////////////////////////////////////////////////
+  //  根据 分辨率 [702 * 576]  计算出当前视频分辨率[width * height] =====>  一帧需要码流的大小
+  ///////////////////////////////////////
+  const uint16_t effRateFecTable = rtc::saturated_cast<uint16_t>(resolnFac * bitRatePerFrame);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // 丢包率下标表
+  uint8_t rateIndexTable = rtc::saturated_cast<uint8_t>(VCM_MAX(VCM_MIN((effRateFecTable - ratePar1) / ratePar1, ratePar2), 0));
 
   // Restrict packet loss range to 50:
   // current tables defined only up to 50%
-  if (packetLoss >= kPacketLossMax) {
+  //将数据包丢失范围限制为50:
+  //当前表仅定义了高达50%
+  if (packetLoss >= kPacketLossMax) 
+  {
     packetLoss = kPacketLossMax - 1;
   }
+  
   uint16_t indexTable = rateIndexTable * kPacketLossMax + packetLoss;
 
   // Check on table index
   RTC_DCHECK_LT(indexTable, kFecRateTableSize);
 
   // Protection factor for P frame
+  // P帧保护系数
   codeRateDelta = kFecRateTable[indexTable];
 
-  if (packetLoss > lossThr && avgTotPackets > packetNumThr) {
+  if (packetLoss > lossThr && avgTotPackets > packetNumThr) 
+  {
     // Set a minimum based on first partition size.
-    if (codeRateDelta < firstPartitionProt) {
+    //根据第一个分区大小设置最小值。
+    if (codeRateDelta < firstPartitionProt) 
+	{
       codeRateDelta = firstPartitionProt;
     }
   }
 
   // Check limit on amount of protection for P frame; 50% is max.
-  if (codeRateDelta >= kPacketLossMax) {
+  // 检查P帧的保护量限制；50%为最大值
+  if (codeRateDelta >= kPacketLossMax) 
+  {
     codeRateDelta = kPacketLossMax - 1;
   }
 
@@ -367,15 +404,16 @@ bool VCMFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) {
   // Effectively at a higher rate, so we scale/boost the rate
   // The boost factor may depend on several factors: ratio of packet
   // number of I to P frames, how much protection placed on P frames, etc.
-  const uint8_t packetFrameDelta =
-      rtc::saturated_cast<uint8_t>(0.5 + parameters->packetsPerFrame);
-  const uint8_t packetFrameKey =
-      rtc::saturated_cast<uint8_t>(0.5 + parameters->packetsPerFrameKey);
+  /// 对于关键帧：
+    //有效地以更高的速度进行，因此我们扩大/提高了速度
+    //增强因子可能取决于几个因素：数据包的比率I帧到P帧的数量、对P帧的保护程度等。
+  const uint8_t packetFrameDelta = rtc::saturated_cast<uint8_t>(0.5 + parameters->packetsPerFrame);
+  const uint8_t packetFrameKey = rtc::saturated_cast<uint8_t>(0.5 + parameters->packetsPerFrameKey);
   const uint8_t boostKey = BoostCodeRateKey(packetFrameDelta, packetFrameKey);
 
   rateIndexTable = rtc::saturated_cast<uint8_t>(VCM_MAX(
-      VCM_MIN(1 + (boostKey * effRateFecTable - ratePar1) / ratePar1, ratePar2),
-      0));
+      VCM_MIN(1 + (boostKey * effRateFecTable - ratePar1) / ratePar1, ratePar2), 
+	  0));
   uint16_t indexTableKey = rateIndexTable * kPacketLossMax + packetLoss;
 
   indexTableKey = VCM_MIN(indexTableKey, kFecRateTableSize);
@@ -387,6 +425,7 @@ bool VCMFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) {
   codeRateKey = kFecRateTable[indexTableKey];
 
   // Boosting for Key frame.
+  // 关键帧增强
   int boostKeyProt = _scaleProtKey * codeRateDelta;
   if (boostKeyProt >= kPacketLossMax) {
     boostKeyProt = kPacketLossMax - 1;
@@ -394,8 +433,7 @@ bool VCMFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) {
 
   // Make sure I frame protection is at least larger than P frame protection,
   // and at least as high as filtered packet loss.
-  codeRateKey = rtc::saturated_cast<uint8_t>(
-      VCM_MAX(packetLoss, VCM_MAX(boostKeyProt, codeRateKey)));
+  codeRateKey = rtc::saturated_cast<uint8_t>(VCM_MAX(packetLoss, VCM_MAX(boostKeyProt, codeRateKey)));
 
   // Check limit on amount of protection for I frame: 50% is max.
   if (codeRateKey >= kPacketLossMax) {
@@ -413,7 +451,14 @@ bool VCMFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) {
   // is based on rounding off protectionFactor on actual source packet number).
   // The correction factor (_corrFecCost) attempts to corrects this, at least
   // for cases of low rates (small #packets) and low protection levels.
-
+  //通常，估计的FEC成本之间存在费率不匹配
+  //在mediaOpt中输入FEC成本，在RTP模块中发送实际FEC成本。
+  //这在低速率（源数据包数量少）下更为重要，其中
+  // FEC的粒度减小。在这种情况下，非零保护
+  // in-mediaOpt可能会在RTP发送器中生成0个FEC数据包（因为实际#FEC
+  //基于实际源数据包编号的四舍五入protectionFactor）。
+  //修正系数（_corrFecCost）试图修正这一点，至少
+  //适用于低速率（小数据包）和低保护级别的情况。
   float numPacketsFl =
       1.0f + (rtc::saturated_cast<float>(bitRatePerFrame) * 1000.0 /
                   rtc::saturated_cast<float>(8.0 * _maxPayloadSize) +
@@ -441,8 +486,7 @@ int VCMFecMethod::BitsPerFrame(const VCMProtectionParameters* parameters) {
   // When temporal layers are available FEC will only be applied on the base
   // layer.
   const float bitRateRatio =
-      webrtc::SimulcastRateAllocator::GetTemporalRateAllocation(
-          parameters->numLayers, 0);
+      webrtc::SimulcastRateAllocator::GetTemporalRateAllocation(parameters->numLayers, 0);
   float frameRateRatio = powf(1 / 2.0, parameters->numLayers - 1);
   float bitRate = parameters->bitRate * bitRateRatio;
   float frameRate = parameters->frameRate * frameRateRatio;
@@ -451,7 +495,9 @@ int VCMFecMethod::BitsPerFrame(const VCMProtectionParameters* parameters) {
   float adjustmentFactor = 1;
 
   if (frameRate < 1.0f)
+  {
     frameRate = 1.0f;
+  }
   // Average bits per frame (units of kbits)
   return rtc::saturated_cast<int>(adjustmentFactor * bitRate / frameRate);
 }
@@ -606,11 +652,16 @@ uint8_t VCMLossProtectionLogic::FilteredLoss(int64_t nowMs,
     case kNoFilter:
       break;
     case kAvgFilter:
+	{
       filtered_loss = rtc::saturated_cast<uint8_t>(_lossPr255.filtered() + 0.5);
       break;
+	}
     case kMaxFilter:
+    {
+		// 取附近最大丢包率
       filtered_loss = MaxFilteredLossPr(nowMs);
       break;
+	}
   }
 
   return filtered_loss;

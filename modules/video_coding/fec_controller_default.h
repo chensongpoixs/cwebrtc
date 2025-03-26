@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -25,6 +25,18 @@
 
 namespace webrtc {
 
+/*
+
+根据RtpVideoSender提供的目标码率、帧率、丢包率等实时参数，结合网络带宽估计（BWE）结果，动态计算FEC保护比率
+
+‌运行时更新‌
+
+接收来自RtpVideoSender的码率更新事件
+调用FecControllerDefault生成最新FEC保护比率‌  [delta_params key_params] rate_fec = > [0, 255]
+通过VideoFecGenerator接口调整冗余包生成速率‌
+
+
+*/
 class FecControllerDefault : public FecController {
  public:
   FecControllerDefault(Clock* clock,

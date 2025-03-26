@@ -158,6 +158,28 @@ int UlpfecGenerator::AddRtpPacketAndGenerateFec(const uint8_t* data_buffer,
   // 冗余比例 = m/(k+m) = 33%，需权衡带宽与抗丢包能力
   // 20250324 TODO@chensong 找到M 和 K的值
   bool complete_frame = false;
+  // rtp包 mask  seq 开始包  标志位 
+  /*
+  
+bool FrameMarkingExtension::Write(rtc::ArrayView<uint8_t> data,
+                                  const FrameMarking& frame_marking) {
+  RTC_DCHECK_GE(data.size(), 1);
+  RTC_CHECK_LE(frame_marking.temporal_id, 0x07);
+  data[0] = frame_marking.start_of_frame ? 0x80 : 0x00;
+  data[0] |= frame_marking.end_of_frame ? 0x40 : 0x00;
+  data[0] |= frame_marking.independent_frame ? 0x20 : 0x00;
+  data[0] |= frame_marking.discardable_frame ? 0x10 : 0x00;
+
+  if (IsScalable(frame_marking.temporal_id, frame_marking.layer_id)) {
+    RTC_DCHECK_EQ(data.size(), 3);
+    data[0] |= frame_marking.base_layer_sync ? 0x08 : 0x00;
+    data[0] |= frame_marking.temporal_id & 0x07;
+    data[1] = frame_marking.layer_id;
+    data[2] = frame_marking.tl0_pic_idx;
+  }
+  return true;
+}
+  */
   const bool marker_bit = (data_buffer[1] & kRtpMarkerBitMask) ? true : false;
   if (media_packets_.size() < kUlpfecMaxMediaPackets) {
     // Our packet masks can only protect up to |kUlpfecMaxMediaPackets| packets.
@@ -179,6 +201,7 @@ int UlpfecGenerator::AddRtpPacketAndGenerateFec(const uint8_t* data_buffer,
   // (1) the excess overhead (actual overhead - requested/target overhead) is
   // less than |kMaxExcessOverhead|, and
   // (2) at least |min_num_media_packets_| media packets is reached.
+  // 必须是  包第一个rtp  
   if (complete_frame &&
       (num_protected_frames_ == params_.max_fec_frames ||
        (ExcessOverheadBelowMax() && MinimumMediaPacketsReached()))) {

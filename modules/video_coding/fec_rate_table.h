@@ -22,6 +22,12 @@ namespace webrtc {
 // loss_j = 0,1,..128, and rate_i varies over some range.
 // TODO(brandtr): Consider replacing this big static table with a closed-form
 // expression instead.
+// XOR FEC的增量帧保护因子（码率）表。
+//输入是丢包率和有效速率（比特/帧）。
+//输出是数组kFecRateTable[k]，其中k=rate_i*129+loss_j；
+// loss_j=0， 1，.128 速率i在某个范围内变化。
+// TODO（brandtr）：考虑用封闭表单替换这个大的静态表
+//相反，表达。
 static const int kFecRateTableSize = 6450;
 static const unsigned char kFecRateTable[kFecRateTableSize] = {
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,

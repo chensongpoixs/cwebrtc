@@ -156,6 +156,7 @@ std::vector<std::unique_ptr<RtpPacketToSend>> FlexfecSender::GetFecPackets() {
 
     fec_packets_to_send.push_back(std::move(fec_packet_to_send));
   }
+  // 重置fec的中成员变量
   ulpfec_generator_.ResetState();
 
   int64_t now_ms = clock_->TimeInMilliseconds();

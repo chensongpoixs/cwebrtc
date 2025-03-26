@@ -321,6 +321,7 @@ RtpVideoSender::RtpVideoSender(
   }
   // Currently, both ULPFEC and FlexFEC use the same FEC rate calculation logic,
   // so enable that logic if either of those FEC schemes are enabled.
+  // 选择抗丢包三种模式 [Fec, NackFec, Nack] 模式
   fec_controller_->SetProtectionMethod(FecEnabled(), NackEnabled());
 
   fec_controller_->SetProtectionCallback(this);

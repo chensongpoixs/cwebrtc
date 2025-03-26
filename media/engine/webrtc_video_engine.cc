@@ -1875,7 +1875,7 @@ bool WebRtcVideoChannel::WebRtcVideoSendStream::SetVideoSend(
         parameters_.codec_settings) {
       // If screen content settings change, we may need to recreate the codec
       // instance so that the correct type is used.
-
+	// 设置发送rtpSendVideo
       SetCodec(*parameters_.codec_settings);
       // Mark screenshare parameter as being updated, then test for any other
       // changes that may require codec reconfiguration.
@@ -2236,7 +2236,7 @@ void WebRtcVideoChannel::WebRtcVideoSendStream::ReconfigureEncoder() {
     // parameters has changed.
     return;
   }
-
+  // 创建编码
   RTC_DCHECK_GT(parameters_.encoder_config.number_of_streams, 0);
 
   RTC_CHECK(parameters_.codec_settings);
@@ -2420,6 +2420,7 @@ void WebRtcVideoChannel::WebRtcVideoSendStream::RecreateWebRtcStream() {
       }
     }
   }
+  // 创建视频发送流程  
   stream_ = call_->CreateVideoSendStream(std::move(config),
                                          parameters_.encoder_config.Copy());
 
