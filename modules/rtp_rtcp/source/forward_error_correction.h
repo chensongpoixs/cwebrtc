@@ -223,6 +223,7 @@ class ForwardErrorCorrection {
 
   // Get the number of generated FEC packets, given the number of media packets
   // and the protection factor.
+  // 计算FEC包个数
   static int NumFecPackets(int num_media_packets, int protection_factor);
 
   // Gets the maximum size of the FEC headers in bytes, which must be

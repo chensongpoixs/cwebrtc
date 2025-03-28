@@ -230,7 +230,7 @@ bool JsepSessionDescription::AddCandidate(
   if (updated_candidate.password().empty()) {
     updated_candidate.set_password(transport_info->description.ice_pwd);
   }
-
+  // 创建 p2p stun 、 turn 连接
   std::unique_ptr<JsepIceCandidate> updated_candidate_wrapper(
       new JsepIceCandidate(candidate->sdp_mid(),
                            static_cast<int>(mediasection_index),

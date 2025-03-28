@@ -1449,15 +1449,19 @@ void VideoQualityTest::RunWithRenderers(const Params& params) {
     send_transport->SetReceiver(receiver_call_->Receiver());
     recv_transport->SetReceiver(sender_call_->Receiver());
 
-    if (params_.video[0].enabled) {
+    if (params_.video[0].enabled) 
+	{
       // Create video renderers.
       SetupVideo(send_transport.get(), recv_transport.get());
       size_t num_streams_processed = 0;
-      for (size_t video_idx = 0; video_idx < num_video_streams_; ++video_idx) {
+      for (size_t video_idx = 0; video_idx < num_video_streams_; ++video_idx) 
+	  {
         const size_t selected_stream_id = params_.ss[video_idx].selected_stream;
         const size_t num_streams = params_.ss[video_idx].streams.size();
-        if (selected_stream_id == num_streams) {
-          for (size_t stream_id = 0; stream_id < num_streams; ++stream_id) {
+        if (selected_stream_id == num_streams) 
+		{
+          for (size_t stream_id = 0; stream_id < num_streams; ++stream_id) 
+		  {
             rtc::StringBuilder oss;
             oss << "Loopback Video #" << video_idx << " - Stream #"
                 << static_cast<int>(stream_id);
@@ -1471,7 +1475,9 @@ void VideoQualityTest::RunWithRenderers(const Params& params) {
               video_receive_configs_[stream_id + num_streams_processed]
                   .sync_group = kSyncGroup;
           }
-        } else {
+        }
+		else 
+		{
           rtc::StringBuilder oss;
           oss << "Loopback Video #" << video_idx;
           loopback_renderers.emplace_back(test::VideoRenderer::Create(
@@ -1480,9 +1486,11 @@ void VideoQualityTest::RunWithRenderers(const Params& params) {
               params_.ss[video_idx].streams[selected_stream_id].height));
           video_receive_configs_[selected_stream_id + num_streams_processed]
               .renderer = loopback_renderers.back().get();
-          if (params_.audio.enabled && params_.audio.sync_video)
+		  if (params_.audio.enabled && params_.audio.sync_video)
+		  {
             video_receive_configs_[num_streams_processed + selected_stream_id]
                 .sync_group = kSyncGroup;
+		  }
         }
         num_streams_processed += num_streams;
       }
@@ -1490,13 +1498,13 @@ void VideoQualityTest::RunWithRenderers(const Params& params) {
       CreateVideoStreams();
 
       CreateCapturers();
-      if (params_.video[0].enabled) {
+      if (params_.video[0].enabled)
+	  {
         // Create local preview
         local_preview.reset(test::VideoRenderer::Create(
             "Local Preview", params_.video[0].width, params_.video[0].height));
 
-        video_sources_[0]->AddOrUpdateSink(local_preview.get(),
-                                           rtc::VideoSinkWants());
+        video_sources_[0]->AddOrUpdateSink(local_preview.get(), rtc::VideoSinkWants());
       }
       ConnectVideoSourcesToStreams();
     }

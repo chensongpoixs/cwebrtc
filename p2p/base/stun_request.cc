@@ -70,6 +70,7 @@ void StunRequestManager::SendDelayed(StunRequest* request, int delay) {
   request->set_manager(this);
   RTC_DCHECK(requests_.find(request->id()) == requests_.end());
   request->set_origin(origin_);
+  // ·¢ËÍ stun¡¢ turn   message ×Ö¶Î
   request->Construct();
   requests_[request->id()] = request;
   if (delay > 0) {

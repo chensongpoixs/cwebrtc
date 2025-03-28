@@ -27,6 +27,14 @@ namespace webrtc {
 
 /*
 
+            几个对象之间的关系
+
+FecControllerDefault   => FEC控制器  用于计算FEC保护因子和各种参数
+
+VCMLossProtectionLogic => FEC生成器 类似于对象工厂用于产生FEC对象
+
+UlpfecGenerator        => FEC对象  用于对媒体包生成FEC冗余，它使用FEC控制器
+
 根据RtpVideoSender提供的目标码率、帧率、丢包率等实时参数，结合网络带宽估计（BWE）结果，动态计算FEC保护比率
 
 ‌运行时更新‌
@@ -34,6 +42,8 @@ namespace webrtc {
 接收来自RtpVideoSender的码率更新事件
 调用FecControllerDefault生成最新FEC保护比率‌  [delta_params key_params] rate_fec = > [0, 255]
 通过VideoFecGenerator接口调整冗余包生成速率‌
+
+
 
 
 */

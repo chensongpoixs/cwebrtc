@@ -207,6 +207,7 @@ bool PortAllocator::SetConfiguration(
     IceParameters iceCredentials = IceCredentialsIterator::CreateRandomIceCredentials();
     PortAllocatorSession* pooled_session = CreateSessionInternal("", 0, iceCredentials.ufrag, iceCredentials.pwd);
     pooled_session->set_pooled(true);
+	//20250327  触发MSG_CONFIG_START信号   探测stun和turn 服务连通性 
     pooled_session->StartGettingPorts();
     pooled_sessions_.push_back(std::unique_ptr<PortAllocatorSession>(pooled_session));
   }

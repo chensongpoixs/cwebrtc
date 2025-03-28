@@ -283,98 +283,49 @@ void VCMFecMethod::UpdateProtectionFactorK(uint8_t protectionFactorK) {
 bool VCMFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) {
   // FEC PROTECTION SETTINGS: varies with packet loss and bitrate
 
-  // No protection if (filtered) packetLoss is 0
+  // 如果丢包率为0， 则不进行FEC保护
   uint8_t packetLoss = rtc::saturated_cast<uint8_t>(255 * parameters->lossPr);
   if (packetLoss == 0) {
     _protectionFactorK = 0;
     _protectionFactorD = 0;
     return true;
   }
-
-  // Parameters for FEC setting:
-  // first partition size, thresholds, table pars, spatial resoln fac.
-  // 第一分区大小、阈值、表部分、空间分辨率fac。
-  // First partition protection: ~ 20%
-  // 第一分区保护： ~20%
+/////////////////////////////////////////////////////////////////////////////////////////////// 
+  // firstPartitionProt => 51
   uint8_t firstPartitionProt = rtc::saturated_cast<uint8_t>(255 * 0.20);
 
-  // Minimum protection level needed to generate one FEC packet for one
-  // source packet/frame (in RTP sender)
-  //生成一个FEC数据包所需的最低保护级别
-  //源数据包/帧（在RTP发送器中）
   uint8_t minProtLevelFec = 85;
 
-  // Threshold on packetLoss and bitRrate/frameRate (=average #packets),
-  // above which we allocate protection to cover at least first partition.
-  //分组丢失阈值和比特率/帧率（=平均分组数），
-  //超过该阈值，我们分配保护以覆盖至少第一个分区。
   uint8_t lossThr = 0;
-  uint8_t packetNumThr = 1;
-
-  // Parameters for range of rate index of table.
-  /// 表速率指标范围参数
-  const uint8_t ratePar1 = 5;
-  const uint8_t ratePar2 = 49;
-
-  // Spatial resolution size, relative to a reference size.
-  // 空间分辨率大小，相对于参考大小
+  uint8_t packetNumThr = 1; 
+  //  对应kFecRateTable 这张二维表 行数范围
+  const uint8_t ratePar1 = 5;   //   5 => 二维表  5代表 5K
+  const uint8_t ratePar2 = 49; 
+  // 1. Google 统计出来一个计算视频比例 通过[704 * 576]计算出当前 resolnFac: 分辨率因子
   float spatialSizeToRef = rtc::saturated_cast<float>(parameters->codecWidth *
                                                       parameters->codecHeight) /
-                           (rtc::saturated_cast<float>(704 * 576));
-  // resolnFac: This parameter will generally increase/decrease the FEC rate
-  // (for fixed bitRate and packetLoss) based on system size.
-  // Use a smaller exponent (< 1) to control/soften system size effect.
-  // resolnFac：此参数通常会增加/减少FEC速率
-  //（适用于固定比特率和丢包率）基于系统大小。
-  //使用较小的指数（<1）来控制/软化系统大小效应
+                           (rtc::saturated_cast<float>(704 * 576)); 
   const float resolnFac = 1.0 / powf(spatialSizeToRef, 0.3f);
-
-  // 根据 目标码率和帧率  计算出一帧的码流
-  // 每像素比特数（BPP）模型平衡视频质量 = 目标码率 / (分辨率 * 帧率)
-  const int bitRatePerFrame = BitsPerFrame(parameters);
-
-  // Average number of packets per frame (source and fec):
-  // 计算每帧的平均数据包数（源和fec）：
+  // 2. 根据目标码率和帧率  计算出每一帧的码率
+  const int bitRatePerFrame = BitsPerFrame(parameters); 
+  // 3. 计算每帧数据 在1秒 内发送rtp的包数量 [1.5f：1.5包冗余度 ， _maxPayloadSize: rtp 包的大小， 8.0： 字节， 1000.0f: 秒]
   const uint8_t avgTotPackets = rtc::saturated_cast<uint8_t>(
       1.5f + rtc::saturated_cast<float>(bitRatePerFrame) * 1000.0f /rtc::saturated_cast<float>(8.0 * _maxPayloadSize));
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // 1. 查表映射公式
-  // 根据实时丢包率（Loss Rate）从kFecRateTable中获取基础冗余度
-  // BaseFecRate = Interpolate(kFecRateTable,LossRate)
-  // 其中Interpolate为线性插值函数，当丢包率介于表项之间时按比例加权计算
-  //
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // FEC rate parameters: for P and I frame
-  // FEC速率参数：适用于P和I帧
   uint8_t codeRateDelta = 0;
-  uint8_t codeRateKey = 0;
-
-  // Get index for table: the FEC protection depends on an effective rate.
-  // The range on the rate index corresponds to rates (bps)
-  // from ~200k to ~8000k, for 30fps
-  //获取表索引：FEC保护取决于有效速率。
-  //费率指数上的范围对应于费率（bps）
-  //从200k到8000k，帧率为30fps
-  //////////////////////////////////////////////////////////////
-  //  根据 分辨率 [702 * 576]  计算出当前视频分辨率[width * height] =====>  一帧需要码流的大小
-  ///////////////////////////////////////
+  uint8_t codeRateKey = 0; 
+  // 4. 每一帧有效码率 = 分辨率因子 * 每一帧码率
   const uint16_t effRateFecTable = rtc::saturated_cast<uint16_t>(resolnFac * bitRatePerFrame);
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // 丢包率下标表
-  uint8_t rateIndexTable = rtc::saturated_cast<uint8_t>(VCM_MAX(VCM_MIN((effRateFecTable - ratePar1) / ratePar1, ratePar2), 0));
-
-  // Restrict packet loss range to 50:
-  // current tables defined only up to 50%
-  //将数据包丢失范围限制为50:
-  //当前表仅定义了高达50%
+  // 5. kFecRateTable 计算二维表中行下标公式 =   有效码率 / 每行码率
+  uint8_t rateIndexTable = rtc::saturated_cast<uint8_t>(VCM_MAX(VCM_MIN((effRateFecTable - ratePar1/*5K*/) / ratePar1, ratePar2), 0));
+  // 丢包率最多在50% 
   if (packetLoss >= kPacketLossMax) 
   {
     packetLoss = kPacketLossMax - 1;
   }
-  
+  // 6. 计算出kFecRateTable一维表下标公式  =  (行下标 * 一列数据) + 列偏移量
   uint16_t indexTable = rateIndexTable * kPacketLossMax + packetLoss;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // Check on table index
   RTC_DCHECK_LT(indexTable, kFecRateTableSize);

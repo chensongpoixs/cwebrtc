@@ -157,7 +157,7 @@ class VCMFecMethod : public VCMProtectionMethod {
   bool UpdateParameters(const VCMProtectionParameters* parameters) override;
   // Get the effective packet loss for ER
   bool EffectivePacketLoss(const VCMProtectionParameters* parameters);
-  // Get the FEC protection factors
+  // Get the FEC protection factors   计算出FEC的保护因子
   bool ProtectionFactor(const VCMProtectionParameters* parameters);
   // Get the boost for key frame protection
   uint8_t BoostCodeRateKey(uint8_t packetFrameDelta,

@@ -49,6 +49,8 @@ class TurnFileAuth : public cricket::TurnAuthInterface {
 };
 
 }  // namespace
+// turnserver  0.0.0.0
+// cmd     0.0.0.0:23333  192.168.1.6  realm  D:\Work\cmedia_server\webrtc_google\src\out\test_vs2017_debug\webrtc_turn.conf
 
 int main(int argc, char* argv[]) {
   if (argc != 5) {
@@ -56,7 +58,9 @@ int main(int argc, char* argv[]) {
               << std::endl;
     return 1;
   }
-
+  WSADATA wsaData;
+  WORD wVersionRequested = MAKEWORD(1, 0);
+  WSAStartup(wVersionRequested, &wsaData);
   rtc::SocketAddress int_addr;
   if (!int_addr.FromString(argv[1])) {
     std::cerr << "Unable to parse IP address: " << argv[1] << std::endl;

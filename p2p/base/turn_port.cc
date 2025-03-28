@@ -296,6 +296,9 @@ TurnPort::TurnPort(rtc::Thread* thread,
       error_(0),
       stun_dscp_value_(rtc::DSCP_NO_CHANGE),
       request_manager_(thread),
+      realm_(""),
+      nonce_(""),
+	  hash_(""), 
       next_channel_number_(TURN_CHANNEL_NUMBER_START),
       state_(STATE_CONNECTING),
       server_priority_(server_priority),
@@ -1339,7 +1342,9 @@ void TurnAllocateRequest::Prepare(StunMessage* request) {
       StunAttribute::CreateUInt32(STUN_ATTR_REQUESTED_TRANSPORT);
   transport_attr->SetValue(IPPROTO_UDP << 24);
   request->AddAttribute(std::move(transport_attr));
-  if (!port_->hash().empty()) {
+  // 20250327 fix turn reply 协议 第一次返回401码 后会 md5(username:realm_:password)
+  if (!port_->hash().empty()) 
+  {
     port_->AddRequestAuthInfo(request);
   }
   port_->TurnCustomizerMaybeModifyOutgoingStunMessage(request);

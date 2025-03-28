@@ -258,6 +258,9 @@ int ForwardErrorCorrection::NumFecPackets(int num_media_packets,
 	// 结果是Q0有一个无符号回合。
 	//  128 = 1 << 7
 	//   1 >> 8 == /256
+  //num_media_packets: 媒体包数量
+  //protection_factor: FEC保护因子
+  //1 << 7 = > 128   :  取整数
   int num_fec_packets = (num_media_packets * protection_factor + (1 << 7)) >> 8;
   // Generate at least one FEC packet if we need protection.
   if (protection_factor > 0 && num_fec_packets == 0) {

@@ -19,7 +19,12 @@
 
 namespace webrtc {
 namespace fec_private_tables {
-
+///////////////////////////////////////////////////////////////////////////////
+//                  媒体包的分组与生成FEC的包数由
+//                   1.  kFecRateTable表， 使用于确定媒体包的个数
+//                   2.  kPacketMaskRandomTbl表，
+//                   使用于确定FEC包的个数和保护策略
+///////////////////////////////////////////////////////////////////////////////
 extern const uint8_t kPacketMaskRandomTbl[];
 
 }  // namespace fec_private_tables

@@ -547,10 +547,10 @@ void CallTest::CreateAudioStreams() {
 }
 
 void CallTest::CreateFlexfecStreams() {
-  for (size_t i = 0; i < flexfec_receive_configs_.size(); ++i) {
+  for (size_t i = 0; i < flexfec_receive_configs_.size(); ++i) 
+  {
     flexfec_receive_streams_.push_back(
-        receiver_call_->CreateFlexfecReceiveStream(
-            flexfec_receive_configs_[i]));
+        receiver_call_->CreateFlexfecReceiveStream(flexfec_receive_configs_[i]));
   }
 
   AssociateFlexfecStreamsWithVideoStreams();

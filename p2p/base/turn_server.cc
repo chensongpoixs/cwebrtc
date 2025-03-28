@@ -12,6 +12,7 @@
 
 #include <tuple>  // for std::tie
 #include <utility>
+#include <iostream>
 
 #include "absl/algorithm/container.h"
 #include "absl/memory/memory.h"
@@ -212,6 +213,9 @@ void TurnServer::OnInternalPacket(rtc::AsyncPacketSocket* socket,
   RTC_DCHECK(iter != server_sockets_.end());
   TurnServerConnection conn(addr, iter->second, socket);
   uint16_t msg_type = rtc::GetBE16(data);
+
+  std::cout << "[ " << addr.ToString() << "][msg_type =" << msg_type
+             << std::endl;
   if (!IsTurnChannelData(msg_type)) {
     // This is a STUN message.
     HandleStunMessage(&conn, data, size);
@@ -267,17 +271,30 @@ void TurnServer::HandleStunMessage(TurnServerConnection* conn, const char* data,
   }
 
   // Ensure the message is authorized; only needed for requests.
-  if (IsStunRequestType(msg.type())) {
-    if (!CheckAuthorization(conn, &msg, data, size, key)) {
+  std::cout << "[" << conn->ToString() << "][" << __LINE__
+            << "][username=" << key  <<"]"
+            << std::endl;
+  if (IsStunRequestType(msg.type())) 
+  {
+    std::cout << "[" << conn->ToString() << "][" << __LINE__
+              << "][username=" << key << "]" << std::endl;
+	  if (!CheckAuthorization(conn, &msg, data, size, key)) {
       return;
     }
   }
-
-  if (!allocation && msg.type() == STUN_ALLOCATE_REQUEST) {
+  std::cout << "[" << conn->ToString() << "][" << __LINE__
+            << "][username=" << key << "]" << std::endl;
+  if (!allocation && msg.type() == STUN_ALLOCATE_REQUEST) 
+  {
+    std::cout << "[" << conn->ToString() << "][" << __LINE__
+              << "][username=" << key << "]" << std::endl;
     HandleAllocateRequest(conn, &msg, key);
   } else if (allocation &&
              (msg.type() != STUN_ALLOCATE_REQUEST ||
-              msg.transaction_id() == allocation->transaction_id())) {
+              msg.transaction_id() == allocation->transaction_id())) 
+  {
+    std::cout << "[" << conn->ToString() << "][" << __LINE__
+              << "][username=" << key << "]" << std::endl;
     // This is a non-allocate request, or a retransmit of an allocate.
     // Check that the username matches the previous username used.
     if (IsStunRequestType(msg.type()) &&
@@ -288,7 +305,11 @@ void TurnServer::HandleStunMessage(TurnServerConnection* conn, const char* data,
       return;
     }
     allocation->HandleTurnMessage(&msg);
-  } else {
+  }
+  else
+  {
+    std::cout << "[" << conn->ToString() << "][" << __LINE__
+              << "][username=" << key << "]" << std::endl;
     // Allocation mismatch.
     SendErrorResponse(conn, &msg, STUN_ERROR_ALLOCATION_MISMATCH,
                       STUN_ERROR_REASON_ALLOCATION_MISMATCH);
@@ -581,8 +602,8 @@ void TurnServer::FreeSockets() {
 TurnServerConnection::TurnServerConnection(const rtc::SocketAddress& src,
                                            ProtocolType proto,
                                            rtc::AsyncPacketSocket* socket)
-    : src_(src),
-      dst_(socket->GetRemoteAddress()),
+    : src_(/*src*/ src),
+      dst_(socket->GetLocalAddress()  /*socket->GetRemoteAddress()*/),
       proto_(proto),
       socket_(socket) {
 }

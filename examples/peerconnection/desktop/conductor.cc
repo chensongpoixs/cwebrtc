@@ -205,7 +205,7 @@ bool Conductor::ReinitializePeerConnectionForLoopback() {
   std::vector<rtc::scoped_refptr<webrtc::RtpSenderInterface>> senders =
       peer_connection_->GetSenders();
   peer_connection_ = nullptr;
-  if (CreatePeerConnection(/*dtls=*/true)) {
+  if (CreatePeerConnection(/*dtls=*/false)) {
     for (const auto& sender : senders) {
       peer_connection_->AddTrack(sender->track(), sender->stream_ids());
     }
@@ -225,6 +225,14 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   config.enable_dtls_srtp = dtls; //是否加密
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = GetPeerConnectionString();
+ // server.hostname = "localhost"; //域名
+  server.username = "chensong";
+  server.password = "0123456789";
+  std::vector<std::string> turnservers;
+  turnservers.push_back("turn:192.168.1.6:23333?transport=udp");
+  server.urls = turnservers;
+  // 设置走 turn server 进行转发媒体数据 哈
+  config.type = webrtc::PeerConnectionInterface::kRelay;
   config.servers.push_back(server);
 
   peer_connection_ = peer_connection_factory_->CreatePeerConnection(config, nullptr, nullptr, this);

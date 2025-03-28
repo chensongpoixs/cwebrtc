@@ -420,29 +420,29 @@ LRESULT CALLBACK MainWnd::WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 //#define WM_LBUTTONDBLCLK                0x0203
 
 
-	static FILE * out_file_ptr = fopen("./test.log", "wb+");
-	if (out_file_ptr)
-	{
-		if (WM_LBUTTONDOWN == msg)
-		{
-			fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONDOWN][]\n", msg);
-		}
-		else if (WM_LBUTTONUP == msg)
-		{
-			fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONUP][]\n", msg);
-		}
-		else if (WM_LBUTTONDBLCLK == msg)
-		{
-			fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONDBLCLK][]\n", msg);
-		}
-		else
-		{
-			fprintf(out_file_ptr, "[msg = %u][][]\n", msg);
-		}
-		fflush(out_file_ptr);
-	}
+	//static FILE * out_file_ptr = fopen("./test.log", "wb+");
+	//if (out_file_ptr)
+	//{
+	//	if (WM_LBUTTONDOWN == msg)
+	//	{
+	//		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONDOWN][]\n", msg);
+	//	}
+	//	else if (WM_LBUTTONUP == msg)
+	//	{
+	//		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONUP][]\n", msg);
+	//	}
+	//	else if (WM_LBUTTONDBLCLK == msg)
+	//	{
+	//		fprintf(out_file_ptr, "[msg = %u][WM_LBUTTONDBLCLK][]\n", msg);
+	//	}
+	//	else
+	//	{
+	//		fprintf(out_file_ptr, "[msg = %u][][]\n", msg);
+	//	}
+	//	fflush(out_file_ptr);
+	//}
 
-  RTC_LOG(LS_INFO) << "msg = " << msg << ", wp " << wp << ", lp = " << lp;
+ // RTC_LOG(LS_INFO) << "msg = " << msg << ", wp " << wp << ", lp = " << lp;
   MainWnd* me =
       reinterpret_cast<MainWnd*>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
   if (!me && WM_CREATE == msg) {

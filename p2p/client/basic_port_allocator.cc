@@ -597,8 +597,9 @@ void BasicPortAllocatorSession::UpdateIceParametersInternal() {
 
 void BasicPortAllocatorSession::GetPortConfigurations() {
   RTC_DCHECK_RUN_ON(network_thread_);
-  PortConfiguration* config =
-      new PortConfiguration(allocator_->stun_servers(), username(), password());
+
+  // 20250327  把 stun 和turn 的IP和port保存config中取
+  PortConfiguration* config = new PortConfiguration(allocator_->stun_servers(), username(), password());
 
   for (const RelayServerConfig& turn_server : allocator_->turn_servers()) {
     config->AddRelay(turn_server);
@@ -1061,7 +1062,7 @@ bool BasicPortAllocatorSession::CheckCandidateFilter(const Candidate& c) const {
   if (c.address().IsAnyIP()) {
     return false;
   }
-
+  // 20250327 检查candidate 收集类型是否完整
   if (c.type() == RELAY_PORT_TYPE) {
     return ((filter & CF_RELAY) != 0);
   } else if (c.type() == STUN_PORT_TYPE) {

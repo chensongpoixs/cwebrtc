@@ -1159,6 +1159,7 @@ class PeerConnection : public PeerConnectionInternal,
   // pointer from any thread.
   Call* const call_ptr_;
 
+  // chrome://webrtc-internals 数据统计
   std::unique_ptr<StatsCollector> stats_ RTC_GUARDED_BY(signaling_thread());  // A pointer is passed to senders_
   rtc::scoped_refptr<RTCStatsCollector> stats_collector_ RTC_GUARDED_BY(signaling_thread());
   // 通道个数 接受和发送通道

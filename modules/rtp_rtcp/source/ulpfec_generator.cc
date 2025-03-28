@@ -181,7 +181,9 @@ bool FrameMarkingExtension::Write(rtc::ArrayView<uint8_t> data,
 }
   */
   const bool marker_bit = (data_buffer[1] & kRtpMarkerBitMask) ? true : false;
-  if (media_packets_.size() < kUlpfecMaxMediaPackets) {
+  // media + fec 不能超过 48  
+  if (media_packets_.size() < kUlpfecMaxMediaPackets) 
+  {
     // Our packet masks can only protect up to |kUlpfecMaxMediaPackets| packets.
     std::unique_ptr<ForwardErrorCorrection::Packet> packet(
         new ForwardErrorCorrection::Packet());
@@ -201,7 +203,7 @@ bool FrameMarkingExtension::Write(rtc::ArrayView<uint8_t> data,
   // (1) the excess overhead (actual overhead - requested/target overhead) is
   // less than |kMaxExcessOverhead|, and
   // (2) at least |min_num_media_packets_| media packets is reached.
-  // 必须是  包第一个rtp  
+  // 过载值是50   FEC需要的最小包的个数是 4
   if (complete_frame &&
       (num_protected_frames_ == params_.max_fec_frames ||
        (ExcessOverheadBelowMax() && MinimumMediaPacketsReached()))) {
