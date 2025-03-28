@@ -108,7 +108,7 @@ bool MainWnd::Create() {
 
   ui_thread_id_ = ::GetCurrentThreadId();
   wnd_ =
-      ::CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, kClassName, L"RTC_GCC",
+      ::CreateWindowExW(WS_EX_OVERLAPPEDWINDOW, kClassName, L"TURN_ClientB",
                         WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN,
                         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
                         CW_USEDEFAULT, NULL, NULL, GetModuleHandle(NULL), this);

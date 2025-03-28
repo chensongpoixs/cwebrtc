@@ -309,6 +309,7 @@ JsepTransportController::GetRemoteSSLCertChain(
 
 void JsepTransportController::MaybeStartGathering() 
 {
+	// 20250328 ice 探测创建
   if (!network_thread_->IsCurrent())
   {
     network_thread_->Invoke<void>(RTC_FROM_HERE, [&] { MaybeStartGathering(); });
@@ -1098,7 +1099,8 @@ RTCError JsepTransportController::MaybeCreateJsepTransport(
     media_transport_created_once_ = true;
     media_transport->Connect(ice.get());
   }
-
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////20350328 |RTP|RTCP|dtls_srtp|sdest|通道创建////////////////////////////////////////////////////////////////////////////
   std::unique_ptr<cricket::DtlsTransportInternal> rtp_dtls_transport = CreateDtlsTransport(std::move(ice));
 
   std::unique_ptr<cricket::DtlsTransportInternal> rtcp_dtls_transport;
@@ -1137,7 +1139,7 @@ RTCError JsepTransportController::MaybeCreateJsepTransport(
           std::move(sdes_transport), std::move(dtls_srtp_transport),
           std::move(rtp_dtls_transport), std::move(rtcp_dtls_transport),
           std::move(media_transport));
-
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   jsep_transport->SignalRtcpMuxActive.connect( this, &JsepTransportController::UpdateAggregateStates_n);
   jsep_transport->SignalMediaTransportStateChanged.connect( this, &JsepTransportController::OnMediaTransportStateChanged_n);

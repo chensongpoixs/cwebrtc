@@ -254,6 +254,7 @@ void StunRequest::OnMessage(rtc::Message* pmsg) {
   RTC_DCHECK(manager_ != NULL);
   RTC_DCHECK(pmsg->message_id == MSG_STUN_SEND);
 
+  // 20250329 超时 回调 
   if (timeout_) {
     OnTimeout();
     delete this;
@@ -267,6 +268,7 @@ void StunRequest::OnMessage(rtc::Message* pmsg) {
   manager_->SignalSendPacket(buf.Data(), buf.Length(), this);
 
   OnSent();
+  // 设置超时间
   manager_->thread_->PostDelayed(RTC_FROM_HERE, resend_delay(), this,
                                  MSG_STUN_SEND, NULL);
 }

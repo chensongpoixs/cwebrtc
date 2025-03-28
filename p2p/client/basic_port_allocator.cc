@@ -599,7 +599,8 @@ void BasicPortAllocatorSession::GetPortConfigurations() {
   RTC_DCHECK_RUN_ON(network_thread_);
 
   // 20250327  把 stun 和turn 的IP和port保存config中取
-  PortConfiguration* config = new PortConfiguration(allocator_->stun_servers(), username(), password());
+  PortConfiguration* config =
+      new PortConfiguration(allocator_->stun_servers(), username(), password());
 
   for (const RelayServerConfig& turn_server : allocator_->turn_servers()) {
     config->AddRelay(turn_server);
@@ -796,6 +797,7 @@ void BasicPortAllocatorSession::DoAllocate(bool disable_equivalent) {
       if (disable_equivalent) {
         // Disable phases that would only create ports equivalent to
         // ones that we have already made.
+        // 释放这个网络
         DisableEquivalentPhases(networks[i], config, &sequence_flags);
 
         if ((sequence_flags & DISABLE_ALL_PHASES) == DISABLE_ALL_PHASES) {
@@ -808,6 +810,7 @@ void BasicPortAllocatorSession::DoAllocate(bool disable_equivalent) {
           new AllocationSequence(this, networks[i], config, sequence_flags);
       sequence->SignalPortAllocationComplete.connect(
           this, &BasicPortAllocatorSession::OnPortAllocationComplete);
+      // 20250328  创建socket 绑定本地端口 注册读写事件
       sequence->Init();
       sequence->Start();
       sequences_.push_back(sequence);
@@ -838,7 +841,7 @@ void BasicPortAllocatorSession::OnNetworksChanged() {
                      << " ports because their networks were gone";
     PrunePortsAndRemoveCandidates(ports_to_prune);
   }
-
+  // 20250328 收到网卡信息后开始使用网卡探测网络
   if (allocation_started_ && !IsStopped()) {
     if (network_manager_started_) {
       // If the network manager has started, it must be regathering.
@@ -884,7 +887,8 @@ void BasicPortAllocatorSession::AddAllocatedPort(Port* port,
 
   PortData data(port, seq);
   ports_.push_back(data);
-  // TODO@chensong 2022-03-24 WebRTC  ICE  stun server -> candidate info callback 
+  // TODO@chensong 2022-03-24 WebRTC  ICE  stun server -> candidate info
+  // callback
   port->SignalCandidateReady.connect(
       this, &BasicPortAllocatorSession::OnCandidateReady);
   port->SignalPortComplete.connect(this,
@@ -894,8 +898,11 @@ void BasicPortAllocatorSession::AddAllocatedPort(Port* port,
   port->SignalPortError.connect(this, &BasicPortAllocatorSession::OnPortError);
   RTC_LOG(LS_INFO) << port->ToString() << ": Added port to allocator";
 
-  if (prepare_address)
+  if (prepare_address) 
+  {
+	  // 20250328  创建 连接turn 服务的客户端 和发送 Allocate request 请求
     port->PrepareAddress();
+  }
 }
 
 void BasicPortAllocatorSession::OnAllocationSequenceObjectsCreated() {
@@ -1586,7 +1593,8 @@ stun  验证调用流程
 [p2p/base/p2p_transport_channel]         P2PTransportChannel::AddConnection
 */
 void AllocationSequence::OnReadPacket(rtc::AsyncPacketSocket* socket,
-                                      const char* data, size_t size,
+                                      const char* data,
+                                      size_t size,
                                       const rtc::SocketAddress& remote_addr,
                                       const int64_t& packet_time_us) {
   RTC_DCHECK(socket == udp_socket_.get());
@@ -1599,32 +1607,30 @@ void AllocationSequence::OnReadPacket(rtc::AsyncPacketSocket* socket,
   // a STUN binding response, so we pass the message to TurnPort regardless of
   // the message type. The TurnPort will just ignore the message since it will
   // not find any request by transaction ID.
-  for (auto* port : relay_ports_)
-  {
-    if (port->CanHandleIncomingPacketsFrom(remote_addr)) 
-	{
-      if (port->HandleIncomingPacket(socket, data, size, remote_addr, packet_time_us))
-	  {
+  for (auto* port : relay_ports_) {
+    if (port->CanHandleIncomingPacketsFrom(remote_addr)) {
+      if (port->HandleIncomingPacket(socket, data, size, remote_addr,
+                                     packet_time_us)) {
         return;
       }
       turn_port_found = true;
     }
   }
 
-  if (udp_port_) 
-  {
+  if (udp_port_) {
     const ServerAddresses& stun_servers = udp_port_->server_addresses();
 
     // Pass the packet to the UdpPort if there is no matching TurnPort, or if
     // the TURN server is also a STUN server.
-    if (!turn_port_found || stun_servers.find(remote_addr) != stun_servers.end()) 
-	{
+    if (!turn_port_found ||
+        stun_servers.find(remote_addr) != stun_servers.end()) {
       RTC_DCHECK(udp_port_->SharedSocket());
 #if 0
 	  RTC_NORMAL_EX_LOG("[remote_addr = %s][packet_time_us = %llu]",
                     remote_addr.ToString().c_str(), packet_time_us);
-#endif //#if 0
-	  udp_port_->HandleIncomingPacket(socket, data, size, remote_addr, packet_time_us);
+#endif  //#if 0
+      udp_port_->HandleIncomingPacket(socket, data, size, remote_addr,
+                                      packet_time_us);
     }
   }
 }

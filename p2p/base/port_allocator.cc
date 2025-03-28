@@ -175,6 +175,8 @@ bool PortAllocator::SetConfiguration(
 
   // If ICE servers changed, throw away any existing pooled sessions and create
   // new ones.
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  // 20250328 ice[stun、turn]信息改变 就清除当前端口连接池会话
   if (ice_servers_changed) 
   {
     pooled_sessions_.clear();
@@ -189,11 +191,13 @@ bool PortAllocator::SetConfiguration(
     pooled_sessions_.back().reset(nullptr);
     pooled_sessions_.pop_back();
   }
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
 
   // |stun_candidate_keepalive_interval_| will be used in STUN port allocation
   // in future sessions. We also update the ready ports in the pooled sessions.
   // Ports in sessions that are taken and owned by P2PTransportChannel will be
   // updated there via IceConfig.
+  // ICE的心跳包  的
   stun_candidate_keepalive_interval_ = stun_candidate_keepalive_interval;
   for (const auto& session : pooled_sessions_) 
   {

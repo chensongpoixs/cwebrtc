@@ -664,6 +664,7 @@ bool BasicNetworkManager::CreateNetworks(bool include_ignored, NetworkList* netw
     adapter_info.reset(new char[buffer_size]);
     adapter_addrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(adapter_info.get());
 	// 查找机器的IP地址
+	// 20250328 GetAdaptersAddresses 是 Windows 系统中用于‌获取本地计算机网络适配器及关联地址信息‌的 API 函数，支持 IPv4 和 IPv6 地址的全面检索‌
     ret = GetAdaptersAddresses(AF_UNSPEC, adapter_flags, 0, adapter_addrs,
                                reinterpret_cast<PULONG>(&buffer_size));
   } while (ret == ERROR_BUFFER_OVERFLOW);
@@ -937,6 +938,7 @@ void BasicNetworkManager::UpdateNetworksOnce() {
   RTC_DCHECK(Thread::Current() == thread_);
 
   NetworkList list;
+  // 20250328 获取本机mac、ip、wifi、 
   if (!CreateNetworks(false, &list)) {
     SignalError();
   } else {
@@ -945,6 +947,7 @@ void BasicNetworkManager::UpdateNetworksOnce() {
     MergeNetworkList(list, &changed, &stats);
     set_default_local_addresses(QueryDefaultLocalAddress(AF_INET),
                                 QueryDefaultLocalAddress(AF_INET6));
+	// 获取到本机的地址 就通知上层
     if (changed || !sent_first_update_) {
       SignalNetworksChanged();
       sent_first_update_ = true;

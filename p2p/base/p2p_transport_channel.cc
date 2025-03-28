@@ -781,6 +781,7 @@ void P2PTransportChannel::MaybeStartGathering() {
     return;
   }
   // Start gathering if we never started before, or if an ICE restart occurred.
+  // 20250328  在查看已经连接会话中没有ufrag和pwd
   if (allocator_sessions_.empty() ||
       IceCredentialsChanged(allocator_sessions_.back()->ice_ufrag(),
                             allocator_sessions_.back()->ice_pwd(),
@@ -803,8 +804,9 @@ void P2PTransportChannel::MaybeStartGathering() {
                                 static_cast<int>(state),
                                 static_cast<int>(IceRestartState::MAX_VALUE));
     }
-
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Time for a new allocator.
+	// 20250328 1. 查找连接池中没有正在连接的 ufrg和pwd的session会话 没有就创建session
     std::unique_ptr<PortAllocatorSession> pooled_session =
         allocator_->TakePooledSession(transport_name(), component(),
                                       ice_parameters_.ufrag,
@@ -822,12 +824,15 @@ void P2PTransportChannel::MaybeStartGathering() {
       if (allocator_sessions_.back()->CandidatesAllocationDone()) {
         OnCandidatesAllocationDone(raw_pooled_session);
       }
-    } else {
+    } else 
+	{
+		// 20250328 连接池中没有就创建一个连接session会话 ufrg和pwd
       AddAllocatorSession(allocator_->CreateSession(
           transport_name(), component(), ice_parameters_.ufrag,
           ice_parameters_.pwd));
       allocator_sessions_.back()->StartGettingPorts();
     }
+	//////////////////////////////////////////////////////////////////////////
   }
 }
 

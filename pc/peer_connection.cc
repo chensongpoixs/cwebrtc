@@ -993,8 +993,9 @@ bool PeerConnection::Initialize(const PeerConnectionInterface::RTCConfiguration&
           RTC_FROM_HERE, rtc::Bind(&PeerConnection::InitializePortAllocator_n, this,
                     stun_servers, turn_servers, configuration));
 
+  /////////////////////////////////////////////////////////////////////////////////////////////
   // If initialization was successful, note if STUN or TURN servers
-  // were supplied.
+  // were supplied. 20250328  ice服务初始化成功后通知应用层
   if (!stun_servers.empty()) 
   {
     NoteUsageEvent(UsageEvent::STUN_SERVER_ADDED);
@@ -1003,7 +1004,7 @@ bool PeerConnection::Initialize(const PeerConnectionInterface::RTCConfiguration&
   {
     NoteUsageEvent(UsageEvent::TURN_SERVER_ADDED);
   }
-
+  ////////////////////////////////////////////////////////////////////////////////////////////////
   // Send information about IPv4/IPv6 status.
   PeerConnectionAddressFamilyCounter address_family;
   if (pa_result.enable_ipv6) 
@@ -1074,19 +1075,20 @@ bool PeerConnection::Initialize(const PeerConnectionInterface::RTCConfiguration&
     config.use_media_transport_for_data_channels = configuration.use_media_transport_for_data_channels;
     config.media_transport_factory = factory_->media_transport_factory();
   }
-  ///////////////////////////////////传输模块的控制 通知 ^_^ ///////////////////////////////////////////////////////////////
-
+  ///////////////////////////////////ICE |STUN|TURN|传输模块的控制 通知 ^_^ ///////////////////////////////////////////////////////////////
+  // 20250328 ICE 探测JsepTransportController类
   transport_controller_.reset(new JsepTransportController(
       signaling_thread(), network_thread(), port_allocator_.get(), async_resolver_factory_.get(), config));
 
+  transport_controller_->SignalConnectionState.connect(
+      this, &PeerConnection::SetConnectionState);
   transport_controller_->SignalIceConnectionState.connect(
       this, &PeerConnection::OnTransportControllerConnectionState);
 
   transport_controller_->SignalStandardizedIceConnectionState.connect(
       this, &PeerConnection::SetStandardizedIceConnectionState);
 
-  transport_controller_->SignalConnectionState.connect(
-      this, &PeerConnection::SetConnectionState);
+  
 
   // TODO@chensong 2022-10-08 这个注册函数没有看懂什么意思
   transport_controller_->SignalIceGatheringState.connect(
@@ -1105,7 +1107,7 @@ bool PeerConnection::Initialize(const PeerConnectionInterface::RTCConfiguration&
   sctp_factory_ = factory_->CreateSctpTransportInternalFactory();
 
   /////////////////////////////////////RTC
-  /// Statistics//////////////////////////////////////////////////////////
+  /// Statistics 数据统计模块//////////////////////////////////////////////////////////
   stats_.reset(new StatsCollector(this));
   stats_collector_ = RTCStatsCollector::Create(this);
 
@@ -3596,6 +3598,7 @@ bool PeerConnection::SetConfiguration(const RTCConfiguration& configuration,
   }
 
   // In theory this shouldn't fail.
+  // 20250328 异步创建ice连接探测
   if (!network_thread()->Invoke<bool>(
           RTC_FROM_HERE,
           rtc::Bind(&PeerConnection::ReconfigurePortAllocator_n, this,
@@ -5531,6 +5534,7 @@ PeerConnection::InitializePortAllocator_n(
   }
   // Call this last since it may create pooled allocator sessions using the
   // properties set above.
+  // 20250328 配置config是否ice连接池数量 大
   port_allocator_->SetConfiguration(
       stun_servers, std::move(turn_servers_copy),
       configuration.ice_candidate_pool_size, configuration.prune_turn_ports,

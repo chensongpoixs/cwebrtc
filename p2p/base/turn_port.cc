@@ -384,14 +384,17 @@ void TurnPort::PrepareAddress() {
     RTC_LOG(LS_INFO) << ToString() << ": Trying to connect to TURN server via "
                      << ProtoToString(server_address_.proto) << " @ "
                      << server_address_.address.ToSensitiveString();
+	// 20250328  创建socket 
     if (!CreateTurnClientSocket()) {
       RTC_LOG(LS_ERROR) << "Failed to create TURN client socket";
       OnAllocateError();
       return;
     }
+	// 20250328  创建连接turn的socket 然后发送 Allocate Request请求 
     if (server_address_.proto == PROTO_UDP) {
       // If its UDP, send AllocateRequest now.
       // For TCP and TLS AllcateRequest will be sent by OnSocketConnect.
+		// 这里有个巧妙设计 发送一个AllocateRequest 超时
       SendRequest(new TurnAllocateRequest(this), 0);
     }
   }
