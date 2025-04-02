@@ -144,21 +144,16 @@ class RtpTransportControllerSend final
   // TODO(srte): Move all access to feedback adapter to task queue.
   TransportFeedbackAdapter transport_feedback_adapter_;
 
-  NetworkControllerFactoryInterface* const controller_factory_override_
-      RTC_PT_GUARDED_BY(task_queue_);
-  const std::unique_ptr<NetworkControllerFactoryInterface>
-      controller_factory_fallback_ RTC_PT_GUARDED_BY(task_queue_);
+  NetworkControllerFactoryInterface* const controller_factory_override_ RTC_PT_GUARDED_BY(task_queue_);
+  const std::unique_ptr<NetworkControllerFactoryInterface> controller_factory_fallback_ RTC_PT_GUARDED_BY(task_queue_);
 
-  std::unique_ptr<CongestionControlHandler> control_handler_
-      RTC_GUARDED_BY(task_queue_) RTC_PT_GUARDED_BY(task_queue_);
+  std::unique_ptr<CongestionControlHandler> control_handler_ RTC_GUARDED_BY(task_queue_) RTC_PT_GUARDED_BY(task_queue_);
 
-  std::unique_ptr<NetworkControllerInterface> controller_
-      RTC_GUARDED_BY(task_queue_) RTC_PT_GUARDED_BY(task_queue_);
+  std::unique_ptr<NetworkControllerInterface> controller_ RTC_GUARDED_BY(task_queue_) RTC_PT_GUARDED_BY(task_queue_);
 
   TimeDelta process_interval_ RTC_GUARDED_BY(task_queue_);
 
-  std::map<uint32_t, RTCPReportBlock> last_report_blocks_
-      RTC_GUARDED_BY(task_queue_);
+  std::map<uint32_t, RTCPReportBlock> last_report_blocks_ RTC_GUARDED_BY(task_queue_);
   Timestamp last_report_block_time_ RTC_GUARDED_BY(task_queue_);
 
   NetworkControllerConfig initial_config_ RTC_GUARDED_BY(task_queue_);

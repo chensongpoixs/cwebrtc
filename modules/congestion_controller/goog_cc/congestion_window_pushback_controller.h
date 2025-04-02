@@ -25,6 +25,9 @@ namespace webrtc {
 // will be reduced accordingly to accommodate the network changes. To avoid
 // pausing video too frequently, a minimum encoder target bitrate threshold is
 // used to prevent video pause due to a full congestion window.
+/*
+基于RTT限制发送窗口， 防止队列堆积
+*/
 class CongestionWindowPushbackController {
  public:
   explicit CongestionWindowPushbackController(

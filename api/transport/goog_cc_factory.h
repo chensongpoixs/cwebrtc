@@ -23,8 +23,7 @@ class GoogCcNetworkControllerFactory
  public:
   explicit GoogCcNetworkControllerFactory(RtcEventLog* event_log);
   explicit GoogCcNetworkControllerFactory(
-      RtcEventLog* event_log,
-      NetworkStatePredictorFactoryInterface* network_state_predictor_factory);
+      RtcEventLog* event_log, NetworkStatePredictorFactoryInterface* network_state_predictor_factory);
   std::unique_ptr<NetworkControllerInterface> Create(NetworkControllerConfig config) override;
   TimeDelta GetProcessInterval() const override;
 

@@ -84,15 +84,13 @@ float FecControllerDefault::GetProtectionOverheadRateThreshold() {
 }
 
 uint32_t FecControllerDefault::UpdateFecRates(
-    uint32_t estimated_bitrate_bps,
-    int actual_framerate_fps,
-    uint8_t fraction_lost,
-    std::vector<bool> loss_mask_vector,
-    int64_t round_trip_time_ms) {
-  float target_bitrate_kbps =
-      static_cast<float>(estimated_bitrate_bps) / 1000.0f;
+    uint32_t estimated_bitrate_bps, int actual_framerate_fps,
+    uint8_t fraction_lost, std::vector<bool> loss_mask_vector, int64_t round_trip_time_ms) 
+{
+  float target_bitrate_kbps = static_cast<float>(estimated_bitrate_bps) / 1000.0f;
   // Sanity check.
-  if (actual_framerate_fps < 1.0) {
+  if (actual_framerate_fps < 1.0)
+  {
     actual_framerate_fps = 1.0;
   }
   FecProtectionParams delta_fec_params;

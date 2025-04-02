@@ -479,7 +479,7 @@ void PacedSender::Process()
 			   fprintf(out_file_ptr, "[info][probe_cluster_id = %u][send_bitrate_bps = %u][bytes_sent = %zu][recommended_probe_size = %zu]\n", pacing_info.probe_cluster_id, pacing_info.send_bitrate_bps, bytes_sent, recommended_probe_size);
 			   fflush(out_file_ptr);
 		   }*/
-		  RTC_LOG(LS_WARNING) << "[probe_cluster_id = "<<pacing_info.probe_cluster_id<<"][send_bitrate_bps = "<<pacing_info.send_bitrate_bps<<"][bytes_sent = "<<bytes_sent<<"][recommended_probe_size = "<<recommended_probe_size<<"] " ;
+		//  RTC_LOG(LS_WARNING) << "[probe_cluster_id = "<<pacing_info.probe_cluster_id<<"][send_bitrate_bps = "<<pacing_info.send_bitrate_bps<<"][bytes_sent = "<<bytes_sent<<"][recommended_probe_size = "<<recommended_probe_size<<"] " ;
         break;
 	  }
     } 

@@ -30,7 +30,7 @@ struct PeerConnectionClientObserver {
   virtual void OnMessageFromPeer(int peer_id, const std::string& message) = 0;
   virtual void OnMessageSent(int err) = 0;
   virtual void OnServerConnectionFailure() = 0;
-
+ 
  protected:
   virtual ~PeerConnectionClientObserver() {}
 };

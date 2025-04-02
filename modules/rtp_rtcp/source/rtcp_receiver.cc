@@ -145,7 +145,7 @@ RTCPReceiver::RTCPReceiver(
       rtcp_bandwidth_observer_(rtcp_bandwidth_observer),
       rtcp_intra_frame_observer_(rtcp_intra_frame_observer),
       rtcp_loss_notification_observer_(rtcp_loss_notification_observer),
-      transport_feedback_observer_(transport_feedback_observer),
+      transport_feedback_observer_(transport_feedback_observer), // 20250402  RtpTransportControllerSend对象
       bitrate_allocation_observer_(bitrate_allocation_observer),
       report_interval_ms_(report_interval_ms),
       main_ssrc_(0),
@@ -1203,18 +1203,16 @@ void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
     rtp_rtcp_->OnReceivedRtcpReportBlocks(packet_information.report_blocks);
   }
 
-  if (transport_feedback_observer_ &&
-      (packet_information.packet_type_flags & kRtcpTransportFeedback)) {
-    uint32_t media_source_ssrc =
-        packet_information.transport_feedback->media_ssrc();
-    if (media_source_ssrc == local_ssrc ||
-        registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) {
+  if (transport_feedback_observer_ && (packet_information.packet_type_flags & kRtcpTransportFeedback)) 
+  {
+    uint32_t media_source_ssrc = packet_information.transport_feedback->media_ssrc();
+    if (media_source_ssrc == local_ssrc || registered_ssrcs.find(media_source_ssrc) != registered_ssrcs.end()) 
+	{
       // TODO@chensong 2022-12-05    接受端反馈过来的接受包seq和时间戳统计数据
       // remb
       // RtpTransportControllerSend::OnTransportFeedback
       // 这个代码带宽评估的非常重要一步是根据对端反馈网络带宽 带宽评估条件之一
-      transport_feedback_observer_->OnTransportFeedback(
-          *packet_information.transport_feedback);
+      transport_feedback_observer_->OnTransportFeedback(*packet_information.transport_feedback);
     }
   }
   // TODO@chensong 2022-12-20  bitrate 对象没有

@@ -658,7 +658,7 @@ void SendSideBandwidthEstimation::UpdateEstimate(Timestamp at_time)
       }
     }
 
-	RTC_LOG(LS_INFO) << "[bitrate_threshold_ " << bitrate_threshold_ << "][loss = " << loss << "][low_loss_threshold_ = " << low_loss_threshold_ << "][high_loss_threshold_ " << high_loss_threshold_ << "][new_bitrate = "<<new_bitrate<<"]";
+	//RTC_LOG(LS_INFO) << "[bitrate_threshold_ " << bitrate_threshold_ << "][loss = " << loss << "][low_loss_threshold_ = " << low_loss_threshold_ << "][high_loss_threshold_ " << high_loss_threshold_ << "][new_bitrate = "<<new_bitrate<<"]";
 
   } 
   else if (time_since_loss_feedback > kFeedbackTimeoutIntervals/*3*/ * kMaxRtcpFeedbackInterval &&
@@ -716,7 +716,7 @@ void SendSideBandwidthEstimation::UpdateMinHistory(Timestamp at_time)
     min_bitrate_history_.pop_back();
   }
   // TODO@chensong 2023-05-02 保存当前时间的码流
-  RTC_LOG(LS_INFO) << "[min bitrate_history insert --> "<<current_bitrate_<<"]";
+ // RTC_LOG(LS_INFO) << "[min bitrate_history insert --> "<<current_bitrate_<<"]";
   min_bitrate_history_.push_back(std::make_pair(at_time, current_bitrate_));
 }
 
@@ -755,23 +755,23 @@ void SendSideBandwidthEstimation::CapBitrateToThresholds(Timestamp at_time, Data
   if (  bitrate > bwe_incoming_ && bwe_incoming_ > DataRate::Zero()) 
   { //TODO@chensong 2023-04-30  goog-remb 算法会走到这里啦
     bitrate = bwe_incoming_;
-	RTC_LOG(LS_INFO) << "[bwe_incoming_ = "<<bwe_incoming_<<"]";
+	//RTC_LOG(LS_INFO) << "[bwe_incoming_ = "<<bwe_incoming_<<"]";
   }
   if (bitrate > delay_based_bitrate_ && delay_based_bitrate_ > DataRate::Zero() )
   {
     bitrate = delay_based_bitrate_;
-	RTC_LOG(LS_INFO) << "[delay_based_bitrate_ = "<<delay_based_bitrate_<<"]";
+	//RTC_LOG(LS_INFO) << "[delay_based_bitrate_ = "<<delay_based_bitrate_<<"]";
   }
   if (loss_based_bandwidth_estimation_.Enabled() &&
       loss_based_bandwidth_estimation_.GetEstimate() > DataRate::Zero()) 
   {
     bitrate = std::min(bitrate, loss_based_bandwidth_estimation_.GetEstimate());
-	RTC_LOG(LS_INFO) << "[bitrate = "<<bitrate<<"]";
+	//RTC_LOG(LS_INFO) << "[bitrate = "<<bitrate<<"]";
   }
   if (bitrate > max_bitrate_configured_)
   {
     bitrate = max_bitrate_configured_;
-	RTC_LOG(LS_INFO) << "[max_bitrate_configured_ = "<<max_bitrate_configured_<<"]";
+	//RTC_LOG(LS_INFO) << "[max_bitrate_configured_ = "<<max_bitrate_configured_<<"]";
   }
   if (bitrate < min_bitrate_configured_) 
   {
@@ -785,7 +785,7 @@ void SendSideBandwidthEstimation::CapBitrateToThresholds(Timestamp at_time, Data
       last_low_bitrate_log_ = at_time;
     }
     bitrate = min_bitrate_configured_;
-	RTC_LOG(LS_INFO) << "[min_bitrate_configured_ = "<<min_bitrate_configured_<<"]";
+//	RTC_LOG(LS_INFO) << "[min_bitrate_configured_ = "<<min_bitrate_configured_<<"]";
   }
 
   if (bitrate != current_bitrate_ || last_fraction_loss_ != last_logged_fraction_loss_ || at_time - last_rtc_event_log_ > kRtcEventLogPeriod) 

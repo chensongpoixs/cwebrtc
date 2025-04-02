@@ -478,7 +478,10 @@ JsepTransportController::CreateDtlsTransport(
   } else if (config_.external_transport_factory) {
     dtls = config_.external_transport_factory->CreateDtlsTransport(
         std::move(ice), config_.crypto_options);
-  } else {
+  }
+  else 
+  {
+	  //TODOW@chensong 20250402 在准备注册 读取信息的接口  SignalReadPacket
     dtls = absl::make_unique<cricket::DtlsTransport>(
         std::move(ice), config_.crypto_options, config_.event_log);
   }
@@ -1091,6 +1094,7 @@ RTCError JsepTransportController::MaybeCreateJsepTransport(
   }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                 TODO@chensong 2022-10-08 
+  //   TODO@chensong 20250402  ice 发送数据rtp，rtcp 通道socket管理     P2PTransportChannel对象
   std::unique_ptr<cricket::IceTransportInternal> ice =    CreateIceTransport(content_info.name, /*rtcp=*/false);
 
   std::unique_ptr<MediaTransportInterface> media_transport =  MaybeCreateMediaTransport(content_info, description, local);
@@ -1112,11 +1116,14 @@ RTCError JsepTransportController::MaybeCreateJsepTransport(
       content_info.type == cricket::MediaProtocolType::kRtp) 
   {
     RTC_DCHECK(media_transport == nullptr);
+	// TODO@chensong  20250402 SignalReadPacket 注册读取信息回调用接口函数
     rtcp_dtls_transport = CreateDtlsTransport( CreateIceTransport(content_info.name, /*rtcp=*/true));
   }
 
   // TODO(sukhanov): Do not create RTP/RTCP transports if media transport is
   // used, and remove the no-op dtls transport when that's done.
+
+  // TODO@chensong 20250402 设置 DtlsTransport对象接收数据SignalReadPacket回调函数
   if (config_.disable_encryption)
   {
     unencrypted_rtp_transport = CreateUnencryptedRtpTransport(

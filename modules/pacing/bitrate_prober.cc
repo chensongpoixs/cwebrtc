@@ -190,7 +190,7 @@ void BitrateProber::ProbeSent(int64_t now_ms, size_t bytes) {
                                cluster->sent_probes);
       RTC_HISTOGRAM_COUNTS_10000("WebRTC.BWE.Probing.TimePerProbeCluster",
                                  now_ms - cluster->time_started_ms);
-	  RTC_LOG(LS_WARNING) << "[delete ][cluster_id = "<<cluster->pace_info.probe_cluster_id<<"]";
+	 // RTC_LOG(LS_WARNING) << "[delete ][cluster_id = "<<cluster->pace_info.probe_cluster_id<<"]";
       clusters_.pop();
     }
 	if (clusters_.empty())

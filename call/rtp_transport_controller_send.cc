@@ -108,10 +108,9 @@ RtpTransportControllerSend::RtpTransportControllerSend(
       bitrate_configurator_(bitrate_config),
       process_thread_(std::move(process_thread)),
       observer_(nullptr),
-      controller_factory_override_(controller_factory),
+      controller_factory_override_(controller_factory), // TODO@chensong 20250402 控制创建GCC是否还是BBR是否评估MaybeCreateControllers
       controller_factory_fallback_(
-          absl::make_unique<GoogCcNetworkControllerFactory>(event_log,
-                                                            predictor_factory)),
+          absl::make_unique<GoogCcNetworkControllerFactory>(event_log, predictor_factory)),
       process_interval_(controller_factory_fallback_->GetProcessInterval()),
       last_report_block_time_(Timestamp::ms(clock_->TimeInMilliseconds())),
       reset_feedback_on_route_change_(
@@ -181,8 +180,7 @@ void RtpTransportControllerSend::UpdateControlState() {
   absl::optional<TargetTransferRate> update = control_handler_->GetUpdate();
   if (!update)
     return;
-  retransmission_rate_limiter_.SetMaxRate(
-      update->network_estimate.bandwidth.bps());
+  retransmission_rate_limiter_.SetMaxRate(update->network_estimate.bandwidth.bps());
   // We won't create control_handler_ until we have an observers.
   RTC_DCHECK(observer_ != nullptr);
   observer_->OnTargetTransferRate(*update);

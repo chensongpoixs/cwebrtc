@@ -22,6 +22,7 @@ namespace webrtc {
 class RtcEventLog;
 /*
 TODO@chensong 2022-11-30 探针比特率估计器
+TODO@chensong 2025-04-02 根据发送发送数据包和收的单位时间取发送和接收最小码率 = min(send_bitrate, recv_bitrate)
 */
 class ProbeBitrateEstimator {
  public:
@@ -53,8 +54,8 @@ class ProbeBitrateEstimator {
 
   std::map<int, AggregatedCluster> clusters_;
   RtcEventLog* const event_log_;
-  absl::optional<int> estimated_bitrate_bps_;
-  absl::optional<DataRate> last_estimate_;
+  absl::optional<int> estimated_bitrate_bps_;  // TODO@chensong 2025-04-02  当前发送和接收的码率的最小值
+  absl::optional<DataRate> last_estimate_;  // TODO@chensong 2025-04-02  当前发送和接收的码率的最小值
 };
 
 }  // namespace webrtc

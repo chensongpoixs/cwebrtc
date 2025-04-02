@@ -125,6 +125,9 @@ class RttBasedBackoff {
 6. 在源码中，RembSender则是用于向接收端发送REM信息的模块。REM信息通知接收端当前可以接受的最大码率。在发送REM信息时，RembSender会根据ProbeController的控制信号来动态地调整REM信息中的码率值。
 5. BitrateAllocator则是用于根据ProbeController和RembSender的控制信号来分配发送端的带宽的模块。具体实现是通过计算当前可用的总带宽和各个流的比例来分配带宽。
 6.最后，QualityScaler则是通过根据网络状况和分辨率来动态调整视频的质量因子，以提高视频质量和稳定性的模块。具体实现是根据网络状况和分辨率的变化来调整视频质量因子的阈值，以达到最佳的视频质量和稳定性。
+
+
+TODO@chensong 2025-04-02 结合丢包率和延迟反馈计算目标码率，触发码率增减
 */
 class SendSideBandwidthEstimation {
  public:

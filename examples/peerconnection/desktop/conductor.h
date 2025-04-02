@@ -16,6 +16,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <thread>
+#include <chrono>
 
 #include "api/media_stream_interface.h"
 #include "api/peer_connection_interface.h"
@@ -30,10 +32,35 @@ namespace cricket {
 class VideoRenderer;
 }  // namespace cricket
 
-class Conductor : public webrtc::PeerConnectionObserver /*好玩东西给webrtc封装这个里面   */,
-                  public webrtc::CreateSessionDescriptionObserver,
-                  public PeerConnectionClientObserver,
-                  public MainWndCallback {
+class crtc_static_observer {
+ public:
+  virtual void OnGetStats() = 0;
+};
+
+class crtc_static : public webrtc::RTCStatsCollectorCallback {
+ public:
+  void RegisterObserver(crtc_static_observer* o) { observer_ = o; }
+  // crtc_static(PeerConnectionClientObserver o) : observer_ (o){}
+  ~crtc_static() override = default;
+  virtual void OnStatsDelivered(
+      const rtc::scoped_refptr<const webrtc::RTCStatsReport>& report) override {
+    RTC_LOG(LS_INFO) << __FUNCTION__
+                     << "rtc stats repost = " << report->ToJson();
+    std::thread([=](){
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      if (observer_) {
+        observer_->OnGetStats();
+      }
+	}).detach();
+  }
+  crtc_static_observer* observer_{nullptr};
+};
+class Conductor
+    : public webrtc::PeerConnectionObserver /*好玩东西给webrtc封装这个里面   */,
+      public webrtc::CreateSessionDescriptionObserver,
+      public PeerConnectionClientObserver,
+      public crtc_static_observer,
+      public MainWndCallback {
  public:
   enum CallbackID {
     MEDIA_CHANNELS_INITIALIZED = 1,
@@ -64,7 +91,6 @@ class Conductor : public webrtc::PeerConnectionObserver /*好玩东西给webrtc�
 
   void OnSignalingChange(
       webrtc::PeerConnectionInterface::SignalingState new_state) override {}
-
 
   // 好家伙  webrtc封装太好 ^_^  接口定义 PeerConnectionObserver
   void OnAddTrack(
@@ -101,6 +127,7 @@ class Conductor : public webrtc::PeerConnectionObserver /*好玩东西给webrtc�
 
   void OnServerConnectionFailure() override;
 
+  void OnGetStats() override;
   //
   // MainWndCallback implementation.
   //
@@ -123,6 +150,9 @@ class Conductor : public webrtc::PeerConnectionObserver /*好玩东西给webrtc�
   void OnSuccess(webrtc::SessionDescriptionInterface* desc) override;
   void OnFailure(webrtc::RTCError error) override;
 
+  // static data
+  /* void OnStatsDelivered(
+     const rtc::scoped_refptr<const webrtc::RTCStatsReport>& report) override;*/
  protected:
   // Send a message to the remote peer.
   void SendMessage(const std::string& json_object);
@@ -139,6 +169,7 @@ class Conductor : public webrtc::PeerConnectionObserver /*好玩东西给webrtc�
   std::string turn_url_;
   std::string user_name_;
   std::string pass_word_;
+  rtc::scoped_refptr<crtc_static> rtc_static_;
 };
 
 #endif  // EXAMPLES_PEERCONNECTION_DESKTOP_CONDUCTOR_H_

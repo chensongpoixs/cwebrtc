@@ -647,7 +647,7 @@ ChannelSend::ChannelSend(Clock* clock,
       previous_frame_muted_(false),
       _includeAudioLevelIndication(false),
       rtcp_observer_(new VoERtcpObserver(this)),
-      feedback_observer_proxy_(new TransportFeedbackProxy()),
+      feedback_observer_proxy_(new TransportFeedbackProxy()),// 2025-04-02 音频通道feedback反馈信息统计 
       seq_num_allocator_proxy_(new TransportSequenceNumberProxy()),
       rtp_packet_sender_proxy_(new RtpPacketSenderProxy()), // TODO@chensong 2022-12-19 发送模块的队列
       retransmission_rate_limiter_(
@@ -685,13 +685,11 @@ ChannelSend::ChannelSend(Clock* clock,
   configuration.outgoing_transport = rtp_transport;
 
   configuration.paced_sender = rtp_packet_sender_proxy_.get();
-  configuration.transport_sequence_number_allocator =
-      seq_num_allocator_proxy_.get();
+  configuration.transport_sequence_number_allocator = seq_num_allocator_proxy_.get();
 
   configuration.event_log = event_log_;
   configuration.rtt_stats = rtcp_rtt_stats;
-  configuration.retransmission_rate_limiter =
-      retransmission_rate_limiter_.get();
+  configuration.retransmission_rate_limiter = retransmission_rate_limiter_.get();
   configuration.extmap_allow_mixed = extmap_allow_mixed;
   configuration.rtcp_report_interval_ms = rtcp_report_interval_ms;
   // TODO@chensong 2022-10-19 创建RTP-RTCP 管理模块

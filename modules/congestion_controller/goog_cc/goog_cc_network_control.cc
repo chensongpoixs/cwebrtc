@@ -105,10 +105,8 @@ GoogCcNetworkController::GoogCcNetworkController(
           RateControlSettings::ParseFromKeyValueConfig(key_value_config_)),
       probe_controller_(new ProbeController(key_value_config_, event_log)),
       congestion_window_pushback_controller_(
-          rate_control_settings_.UseCongestionWindowPushback()
-              ? absl::make_unique<CongestionWindowPushbackController>(
-                    key_value_config_)
-              : nullptr),
+          rate_control_settings_.UseCongestionWindowPushback() ? absl::make_unique<CongestionWindowPushbackController>(
+                    key_value_config_) : nullptr),
       bandwidth_estimation_(absl::make_unique<SendSideBandwidthEstimation>(event_log_)),
       alr_detector_(absl::make_unique<AlrDetector>()),
       probe_bitrate_estimator_(new ProbeBitrateEstimator(event_log)),
@@ -541,16 +539,19 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
     probe_controller_->SetAlrEndedTimeMs(now_ms);
   }
   previously_in_alr = alr_start_time.has_value();
+  // TODO@chensong 2025-04-02  得到贝叶斯估计一个值和带宽估计值的‌方差‌（variance），用于衡量估计结果的‌不确定性‌或‌波动性‌
   acknowledged_bitrate_estimator_->IncomingPacketFeedbackVector(received_feedback_vector);
+  // TODO@chensong 2025-04-02 贝叶斯估计得出值
   absl::optional<DataRate> acknowledged_bitrate = acknowledged_bitrate_estimator_->bitrate();
   for (const auto& feedback : received_feedback_vector)
   {
     if (feedback.pacing_info.probe_cluster_id != PacedPacketInfo::kNotAProbe) 
 	{
+      // TODO@chensong 2025-04-02  探测出当前最小码流 probe_bitrate = min (send_bitrate, recv_bitrate)
       probe_bitrate_estimator_->HandleProbeAndEstimateBitrate(feedback);
     }
   }
-
+  // TODO@chensong 2025-04-02  探测出当前最小码流 probe_bitrate = min (send_bitrate, recv_bitrate)
   absl::optional<DataRate> probe_bitrate = probe_bitrate_estimator_->FetchAndResetLastEstimatedBitrate();
   if (fall_back_to_probe_rate_ && !acknowledged_bitrate)
   {
@@ -564,9 +565,13 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
  
 
   NetworkControlUpdate update;
+  // 当前网络带宽是否继续增量带宽的大小
   bool recovered_from_overuse = false;
   bool backoff_in_alr = false;
   // TODO@chensong 2022-11-30  基于延迟（delay-based）的拥塞控制算法
+  // TODO@chensong 2025-04-02   基于梯度延迟算法 （最小二乘法）
+  // acknowledged_bitrate: 基于贝叶斯评估出来的带宽
+  // probe_bitrate: 基于 发送和收到端的数据取最小值带宽
   DelayBasedBwe::Result result;
   result = delay_based_bwe_->IncomingPacketFeedbackVector( received_feedback_vector, acknowledged_bitrate, probe_bitrate, alr_start_time.has_value(), report.feedback_time);
 
@@ -635,8 +640,8 @@ NetworkControlUpdate GoogCcNetworkController::OnTransportPacketsFeedback(Transpo
     update.congestion_window = current_data_window_;
   }
   //
-  
-  update.congestion_window = current_data_window_;
+  // 20250402 删除多余代码
+  //update.congestion_window = current_data_window_;
   return update;
 }
 
@@ -678,7 +683,7 @@ void GoogCcNetworkController::MaybeTriggerOnNetworkChanged(NetworkControlUpdate*
                         estimated_bitrate_bps / 1000);
 
   DataRate target_rate = DataRate::bps(estimated_bitrate_bps);
-  RTC_LOG(LS_INFO) << "[target_rate = " << ToString(target_rate) << "]";
+  //RTC_LOG(LS_INFO) << "[target_rate = " << ToString(target_rate) << "]";
   if (congestion_window_pushback_controller_) {
     int64_t pushback_rate =
         congestion_window_pushback_controller_->UpdateTargetBitrate(

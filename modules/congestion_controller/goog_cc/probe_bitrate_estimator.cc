@@ -59,15 +59,14 @@ ProbeBitrateEstimator::ProbeBitrateEstimator(RtcEventLog* event_log)
 
 ProbeBitrateEstimator::~ProbeBitrateEstimator() = default;
 
-int ProbeBitrateEstimator::HandleProbeAndEstimateBitrate(
-    const PacketFeedback& packet_feedback) {
+int ProbeBitrateEstimator::HandleProbeAndEstimateBitrate(const PacketFeedback& packet_feedback) 
+{
   int cluster_id = packet_feedback.pacing_info.probe_cluster_id;
   RTC_DCHECK_NE(cluster_id, PacedPacketInfo::kNotAProbe);
 
   EraseOldClusters(packet_feedback.arrival_time_ms - kMaxClusterHistoryMs);
 
-  int payload_size_bits =
-      rtc::dchecked_cast<int>(packet_feedback.payload_size * 8);
+  int payload_size_bits = rtc::dchecked_cast<int>(packet_feedback.payload_size * 8);
   AggregatedCluster* cluster = &clusters_[cluster_id];
 
   if (packet_feedback.send_time_ms < cluster->first_send_ms) {
@@ -98,8 +97,7 @@ int ProbeBitrateEstimator::HandleProbeAndEstimateBitrate(
     return -1;
 
   float send_interval_ms = cluster->last_send_ms - cluster->first_send_ms;
-  float receive_interval_ms =
-      cluster->last_receive_ms - cluster->first_receive_ms;
+  float receive_interval_ms = cluster->last_receive_ms - cluster->first_receive_ms;
 
   if (send_interval_ms <= 0 || send_interval_ms > kMaxProbeIntervalMs ||
       receive_interval_ms <= 0 || receive_interval_ms > kMaxProbeIntervalMs) {
@@ -155,6 +153,7 @@ int ProbeBitrateEstimator::HandleProbeAndEstimateBitrate(
                    << receive_interval_ms << " ms = " << receive_bps / 1000
                    << " kb/s]";
 
+  // TODO@chensong  2025-04-02  计算出发送码率和接收码率取最小值
   float res = std::min(send_bps, receive_bps);
   // If we're receiving at significantly lower bitrate than we were sending at,
   // it suggests that we've found the true capacity of the link. In this case,
@@ -172,12 +171,14 @@ int ProbeBitrateEstimator::HandleProbeAndEstimateBitrate(
   return *estimated_bitrate_bps_;
 }
 
-absl::optional<DataRate>
-ProbeBitrateEstimator::FetchAndResetLastEstimatedBitrate() {
+absl::optional<DataRate> ProbeBitrateEstimator::FetchAndResetLastEstimatedBitrate() 
+{
   absl::optional<int> estimated_bitrate_bps = estimated_bitrate_bps_;
   estimated_bitrate_bps_.reset();
   if (estimated_bitrate_bps)
+  {
     return DataRate::bps(*estimated_bitrate_bps);
+  }
   return absl::nullopt;
 }
 

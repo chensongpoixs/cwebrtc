@@ -184,7 +184,7 @@ bool StunMessage::ValidateMessageIntegrity(const char* data,
                                            const std::string& password) {
   // TODO@chensong 2023-04-07 stun MESSAGE-INTEGRITY 数据的长度24字节 ^_^
 
-	RTC_LOG(LS_INFO) << "[ password" << password << "]";
+	//RTC_LOG(LS_INFO) << "[ password" << password << "]";
   // Verifying the size of the message.
   if ((size % 4) != 0 || size < kStunHeaderSize) {
     return false;

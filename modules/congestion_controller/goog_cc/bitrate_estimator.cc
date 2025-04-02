@@ -72,11 +72,8 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
 	  // 
 	  rate_window_ms = initial_window_ms_.Get();
   }
-//<<<<<<< HEAD
-  // 计算当前时刻观测码率
-//=======
-  // 计算当前时刻码率即卡尔曼率滤波中的观测码率
-//>>>>>>> 2338bf33e724ef75eb23e3e169732ca201f1ffe5
+  // TODO@chensong 2025-04-02  计算窗口内平均码率公式： bitrate_sample=  (窗口内总字节数×8)/窗口时间跨度（秒）
+  
   float bitrate_sample_kbps = UpdateWindow(now_ms, bytes, rate_window_ms);
   if (bitrate_sample_kbps < 0.0f)
   {
@@ -95,47 +92,36 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
   // symmetry.
   // 1. 预估码率
   // 2. 观测码率
-  // 此处定义了一个sample_uncertainty，含义上是预估码率和观测码率的偏差
-  // 偏差越大说明采样点的方差越大，可信度越低
-  // bitrate_estimate_kbps_: 上一个时刻观测码率
-  float sample_uncertainty = uncertainty_scale_ * std::abs(bitrate_estimate_kbps_ - bitrate_sample_kbps) /
+  
+  ///TODO@chensong 2025-04-02  贝叶斯估计更新 
+  // ==> 计算样本不确定性公式 ： sample_uncertainty=10.0× （∣bitrate_estimate_−bitrate_sample_kbps∣）/bitrate_estimate_
+
+
+  float sample_uncertainty = uncertainty_scale_ /*10.0*/ * std::abs(bitrate_estimate_kbps_ - bitrate_sample_kbps) /
       (bitrate_estimate_kbps_ +  std::min(bitrate_sample_kbps, uncertainty_symmetry_cap_.Get().kbps<float>()));
 
   float sample_var = sample_uncertainty * sample_uncertainty;
-  // Update a bayesian estimate of the rate, weighting it lower if the sample
-  // uncertainty is large.
-  // The bitrate estimate uncertainty is increased with each update to model
-  // that the bitrate changes over time.
+  
   float pred_bitrate_estimate_var = bitrate_estimate_var_ + 5.f;
 
-  // 这其实对应的是一个卡尔曼滤波的后验期望的更新过程
-  // 后验期望:exp[k]+ = exp[k]ˉ + k*(y[k] - h* exp[k]ˉ)
-  // 其中 k = var[k]ˉ / (var[k]ˉ + sample_var) (var 和 sample_var 分别为预测误差方差和观测误差方差)
+  // TODO@chensong 2025-04-02 根据不确定性调整权重，更新估计值公式: 
+  // bitrate_estimate_ = (bitrate_sample_kbps ×sample_var +  bitrate_sample_kbps×pred_bitrate_estimate_var)/  (sample_var + pred_bitrate_estimate_var)
+  // 其中 pred_bitrate_estimate_var 为先验方差，反映历史估计的可信度‌
   bitrate_estimate_kbps_ = (sample_var * bitrate_estimate_kbps_ + pred_bitrate_estimate_var * bitrate_sample_kbps) /
                            (sample_var + pred_bitrate_estimate_var);
   bitrate_estimate_kbps_ = std::max(bitrate_estimate_kbps_, estimate_floor_.Get().kbps<float>());
 
-  // 这其实对应的是一个卡尔曼滤波的后验方差的更新过程,
-  // 后验方差: var[k] = (1 - k) * var[k]ˉ
-  // 其中 k = var[k]ˉ / (var[k]ˉ + sample_var) (var 和 sample_var 分别为预测误差方差和观测误差方差)
-  bitrate_estimate_var_ = sample_var * pred_bitrate_estimate_var /
-                          (sample_var + pred_bitrate_estimate_var);
-  BWE_TEST_LOGGING_PLOT(1, "acknowledged_bitrate", now_ms,
-                        bitrate_estimate_kbps_ * 1000);
+  // 后验协方差‌（估计误差的度量）
+  bitrate_estimate_var_ = sample_var * pred_bitrate_estimate_var / (sample_var + pred_bitrate_estimate_var);
+  BWE_TEST_LOGGING_PLOT(1, "acknowledged_bitrate", now_ms, bitrate_estimate_kbps_ * 1000);
 }
 /************************************************************************/
-/* 将当前计算出来当前码率(bitrate_sample_kbps)作为观测值, 把上一个预测码率(bitrate_estimate_kbps_)当作预测值, 
-使用贝叶斯滤波去修正当前观测码率 , 其中引入了一个基于观测值和预测值的差的变量sample_uncertainty去作为样本标准差.                                                                     */
+/*  TODO@chensong 2025-04-02 .  计算rate_window_ms窗口大小码率是多少                                                                    */
 /************************************************************************/
 float BitrateEstimator::UpdateWindow(int64_t now_ms,
                                      int bytes,
                                      int rate_window_ms) 
-{
-	//        rate_window_ms(预设评估窗口大小)
-	//      |**********************|------------------------------|
-	//      |-----------------------------------------------------|
-	// prev_time_ms_      current_window_ms_(当前窗口大小)       now_ms
-  // Reset if time moves backwards.
+{  
   if (now_ms < prev_time_ms_) 
   {
     prev_time_ms_ = -1;
@@ -146,18 +132,7 @@ float BitrateEstimator::UpdateWindow(int64_t now_ms,
   {
 	  // 计算当前窗口大小
     current_window_ms_ += now_ms - prev_time_ms_;
-    // Reset if nothing has been received for more than a full window.
-	//          rate_windows_ms(预设窗口大小)
-	//  |***************************************|
-	//  .......|-----------------------------------------------------|
-	//       prev_time_ms_                                         now_ms
-	//  |......----------------current_window_ms_--------------------|
-	//                                         |*********************| 规定窗口大小rate_window_ms
-	//                                         |---------------------| 被缩减后的窗口
-
-	// 超过一个窗口没有接收到东西了，把过去窗口累加的size重置为0, 并把窗口大小
-	// 进行缩减，减去一个周期前的长度，因为sum_置0后，会+=bytes，所以窗口
-	// 不是直接置0而是保存在在一个窗口的部分
+    // TODO@chensong 2025-04-02 判断当前窗口是否已经大于rate_window_ms窗口的大小 了 如果大于就 重置窗口大小 
     if (now_ms - prev_time_ms_ > rate_window_ms) 
 	{
       sum_ = 0;// 重置
@@ -180,7 +155,9 @@ float BitrateEstimator::UpdateWindow(int64_t now_ms,
 
 absl::optional<uint32_t> BitrateEstimator::bitrate_bps() const {
   if (bitrate_estimate_kbps_ < 0.f)
+  {
     return absl::nullopt;
+  }
   return bitrate_estimate_kbps_ * 1000;
 }
 

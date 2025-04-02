@@ -137,7 +137,7 @@ void BitrateControllerImpl::ResetBitrates(int bitrate_bps,
 void BitrateControllerImpl::OnReceivedEstimatedBitrate(uint32_t bitrate) {
   {
     rtc::CritScope cs(&critsect_);
-	RTC_LOG(LS_INFO) << "["<<__FUNCTION__<<"][bitrate = "<<DataRate::bps(bitrate)<<"]";
+	//RTC_LOG(LS_INFO) << "["<<__FUNCTION__<<"][bitrate = "<<DataRate::bps(bitrate)<<"]";
     bandwidth_estimation_.UpdateReceiverEstimate(Timestamp::ms(clock_->TimeInMilliseconds()), DataRate::bps(bitrate));
     BWE_TEST_LOGGING_PLOT(1, "REMB_kbps", clock_->TimeInMilliseconds(), bitrate / 1000);
   }

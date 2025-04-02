@@ -126,7 +126,7 @@ std::string RTCStatsReport::ToJson() const {
   const char* separator = "";
   for (ConstIterator it = begin(); it != end(); ++it) {
     sb << separator << it->ToJson();
-    separator = ",";
+    separator = ",\n";
   }
   sb << "]";
   return sb.Release();

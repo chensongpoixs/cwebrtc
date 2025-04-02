@@ -47,6 +47,7 @@ absl::optional<double> LinearFitSlope(const std::deque<std::pair<double, double>
   double y_avg = sum_y / points.size();
   // TODO@chensong 2022-11-30 直线方程y=bx+a的斜率b按如下公式计算:
   // Compute the slope k = \sum (x_i-x_avg)(y_i-y_avg) / \sum (x_i-x_avg)^2
+
   double numerator = 0;
   double denominator = 0;
   for (const auto& point : points) 
@@ -84,7 +85,7 @@ TrendlineEstimator::TrendlineEstimator(
       k_up_(0.0087),
       k_down_(0.039),
       overusing_time_threshold_(kOverUsingTimeThreshold),
-      threshold_(12.5),
+      threshold_(12.5), // 20250402 这边为什么定义12.5？ 丢包率   认为大于12.5就是 带宽使用过载，网络发生拥塞。
       prev_modified_trend_(NAN),
       last_update_ms_(-1),
       prev_trend_(0.0),
@@ -119,10 +120,15 @@ void TrendlineEstimator::Update(double recv_delta_ms, double send_delta_ms, int6
    使用了线性回归进行时延梯度趋势预测，通过最小二乘法求拟合直线的斜率，根据斜率判断增长趋势
    
    平滑延迟公式 = 平滑系数 * 平滑延迟 + (1 - 平滑系数) * 累积的延迟
+   
+
+   TODO@chensong 2025-04-02  平滑延迟ₙ = α × 平滑延迟  + (1 - α) × 累积的延迟
+   ‌平滑系数（α）‌： 取值范围为0到1，决定历史数据与新数据的权重。α越大，历史数据影响越大，结果更平滑；α越小，新数据影响越显著，结果更敏感
+
+    
    */
     smoothed_delay_ = smoothing_coef_ * smoothed_delay_ + (1 - smoothing_coef_ /*0.9*/) * accumulated_delay_;
-    BWE_TEST_LOGGING_PLOT(1, "smoothed_delay_ms", arrival_time_ms,
-                          smoothed_delay_);
+    BWE_TEST_LOGGING_PLOT(1, "smoothed_delay_ms", arrival_time_ms, smoothed_delay_);
 
     // Simple linear regression. ==>>> 简单线性回归
     delay_hist_.push_back(std::make_pair(static_cast<double>(arrival_time_ms - first_arrival_time_ms_), smoothed_delay_));
@@ -138,6 +144,7 @@ void TrendlineEstimator::Update(double recv_delta_ms, double send_delta_ms, int6
       // 0 < trend < 1   ->  the delay increases, queues are filling up		==> 1、延时增大，路由buffer 正在被填充。
       //   trend == 0    ->  the delay does not change						==> 2、延时没有发生变化。
       //   trend < 0     ->  the delay decreases, queues are being emptied	==> 3、延时开始降低，路由buffer正在排空。
+	  // 20250402 最小二乘法计算斜率（核心逻辑）  有可能斜率会是负数
       trend = LinearFitSlope(delay_hist_).value_or(trend);
     }
 
@@ -164,6 +171,14 @@ void TrendlineEstimator::Detect(double trend, double ts_delta, int64_t now_ms)
   }
   //TODO@chensong 2022-11-30 过载检测器(over-use detector)
   //实际使用中，由于trend 是一个非常小的值，会乘以包组数量和增益系数进行放大得到modified_trend
+  // TODO@chensong  2025-04-02 
+  // 一、‌延迟梯度趋势的物理意义
+  //    1. 表示网络延迟的线性变化趋势。
+  //     ①  正斜率表示延迟上升（拥塞加剧）
+  //     ②  负斜率表示延迟下降（网络恢复）‌
+  //    2. 原始斜率值范围较小‌：直接使用未缩放的斜率可能导致检测算法对微小变化不敏感，尤其在高速网络下难以区分噪声与真实拥塞信号‌
+  // 二、放大趋势值的必要性‌
+  //  ‌提高灵敏度‌：乘以4 .0将趋势值放大，使算法能更快捕捉到延迟的微小波动。例如，若原始斜率为0.25，放大后为1.0，更容易触发阈值判断‌
   const double modified_trend = std::min(num_of_deltas_, kMinNumDeltas) * trend * threshold_gain_ /*增益系数 =  4.0*/;
   prev_modified_trend_ = modified_trend;
   BWE_TEST_LOGGING_PLOT(1, "T", now_ms, modified_trend);
@@ -189,7 +204,9 @@ void TrendlineEstimator::Detect(double trend, double ts_delta, int64_t now_ms)
 	  {
         time_over_using_ = 0;
         overuse_counter_ = 0;
-        hypothesis_ = BandwidthUsage::kBwOverusing;
+		// 20250402 带宽使用过载，网络发生拥塞。
+        hypothesis_ = BandwidthUsage::kBwOverusing; 
+
       }
     }
   } 
@@ -197,12 +214,14 @@ void TrendlineEstimator::Detect(double trend, double ts_delta, int64_t now_ms)
   {
     time_over_using_ = -1;
     overuse_counter_ = 0;
+	// 20250402 当前带宽利用不足，可充分利用。
     hypothesis_ = BandwidthUsage::kBwUnderusing;
   }
   else  //-threshold < modifed_trend < threshold  认为此时处于normal 状态。
   {
     time_over_using_ = -1;
     overuse_counter_ = 0;
+	// 20250402 带宽常态使用，既不过载、也不拥塞。
     hypothesis_ = BandwidthUsage::kBwNormal;
   }
   prev_trend_ = trend;
@@ -223,7 +242,29 @@ void TrendlineEstimator::UpdateThreshold(double modified_trend, int64_t now_ms)
     last_update_ms_ = now_ms;
     return;
   }
+  /*
+  TODO@chensong 2025-04-02 
+  ‌1. 输入参数‌
 
+	‌当前延迟梯度斜率‌：由Trendline滤波器计算得出（trendline_slope） 
+	‌历史阈值‌：上一次计算的阈值（threshold_prev） 
+	‌时间衰减因子‌：控制阈值调整速度的参数（通常取0.9-0.95） 
+	‌调整幅度系数‌：根据斜率偏离阈值的程度动态计算  
+‌
+  2. 计算公式‌
+
+ 
+	threshold_new = threshold_prev * time_decay + k * |trendline_slope|
+
+	‌time_decay‌：时间衰减因子，防止阈值突变‌
+	‌k‌：动态调整系数，根据当前网络负载状态（如延迟变化率）缩放调整幅度‌
+
+  3. ‌更新策略‌
+
+	‌过载检测时‌：若延迟梯度斜率持续高于阈值，增大k以快速提升阈值，避免误判‌ 
+	‌正常状态下‌：降低k使阈值缓慢衰减，适应网络性能改善 
+  */
+  // / 根据趋势线斜率调整阈值
   const double k = fabs(modified_trend) < threshold_ ? k_down_ : k_up_;
   const int64_t kMaxTimeDeltaMs = 100;
   int64_t time_delta_ms = std::min(now_ms - last_update_ms_, kMaxTimeDeltaMs);

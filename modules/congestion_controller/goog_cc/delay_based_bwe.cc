@@ -43,6 +43,10 @@ constexpr uint32_t kFixedSsrc = 0;
 // Parameters for linear least squares fit of regression line to noisy data.
 // TODO@chensong 2022-11-30 回归线对噪声数据的线性最小二乘拟合参数
 constexpr size_t kDefaultTrendlineWindowSize = 20;
+// TODO@chensong 2025-04-02  ‌平滑延迟  = α × 平滑延迟  + (1 - α) ×
+// 累积的延迟
+//平滑系数（α）‌：
+//取值范围为0到1，决定历史数据与新数据的权重。α越大，历史数据影响越大，结果更平滑；α越小，新数据影响越显著，结果更敏感 
 constexpr double kDefaultTrendlineSmoothingCoeff = 0.9;
 constexpr double kDefaultTrendlineThresholdGain = 4.0;
 
@@ -115,7 +119,9 @@ DelayBasedBwe::DelayBasedBwe(const WebRtcKeyValueConfig* key_value_config,
 DelayBasedBwe::~DelayBasedBwe() {}
 
 DelayBasedBwe::Result DelayBasedBwe::IncomingPacketFeedbackVector(
-    const std::vector<PacketFeedback>& packet_feedback_vector, absl::optional<DataRate> acked_bitrate, absl::optional<DataRate> probe_bitrate, bool in_alr, Timestamp at_time) 
+    const std::vector<PacketFeedback>& packet_feedback_vector, 
+	absl::optional<DataRate> acked_bitrate, 
+	absl::optional<DataRate> probe_bitrate, bool in_alr, Timestamp at_time) 
 {
   RTC_DCHECK(std::is_sorted(packet_feedback_vector.begin(),
                             packet_feedback_vector.end(),
@@ -149,6 +155,7 @@ DelayBasedBwe::Result DelayBasedBwe::IncomingPacketFeedbackVector(
 	}
     delayed_feedback = false;
     IncomingPacketFeedback(packet_feedback, at_time);
+	// 20250402 当前网络带宽利用率是否充足
     if (prev_detector_state == BandwidthUsage::kBwUnderusing && delay_detector_->State() == BandwidthUsage::kBwNormal) 
 	{
       recovered_from_overuse = true;
@@ -170,7 +177,7 @@ void DelayBasedBwe::IncomingPacketFeedback(const PacketFeedback& packet_feedback
   // Reset if the stream has timed out.
   if (last_seen_packet_.IsInfinite() || at_time - last_seen_packet_ > kStreamTimeOut) 
   {
-    inter_arrival_.reset(new InterArrival((kTimestampGroupLengthMs << kInterArrivalShift) / 1000, kTimestampToMs, true));
+    inter_arrival_.reset(new InterArrival((kTimestampGroupLengthMs/*5*/ << kInterArrivalShift/*26*/) / 1000, kTimestampToMs, true));
 
     delay_detector_.reset(new TrendlineEstimator(trendline_window_size_, trendline_smoothing_coeff_, trendline_threshold_gain_, network_state_predictor_));
   }
@@ -191,10 +198,11 @@ void DelayBasedBwe::IncomingPacketFeedback(const PacketFeedback& packet_feedback
   int64_t t_delta = 0;   // 到达时间差值
   int size_delta = 0;    // 包组大小差值
 
-  bool calculated_deltas = inter_arrival_->ComputeDeltas(timestamp, packet_feedback.arrival_time_ms, at_time.ms(),
+  bool calculated_deltas = inter_arrival_->ComputeDeltas(timestamp, packet_feedback.arrival_time_ms/*收时间*/, at_time.ms(),
       packet_feedback.payload_size, &ts_delta, &t_delta, &size_delta);
   double ts_delta_ms = (1000.0 * ts_delta) / (1 << kInterArrivalShift);
   // TODO@chensong 2022-11-30 更新一下过载检测器中的数据
+  // 20250402 延迟趋势分析
   delay_detector_->Update(t_delta, ts_delta_ms, packet_feedback.send_time_ms, packet_feedback.arrival_time_ms, calculated_deltas);
 }
 
@@ -207,6 +215,7 @@ DelayBasedBwe::Result DelayBasedBwe::MaybeUpdateEstimate(
   // Currently overusing the bandwidth. 1. 宽带 带宽使用过载，网络发生拥塞。
   if (delay_detector_->State() == BandwidthUsage::kBwOverusing) 
   {
+	  // 20250402 带宽使用过载，网络发生拥塞。
     if (in_alr && alr_limited_backoff_enabled_ &&
         rate_control_.TimeToReduceFurther(at_time, prev_bitrate_)) 
 	{
@@ -242,8 +251,7 @@ DelayBasedBwe::Result DelayBasedBwe::MaybeUpdateEstimate(
     } 
 	else 
 	{
-      result.updated =
-          UpdateEstimate(at_time, acked_bitrate, &result.target_bitrate);
+      result.updated = UpdateEstimate(at_time, acked_bitrate, &result.target_bitrate);
       result.recovered_from_overuse = recovered_from_overuse;
     }
   }
@@ -267,6 +275,7 @@ DelayBasedBwe::Result DelayBasedBwe::MaybeUpdateEstimate(
 
 bool DelayBasedBwe::UpdateEstimate(Timestamp at_time, absl::optional<DataRate> acked_bitrate, DataRate* target_rate) 
 {
+  // TODO@chensong 2025-04-02  tcc算法中梯度算法  最小二乘法 得到当前宽带的负载情况
   const RateControlInput input(delay_detector_->State(), acked_bitrate);
   *target_rate = rate_control_.Update(&input, at_time);
   return rate_control_.ValidEstimate();

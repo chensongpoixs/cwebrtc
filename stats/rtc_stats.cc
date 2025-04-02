@@ -106,12 +106,16 @@ std::string RTCStats::ToJson() const {
     if (member->is_defined()) {
       sb << ",\"" << member->name() << "\":";
       if (member->is_string())
+        {
         sb << "\"" << member->ValueToJson() << "\"";
-      else
+      }
+	  else
+	  {
         sb << member->ValueToJson();
+	  }
     }
   }
-  sb << "}";
+  sb << "} \r\n";
   return sb.Release();
 }
 

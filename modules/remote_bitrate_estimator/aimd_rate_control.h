@@ -26,6 +26,9 @@ namespace webrtc {
 // over-uses are detected. When we think the available bandwidth has changes or
 // is unknown, we will switch to a "slow-start mode" where we increase
 // multiplicatively.
+/*
+20250401 基于AIMD(加性增/乘性减去)策略调整码率
+*/
 class AimdRateControl {
  public:
   AimdRateControl();

@@ -22,6 +22,9 @@
 
 namespace webrtc {
 
+/*
+20250401 通过线性回归分析延迟趋势
+*/
 class TrendlineEstimator : public DelayIncreaseDetectorInterface {
  public:
   // |window_size| is the number of points required to compute a trend line.

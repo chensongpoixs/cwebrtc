@@ -285,7 +285,10 @@ bool VCMFecMethod::ProtectionFactor(const VCMProtectionParameters* parameters) {
 
   // 如果丢包率为0， 则不进行FEC保护
   uint8_t packetLoss = rtc::saturated_cast<uint8_t>(255 * parameters->lossPr);
-  if (packetLoss == 0) {
+  //if (packetLoss == 0)
+  // TODO@chensong 2025-04-02 修改丢包率 5%不启动FEC
+  if (parameters->lossPr < 0.05)
+  {
     _protectionFactorK = 0;
     _protectionFactorD = 0;
     return true;

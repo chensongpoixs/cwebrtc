@@ -86,9 +86,9 @@ class GoogCcNetworkController : public NetworkControllerInterface {
   const RateControlSettings rate_control_settings_;
 
   const std::unique_ptr<ProbeController> probe_controller_;
-  const std::unique_ptr<CongestionWindowPushbackController> congestion_window_pushback_controller_;
+  const std::unique_ptr<CongestionWindowPushbackController> congestion_window_pushback_controller_;  // 基于RTT限制发送窗口， 防止队列堆积
 
-  std::unique_ptr<SendSideBandwidthEstimation> bandwidth_estimation_;
+  std::unique_ptr<SendSideBandwidthEstimation> bandwidth_estimation_; // TODO@chensong 2025-04-02 结合丢包率和延迟反馈计算目标码率，触发码率增减
   std::unique_ptr<AlrDetector> alr_detector_;
   std::unique_ptr<ProbeBitrateEstimator> probe_bitrate_estimator_;
   std::unique_ptr<DelayBasedBwe> delay_based_bwe_;

@@ -230,7 +230,7 @@ VideoSendStreamImpl::VideoSendStreamImpl(
       has_packet_feedback_(false),
       video_stream_encoder_(video_stream_encoder),
       encoder_feedback_(clock, config_->rtp.ssrcs, video_stream_encoder),
-      bandwidth_observer_(transport->GetBandwidthObserver()),
+      bandwidth_observer_(transport->GetBandwidthObserver()), // TODO@chensong 2025-04-02   bandwidth_observer -> RtpRtransportcontrollerSend
 	// RtpRtransportcontrollerSend
       rtp_video_sender_(transport_->CreateRtpVideoSender(
           suspended_ssrcs,

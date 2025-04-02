@@ -21,6 +21,9 @@ Trendline算法计算延时梯度是基于包组的，不是基于包的。而RT
 
         Trendline是接收端计算延时，RTT是发起端计算延时，不要混淆。
 
+
+
+20250401  计算组包间到达时间差和发送时间差
 */
 namespace webrtc {
 
@@ -49,6 +52,7 @@ class InterArrival {
   // |timestamp_delta| (output) is the computed timestamp delta.
   // |arrival_time_delta_ms| (output) is the computed arrival-time delta.
   // |packet_size_delta| (output) is the computed size delta.
+  // 20250402  包组时间差计算 
   bool ComputeDeltas(uint32_t timestamp,
                      int64_t arrival_time_ms,
                      int64_t system_time_ms,
@@ -118,7 +122,7 @@ class InterArrival {
     uint32_t first_timestamp;
     uint32_t timestamp;
     int64_t first_arrival_ms;
-    int64_t complete_time_ms;
+    int64_t complete_time_ms; // TODO@chensong 20250402 接收端接收包时间
     int64_t last_system_time_ms;
   };
 

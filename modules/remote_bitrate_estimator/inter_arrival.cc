@@ -41,6 +41,7 @@ bool InterArrival::ComputeDeltas(uint32_t timestamp,
   assert(arrival_time_delta_ms != NULL);
   assert(packet_size_delta != NULL);
   bool calculated_deltas = false;
+  // 20250402 首次到达的包初始化分组
   if (current_timestamp_group_.IsFirstPacket()) 
   {
     // We don't have enough data to update the filter, so we store it until we
@@ -58,6 +59,7 @@ bool InterArrival::ComputeDeltas(uint32_t timestamp,
     // First packet of a later frame, the previous frame sample is ready.
     if (prev_timestamp_group_.complete_time_ms >= 0) 
 	{
+		// 20250402  计算时间差和包大小差
       *timestamp_delta = current_timestamp_group_.timestamp - prev_timestamp_group_.timestamp;
       *arrival_time_delta_ms = current_timestamp_group_.complete_time_ms - prev_timestamp_group_.complete_time_ms;
       // Check system time differences to see if we have an unproportional jump
