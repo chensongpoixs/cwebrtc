@@ -179,6 +179,18 @@ const StunUInt16ListAttribute* StunMessage::GetUnknownAttributes() const {
 
 // Verifies a STUN message has a valid MESSAGE-INTEGRITY attribute, using the
 // procedure outlined in RFC 5389, section 15.4.
+// Writing new length of the STUN message @ Message Length in temp buffer.
+//      0                   1                   2                   3
+//      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//     |0 0|     STUN Message Type     |         Message Length        |
+//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//     |                           Magic Cookie  32bit                 |
+//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//     |                                                               |
+//     |                 Transaction Id  事务ID                         |
+//     |                                                               |
+//     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool StunMessage::ValidateMessageIntegrity(const char* data,
                                            size_t size,
                                            const std::string& password) {
