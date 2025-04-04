@@ -34,10 +34,10 @@ WEBRTC_DEFINE_bool(
     "Call the first available other client on "
     "the server without user intervention.  Note: this flag should only be set "
     "to true on one of the two clients.");
-
+// WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/
 WEBRTC_DEFINE_string(
     force_fieldtrials,
-    "WebRTC-Bwe-StableBandwidthEstimate/Enabled/WebRTC-Bwe-ProbeRateFallback/Enabled/WebRTC-AddPacingToCongestionWindowPushback/Enabled/WebRTC-FrameDropper/Disabled/WebRTC-FlexFEC-03-Advertised/Enabled/WebRTC-FlexFEC-03/Enabled/", //WebRTC-RtcpLossNotification/Enabled/
+    "WebRTC-Bwe-StableBandwidthEstimate/Enabled/WebRTC-Bwe-ProbeRateFallback/Enabled/WebRTC-AddPacingToCongestionWindowPushback/Enabled/WebRTC-FrameDropper/Disabled/", //WebRTC-RtcpLossNotification/Enabled/
     "Field trials control experimental features. This flag specifies the field "
     "trials in effect. E.g. running with "
     "--force_fieldtrials=WebRTC-FooFeature/Enabled/ "

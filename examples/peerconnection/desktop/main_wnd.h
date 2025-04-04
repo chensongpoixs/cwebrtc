@@ -14,15 +14,25 @@
 #include <map>
 #include <memory>
 #include <string>
-
+#include <chrono>
+#include <thread>
 #include "api/media_stream_interface.h"
+#include "api/video/i420_buffer.h"
 #include "api/video/video_frame.h"
 #include "examples/peerconnection/desktop/peer_connection_client.h"
 #include "media/base/media_channel.h"
 #include "media/base/video_common.h"
 #if defined(WEBRTC_WIN)
 #include "rtc_base/win32.h"
-#endif  // WEBRTC_WIN
+
+#include <Windows.h>
+#include <d3d9.h>
+#include <d3d9caps.h>
+#include <d3d9helper.h>
+#include <d3d9types.h>
+//#include <d3dx9.h>
+#pragma comment(lib, "d3d9.lib")  // located in DirectX SDK
+#endif                            // WEBRTC_WIN
 
 class MainWndCallback {
  public:
@@ -113,18 +123,23 @@ class MainWnd : public MainWindow {
     VideoRenderer(HWND wnd,
                   int width,
                   int height,
-                  webrtc::VideoTrackInterface* track_to_render);
+
+                  webrtc::VideoTrackInterface* track_to_render,
+                  bool render = true);
     virtual ~VideoRenderer();
 
-    void Lock() { ::EnterCriticalSection(&buffer_lock_); }
+    // void Lock() { ::EnterCriticalSection(&buffer_lock_); }
 
-    void Unlock() { ::LeaveCriticalSection(&buffer_lock_); }
-
+    // void Unlock() { ::LeaveCriticalSection(&buffer_lock_); }
+    void DrawTextToTexture(const std::wstring& text);
     // VideoSinkInterface implementation
     void OnFrame(const webrtc::VideoFrame& frame) override;
 
-    const BITMAPINFO& bmi() const { return bmi_; }
-    const uint8_t* image() const { return image_.get(); }
+    //   const BITMAPINFO& bmi() const { return bmi_; }
+    //   const uint8_t* image() const { return image_.get(); }
+
+    size_t getWidth() const { return width_; }
+    size_t getHeight() const { return height_; }
 
    protected:
     void SetSize(int width, int height);
@@ -135,10 +150,24 @@ class MainWnd : public MainWindow {
     };
 
     HWND wnd_;
-    BITMAPINFO bmi_;
-    std::unique_ptr<uint8_t[]> image_;
-    CRITICAL_SECTION buffer_lock_;
+    // BITMAPINFO bmi_;
+    // std::unique_ptr<uint8_t[]> image_;
+    // CRITICAL_SECTION buffer_lock_;
+
+    size_t width_, height_;
+    rtc::scoped_refptr<IDirect3D9> d3d_;
+    rtc::scoped_refptr<IDirect3DDevice9> d3d_device_;
+
+    rtc::scoped_refptr<IDirect3DTexture9> texture_;
+    rtc::scoped_refptr<IDirect3DVertexBuffer9> vertex_buffer_;
     rtc::scoped_refptr<webrtc::VideoTrackInterface> rendered_track_;
+    rtc::scoped_refptr<webrtc::I420Buffer> i420_buffer_;
+    bool renderer_;
+    int64_t timestamp_{std::chrono::duration_cast<std::chrono::milliseconds>(
+                            std::chrono::system_clock::now().time_since_epoch())
+                            .count()};
+    size_t cnt{0};
+    std::string osd_{"renderFps:0/s"};
   };
 
   // A little helper class to make sure we always to proper locking and
@@ -161,7 +190,7 @@ class MainWnd : public MainWindow {
     LABEL2_ID,
     LABEL3_ID,
     LABEL4_ID,
-    LABEL5_ID, 
+    LABEL5_ID,
     LISTBOX_ID,
   };
 
@@ -200,9 +229,9 @@ class MainWnd : public MainWindow {
   HWND edit5_;
   HWND label1_;
   HWND label2_;
-  HWND label3_; // turn
-  HWND label4_; // username;
-  HWND label5_; // password
+  HWND label3_;  // turn
+  HWND label4_;  // username;
+  HWND label5_;  // password
   HWND button_;
   HWND listbox_;
   bool destroyed_;

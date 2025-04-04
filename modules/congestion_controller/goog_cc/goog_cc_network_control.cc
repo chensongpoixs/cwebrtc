@@ -251,7 +251,7 @@ NetworkControlUpdate GoogCcNetworkController::OnRemoteBitrateReport(RemoteBitrat
     RTC_LOG(LS_ERROR) << "Received REMB for packet feedback only GoogCC";
     return NetworkControlUpdate();
   }
-  RTC_LOG(LS_INFO) << "["<<__FUNCTION__<<"][receive_time = "<<msg.receive_time<<"][bandwidth = "<<msg.bandwidth<<"]";
+ // RTC_LOG(LS_INFO) << "["<<__FUNCTION__<<"][receive_time = "<<msg.receive_time<<"][bandwidth = "<<msg.bandwidth<<"]";
   bandwidth_estimation_->UpdateReceiverEstimate(msg.receive_time, msg.bandwidth);
 
  

@@ -823,8 +823,7 @@ void RTPSender::UpdateDelayStatistics(int64_t capture_time_ms, int64_t now_ms) {
     int new_send_delay = rtc::dchecked_cast<int>(now_ms - capture_time_ms);
     SendDelayMap::iterator it;
     bool inserted;
-    std::tie(it, inserted) =
-        send_delays_.insert(std::make_pair(now_ms, new_send_delay));
+    std::tie(it, inserted) = send_delays_.insert(std::make_pair(now_ms, new_send_delay));
     if (!inserted) {
       // TODO(terelius): If we have multiple delay measurements during the same
       // millisecond then we keep the most recent one. It is not clear that this
@@ -847,13 +846,10 @@ void RTPSender::UpdateDelayStatistics(int64_t capture_time_ms, int64_t now_ms) {
     max_delay_ms = rtc::dchecked_cast<int>(max_delay_it_->second);
     int64_t avg_ms = (sum_delays_ms_ + num_delays / 2) / num_delays;
     RTC_DCHECK_GE(avg_ms, static_cast<int64_t>(0));
-    RTC_DCHECK_LE(avg_ms,
-                  static_cast<int64_t>(std::numeric_limits<int>::max()));
-    avg_delay_ms =
-        rtc::dchecked_cast<int>((sum_delays_ms_ + num_delays / 2) / num_delays);
+    RTC_DCHECK_LE(avg_ms, static_cast<int64_t>(std::numeric_limits<int>::max()));
+    avg_delay_ms = rtc::dchecked_cast<int>((sum_delays_ms_ + num_delays / 2) / num_delays);
   }
-  send_side_delay_observer_->SendSideDelayUpdated(avg_delay_ms, max_delay_ms,
-                                                  ssrc);
+  send_side_delay_observer_->SendSideDelayUpdated(avg_delay_ms, max_delay_ms, ssrc);
 }
 
 void RTPSender::UpdateOnSendPacket(int packet_id,

@@ -113,19 +113,16 @@ void RateTracker::AddSamples(size_t sample_count)
   int64_t current_time = Time();
   // Advance the current bucket as needed for the current time, and reset
   // bucket counts as we advance.
-  for (size_t i = 0;
-       i <= bucket_count_ &&
-       current_time >= bucket_start_time_milliseconds_ + bucket_milliseconds_;
-       ++i) {
+  for (size_t i = 0; i <= bucket_count_ &&
+       current_time >= bucket_start_time_milliseconds_ + bucket_milliseconds_; ++i) 
+  {
     bucket_start_time_milliseconds_ += bucket_milliseconds_;
     current_bucket_ = NextBucketIndex(current_bucket_);
     sample_buckets_[current_bucket_] = 0;
   }
   // Ensure that bucket_start_time_milliseconds_ is updated appropriately if
   // the entire buffer of samples has been expired.
-  bucket_start_time_milliseconds_ +=
-      bucket_milliseconds_ *
-      ((current_time - bucket_start_time_milliseconds_) / bucket_milliseconds_);
+  bucket_start_time_milliseconds_ += bucket_milliseconds_ * ((current_time - bucket_start_time_milliseconds_) / bucket_milliseconds_);
   // Add all samples in the bucket that includes the current time.
   sample_buckets_[current_bucket_] += sample_count;
   total_sample_count_ += sample_count;

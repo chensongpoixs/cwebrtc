@@ -698,7 +698,8 @@ void SendStatisticsProxy::OnEncoderReconfigured(
     const std::vector<VideoStream>& streams) {
   rtc::CritScope lock(&crit_);
 
-  if (content_type_ != config.content_type) {
+  if (content_type_ != config.content_type) 
+  {
     uma_container_->UpdateHistograms(rtp_config_, stats_);
     uma_container_.reset(new UmaSamplesContainer(
         GetUmaPrefix(config.content_type), stats_, clock_));
@@ -761,8 +762,7 @@ VideoSendStream::Stats SendStatisticsProxy::GetStats() {
   PurgeOldStats();
   stats_.input_frame_rate =
       round(uma_container_->input_frame_rate_tracker_.ComputeRate());
-  stats_.content_type =
-      content_type_ == VideoEncoderConfig::ContentType::kRealtimeVideo
+  stats_.content_type = content_type_ == VideoEncoderConfig::ContentType::kRealtimeVideo
           ? VideoContentType::UNSPECIFIED
           : VideoContentType::SCREENSHARE;
   stats_.encode_frame_rate = round(encoded_frame_rate_tracker_.ComputeRate());

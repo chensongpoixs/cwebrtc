@@ -1940,9 +1940,9 @@ void BuildRtpMap(const MediaContentDescription* media_desc,
       // [/<encodingparameters>]
 		//cricket::VideoCodec temp_codec = codec;
 		////x-google-max-bitrate=100000;x-google-min-bitrate=4000;x-google-start-bitrate=8000
-		//temp_codec.SetParam("x-google-max-bitrate", 100000);
-		//temp_codec.SetParam("x-google-min-bitrate", 4000);
-		//temp_codec.SetParam("x-google-start-bitrate", 8000);
+		//temp_codec.SetParam("x-google-max-bitrate", 10000000);
+		//temp_codec.SetParam("x-google-min-bitrate", 8000000);
+		//temp_codec.SetParam("x-google-start-bitrate", 5000000);
       if (codec.id != kWildcardPayloadType) {
         InitAttrLine(kAttributeRtpmap, &os);
         os << kSdpDelimiterColon << codec.id << " " << codec.name << "/"

@@ -1249,7 +1249,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
   // rate controller is not trusted.
   const bool frame_dropping_enabled = !force_disable_frame_dropper_ && !encoder_info_.has_trusted_rate_controller;
   frame_dropper_.Enable(frame_dropping_enabled);
-#if 0
+ 
   if (frame_dropping_enabled && frame_dropper_.DropFrame())
   {
 	  RTC_LOG(LS_VERBOSE)
@@ -1265,7 +1265,7 @@ void VideoStreamEncoder::MaybeEncodeVideoFrame(const VideoFrame& video_frame,
 	  return;
   }
 
-#endif
+ 
   EncodeVideoFrame(video_frame, time_when_posted_us);
 }
 

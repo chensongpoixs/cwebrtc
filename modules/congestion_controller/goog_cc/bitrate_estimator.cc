@@ -96,7 +96,7 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
   ///TODO@chensong 2025-04-02  贝叶斯估计更新 
   // ==> 计算样本不确定性公式 ： sample_uncertainty=10.0× （∣bitrate_estimate_−bitrate_sample_kbps∣）/bitrate_estimate_
 
-
+  // sample_uncertainty = 10 * |估计值 - 采样值| / 估计值 
   float sample_uncertainty = uncertainty_scale_ /*10.0*/ * std::abs(bitrate_estimate_kbps_ - bitrate_sample_kbps) /
       (bitrate_estimate_kbps_ +  std::min(bitrate_sample_kbps, uncertainty_symmetry_cap_.Get().kbps<float>()));
 
@@ -107,6 +107,8 @@ void BitrateEstimator::Update(int64_t now_ms, int bytes)
   // TODO@chensong 2025-04-02 根据不确定性调整权重，更新估计值公式: 
   // bitrate_estimate_ = (bitrate_sample_kbps ×sample_var +  bitrate_sample_kbps×pred_bitrate_estimate_var)/  (sample_var + pred_bitrate_estimate_var)
   // 其中 pred_bitrate_estimate_var 为先验方差，反映历史估计的可信度‌
+  //  公式  = （偏差动态调整权重 * 上一次估计码率  + 滑动窗口200ms * 一个窗口码率） / (偏差动态调整权重 + 滑动窗口的大小)
+  // 根据上面公式 sample_var 变大 ==》 带宽bitrate_estimate_kbps_值也会变大 
   bitrate_estimate_kbps_ = (sample_var * bitrate_estimate_kbps_ + pred_bitrate_estimate_var * bitrate_sample_kbps) /
                            (sample_var + pred_bitrate_estimate_var);
   bitrate_estimate_kbps_ = std::max(bitrate_estimate_kbps_, estimate_floor_.Get().kbps<float>());

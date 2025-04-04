@@ -23,7 +23,7 @@
 #include "api/peer_connection_interface.h"
 #include "examples/peerconnection/desktop/main_wnd.h"
 #include "examples/peerconnection/desktop/peer_connection_client.h"
-
+#include "pc/rtp_sender.h"
 namespace webrtc {
 class VideoCaptureModule;
 }  // namespace webrtc
@@ -44,10 +44,10 @@ class crtc_static : public webrtc::RTCStatsCollectorCallback {
   ~crtc_static() override = default;
   virtual void OnStatsDelivered(
       const rtc::scoped_refptr<const webrtc::RTCStatsReport>& report) override {
-    RTC_LOG(LS_INFO) << __FUNCTION__
-                     << "rtc stats repost = " << report->ToJson();
+   /* RTC_LOG(LS_INFO) << __FUNCTION__
+                     << "rtc stats repost = " << report->ToJson();*/
     std::thread([=](){
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      std::this_thread::sleep_for(std::chrono::seconds(2));
       if (observer_) {
         observer_->OnGetStats();
       }
@@ -170,6 +170,14 @@ class Conductor
   std::string user_name_;
   std::string pass_word_;
   rtc::scoped_refptr<crtc_static> rtc_static_;
+  rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track_proxy_ptr_;
+
+  //rtc::scoped_refptr<
+  //    webrtc::RtpSenderProxyWithInternal<webrtc::RtpSenderInternal>>
+  //    rtp_sender_ptr_;
+
+  rtc::scoped_refptr<webrtc::RtpSenderInterface>
+      rtp_sender_ptr_;
 };
 
 #endif  // EXAMPLES_PEERCONNECTION_DESKTOP_CONDUCTOR_H_

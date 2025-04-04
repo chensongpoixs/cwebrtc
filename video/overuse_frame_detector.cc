@@ -562,8 +562,7 @@ void OveruseFrameDetector::EncodedFrameTimeMeasured(int encode_duration_ms) {
   RTC_DCHECK_RUN_ON(&task_checker_);
   encode_usage_percent_ = usage_->Value();
 
-  metrics_observer_->OnEncodedFrameTimeMeasured(encode_duration_ms,
-                                                *encode_usage_percent_);
+  metrics_observer_->OnEncodedFrameTimeMeasured(encode_duration_ms, *encode_usage_percent_);
 }
 
 bool OveruseFrameDetector::FrameSizeChanged(int num_pixels) const {
@@ -620,8 +619,7 @@ void OveruseFrameDetector::FrameSent(uint32_t timestamp,
                                      int64_t capture_time_us,
                                      absl::optional<int> encode_duration_us) {
   RTC_DCHECK_RUN_ON(&task_checker_);
-  encode_duration_us = usage_->FrameSent(timestamp, time_sent_in_us,
-                                         capture_time_us, encode_duration_us);
+  encode_duration_us = usage_->FrameSent(timestamp, time_sent_in_us, capture_time_us, encode_duration_us);
 
   if (encode_duration_us) {
     EncodedFrameTimeMeasured(*encode_duration_us /

@@ -86,9 +86,8 @@ void ExtractCommonSendProperties(const cricket::MediaSenderInfo& info,
                                  StatsReport* report) {
   report->AddString(StatsReport::kStatsValueNameCodecName, info.codec_name);
   report->AddInt64(StatsReport::kStatsValueNameBytesSent, info.bytes_sent);
-  if (info.rtt_ms >= 0) {
-    report->AddInt64(StatsReport::kStatsValueNameRtt, info.rtt_ms);
-  }
+  // if (info.rtt_ms >= 0)
+  { report->AddInt64(StatsReport::kStatsValueNameRtt, info.rtt_ms); }
 }
 
 void ExtractCommonReceiveProperties(const cricket::MediaReceiverInfo& info,
@@ -104,31 +103,49 @@ void SetAudioProcessingStats(StatsReport* report,
   if (apm_stats.delay_median_ms) {
     report->AddInt(StatsReport::kStatsValueNameEchoDelayMedian,
                    *apm_stats.delay_median_ms);
+  } else {
+    report->AddInt(StatsReport::kStatsValueNameEchoDelayMedian, 0);
   }
   if (apm_stats.delay_standard_deviation_ms) {
     report->AddInt(StatsReport::kStatsValueNameEchoDelayStdDev,
                    *apm_stats.delay_standard_deviation_ms);
+  } else {
+    report->AddInt(StatsReport::kStatsValueNameEchoDelayStdDev, 0);
   }
   if (apm_stats.echo_return_loss) {
     report->AddInt(StatsReport::kStatsValueNameEchoReturnLoss,
                    *apm_stats.echo_return_loss);
+  } else {
+    report->AddInt(StatsReport::kStatsValueNameEchoReturnLoss, 0);
   }
   if (apm_stats.echo_return_loss_enhancement) {
     report->AddInt(StatsReport::kStatsValueNameEchoReturnLossEnhancement,
                    *apm_stats.echo_return_loss_enhancement);
+  } else {
+    report->AddInt(StatsReport::kStatsValueNameEchoReturnLossEnhancement, 0);
   }
   if (apm_stats.residual_echo_likelihood) {
     report->AddFloat(StatsReport::kStatsValueNameResidualEchoLikelihood,
                      static_cast<float>(*apm_stats.residual_echo_likelihood));
+  } else {
+    report->AddFloat(StatsReport::kStatsValueNameResidualEchoLikelihood,
+                     static_cast<float>(0.0f));
   }
   if (apm_stats.residual_echo_likelihood_recent_max) {
     report->AddFloat(
         StatsReport::kStatsValueNameResidualEchoLikelihoodRecentMax,
         static_cast<float>(*apm_stats.residual_echo_likelihood_recent_max));
+  } else {
+    report->AddFloat(
+        StatsReport::kStatsValueNameResidualEchoLikelihoodRecentMax,
+        static_cast<float>(0.0f));
   }
   if (apm_stats.divergent_filter_fraction) {
     report->AddFloat(StatsReport::kStatsValueNameAecDivergentFilterFraction,
                      static_cast<float>(*apm_stats.divergent_filter_fraction));
+  } else {
+    report->AddFloat(StatsReport::kStatsValueNameAecDivergentFilterFraction,
+                     static_cast<float>(0.0f));
   }
 }
 
@@ -257,9 +274,19 @@ void ExtractStats(const cricket::VideoReceiverInfo& info, StatsReport* report) {
     report->AddInt64(StatsReport::kStatsValueNameFirstFrameReceivedToDecodedMs,
                      info.first_frame_received_to_decoded_ms);
   }
-  if (info.qp_sum)
+  if (info.qp_sum) {
     report->AddInt64(StatsReport::kStatsValueNameQpSum, *info.qp_sum);
+  }
 
+  // report->AddInt64(StatsReport::kStatsValueNameJitterBufferDelay,
+  //                 info.jitter_buffer_ms);
+
+  // report->AddInt64(StatsReport::kStatsValueNamePacketsLost,
+  //                 info.packets_lost);
+  ///*report->AddFloat(StatsReport::kStatsValueNamePacketsLost,
+  //                 info.fraction_lost);*/
+  // report->AddString(StatsReport::kStatsValueNameFramesDecoded,
+  //                  info.codec_name);
   const IntForAdd ints[] = {
       {StatsReport::kStatsValueNameCurrentDelayMs, info.current_delay_ms},
       {StatsReport::kStatsValueNameDecodeMs, info.decode_ms},
@@ -282,8 +309,9 @@ void ExtractStats(const cricket::VideoReceiverInfo& info, StatsReport* report) {
       {StatsReport::kStatsValueNameFramesDecoded, info.frames_decoded},
   };
 
-  for (const auto& i : ints)
+  for (const auto& i : ints) {
     report->AddInt(i.name, i.value);
+  }
   report->AddString(StatsReport::kStatsValueNameMediaType, "video");
 
   if (info.timing_frame_info) {
@@ -297,6 +325,7 @@ void ExtractStats(const cricket::VideoReceiverInfo& info, StatsReport* report) {
   report->AddString(
       StatsReport::kStatsValueNameContentType,
       webrtc::videocontenttypehelpers::ToString(info.content_type));
+  // ExtractStats(info, report);
 }
 
 void ExtractStats(const cricket::VideoSenderInfo& info, StatsReport* report) {
@@ -311,8 +340,11 @@ void ExtractStats(const cricket::VideoSenderInfo& info, StatsReport* report) {
   report->AddBoolean(StatsReport::kStatsValueNameHasEnteredLowResolution,
                      info.has_entered_low_resolution);
 
-  if (info.qp_sum)
+  if (info.qp_sum) {
     report->AddInt(StatsReport::kStatsValueNameQpSum, *info.qp_sum);
+  } else {
+    report->AddInt(StatsReport::kStatsValueNameQpSum, 0);
+  }
 
   const IntForAdd ints[] = {
       {StatsReport::kStatsValueNameAdaptationChanges, info.adapt_changes},
@@ -332,8 +364,10 @@ void ExtractStats(const cricket::VideoSenderInfo& info, StatsReport* report) {
       {StatsReport::kStatsValueNameHugeFramesSent, info.huge_frames_sent},
   };
 
-  for (const auto& i : ints)
+  for (const IntForAdd& i : ints) 
+  {
     report->AddInt(i.name, i.value);
+  }
   report->AddString(StatsReport::kStatsValueNameMediaType, "video");
   report->AddString(
       StatsReport::kStatsValueNameContentType,
@@ -357,7 +391,9 @@ void ExtractStats(const cricket::BandwidthEstimationInfo& info,
       {StatsReport::kStatsValueNameTransmitBitrate, info.transmit_bitrate},
   };
   for (const auto& i : ints)
+  {
     report->AddInt(i.name, i.value);
+  }
   report->AddInt64(StatsReport::kStatsValueNameBucketDelay, info.bucket_delay);
 }
 
@@ -415,16 +451,17 @@ void ExtractStatsFromList(
     std::string track_id = GetTrackIdBySsrc(ssrc, direction, track_id_by_ssrc);
     // Each track can have stats for both local and remote objects.
     // TODO(hta): Handle the case of multiple SSRCs per object.
-    StatsReport* report =
-        collector->PrepareReport(true, ssrc, track_id, transport_id, direction);
-    if (report)
+    StatsReport* report = collector->PrepareReport(true, ssrc, track_id, transport_id, direction);
+    if (report) {
       ExtractStats(d, report);
+    }
 
     if (!d.remote_stats.empty()) {
       report = collector->PrepareReport(false, ssrc, track_id, transport_id,
                                         direction);
-      if (report)
+      if (report) {
         ExtractRemoteStats(d, report);
+      }
     }
   }
 }
@@ -930,14 +967,12 @@ class MediaChannelStatsGatherer {
   void ExtractSenderReceiverStats(
       StatsCollector* collector,
       const std::vector<ReceiverT>& receiver_data,
-      const std::vector<SenderT>& sender_data) const {
+      const std::vector<SenderT>& sender_data) const
+  {
     RTC_DCHECK(collector);
-    StatsReport::Id transport_id = StatsReport::NewComponentId(
-        transport_name, cricket::ICE_CANDIDATE_COMPONENT_RTP);
-    ExtractStatsFromList(receiver_data, transport_id, collector,
-                         StatsReport::kReceive, receiver_track_id_by_ssrc);
-    ExtractStatsFromList(sender_data, transport_id, collector,
-                         StatsReport::kSend, sender_track_id_by_ssrc);
+    StatsReport::Id transport_id = StatsReport::NewComponentId( transport_name, cricket::ICE_CANDIDATE_COMPONENT_RTP);
+    ExtractStatsFromList(receiver_data, transport_id, collector, StatsReport::kReceive, receiver_track_id_by_ssrc);
+    ExtractStatsFromList(sender_data, transport_id, collector, StatsReport::kSend, sender_track_id_by_ssrc);
   }
 };
 

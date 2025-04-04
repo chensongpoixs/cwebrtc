@@ -45,6 +45,7 @@
 #include "rtc_base/rtc_certificate_generator.h"
 #include "rtc_base/strings/json.h"
 #include "test/vcm_capturer.h"
+#include "call/call.h"
 
 namespace {
 // Names used for a IceCandidate JSON object.
@@ -231,8 +232,7 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   config.enable_dtls_srtp = dtls;                             //是否加密
   webrtc::PeerConnectionInterface::IceServer server;
   server.uri = GetPeerConnectionString();
-  config.ice_candidate_pool_size =
-      0;  // 大于0 就在sdp之前进行stun和turn连接创建， 反之啥事情都不做
+  config.ice_candidate_pool_size = 0;  // 大于0 就在sdp之前进行stun和turn连接创建， 反之啥事情都不做
   server.username = user_name_;
   server.password = pass_word_;
   std::vector<std::string> turnservers;
@@ -240,7 +240,7 @@ bool Conductor::CreatePeerConnection(bool dtls) {
   server.urls = turnservers;
   // 设置走 turn server 进行转发媒体数据 哈
   // config.type = webrtc::PeerConnectionInterface::kRelay;
-  config.servers.push_back(server);
+  // config.servers.push_back(server);
 
   peer_connection_ = peer_connection_factory_->CreatePeerConnection(
       config, nullptr, nullptr, this);
@@ -451,6 +451,7 @@ void Conductor::OnMessageFromPeer(int peer_id, const std::string& message) {
 void Conductor::OnMessageSent(int err) {
   RTC_LOG(LS_INFO) << __FUNCTION__;
   // Process the next pending message if any.
+
   main_wnd_->QueueUIThreadCallback(SEND_MESSAGE_TO_PEER, NULL);
 }
 
@@ -465,7 +466,18 @@ void Conductor::OnGetStats()
   if (peer_connection_) {
     // 注册数据统计模块
     // peer_connection_->GetStats(*this);
-    peer_connection_->GetStats(rtc_static_.get());
+    peer_connection_->GetStats( rtc_static_.get());
+
+
+	//Call::Stats GetCallStats()
+ /*   std::thread([&](){
+	
+		while (true)
+		{
+        webrtc::Call::Stats stats = peer_connection_->GetCallStats();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+	}).detach();*/
   }
 }
 
@@ -529,8 +541,8 @@ void Conductor::AddTracks() {
   // peer_connection_->CreateDataChannel("sctp", &init);
 
   ///////////////////////////////////////////////AUDIO///////////////////////////////////////////////////////////
-  /*tc::scoped_refptr<webrtc::AudioSourceInterface> audio_source_ptr =
-  peer_connection_factory_->CreateAudioSource(cricket::AudioOptions());
+  rtc::scoped_refptr<webrtc::AudioSourceInterface> audio_source_ptr =
+      peer_connection_factory_->CreateAudioSource(cricket::AudioOptions());
 
   rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track_ptr =
   peer_connection_factory_->CreateAudioTrack(kAudioLabel, audio_source_ptr);
@@ -540,23 +552,55 @@ void Conductor::AddTracks() {
   {
         RTC_LOG(LS_ERROR) << "Failed to add audio track to PeerConnection: "
                                           << result_or_error.error().message();
-  }*/
+  }
   //////////////////////////////////////////VIDEO////////////////////////////////////////////////////////////////
   rtc::scoped_refptr<CapturerTrackSource> video_device =
       CapturerTrackSource::Create();
   if (video_device) {
-    rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track_proxy_ptr =
+    video_track_proxy_ptr_ =
         peer_connection_factory_->CreateVideoTrack(kVideoLabel, video_device);
+   // video_track_proxy_ptr_->set_enabled(true);
+  //  video_track_proxy_ptr_->set_content_hint(webrtc::VideoTrackInterface::ContentHint::kFluid);
 
-    main_wnd_->StartLocalRenderer(video_track_proxy_ptr);
+	//video_track_proxy_ptr_->GetSource()->AddOrUpdateSink();
+	//webrtc::VideoEncoder::RateControlParameters
 
+	webrtc::BitrateSettings constraints;
+    constraints.min_bitrate_bps = 8000000;
+    constraints.max_bitrate_bps = 10000000;
+    constraints.start_bitrate_bps = 5000000;
+    //constraints
+    peer_connection_->SetBitrate(constraints);
+    //main_wnd_->StartLocalRenderer(video_track_proxy_ptr);
+    webrtc::RtpTransceiverInit rtp_info;
+    rtp_info.stream_ids.emplace_back("0");
+    webrtc::RtpEncodingParameters rtp_encoding_paramter; 
+	rtp_encoding_paramter.max_bitrate_bps = 60;
+    webrtc::RtpFecParameters rtp_fec;
+        rtp_fec.mechanism = webrtc::FecMechanism::FLEXFEC;
+    rtp_encoding_paramter.fec = rtp_fec;
+        rtp_encoding_paramter.active = true;
+    rtp_encoding_paramter.max_bitrate_bps = 1000000000;
+        rtp_encoding_paramter.max_framerate = 60;
+    rtp_encoding_paramter.min_bitrate_bps = 80000000;
+        rtp_info.send_encodings.push_back(rtp_encoding_paramter);
     auto result_or_error =
-        peer_connection_->AddTrack(video_track_proxy_ptr, {kStreamId});
+        //    peer_connection_->AddTransceiver(video_track_proxy_ptr_, rtp_info);
+            peer_connection_->AddTrack(video_track_proxy_ptr_, {kStreamId});
     if (!result_or_error.ok()) {
       RTC_LOG(LS_ERROR) << "Failed to add video track to PeerConnection: "
                         << result_or_error.error().message();
-    }
-
+	}
+	else
+	{
+     // result_or_error.value()->SetDirection(
+       //   webrtc::RtpTransceiverDirection::kSendRecv);
+       //rtp_sender_ptr_ = result_or_error.value()->sender();
+          /*rtp_sender_ptr_->set_init_send_encodings(
+              {rtp_encoding_paramter});*/
+	 // rtp_sender_ptr->
+      //rtp_sender_ptr_ = result_or_error.value()->sender();
+	}
   } else {
     RTC_LOG(LS_ERROR) << "OpenVideoCaptureDevice failed";
   }

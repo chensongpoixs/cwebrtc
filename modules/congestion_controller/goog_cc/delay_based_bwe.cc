@@ -48,7 +48,9 @@ constexpr size_t kDefaultTrendlineWindowSize = 20;
 //平滑系数（α）‌：
 //取值范围为0到1，决定历史数据与新数据的权重。α越大，历史数据影响越大，结果更平滑；α越小，新数据影响越显著，结果更敏感 
 constexpr double kDefaultTrendlineSmoothingCoeff = 0.9;
-constexpr double kDefaultTrendlineThresholdGain = 4.0;
+
+// TODO@chensong  2025-04-03 最小二乘法率的增益参数 变小一点 
+constexpr double kDefaultTrendlineThresholdGain = 2.0;  // 4.0;
 
 const char kBweWindowSizeInPacketsExperiment[] =
     "WebRTC-BweWindowSizeInPackets";
