@@ -579,25 +579,22 @@ int32_t H264EncoderImpl::Encode(const VideoFrame& input_frame, const std::vector
 	dur = cur_time - pre_time;
 	ms = duration_cast<milliseconds>(dur);
 	elapse = static_cast<uint32_t>(ms.count());
-	pre_time = cur_time;*/
+	pre_time = cur_time;
+        uint64_t diff_capture_ms =
+            rtc::TimeMillis() - input_frame.ntp_time_ms();*/
     // Encode!
     int enc_ret = encoders_[i]->EncodeFrame(&pictures_[i], &info);
 	/*cur_time = steady_clock::now();
 
 	dur = cur_time - pre_time;
 	ms = duration_cast<milliseconds>(dur);
-	elapse = static_cast<uint32_t>(ms.count());*/
-	/*if (elapse < TICK_TIME)
-	{
-		std::this_thread::sleep_for(milliseconds(TICK_TIME - elapse));
-	}*/
-	/*static FILE * out_file_ptr = ::fopen("./h264_encoder_impl.log", "wb+");
-	if (out_file_ptr)
-	{
-	fprintf(out_file_ptr, "[ms = %u]\n", elapse);
-	fflush(out_file_ptr);
-	}*/
+	elapse = static_cast<uint32_t>(ms.count());
+ 
+	 ;
 
+	RTC_LOG(LS_INFO) << "[][][][][]capture e = " << diff_capture_ms
+                         << "ms ][encode ms = " << elapse << " ms]";
+*/
     if (enc_ret != 0) {
       RTC_LOG(LS_ERROR)
           << "OpenH264 frame encoding failed, EncodeFrame returned " << enc_ret
@@ -632,7 +629,7 @@ int32_t H264EncoderImpl::Encode(const VideoFrame& input_frame, const std::vector
       h264_bitstream_parser_.ParseBitstream(encoded_images_[i].data(),
                                             encoded_images_[i].size());
       h264_bitstream_parser_.GetLastSliceQp(&encoded_images_[i].qp_);
-
+     // encoded_images_[i].qp_ = 10;
       // Deliver encoded image.
       CodecSpecificInfo codec_specific;
       codec_specific.codecType = kVideoCodecH264;

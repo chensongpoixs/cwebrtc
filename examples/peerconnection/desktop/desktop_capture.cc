@@ -80,7 +80,7 @@ void DesktopCapture::OnCaptureResult(
                             std::chrono::system_clock::now().time_since_epoch())
                             .count();
   if (timestamp_curr - timestamp > 1000) {
-    //RTC_LOG(LS_INFO) << "FPS: " << cnt;
+    RTC_LOG(LS_INFO) << "FPS: " << cnt;
     cnt = 0;
     timestamp = timestamp_curr;
   }
@@ -110,7 +110,7 @@ void DesktopCapture::OnCaptureResult(
   webrtc::VideoFrame captureFrame =
 	  webrtc::VideoFrame::Builder()
 	  .set_video_frame_buffer(i420_buffer_)
-	  .set_timestamp_rtp(0)//set_ntp_time_ms
+          .set_timestamp_rtp(rtc::TimeMillis())  // set_ntp_time_ms
           .set_ntp_time_ms(rtc::TimeMillis())
 	  .set_timestamp_ms(rtc::TimeMillis())
 	  .set_rotation(webrtc::kVideoRotation_0)

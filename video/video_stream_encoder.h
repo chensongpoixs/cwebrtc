@@ -234,8 +234,7 @@ class VideoStreamEncoder : public VideoStreamEncoderInterface,
   const VideoStreamEncoderSettings settings_;
   const RateControlSettings rate_control_settings_;
 
-  const std::unique_ptr<OveruseFrameDetector> overuse_detector_
-      RTC_PT_GUARDED_BY(&encoder_queue_);
+  const std::unique_ptr<OveruseFrameDetector> overuse_detector_ RTC_PT_GUARDED_BY(&encoder_queue_);
   std::unique_ptr<QualityScaler> quality_scaler_ RTC_GUARDED_BY(&encoder_queue_)
       RTC_PT_GUARDED_BY(&encoder_queue_);
 

@@ -1239,55 +1239,61 @@ void MainWnd::VideoRenderer::OnFrame(const webrtc::VideoFrame& frame) {
 
 	
 
-	if (!i420_buffer_.get() || i420_buffer_->width() * i420_buffer_->height() <
-                                   frame.width() * frame.height()) {
-      i420_buffer_ = webrtc::I420Buffer::Create(frame.width() , frame.height());
-    }
-      //  i420_buffer_ = frame.video_frame_buffer()->GetI420();
-    libyuv::ConvertToI420(frame.video_frame_buffer()->GetI420()->DataY(), 0, i420_buffer_->MutableDataY(),
-                          i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
-                          i420_buffer_->StrideU(), i420_buffer_->MutableDataV(), i420_buffer_->StrideV(),
-                          0, 0, frame.width(), frame.height(), frame.width(),
-                          frame.height(), libyuv::kRotate0,
-                          libyuv::FOURCC_I420);
+	//if (!i420_buffer_.get() || i420_buffer_->width() * i420_buffer_->height() <
+ //                                  frame.width() * frame.height()) {
+ //     i420_buffer_ = webrtc::I420Buffer::Create(frame.width() , frame.height());
+ //   }
+ //     //  i420_buffer_ = frame.video_frame_buffer()->GetI420();
+ //   libyuv::ConvertToI420(frame.video_frame_buffer()->GetI420()->DataY(), 0, i420_buffer_->MutableDataY(),
+ //                         i420_buffer_->StrideY(), i420_buffer_->MutableDataU(),
+ //                         i420_buffer_->StrideU(), i420_buffer_->MutableDataV(), i420_buffer_->StrideV(),
+ //                         0, 0, frame.width(), frame.height(), frame.width(),
+ //                         frame.height(), libyuv::kRotate0,
+ //                         libyuv::FOURCC_I420);
     if (static_cast<size_t>(frame.width()) != width_ ||
         static_cast<size_t>(frame.height()) != height_) {
       SetSize(static_cast<size_t>(frame.width()),
               static_cast<size_t>(frame.height()));
     }
-    cnt++;
-    auto timestamp_curr =
-        std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::system_clock::now().time_since_epoch())
-            .count();
-    if (timestamp_curr - timestamp_ > 1000) {
-      // RTC_LOG(LS_INFO) << "FPS: " << cnt;
-      
-      timestamp_ = timestamp_curr;
-      osd_ = "renderFPS: " + std::to_string(cnt) + "/s";
-      // webrtc::I420Buffer* i420_buffer = /*static_cast <webrtc::I420Buffer*>*/
-      // (
-      //    webrtc::I420Buffer*)(frame.video_frame_buffer()->GetI420A());
-      
-      cnt = 0;
-    }
-    draw_font_func(i420_buffer_->MutableDataY(), i420_buffer_->MutableDataU(),
-                   i420_buffer_->MutableDataV(), osd_.c_str(), 100, 100,3,
-                   osd_.length(), frame.width(), frame.height());
+ //   cnt++;
+ //   auto timestamp_curr =
+ //       std::chrono::duration_cast<std::chrono::milliseconds>(
+ //           std::chrono::system_clock::now().time_since_epoch())
+ //           .count();
+ //   if (timestamp_curr - timestamp_ > 1000) {
+ //     // RTC_LOG(LS_INFO) << "FPS: " << cnt;
+ //     
+ //     timestamp_ = timestamp_curr;
+ //     osd_ = "renderFPS: " + std::to_string(cnt) + "/s";
+ //     // webrtc::I420Buffer* i420_buffer = /*static_cast <webrtc::I420Buffer*>*/
+ //     // (
+ //     //    webrtc::I420Buffer*)(frame.video_frame_buffer()->GetI420A());
+ //     
+ //     cnt = 0;
+ //   }
+
+
+	if (false)
+	{
+         draw_font_func(i420_buffer_->MutableDataY(),
+         i420_buffer_->MutableDataU(),
+                        i420_buffer_->MutableDataV(), osd_.c_str(), 100,
+                        100,3, osd_.length(), frame.width(), frame.height());
+	}
     D3DLOCKED_RECT lock_rect;
 	if (texture_->LockRect(0, &lock_rect, NULL, 0) != D3D_OK)
 	{
       return;
 	}
-        libyuv::ConvertFromI420(i420_buffer_->DataY(), i420_buffer_->StrideY(),
+   /*     libyuv::ConvertFromI420(i420_buffer_->DataY(), i420_buffer_->StrideY(),
                                 i420_buffer_->DataU(), i420_buffer_->StrideU(),
                                 i420_buffer_->DataV(), i420_buffer_->StrideV(),
                                 static_cast<uint8_t*>(lock_rect.pBits),
                                 0,
                                 i420_buffer_->width(), i420_buffer_->height(),
-                                ConvertVideoType(webrtc::VideoType::kARGB));
-   /*  ConvertFromI420(frame, webrtc::VideoType::kARGB, 0,
-                    static_cast<uint8_t*>(lock_rect.pBits)); */
+                                ConvertVideoType(webrtc::VideoType::kARGB));*/
+     ConvertFromI420(frame, webrtc::VideoType::kARGB, 0,
+                    static_cast<uint8_t*>(lock_rect.pBits)); 
        /* rtc::scoped_refptr<webrtc::I420BufferInterface> i420_buffer =
             frame.video_frame_buffer()->ToI420();
         memcpy(static_cast<uint8_t*>(lock_rect.pBits), i420_buffer->DataY(),

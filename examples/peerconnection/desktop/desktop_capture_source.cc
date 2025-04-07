@@ -31,7 +31,8 @@ void DesktopCaptureSource::OnFrame(const webrtc::VideoFrame& frame) {
   int cropped_height = 0;
   int out_width = 0;
   int out_height = 0;
-
+  broadcaster_.OnFrame(frame);
+  return;
   if (!video_adapter_.AdaptFrameResolution(
           frame.width(), frame.height(), frame.timestamp_us() * 1000,
           &cropped_width, &cropped_height, &out_width, &out_height)) {
