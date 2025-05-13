@@ -25,6 +25,15 @@
 
 namespace webrtc {
 
+/*
+// 创建配置对象
+webrtc::DataChannelInit config;
+config.ordered = false;     // 允许无序传输
+config.maxRetransmits = 3;  // 最大重传3次
+config.negotiated = true;   // 手动协商
+config.id = 1;              // 通道ID
+config.protocol = "custom-protocol";
+*/
 // C++ version of: https://www.w3.org/TR/webrtc/#idl-def-rtcdatachannelinit
 // TODO(deadbeef): Use absl::optional for the "-1 if unset" things.
 struct DataChannelInit {

@@ -170,7 +170,7 @@ class RtpPacket {
   // Header.
   bool marker_;  // TODO@chensong  2022-12-19 是否包的结束标记
   uint8_t payload_type_;
-  uint8_t padding_size_;
+  uint8_t padding_size_; // TODO@chensong 2025-05-14 是否有填充数据  mtu的大小  防止分片  50 ~244的数据大小
   uint16_t sequence_number_;
   uint32_t timestamp_;
   uint32_t ssrc_;

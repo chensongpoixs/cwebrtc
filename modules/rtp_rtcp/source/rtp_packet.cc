@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -52,6 +52,30 @@ constexpr size_t kDefaultPacketSize = 1500;
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // |               padding         | Padding size  |
 // +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+/*
+RTP中CSRC字段说明与作用
+一、CSRC字段定义
+CSRC（‌Contributing Source Identifier‌，特约信源标识符）是RTP头部的可选字段，用于标识‌参与混流的原始数据源‌。每个CSRC条目占32位，最多可携带15个标识符，具体数量由头部的‌CC（CSRC计数器）‌字段指定（CC占4位，取值范围0-15）23。
+
+二、字段生成场景
+CSRC仅在以下场景出现：
+
+‌混流场景‌：当混音器（Mixer）或混视频服务器将多路RTP流合并为单路输出时，原始流的SSRC（同步信源标识符）会被记录在CSRC列表中38。
+‌转发场景‌：翻译器（Translator）转发RTP流时，可能保留原始发送方的SSRC作为CSRC3。
+示例：
+在音频会议中，混音器将参与者A、B、C的音频混合成一路流，接收方收到的RTP包的CSRC列表将包含A、B、C的SSRC，以标识原始来源38。
+
+三、功能解析
+‌混流溯源‌
+CSRC帮助接收端识别合成流中的原始参与者，支持多源同步和媒体处理。例如，在视频会议中，客户端可通过CSRC列表还原分屏画面中各个窗口对应的发言者38。
+
+‌同步关联‌
+混流后的SSRC（同步信源）与CSRC列表共同维护流间同步关系。接收端可基于CSRC判断不同流的时间戳对齐方式，避免音画不同步35。
+
+‌冲突处理‌
+若多个混流器产生相同SSRC的流，CSRC可用于区分原始来源，降低SSRC冲突概率
+*/
 RtpPacket::RtpPacket() : RtpPacket(nullptr, kDefaultPacketSize) {}
 
 RtpPacket::RtpPacket(const ExtensionManager* extensions)
