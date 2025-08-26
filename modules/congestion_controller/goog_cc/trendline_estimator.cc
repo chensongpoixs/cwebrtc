@@ -31,7 +31,32 @@ namespace {
 
 
  x/y
+
+
+ TODO@chensong 2025-08-26 线性回归函数最小二乘法 trend 
+ 
+ 1. trend值含义
+      ①   表示延迟趋势，也是线性回归最小二乘法拟合的直线斜率
+	  ② 当发送码率 send_rate 小于网络链路的容量 link_capacity
+		时，数据包不会在网络队列中排队积压，延迟趋势 trend 值基本为
+		0（网络存在波动，不可能完全等于0） 
+	  ③ 当发送码率 send_rate 大于网络链路的容量 link_capacity
+		时，数据包会在网络队列中排队积压，数据包的传输延迟逐步增大，此时的延迟趋势 trend
+		值 > 0，表示网络出现拥塞  
+	  ④ 当网络拥塞得到缓解时，网络队列会逐渐排空，数据包的传输延迟开始下降，此时的延迟趋势trend 值 < 0 
+	  ⑤ trend 等价于 estimate ((send_rate – link_capacity) / link_capacity) 
+	  
+	  
+2. trend
+
+值我们可以利用包组延迟样本数据，通过线性回归最小二乘法计算斜率获得，有了 trend
+值我们就能判断网络是否出现过载拥塞，然后调整发送码率
+send_rate，使得网络不处于过载或者负载过低的状态，此时的发送码率就接近于网络的容量，即比较准确的网络带宽估计值。
+
 */
+
+
+
 absl::optional<double> LinearFitSlope(const std::deque<std::pair<double, double>>& points) 
 {
   RTC_DCHECK(points.size() >= 2);

@@ -74,7 +74,7 @@ class TrendlineEstimator : public DelayIncreaseDetectorInterface {
   int64_t first_arrival_time_ms_;
   // Exponential backoff filtering. 指数后退过滤
   double accumulated_delay_; // 累积的延迟
-  double smoothed_delay_; //平滑延迟_
+  double smoothed_delay_; //平滑延迟系数
   // Linear least squares regression.
   std::deque<std::pair<double, double>> delay_hist_;
 
