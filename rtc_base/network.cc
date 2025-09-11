@@ -826,9 +826,10 @@ bool BasicNetworkManager::IsIgnoredNetwork(const Network& network) const {
   // VMware Virtual Ethernet Adapter for VMnet1
   // but don't ignore any GUEST side adapters with a description like:
   // VMware Accelerated AMD PCNet Adapter #2
-  if (strstr(network.description().c_str(), "VMnet") != nullptr) {
+  //TODO@chensong 2025-09-11   chensong 环路 不在删除  修复没有路由器时也可以链接本地网络  VMnet 网络
+  /*if (strstr(network.description().c_str(), "VMnet") != nullptr) {
     return true;
-  }
+  }*/
 #endif
 
   // Ignore any networks with a 0.x.y.z IP

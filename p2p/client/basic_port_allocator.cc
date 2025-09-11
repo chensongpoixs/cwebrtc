@@ -706,12 +706,13 @@ std::vector<rtc::Network*> BasicPortAllocatorSession::GetNetworks() {
   }
   // Do some more filtering, depending on the network ignore mask and "disable
   // costly networks" flag.
-  NetworkFilter ignored_filter(
+  // TODO@chensong 2025-09-11   chensong 环路 不在删除  修复没有路由器时也可以链接本地网络
+  /*NetworkFilter ignored_filter(
       [this](rtc::Network* network) {
         return allocator_->network_ignore_mask() & network->type();
       },
       "ignored");
-  FilterNetworks(&networks, ignored_filter);
+  FilterNetworks(&networks, ignored_filter);*/
   if (flags() & PORTALLOCATOR_DISABLE_COSTLY_NETWORKS) {
     uint16_t lowest_cost = rtc::kNetworkCostMax;
     for (rtc::Network* network : networks) {
