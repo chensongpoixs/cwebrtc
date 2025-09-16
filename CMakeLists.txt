@@ -3,13 +3,21 @@
 project(libwebrtc)
 
  include_directories(
-       ./
+       .
 	   ../
+	   ../deps/libsrtp/include
+
        ../deps/abseil-cpp/
 	   ../deps/libyuv/include 
  )
 
  message(status   "-libwebrtc--> ${PROJECT_SOURCE_DIR}")
+
+
+
+
+
+
 
 # link_directories(
 #     "${PROJECT_SOURCE_DIR}/third_party/lib"
@@ -24,230 +32,9 @@ project(libwebrtc)
 #     -DNDEBUG -Wno-unused-parameter")
 
 
-FILE(GLOB   api
-
-	api/array_view.h
-	api/function_view.h
-	api/media_types.cc
-	api/media_types.h
-	api/priority.h
-	api/ref_counted_base.h
-	api/rtp_headers.cc
-	api/rtp_headers.h
-	api/rtp_packet_info.cc
-	api/rtp_packet_info.h
-	api/rtp_packet_infos (2).h
-	api/rtp_packet_infos.h
-	api/rtp_parameters.cc
-	api/rtp_parameters.h
-	api/rtp_transceiver_direction.h
-	api/scoped_refptr.h
-	api/sequence_checker.h
-	api/stats_types.cc
-	api/stats_types.h
-	api/audio/audio_frame.cc
-	api/audio/audio_frame.h
-	api/audio/audio_frame_processor.h
-	api/audio/audio_mixer.h
-	api/audio/channel_layout.cc
-	api/audio/channel_layout.h
-	api/audio/echo_canceller3_config.cc
-	api/audio/echo_canceller3_config.h
-	api/audio/echo_canceller3_config_json.cc
-	api/audio/echo_canceller3_config_json.h
-	api/audio/echo_canceller3_factory.cc
-	api/audio/echo_canceller3_factory.h
-	api/audio/echo_control.h
-	api/audio/echo_detector_creator.cc
-	api/audio/echo_detector_creator.h
-	api/audio_codecs/audio_format.cc
-	api/audio_codecs/audio_format.h
-	api/crypto/crypto_options.cc
-	api/crypto/crypto_options.h
-	#api/task_queue/default_task_queue_factory.h
-	#api/task_queue/default_task_queue_factory_stdlib.cc
-	#api/task_queue/default_task_queue_factory_win.cc
-	api/task_queue/queued_task.h
-	api/task_queue/task_queue_base.cc
-	api/task_queue/task_queue_base.h
-	api/task_queue/task_queue_factory.h
-	api/transport/network_types.cc
-	api/transport/network_types.h
-	api/transport/rtp/dependency_descriptor.cc
-	api/transport/rtp/dependency_descriptor.h
-	api/transport/stun.cc
-	api/transport/stun.h
-	api/transport/webrtc_key_value_config.h
-	api/units/data_rate.cc
-	api/units/data_rate.h
-	api/units/data_size.cc
-	api/units/data_size.h
-	api/units/frequency.cc
-	api/units/frequency.h
-	api/units/time_delta.cc
-	api/units/time_delta.h
-	api/units/timestamp.cc
-	api/units/timestamp.h
-	api/video/color_space.cc
-	api/video/color_space.h
-	api/video/hdr_metadata.cc
-	api/video/hdr_metadata.h
-	api/video/i420_buffer.cc
-	api/video/i420_buffer.h
-	api/video/nv12_buffer.cc
-	api/video/nv12_buffer.h
-	api/video/render_resolution.h
-	api/video/video_codec_type.h
-	api/video/video_content_type.cc
-	api/video/video_content_type.h
-	api/video/video_frame_buffer.cc
-	api/video/video_frame_buffer.h
-	api/video/video_frame.cc
-	api/video/video_frame.h
-	api/video/video_frame_type.h
-	api/video/video_layers_allocation.h
-	api/video/video_rotation.h
-	api/video/video_sink_interface.h
-	api/video/video_timing.cc
-	api/video/video_timing.h
-	api/video_codecs/bitstream_parser.h
-)
 
 
 
-FILE(GLOB signal_processing 
-	
-		common_audio/signal_processin/include/real_fft.h
-		common_audio/signal_processin/include/signal_processing_library.h
-		common_audio/signal_processin/include/spl_inl.h
-		common_audio/signal_processin/include/spl_inl_armv7.h
-		common_audio/signal_processin/include/spl_inl_mips.h
-	    
-
-
-
-
-		common_audio/signal_processing/complex_bit_reverse.c
-		common_audio/signal_processing/complex_fft.c
-		common_audio/signal_processing/complex_fft_tables.h
-		common_audio/signal_processing/copy_set_operations.c
-		common_audio/signal_processing/cross_correlation.c
-		common_audio/signal_processing/division_operations.c
-		common_audio/signal_processing/dot_product_with_scale.cc
-		common_audio/signal_processing/dot_product_with_scale.h
-		common_audio/signal_processing/downsample_fast.c
-		common_audio/signal_processing/energy.c
-		common_audio/signal_processing/get_scaling_square.c
-		common_audio/signal_processing/min_max_operations.c
-		common_audio/signal_processing/randomization_functions.c
-		common_audio/signal_processing/real_fft.c
-		common_audio/signal_processing/resample.c
-		common_audio/signal_processing/resample_48khz.c
-		common_audio/signal_processing/resample_by_2.c
-		common_audio/signal_processing/resample_by_2_internal.c
-		common_audio/signal_processing/resample_by_2_internal.h
-		common_audio/signal_processing/resample_fractional.c
-		common_audio/signal_processing/splitting_filter.c
-		common_audio/signal_processing/spl_init.c
-		common_audio/signal_processing/spl_inl.c
-		common_audio/signal_processing/spl_sqrt.c
-		common_audio/signal_processing/sqrt_of_one_minus_x_squared.c
-		common_audio/signal_processing/vector_scaling_operations.c
-
-)
-
-
-FILE(GLOB  spl_sqrt_floor  
-
-
-
-	common_audio/third_party/spl_sqrt_floor/spl_sqrt_floor.h
-
-	common_audio/third_party/spl_sqrt_floor/spl_sqrt_floor.c
-	common_audio/third_party/spl_sqrt_floor/spl_sqrt_floor.S
-	
-)
-
-
-FILE(GLOB   ooura  
-
-		common_audio/third_party/ooura/fft_size_128/ooura_fft.h
-		common_audio/third_party/ooura/fft_size_128/ooura_fft.cc
-		common_audio/third_party/ooura/fft_size_128/ooura_fft_mips.cc
-		common_audio/third_party/ooura/fft_size_128/ooura_fft_sse2.cc
-		common_audio/third_party/ooura/fft_size_128/ooura_fft_tables_common.h
-		common_audio/third_party/ooura/fft_size_128/ooura_fft_tables_neon_sse2.h
-		common_audio/third_party/ooura/fft_size_256/fft4g.cc
-		common_audio/third_party/ooura/fft_size_256/fft4g.cc
-)
-
-
-FILE(GLOB common_audio
-	common_audio/include/audio_util.h
-	common_audio/audio_converter.cc
-	common_audio/audio_converter.h
-	common_audio/audio_util.cc
-	common_audio/channel_buffer.cc
-	common_audio/channel_buffer.h
-	common_audio/fir_filter.h
-	common_audio/fir_filter_avx2.cc
-	common_audio/fir_filter_avx2.h
-	common_audio/fir_filter_c.cc
-	common_audio/fir_filter_c.h
-	common_audio/fir_filter_factory.cc
-	common_audio/fir_filter_factory.h
-	common_audio/fir_filter_sse.cc
-	common_audio/fir_filter_sse.h
-	common_audio/ring_buffer.c
-	common_audio/ring_buffer.h
-	common_audio/wav_file.cc
-	common_audio/wav_file.h
-	common_audio/wav_header.cc
-	common_audio/wav_header.h
-
-)
-
-FILE(GLOB  resampler
-	
-
-	common_audio/resampler/include/resampler.h   
-	common_audio/resampler/include/push_resampler.h
-	common_audio/resampler/push_resampler.cc
-	common_audio/resampler/push_sinc_resampler.cc
-	common_audio/resampler/push_sinc_resampler.h
-	common_audio/resampler/resampler.cc
-	common_audio/resampler/sinc_resampler.cc
-	common_audio/resampler/sinc_resampler.h
-	common_audio/resampler/sinc_resampler_avx2.cc
-	common_audio/resampler/sinc_resampler_sse.cc
-	common_audio/resampler/sinusoidal_linear_chirp_source.cc
-	common_audio/resampler/sinusoidal_linear_chirp_source.h
-)
-
-
-
-
-FILE(GLOB  vad
-
-
-		common_audio/resampler/vad/include/vad.h
-		common_audio/resampler/vad/include/webrtc_vad.h
-		common_audio/resampler/vad/mock/mock_vad.h 
-
-
-		common_audio/resampler/vad/vad.cc
-		common_audio/resampler/vad/vad_core.c
-		common_audio/resampler/vad/vad_core.h
-		common_audio/resampler/vad/vad_filterbank.c
-		common_audio/resampler/vad/vad_filterbank.h
-		common_audio/resampler/vad/vad_gmm.c
-		common_audio/resampler/vad/vad_gmm.h
-		common_audio/resampler/vad/vad_sp.c
-		common_audio/resampler/vad/vad_sp.h
-		common_audio/resampler/vad/webrtc_vad.c
-	
-
-)
 
 
 
@@ -754,252 +541,6 @@ modules/audio_processing/echo_detector/normalized_covariance_estimator.h
 
 
 
-FILE(GLOB  rtc_base 
-
-             rtc_base/arraysize.h
-             rtc_base/async_packet_socket.cc
-             rtc_base/async_packet_socket.h
-             rtc_base/async_resolver.cc
-             rtc_base/async_resolver.h
-             rtc_base/async_resolver_interface.cc
-             rtc_base/async_resolver_interface.h
-             rtc_base/async_socket.cc
-             rtc_base/async_socket.h
-             rtc_base/async_udp_socket.cc
-             rtc_base/async_udp_socket.h
-             rtc_base/atomic_ops.h
-             rtc_base/bit_buffer.cc
-             rtc_base/bit_buffer.h
-             rtc_base/bitstream_reader.cc
-             rtc_base/bitstream_reader.h
-             rtc_base/buffer.h
-             rtc_base/buffer_queue.cc
-             rtc_base/buffer_queue.h
-             rtc_base/byte_buffer.cc
-             rtc_base/byte_buffer.h
-             rtc_base/byte_io.h
-             rtc_base/byte_order.h
-             rtc_base/checks.cc
-             rtc_base/checks.h
-             rtc_base/compile_assert_c.h
-             rtc_base/constructor_magic.h
-             #rtc_base/containers/
-             rtc_base/copy_on_write_buffer.cc
-             rtc_base/copy_on_write_buffer.h
-             rtc_base/crc32.cc
-             rtc_base/crc32.h
-             rtc_base/deprecated/
-             rtc_base/deprecation.h
-             rtc_base/dscp.h
-             rtc_base/event.cc
-             rtc_base/event.h
-             rtc_base/event_tracer.cc
-             rtc_base/event_tracer.h
-             rtc_base/experiments/
-             rtc_base/fake_clock.cc
-             rtc_base/fake_clock.h
-             rtc_base/gtest_prod_util.h
-             rtc_base/helpers.cc
-             rtc_base/helpers.h
-             rtc_base/ignore_wundef.h
-             rtc_base/internal/
-             rtc_base/ip_address.cc
-             rtc_base/ip_address.h
-             rtc_base/location.cc
-             rtc_base/location.h
-             rtc_base/logging.cc
-             rtc_base/logging.h
-             rtc_base/memory/
-             rtc_base/message_digest.cc
-             rtc_base/message_digest.h
-             rtc_base/message_handler.cc
-             rtc_base/message_handler.h
-             rtc_base/net_helper.cc
-             rtc_base/net_helper.h
-             rtc_base/net_helpers.cc
-             rtc_base/net_helpers.h
-             rtc_base/network/
-             rtc_base/network_constants.cc
-             rtc_base/network_constants.h
-             rtc_base/network_monitor.cc
-             rtc_base/network_monitor.h
-             rtc_base/null_socket_server.cc
-             rtc_base/null_socket_server.h
-             rtc_base/numerics/
-             rtc_base/openssl_adapter.cc
-             rtc_base/openssl_adapter.h
-             rtc_base/openssl_certificate.cc
-             rtc_base/openssl_certificate.h
-             rtc_base/openssl_digest.cc
-             rtc_base/openssl_digest.h
-             rtc_base/openssl.h
-             rtc_base/openssl_identity.cc
-             rtc_base/openssl_identity.h
-             rtc_base/openssl_key_pair.cc
-             rtc_base/openssl_key_pair.h
-             rtc_base/openssl_session_cache.cc
-             rtc_base/openssl_session_cache.h
-             rtc_base/openssl_stream_adapter.cc
-             rtc_base/openssl_stream_adapter.h
-             rtc_base/openssl_utility.cc
-             rtc_base/openssl_utility.h
-             rtc_base/physical_socket_server.cc
-             rtc_base/physical_socket_server.h
-             rtc_base/platform_thread.cc
-             rtc_base/platform_thread.h
-             rtc_base/platform_thread_types.cc
-             rtc_base/platform_thread_types.h
-             rtc_base/race_checker.cc
-             rtc_base/race_checker.h
-             rtc_base/random.cc
-             rtc_base/random.h
-             rtc_base/rate_limiter.cc
-             rtc_base/rate_limiter.h
-             rtc_base/rate_statistics.cc
-             rtc_base/rate_statistics.h
-             rtc_base/rate_tracker.cc
-             rtc_base/rate_tracker.h
-             rtc_base/ref_counted_object.h
-             rtc_base/ref_counter.h
-             rtc_base/ref_count.h
-             rtc_base/rtc_certificate.cc
-             rtc_base/rtc_certificate_generator.cc
-             rtc_base/rtc_certificate_generator.h
-             rtc_base/rtc_certificate.h
-             rtc_base/sanitizer.h
-             rtc_base/socket_address.cc
-             rtc_base/socket_address.h
-             rtc_base/socket.cc
-             rtc_base/socket_factory.h
-             rtc_base/socket.h
-             rtc_base/socket_server.h
-             rtc_base/ssl_adapter.cc
-             rtc_base/ssl_adapter.h
-             rtc_base/ssl_certificate.cc
-             rtc_base/ssl_certificate.h
-             rtc_base/ssl_fingerprint.cc
-             rtc_base/ssl_fingerprint.h
-             rtc_base/ssl_identity.cc
-             rtc_base/ssl_identity.h
-             rtc_base/ssl_roots.h
-             rtc_base/ssl_stream_adapter.cc
-             rtc_base/ssl_stream_adapter.h
-             rtc_base/stream.cc
-             rtc_base/stream.h
-             rtc_base/string_encode.cc
-             rtc_base/string_encode.h
-             rtc_base/strings/
-             rtc_base/string_to_number.cc
-             rtc_base/string_to_number.h
-             rtc_base/string_utils.cc
-             rtc_base/string_utils.h
-             rtc_base/swap_queue.h
-             rtc_base/synchronization/
-             rtc_base/system/
-             rtc_base/system_time.cc
-             rtc_base/system_time.h
-             rtc_base/task_queue.cc
-             rtc_base/task_queue.h
-            # rtc_base/task_queue_stdlib.cc
-            # rtc_base/task_queue_stdlib.h
-             rtc_base/task_queue_win.cc
-             rtc_base/task_queue_win.h
-             rtc_base/task_utils/
-             rtc_base/third_party/
-             rtc_base/thread_annotations.h
-             rtc_base/thread.cc
-             rtc_base/thread_checker.h
-             rtc_base/thread.h
-             rtc_base/thread_message.h
-             rtc_base/time_utils.cc
-             rtc_base/time_utils.h
-             rtc_base/trace_event.h
-             rtc_base/type_traits.h
-             rtc_base/units/
-             rtc_base/win/
-             rtc_base/win32.cc
-             rtc_base/win32.h
-             rtc_base/zero_memory.cc
-             rtc_base/zero_memory.h
-			 
-	rtc_base/strings/json.cc
-	rtc_base/strings/json.h
-	rtc_base/strings/string_builder.cc
-	rtc_base/strings/string_builder.h			 
-			 
-	rtc_base/synchronization/mutex.cc
-	rtc_base/synchronization/mutex_critical_section.h
-	rtc_base/synchronization/mutex.h
-	rtc_base/synchronization/mutex_pthread.h
-	rtc_base/synchronization/sequence_checker.cc
-	rtc_base/synchronization/sequence_checker.h
-	rtc_base/synchronization/sequence_checker_internal.cc
-	rtc_base/synchronization/sequence_checker_internal.h
-	rtc_base/synchronization/yield.cc
-	rtc_base/synchronization/yield.h
-	rtc_base/synchronization/yield_policy.cc
-	rtc_base/synchronization/yield_policy.h
-
-
-
-rtc_base/deprecated/recursive_critical_section.cc
-rtc_base/deprecated/recursive_critical_section.h
-
-
-rtc_base/internal/default_socket_server.cc
-rtc_base/internal/default_socket_server.h
-
-
-rtc_base/network/sent_packet.h
-rtc_base/network/sent_packet.cc 
-
-
-
-rtc_base/task_utils/pending_task_safety_flag.cc
-rtc_base/task_utils/pending_task_safety_flag.h
-rtc_base/task_utils/repeating_task.cc
-rtc_base/task_utils/repeating_task.h
-rtc_base/task_utils/to_queued_task.h
-
-
-
-rtc_base/memory/aligned_malloc.cc
-rtc_base/memory/aligned_malloc.h
-rtc_base/memory/fifo_buffer.cc
-rtc_base/memory/fifo_buffer.h
-
-
-
-rtc_base/containers/as_const.h
-rtc_base/containers/flat_map.h
-rtc_base/containers/flat_tree.cc
-rtc_base/containers/flat_tree.h
-rtc_base/containers/invoke.h
-rtc_base/containers/not_fn.h
-rtc_base/containers/void_t.h
-
-
-
-rtc_base/experiments/field_trial_parser.cc  
-rtc_base/experiments/field_trial_parser.h
-
-
-rtc_base/system/arch.h
-rtc_base/system/file_wrapper.cc
-rtc_base/system/file_wrapper.h
-rtc_base/system/ignore_warnings.h
-rtc_base/system/inline.h
-rtc_base/system/no_unique_address.h
-rtc_base/system/rtc_export.h
-rtc_base/system/unused.h
-#rtc_base/system/warn_current_thread_is_deadlocked.cc
-rtc_base/system/warn_current_thread_is_deadlocked.h
-
-
-
-
-)
-
 
 
 FILE(GLOB  rtp_rtcp 
@@ -1133,8 +674,8 @@ file(GLOB all_src
    #"rtc_base/containers/*.h"
    #"rtc_base/experiments/*.h"
    #"rtc_base/system/*.h"
-   "rtc_base/third_party/sigslot/*.h"
-   "rtc_base/third_party/base64/*.h"
+#    "rtc_base/third_party/sigslot/*.h"
+#    "rtc_base/third_party/base64/*.h"
     #"api/*.h"
     #"api/task_queue/*.h"
     #"api/units/*.h"
@@ -1198,8 +739,8 @@ file(GLOB all_src
    #"rtc_base/containers/*.cc"
    #"rtc_base/experiments/*.cc"
    #"rtc_base/system/*.cc"
-    "rtc_base/third_party/sigslot/*.cc"
-    "rtc_base/third_party/base64/*.cc"
+    # "rtc_base/third_party/sigslot/*.cc"
+    # "rtc_base/third_party/base64/*.cc"
     #"api/*.cc"
     #"api/task_queue/*.cc"
     #"api/units/*.cc"
@@ -1251,18 +792,23 @@ file(GLOB all_src
     "../deps/pffft/src/*.c"
     "../deps/rnnoise/src/*.cc"
 )
-if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    file(GLOB rtc_base_win
-        "rtc_base/win/windows_version.h"
-		"rtc_base/win/windows_version.cc"
-		 "rtc_base/win/scoped_com_initializer.h"
-		"rtc_base/win/scoped_com_initializer.cc"
-    )
 
-    file(GLOB api_win
-        "api/task_queue/default_task_queue_factory.h"
-		"api/task_queue/default_task_queue_factory_win.cc"
-    )
+
+
+
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    # file(GLOB rtc_base_win
+    #     "rtc_base/win/windows_version.h"
+	# 	"rtc_base/win/windows_version.cc"
+	# 	 "rtc_base/win/scoped_com_initializer.h"
+	# 	"rtc_base/win/scoped_com_initializer.cc"
+    # )
+
+    # file(GLOB api_win
+    #     "api/task_queue/default_task_queue_factory.h"
+	# 	"api/task_queue/default_task_queue_factory_win.cc"
+    # )
 
     file(GLOB video_capture_win
 	"modules/video_capture/windows/*.h"
@@ -1308,14 +854,14 @@ endif()
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(${PROJECT_NAME}   STATIC
         ${all_src}
-        ${rtc_base_win}
-        ${api_win}
+        # ${rtc_base_win}
+        # ${api_win}
         ${audio_device_win}
         ${video_capture_win}
 		${signal_processing}
 		${spl_sqrt_floor}
 		${ooura}
-		${common_audio}
+		#${common_audio}
 		${resampler}
 		${vad}
 		${common_video}
@@ -1324,9 +870,11 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		${audio_coding}
 		${audio_device}
 		${audio_processing}
-		${rtc_base}
+		# ${rtc_base}
 		${rtp_rtcp}
-		${api}
+		#${api}
+		#${peerconnection}
+		#${rtc_pc_base}
 )
 add_dependencies(${PROJECT_NAME} libyuv)
 #add_dependencies(${PROJECT_NAME} libuv)
@@ -1334,9 +882,9 @@ add_dependencies(${PROJECT_NAME} libsrtp2)
 add_dependencies(${PROJECT_NAME} yaml_cpp)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     file(GLOB exclude_src
-        "./src/rtc_base/win32.cc"
-        "./src/rtc_base/task_queue_win.cc"
-        "./src/api/task_queue/default_task_queue_factory_win.cc"
+        # "./src/rtc_base/win32.cc"
+        # "./src/rtc_base/task_queue_win.cc"
+        # "./src/api/task_queue/default_task_queue_factory_win.cc"
     )
     list(REMOVE_ITEM all_src ${exclude_src})
     add_library(${PROJECT_NAME} 
@@ -1344,7 +892,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		${signal_processing}
 		${spl_sqrt_floor}
 		${ooura}
-		${common_audio}
+		#${common_audio}
 		${resampler}
 		${vad}
 		${common_video}
@@ -1353,32 +901,49 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		${audio_coding}
 		${audio_device}
 		${audio_processing}
-		${rtc_base}
+		# ${rtc_base}
 		${rtp_rtcp}
-		${api}
+		# ${api}
+	#	${peerconnection}
+		#${rtc_pc_base}
     )
 endif()
 
+
+
+
+set(LIWEBRTC_IDE_FOLDER ${PROJECT_NAME})
+
+add_subdirectory(api)
+add_subdirectory(pc)
+add_subdirectory(rtc_base)
+
+add_subdirectory(common_audio)
+
+
+
 set(AllFile ${all_src}
-        ${rtc_base_win}
-        ${api_win}
+        # ${rtc_base_win}
+        # ${api_win}
         ${audio_device_win}
         ${video_capture_win}
 		${signal_processing}
 		${spl_sqrt_floor}
 		${ooura}
-		${common_audio}
+		#${common_audio}
 		${resampler}
 		${vad}
 		${common_video}
 		${media}
-		${api}
+		# ${api}
 		${system_wrappers}
 		${audio_coding}
 		${audio_device}
 		${audio_processing}
-		${rtc_base}
+		# ${rtc_base}
 		${rtp_rtcp}
+	#	${peerconnection}
+	#	${rtc_pc_base}
 		)
 
 
@@ -1393,11 +958,17 @@ foreach(fileItem ${AllFile})
     string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
     # Make sure we are using windows slashes
     string(REPLACE "/" "\\" GROUP "${GROUP}")
+
+	#string(REPLACE "/.." "\\" GROUP "${GROUP}")
+	#string(REPLACE "/." "\\" GROUP "${GROUP}")
 	#message(status   "---> fileItem = ${fileItem}     GROUP ---->  ${GROUP}")
     # Group into "Source Files" and "Header Files"
     set(GROUP "${GROUP}")
     source_group("${GROUP}" FILES "${fileItem}")
 endforeach()
 
+
+
+set_property(TARGET ${PROJECT_NAME}  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER})
 
 

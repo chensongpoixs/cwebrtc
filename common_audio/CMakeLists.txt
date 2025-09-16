@@ -1,0 +1,190 @@
+project(common_audio)
+
+
+
+
+FILE(GLOB signal_processing 
+	
+		signal_processin/include/real_fft.h
+		signal_processin/include/signal_processing_library.h
+		signal_processin/include/spl_inl.h
+		signal_processin/include/spl_inl_armv7.h
+		signal_processin/include/spl_inl_mips.h
+	    
+
+
+
+
+		signal_processing/complex_bit_reverse.c
+		signal_processing/complex_fft.c
+		signal_processing/complex_fft_tables.h
+		signal_processing/copy_set_operations.c
+		signal_processing/cross_correlation.c
+		signal_processing/division_operations.c
+		signal_processing/dot_product_with_scale.cc
+		signal_processing/dot_product_with_scale.h
+		signal_processing/downsample_fast.c
+		signal_processing/energy.c
+		signal_processing/get_scaling_square.c
+		signal_processing/min_max_operations.c
+		signal_processing/randomization_functions.c
+		signal_processing/real_fft.c
+		signal_processing/resample.c
+		signal_processing/resample_48khz.c
+		signal_processing/resample_by_2.c
+		signal_processing/resample_by_2_internal.c
+		signal_processing/resample_by_2_internal.h
+		signal_processing/resample_fractional.c
+		signal_processing/splitting_filter.c
+		signal_processing/spl_init.c
+		signal_processing/spl_inl.c
+		signal_processing/spl_sqrt.c
+		signal_processing/sqrt_of_one_minus_x_squared.c
+		signal_processing/vector_scaling_operations.c
+
+)
+
+
+FILE(GLOB  spl_sqrt_floor  
+
+
+
+	third_party/spl_sqrt_floor/spl_sqrt_floor.h
+
+	third_party/spl_sqrt_floor/spl_sqrt_floor.c
+	third_party/spl_sqrt_floor/spl_sqrt_floor.S
+	
+)
+
+
+FILE(GLOB   ooura  
+
+		third_party/ooura/fft_size_128/ooura_fft.h
+		third_party/ooura/fft_size_128/ooura_fft.cc
+		third_party/ooura/fft_size_128/ooura_fft_mips.cc
+		third_party/ooura/fft_size_128/ooura_fft_sse2.cc
+		third_party/ooura/fft_size_128/ooura_fft_tables_common.h
+		third_party/ooura/fft_size_128/ooura_fft_tables_neon_sse2.h
+		third_party/ooura/fft_size_256/fft4g.cc
+		third_party/ooura/fft_size_256/fft4g.cc
+)
+
+
+FILE(GLOB common_audio_source
+	include/audio_util.h
+	./audio_converter.cc
+	./audio_converter.h
+	./audio_util.cc
+	./channel_buffer.cc
+	./channel_buffer.h
+	./fir_filter.h
+	./fir_filter_avx2.cc
+	./fir_filter_avx2.h
+	./fir_filter_c.cc
+	./fir_filter_c.h
+	./fir_filter_factory.cc
+	./fir_filter_factory.h
+	./fir_filter_sse.cc
+	./fir_filter_sse.h
+	./ring_buffer.c
+	./ring_buffer.h
+	./wav_file.cc
+	./wav_file.h
+	./wav_header.cc
+	./wav_header.h
+
+)
+
+FILE(GLOB  resampler
+	
+
+	resampler/include/resampler.h   
+	resampler/include/push_resampler.h
+	resampler/push_resampler.cc
+	resampler/push_sinc_resampler.cc
+	resampler/push_sinc_resampler.h
+	resampler/resampler.cc
+	resampler/sinc_resampler.cc
+	resampler/sinc_resampler.h
+	resampler/sinc_resampler_avx2.cc
+	resampler/sinc_resampler_sse.cc
+	resampler/sinusoidal_linear_chirp_source.cc
+	resampler/sinusoidal_linear_chirp_source.h
+)
+
+
+
+
+FILE(GLOB  vad
+
+
+		resampler/vad/include/vad.h
+		resampler/vad/include/webrtc_vad.h
+		resampler/vad/mock/mock_vad.h 
+
+
+		resampler/vad/vad.cc
+		resampler/vad/vad_core.c
+		resampler/vad/vad_core.h
+		resampler/vad/vad_filterbank.c
+		resampler/vad/vad_filterbank.h
+		resampler/vad/vad_gmm.c
+		resampler/vad/vad_gmm.h
+		resampler/vad/vad_sp.c
+		resampler/vad/vad_sp.h
+		resampler/vad/webrtc_vad.c
+	
+
+)
+
+
+
+
+add_library(${PROJECT_NAME}  STATIC   ${vad}
+
+  ${resampler}
+
+	${common_audio_source}
+	${ooura}
+	${spl_sqrt_floor}
+	${signal_processing}
+	)
+	
+	
+	
+	
+set(AllFile 
+
+        ${vad}
+
+  ${resampler}
+
+	${common_audio_source}
+	${ooura}
+	${spl_sqrt_floor}
+	${signal_processing}
+		
+)
+#set{${GROUP}  ""}
+foreach(fileItem ${AllFile})       
+    # Get the directory of the source file
+    get_filename_component(PARENT_DIR ${fileItem} DIRECTORY)
+	#message(status    "==================>>>>${CMAKE_CURRENT_SOURCE_DIR} = ${GROUP} ====== ${PARENT_DIR}")
+    # Remove common directory prefix to make the group
+    string(REPLACE ${CMAKE_CURRENT_SOURCE_DIR}  "" GROUP ${PARENT_DIR})
+	 #REGEX 
+    # Make sure we are using windows slashes
+     string(REPLACE / \\   GROUP ${GROUP})
+	 string(REPLACE \. \\   GROUP ${GROUP})
+	#message(status   ---> fileItem = ${fileItem}     GROUP ---->  ${GROUP})
+    # Group into Source Files and Header Files
+     set(GROUP ${GROUP})
+     source_group(${GROUP} FILES ${fileItem})
+endforeach()
+
+
+
+ set_property(TARGET ${PROJECT_NAME}  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER})
+ #set_property(TARGET rtc_pc_base  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+	
+	
