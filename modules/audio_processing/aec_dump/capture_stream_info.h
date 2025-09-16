@@ -26,7 +26,9 @@ RTC_PUSH_IGNORING_WUNDEF()
 #ifdef WEBRTC_ANDROID_PLATFORM_BUILD
 #include "external/webrtc/webrtc/modules/audio_processing/debug.pb.h"
 #else
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
 #include "modules/audio_processing/debug.pb.h"
+#endif 
 #endif
 RTC_POP_IGNORING_WUNDEF()
 
@@ -54,10 +56,14 @@ class CaptureStreamInfo {
   }
 
   void SetTask(std::unique_ptr<WriteToFileTask> task) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+	
+	
     RTC_DCHECK(!task_);
     RTC_DCHECK(task);
     task_ = std::move(task);
     task_->GetEvent()->set_type(audioproc::Event::STREAM);
+#endif
   }
 
  private:

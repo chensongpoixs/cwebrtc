@@ -13,14 +13,19 @@
 namespace webrtc {
 CaptureStreamInfo::CaptureStreamInfo(std::unique_ptr<WriteToFileTask> task)
     : task_(std::move(task)) {
+	 #if  !LIBWEBRTC_AUDIO_PROC_EVENT
   RTC_DCHECK(task_);
+ 
   task_->GetEvent()->set_type(audioproc::Event::STREAM);
+  #endif 
 }
 
 CaptureStreamInfo::~CaptureStreamInfo() = default;
 
 void CaptureStreamInfo::AddInput(const AudioFrameView<const float>& src) {
+	 #if  !LIBWEBRTC_AUDIO_PROC_EVENT
   RTC_DCHECK(task_);
+   
   auto* stream = task_->GetEvent()->mutable_stream();
 
   for (int i = 0; i < src.num_channels(); ++i) {
@@ -28,9 +33,11 @@ void CaptureStreamInfo::AddInput(const AudioFrameView<const float>& src) {
     stream->add_input_channel(channel_view.begin(),
                               sizeof(float) * channel_view.size());
   }
+  #endif //
 }
 
 void CaptureStreamInfo::AddOutput(const AudioFrameView<const float>& src) {
+	 #if  !LIBWEBRTC_AUDIO_PROC_EVENT
   RTC_DCHECK(task_);
   auto* stream = task_->GetEvent()->mutable_stream();
 
@@ -39,33 +46,43 @@ void CaptureStreamInfo::AddOutput(const AudioFrameView<const float>& src) {
     stream->add_output_channel(channel_view.begin(),
                                sizeof(float) * channel_view.size());
   }
+#endif
+
 }
 
 void CaptureStreamInfo::AddInput(const int16_t* const data,
                                  int num_channels,
                                  int samples_per_channel) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   RTC_DCHECK(task_);
   auto* stream = task_->GetEvent()->mutable_stream();
   const size_t data_size = sizeof(int16_t) * samples_per_channel * num_channels;
   stream->set_input_data(data, data_size);
+#endif
+
 }
 
 void CaptureStreamInfo::AddOutput(const int16_t* const data,
                                   int num_channels,
                                   int samples_per_channel) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   RTC_DCHECK(task_);
   auto* stream = task_->GetEvent()->mutable_stream();
   const size_t data_size = sizeof(int16_t) * samples_per_channel * num_channels;
   stream->set_output_data(data, data_size);
+#endif
+   
 }
 
 void CaptureStreamInfo::AddAudioProcessingState(
     const AecDump::AudioProcessingState& state) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   RTC_DCHECK(task_);
   auto* stream = task_->GetEvent()->mutable_stream();
   stream->set_delay(state.delay);
   stream->set_drift(state.drift);
   stream->set_level(state.level);
   stream->set_keypress(state.keypress);
+#endif // 
 }
 }  // namespace webrtc

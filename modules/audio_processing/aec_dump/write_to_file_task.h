@@ -26,7 +26,11 @@ RTC_PUSH_IGNORING_WUNDEF()
 #ifdef WEBRTC_ANDROID_PLATFORM_BUILD
 #include "external/webrtc/webrtc/modules/audio_processing/debug.pb.h"
 #else
+// proto TODO@chensong 2025-09-15  
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+
 #include "modules/audio_processing/debug.pb.h"
+#endif //
 #endif
 RTC_POP_IGNORING_WUNDEF()
 
@@ -37,9 +41,9 @@ class WriteToFileTask : public QueuedTask {
   WriteToFileTask(webrtc::FileWrapper* debug_file,
                   int64_t* num_bytes_left_for_log);
   ~WriteToFileTask() override;
-
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   audioproc::Event* GetEvent();
-
+#endif // #if  !LIBWEBRTC_AUDIO_PROC_EVENT
  private:
   bool IsRoomForNextEvent(size_t event_byte_size) const;
 
@@ -48,7 +52,9 @@ class WriteToFileTask : public QueuedTask {
   bool Run() override;
 
   webrtc::FileWrapper* const debug_file_;
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   audioproc::Event event_;
+#endif //
   int64_t* const num_bytes_left_for_log_;
 };
 

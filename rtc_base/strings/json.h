@@ -17,7 +17,13 @@
 #if !defined(WEBRTC_EXTERNAL_JSON)
 #include "json/json.h"
 #else
-#include "third_party/jsoncpp/json.h"
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+ #include "third_party/jsoncpp/json.h"
+
+//#include "third_party/jsoncpp/source/json.h"
+#else 
+#include "third_party/jsoncpp/source/include/json/json.h"
+#endif 
 #endif
 
 namespace rtc {

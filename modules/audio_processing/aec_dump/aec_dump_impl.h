@@ -29,7 +29,9 @@ RTC_PUSH_IGNORING_WUNDEF()
 #ifdef WEBRTC_ANDROID_PLATFORM_BUILD
 #include "external/webrtc/webrtc/modules/audio_processing/debug.pb.h"
 #else
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
 #include "modules/audio_processing/debug.pb.h"
+#endif // #if  !LIBWEBRTC_AUDIO_PROC_EVENT
 #endif
 RTC_POP_IGNORING_WUNDEF()
 

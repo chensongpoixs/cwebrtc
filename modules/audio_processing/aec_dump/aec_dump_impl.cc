@@ -20,8 +20,13 @@
 namespace webrtc {
 
 namespace {
-void CopyFromConfigToEvent(const webrtc::InternalAPMConfig& config,
-                           webrtc::audioproc::Config* pb_cfg) {
+void CopyFromConfigToEvent(const webrtc::InternalAPMConfig& config
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT,
+                           webrtc::audioproc::Config* pb_cfg
+
+#endif 
+) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   pb_cfg->set_aec_enabled(config.aec_enabled);
   pb_cfg->set_aec_delay_agnostic_enabled(config.aec_delay_agnostic_enabled);
   pb_cfg->set_aec_drift_compensation_enabled(
@@ -51,6 +56,7 @@ void CopyFromConfigToEvent(const webrtc::InternalAPMConfig& config,
       config.pre_amplifier_fixed_gain_factor);
 
   pb_cfg->set_experiments_description(config.experiments_description);
+#endif 
 }
 
 }  // namespace
@@ -74,8 +80,10 @@ AecDumpImpl::~AecDumpImpl() {
 
 void AecDumpImpl::WriteInitMessage(const ProcessingConfig& api_format,
                                    int64_t time_now_ms) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   auto task = CreateWriteToFileTask();
   auto* event = task->GetEvent();
+
   event->set_type(audioproc::Event::INIT);
   audioproc::Init* msg = event->mutable_init();
 
@@ -97,6 +105,7 @@ void AecDumpImpl::WriteInitMessage(const ProcessingConfig& api_format,
   msg->set_timestamp_ms(time_now_ms);
 
   worker_queue_->PostTask(std::move(task));
+#endif 
 }
 
 void AecDumpImpl::AddCaptureStreamInput(
@@ -135,6 +144,7 @@ void AecDumpImpl::WriteCaptureStreamMessage() {
 void AecDumpImpl::WriteRenderStreamMessage(const int16_t* const data,
                                            int num_channels,
                                            int samples_per_channel) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   auto task = CreateWriteToFileTask();
   auto* event = task->GetEvent();
 
@@ -144,10 +154,12 @@ void AecDumpImpl::WriteRenderStreamMessage(const int16_t* const data,
   msg->set_data(data, data_size);
 
   worker_queue_->PostTask(std::move(task));
+#endif // #if  !LIBWEBRTC_AUDIO_PROC_EVENT
 }
 
 void AecDumpImpl::WriteRenderStreamMessage(
     const AudioFrameView<const float>& src) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   auto task = CreateWriteToFileTask();
   auto* event = task->GetEvent();
 
@@ -161,19 +173,23 @@ void AecDumpImpl::WriteRenderStreamMessage(
   }
 
   worker_queue_->PostTask(std::move(task));
+#endif // #if  !LIBWEBRTC_AUDIO_PROC_EVENT
 }
 
 void AecDumpImpl::WriteConfig(const InternalAPMConfig& config) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   RTC_DCHECK_RUNS_SERIALIZED(&race_checker_);
   auto task = CreateWriteToFileTask();
   auto* event = task->GetEvent();
   event->set_type(audioproc::Event::CONFIG);
   CopyFromConfigToEvent(config, event->mutable_config());
   worker_queue_->PostTask(std::move(task));
+#endif // #if  !LIBWEBRTC_AUDIO_PROC_EVENT#if  !LIBWEBRTC_AUDIO_PROC_EVENT
 }
 
 void AecDumpImpl::WriteRuntimeSetting(
     const AudioProcessing::RuntimeSetting& runtime_setting) {
+#if  !LIBWEBRTC_AUDIO_PROC_EVENT
   RTC_DCHECK_RUNS_SERIALIZED(&race_checker_);
   auto task = CreateWriteToFileTask();
   auto* event = task->GetEvent();
@@ -234,6 +250,7 @@ void AecDumpImpl::WriteRuntimeSetting(
       break;
   }
   worker_queue_->PostTask(std::move(task));
+#endif // #if  !LIBWEBRTC_AUDIO_PROC_EVENT
 }
 
 std::unique_ptr<WriteToFileTask> AecDumpImpl::CreateWriteToFileTask() {
