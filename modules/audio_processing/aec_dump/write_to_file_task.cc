@@ -20,7 +20,7 @@ WriteToFileTask::WriteToFileTask(webrtc::FileWrapper* debug_file,
       num_bytes_left_for_log_(num_bytes_left_for_log) {}
 
 WriteToFileTask::~WriteToFileTask() = default;
-#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+#if  !OPEN_DEPS
 audioproc::Event* WriteToFileTask::GetEvent() {
   return &event_;
 }
@@ -40,7 +40,7 @@ void WriteToFileTask::UpdateBytesLeft(size_t event_byte_size) {
 }
 
 bool WriteToFileTask::Run() {
-#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+#if  !OPEN_DEPS
   std::string event_string;
   event_.SerializeToString(&event_string);
 
@@ -62,7 +62,7 @@ bool WriteToFileTask::Run() {
   if (!debug_file_->Write(event_string.data(), event_string.length())) {
     RTC_NOTREACHED();
   }
-#endif // #if  !LIBWEBRTC_AUDIO_PROC_EVENT
+#endif // #if  !OPEN_DEPS
   return true;  // Delete task from queue at once.
 
 }

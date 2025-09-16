@@ -13,7 +13,7 @@
 namespace webrtc {
 CaptureStreamInfo::CaptureStreamInfo(std::unique_ptr<WriteToFileTask> task)
     : task_(std::move(task)) {
-	 #if  !LIBWEBRTC_AUDIO_PROC_EVENT
+	 #if  !OPEN_DEPS
   RTC_DCHECK(task_);
  
   task_->GetEvent()->set_type(audioproc::Event::STREAM);
@@ -23,7 +23,7 @@ CaptureStreamInfo::CaptureStreamInfo(std::unique_ptr<WriteToFileTask> task)
 CaptureStreamInfo::~CaptureStreamInfo() = default;
 
 void CaptureStreamInfo::AddInput(const AudioFrameView<const float>& src) {
-	 #if  !LIBWEBRTC_AUDIO_PROC_EVENT
+	 #if  !OPEN_DEPS
   RTC_DCHECK(task_);
    
   auto* stream = task_->GetEvent()->mutable_stream();
@@ -37,7 +37,7 @@ void CaptureStreamInfo::AddInput(const AudioFrameView<const float>& src) {
 }
 
 void CaptureStreamInfo::AddOutput(const AudioFrameView<const float>& src) {
-	 #if  !LIBWEBRTC_AUDIO_PROC_EVENT
+	 #if  !OPEN_DEPS
   RTC_DCHECK(task_);
   auto* stream = task_->GetEvent()->mutable_stream();
 
@@ -53,7 +53,7 @@ void CaptureStreamInfo::AddOutput(const AudioFrameView<const float>& src) {
 void CaptureStreamInfo::AddInput(const int16_t* const data,
                                  int num_channels,
                                  int samples_per_channel) {
-#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+#if  !OPEN_DEPS
   RTC_DCHECK(task_);
   auto* stream = task_->GetEvent()->mutable_stream();
   const size_t data_size = sizeof(int16_t) * samples_per_channel * num_channels;
@@ -65,7 +65,7 @@ void CaptureStreamInfo::AddInput(const int16_t* const data,
 void CaptureStreamInfo::AddOutput(const int16_t* const data,
                                   int num_channels,
                                   int samples_per_channel) {
-#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+#if  !OPEN_DEPS
   RTC_DCHECK(task_);
   auto* stream = task_->GetEvent()->mutable_stream();
   const size_t data_size = sizeof(int16_t) * samples_per_channel * num_channels;
@@ -76,7 +76,7 @@ void CaptureStreamInfo::AddOutput(const int16_t* const data,
 
 void CaptureStreamInfo::AddAudioProcessingState(
     const AecDump::AudioProcessingState& state) {
-#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+#if  !OPEN_DEPS
   RTC_DCHECK(task_);
   auto* stream = task_->GetEvent()->mutable_stream();
   stream->set_delay(state.delay);

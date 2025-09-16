@@ -12,9 +12,15 @@
 
 #include "rtc_base/checks.h"
 #include "rtc_base/numerics/safe_conversions.h"
+
+#if OPEN_DEPS
+#include "deps/rnnoise/src/rnn_activations.h"
+#include "deps/rnnoise/src/rnn_vad_weights.h"
+#else 
 #include "third_party/rnnoise/src/rnn_activations.h"
 #include "third_party/rnnoise/src/rnn_vad_weights.h"
 
+#endif //
 namespace webrtc {
 namespace rnn_vad {
 namespace {

@@ -17,12 +17,16 @@
 #if !defined(WEBRTC_EXTERNAL_JSON)
 #include "json/json.h"
 #else
-#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+#if  !OPEN_DEPS
  #include "third_party/jsoncpp/json.h"
 
 //#include "third_party/jsoncpp/source/json.h"
 #else 
-#include "third_party/jsoncpp/source/include/json/json.h"
+ 
+#include "deps/jsoncpp/source/include/json/json.h"
+ 
+
+
 #endif 
 #endif
 

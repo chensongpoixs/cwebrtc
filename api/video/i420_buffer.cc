@@ -16,9 +16,21 @@
 
 #include "rtc_base/checks.h"
 #include "rtc_base/ref_counted_object.h"
+
+
+#if OPEN_DEPS
+
+#include "deps/libyuv/include/libyuv.h"
+#include "deps/libyuv/include/libyuv/convert.h"
+#include "deps/libyuv/include/libyuv/planar_functions.h"
+#include "deps/libyuv/include/libyuv/scale.h"
+#else 
+#include "third_party/libyuv/include/libyuv.h"
 #include "third_party/libyuv/include/libyuv/convert.h"
 #include "third_party/libyuv/include/libyuv/planar_functions.h"
 #include "third_party/libyuv/include/libyuv/scale.h"
+#endif 
+
 
 // Aligning pointer to 64 bytes for improved performance, e.g. use SIMD.
 static const int kBufferAlignment = 64;

@@ -31,7 +31,7 @@
 // Check to verify that the define is properly set.
 #if !defined(WEBRTC_APM_DEBUG_DUMP) || \
     (WEBRTC_APM_DEBUG_DUMP != 0 && WEBRTC_APM_DEBUG_DUMP != 1)
-#if  !LIBWEBRTC_AUDIO_PROC_EVENT
+#if  !OPEN_DEPS
 #error "Set WEBRTC_APM_DEBUG_DUMP to either 0 or 1"
 #endif 
 #endif

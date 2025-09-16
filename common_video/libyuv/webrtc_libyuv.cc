@@ -15,8 +15,12 @@
 #include "api/video/i420_buffer.h"
 #include "common_video/include/video_frame_buffer.h"
 #include "rtc_base/checks.h"
-#include "third_party/libyuv/include/libyuv.h"
+#if OPEN_DEPS
 
+#include "deps/libyuv/include/libyuv.h"
+#else 
+#include "third_party/libyuv/include/libyuv.h"
+#endif 
 namespace webrtc {
 
 size_t CalcBufferSize(VideoType type, int width, int height) {

@@ -5,8 +5,8 @@ project(libwebrtc)
  include_directories(
        ./
 	   ../
-       ../third_party/abseil-cpp/
-	   ../third_party/libyuv/include 
+       ../deps/abseil-cpp/
+	   ../deps/libyuv/include 
  )
 
  message(status   "-libwebrtc--> ${PROJECT_SOURCE_DIR}")
@@ -1182,8 +1182,8 @@ file(GLOB all_src
    # "common_audio/third_party/ooura/fft_size_256/*.h"
    # "common_audio/third_party/spl_sqrt_floor/*.h"
     #"media/base/*.h"
-    "../third_party/pffft/src/*.h"
-    "../third_party/rnnoise/src/*.h"
+    "../deps/pffft/src/*.h"
+    "../deps/rnnoise/src/*.h"
 
 	##########
 
@@ -1248,8 +1248,8 @@ file(GLOB all_src
     # "common_audio/third_party/spl_sqrt_floor/*.c"
 	 #"common_audio/third_party/spl_sqrt_floor/*.S"
     #"media/base/*.cc"
-    "../third_party/pffft/src/*.c"
-    "../third_party/rnnoise/src/*.cc"
+    "../deps/pffft/src/*.c"
+    "../deps/rnnoise/src/*.cc"
 )
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     file(GLOB rtc_base_win
@@ -1329,7 +1329,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		${api}
 )
 add_dependencies(${PROJECT_NAME} libyuv)
-add_dependencies(${PROJECT_NAME} libuv)
+#add_dependencies(${PROJECT_NAME} libuv)
 add_dependencies(${PROJECT_NAME} libsrtp2)
 add_dependencies(${PROJECT_NAME} yaml_cpp)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")

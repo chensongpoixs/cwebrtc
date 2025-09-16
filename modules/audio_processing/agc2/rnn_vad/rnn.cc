@@ -11,8 +11,15 @@
 #include "modules/audio_processing/agc2/rnn_vad/rnn.h"
 
 #include "rtc_base/checks.h"
+//#include "third_party/rnnoise/src/rnn_vad_weights.h"
+#if OPEN_DEPS
+#include "deps/rnnoise/src/rnn_vad_weights.h"
+
+#else 
 #include "third_party/rnnoise/src/rnn_vad_weights.h"
 
+
+#endif //
 namespace webrtc {
 namespace rnn_vad {
 namespace {
