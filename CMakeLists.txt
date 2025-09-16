@@ -6,6 +6,7 @@ project(libwebrtc)
        .
 	   ../
 	   ../deps/libsrtp/include
+	   ../deps/libsrtp/crypto/include
 
        ../deps/abseil-cpp/
 	   ../deps/libyuv/include 

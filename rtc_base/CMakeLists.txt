@@ -268,16 +268,77 @@ FILE(GLOB  rtc_base_source
 
 )
 
+FILE(GLOB  rtc_base_approved_source
+
+	./bit_buffer.cc
+    ./bit_buffer.h
+    ./buffer.h
+    ./buffer_queue.cc
+    ./buffer_queue.h
+    ./byte_buffer.cc
+    ./byte_buffer.h
+    ./byte_order.h
+    ./copy_on_write_buffer.cc
+    ./copy_on_write_buffer.h
+    ./event_tracer.cc
+    ./event_tracer.h
+    ./location.cc
+    ./location.h
+    ./numerics/histogram_percentile_counter.cc
+    ./numerics/histogram_percentile_counter.h
+    ./numerics/mod_ops.h
+    ./numerics/moving_max_counter.h
+    ./numerics/sample_counter.cc
+    ./numerics/sample_counter.h
+    ./one_time_event.h
+    ./race_checker.cc
+    ./race_checker.h
+    ./random.cc
+    ./random.h
+    ./rate_statistics.cc
+    ./rate_statistics.h
+    ./rate_tracker.cc
+    ./rate_tracker.h
+    ./strong_alias.h
+    ./swap_queue.h
+    ./timestamp_aligner.cc
+    ./timestamp_aligner.h
+    ./trace_event.h
+    ./zero_memory.cc
+    ./zero_memory.h
+
+	#win
+	 
+)
+
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    file(GLOB rtc_base_win
-        "rtc_base/win/windows_version.h"
-		"rtc_base/win/windows_version.cc"
-		 "rtc_base/win/scoped_com_initializer.h"
-		"rtc_base/win/scoped_com_initializer.cc"
+    file(GLOB rtc_base_win_source
+        "win/windows_version.h"
+		"win/windows_version.cc"
+		 "win/scoped_com_initializer.h"
+		"win/scoped_com_initializer.cc"
+		 "win/get_activation_factory.cc" 
+      "win/get_activation_factory.h"
+      "win/hstring.cc"
+      "win/hstring.h"
+      "win/scoped_com_initializer.cc"
+      "win/scoped_com_initializer.h"
+      "win/windows_version.cc"
+      "win/windows_version.h"
     )
+
+	FILE(GLOB rtc_base_win_wgc_source
+	 "win/create_direct3d_device.cc"
+      "win/create_direct3d_device.h"
+	)
 	
 endif()
+
+
+
+
+
 
 add_library(checks  STATIC  ${checks_source})
 
@@ -287,13 +348,20 @@ add_library(rtc_base STATIC ${rtc_base_source}
 			${rtc_base_win}
 		)
 
+add_library(rtc_base_approved STATIC ${rtc_base_approved_source})
 
+add_library(rtc_base_win STATIC ${rtc_base_win_source})
+
+add_library(rtc_base_win_wgc STATIC ${rtc_base_win_wgc_source})
 
         
 set(AllFile  
 
     ${checks_source}
     ${rtc_base_source}
+	${rtc_base_approved_source}
+	${rtc_base_win_source}
+	${rtc_base_win_wgc_source}
 )
 # source_group("include" FILES ${AllFile})
 foreach(fileItem ${AllFile})       
@@ -313,5 +381,9 @@ endforeach()
 
 
 set_property(TARGET rtc_base  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+set_property(TARGET rtc_base_win  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET rtc_base_approved  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET rtc_base_win_wgc  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 
 set_property(TARGET checks  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
