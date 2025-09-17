@@ -61,7 +61,7 @@ if (rtc_enable_protobuf) {
       "write_to_file_task.cc",
       "write_to_file_task.h",
     ]
-
+    defines = [ "OPEN_DEPS=0" ]
     deps = [
       ":aec_dump",
       "..:aec_dump_interface",
