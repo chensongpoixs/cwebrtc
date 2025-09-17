@@ -14,6 +14,7 @@ import("../../webrtc.gni")
 # use the internal capturer.
 rtc_library("video_capture_module") {
   visibility = [ "*" ]
+  defines = [ "OPEN_DEPS=0" ]
   sources = [
     "device_info_impl.cc",
     "device_info_impl.h",

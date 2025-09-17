@@ -18,6 +18,7 @@ if (is_android) {
 
 config("threading_chromium_config") {
   defines = [ "NO_MAIN_THREAD_WRAPPING" ]
+  defines += [ "OPEN_DEPS=0" ]
 }
 
 if (!rtc_build_ssl) {
@@ -666,6 +667,7 @@ rtc_library("rtc_json") {
   public_configs = [ ":rtc_json_suppressions" ]
   poisonous = [ "rtc_json" ]
   defines = []
+  defines += [ "OPEN_DEPS=0" ]
   sources = [
     "strings/json.cc",
     "strings/json.h",

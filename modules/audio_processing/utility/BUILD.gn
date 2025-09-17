@@ -13,6 +13,7 @@ rtc_library("cascaded_biquad_filter") {
     "cascaded_biquad_filter.cc",
     "cascaded_biquad_filter.h",
   ]
+  defines = [ "OPEN_DEPS=0" ]
   deps = [
     "../../../api:array_view",
     "../../../rtc_base:checks",
@@ -36,6 +37,7 @@ rtc_library("pffft_wrapper") {
     "pffft_wrapper.cc",
     "pffft_wrapper.h",
   ]
+  defines = [ "OPEN_DEPS=0" ]
   deps = [
     "../../../api:array_view",
     "../../../rtc_base:checks",

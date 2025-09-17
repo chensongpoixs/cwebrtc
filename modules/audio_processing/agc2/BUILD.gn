@@ -30,7 +30,7 @@ rtc_library("adaptive_digital") {
   ]
 
   configs += [ "..:apm_debug_dump" ]
-
+  defines = [ "OPEN_DEPS=0" ]
   deps = [
     ":common",
     ":cpu_features",
@@ -56,6 +56,7 @@ rtc_library("adaptive_digital") {
 
 rtc_library("biquad_filter") {
   visibility = [ "./*" ]
+  defines = [ "OPEN_DEPS=0" ]
   sources = [
     "biquad_filter.cc",
     "biquad_filter.h",
@@ -79,7 +80,7 @@ rtc_library("fixed_digital") {
     "limiter.cc",
     "limiter.h",
   ]
-
+  defines = [ "OPEN_DEPS=0" ]
   configs += [ "..:apm_debug_dump" ]
 
   deps = [
@@ -102,6 +103,7 @@ rtc_library("gain_applier") {
     "gain_applier.cc",
     "gain_applier.h",
   ]
+  defines = [ "OPEN_DEPS=0" ]
   deps = [
     ":common",
     "..:audio_frame_view",

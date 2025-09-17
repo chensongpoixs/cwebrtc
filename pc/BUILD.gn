@@ -21,6 +21,7 @@ config("rtc_pc_config") {
   if (rtc_enable_sctp) {
     defines += [ "WEBRTC_HAVE_SCTP" ]
   }
+  defines += [ "OPEN_DEPS=0" ]
 }
 
 rtc_library("proxy") {
