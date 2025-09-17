@@ -25,7 +25,6 @@ rtc_library("video_rtp_headers") {
     "video_timing.cc",
     "video_timing.h",
   ]
-
   deps = [
     "..:array_view",
     "../../rtc_base:rtc_base_approved",
@@ -40,6 +39,7 @@ rtc_library("video_rtp_headers") {
 
 rtc_library("video_frame") {
   visibility = [ "*" ]
+  defines = []
   sources = [
     "i420_buffer.cc",
     "i420_buffer.h",
@@ -54,7 +54,7 @@ rtc_library("video_frame") {
     "video_source_interface.cc",
     "video_source_interface.h",
   ]
-
+  defines += [ "OPEN_DEPS=0" ]
   deps = [
     ":video_rtp_headers",
     "..:array_view",

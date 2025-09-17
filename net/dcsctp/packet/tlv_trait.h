@@ -24,6 +24,10 @@
 #include "net/dcsctp/packet/bounded_byte_reader.h"
 #include "net/dcsctp/packet/bounded_byte_writer.h"
 
+
+//#pragma warning(disable:C2220) // 禁用未使用的参数警告
+
+
 namespace dcsctp {
 namespace tlv_trait_impl {
 // Logging functions, only to be used by TLVTrait, which is a templated class.

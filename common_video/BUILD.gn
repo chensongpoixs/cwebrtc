@@ -10,7 +10,7 @@ import("../webrtc.gni")
 
 rtc_library("common_video") {
   visibility = [ "*" ]
-
+  defines = []
   sources = [
     "bitrate_adjuster.cc",
     "frame_rate_estimator.cc",
@@ -40,7 +40,7 @@ rtc_library("common_video") {
     "video_render_frames.cc",
     "video_render_frames.h",
   ]
-
+  defines += [ "OPEN_DEPS=0" ]
   deps = [
     "../api:array_view",
     "../api:scoped_refptr",

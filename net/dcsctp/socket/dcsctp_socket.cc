@@ -76,7 +76,7 @@
 #include "rtc_base/logging.h"
 #include "rtc_base/strings/string_builder.h"
 #include "rtc_base/strings/string_format.h"
-
+//#pragma warning(disable : 2220) // 禁用未使用的参数警告
 namespace dcsctp {
 namespace {
 
@@ -117,7 +117,7 @@ Capabilities GetCapabilities(const DcSctpOptions& options,
 
 void AddCapabilityParameters(const DcSctpOptions& options,
                              Parameters::Builder& builder) {
-  std::vector<uint8_t> chunk_types = {ReConfigChunk::kType};
+  std::vector<uint8_t> chunk_types = { ReConfigChunk::kType};
 
   if (options.enable_partial_reliability) {
     builder.Add(ForwardTsnSupportedParameter());

@@ -17,6 +17,7 @@ config("apm_debug_dump") {
   } else {
     defines = [ "WEBRTC_APM_DEBUG_DUMP=0" ]
   }
+  defines += [ "OPEN_DEPS=0" ]
 }
 
 rtc_library("api") {
@@ -274,6 +275,7 @@ rtc_library("apm_logging") {
     "logging/apm_data_dumper.cc",
     "logging/apm_data_dumper.h",
   ]
+  
   deps = [
     "../../api:array_view",
     "../../common_audio",
@@ -282,6 +284,7 @@ rtc_library("apm_logging") {
   ]
   absl_deps = [ "//third_party/abseil-cpp/absl/types:optional" ]
   defines = []
+  defines += [ "OPEN_DEPS=0" ]
 }
 
 if (rtc_include_tests) {

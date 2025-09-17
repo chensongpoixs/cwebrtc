@@ -11,7 +11,6 @@ import("../../../webrtc.gni")  # This contains def of 'rtc_enable_protobuf'
 rtc_source_set("aec_dump") {
   visibility = [ "*" ]
   sources = [ "aec_dump_factory.h" ]
-
   deps = [
     "..:aec_dump_interface",
     "../../../rtc_base:rtc_base_approved",
@@ -27,7 +26,7 @@ if (rtc_include_tests) {
       "mock_aec_dump.cc",
       "mock_aec_dump.h",
     ]
-
+    defines = [ "OPEN_DEPS=0" ]
     deps = [
       "..:aec_dump_interface",
       "..:audioproc_test_utils",
@@ -62,7 +61,7 @@ if (rtc_enable_protobuf) {
       "write_to_file_task.cc",
       "write_to_file_task.h",
     ]
-
+    defines = [ "OPEN_DEPS=0" ]
     deps = [
       ":aec_dump",
       "..:aec_dump_interface",

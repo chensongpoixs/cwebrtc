@@ -59,13 +59,14 @@ static_assert(!HasDataAndSize<Test2, int>::value,
               ".data and .size aren't functions");
 
 struct Test3 {
-  int* data();
+  int* data;
 };
 static_assert(!HasDataAndSize<Test3, int>::value, ".size() is missing");
 
-class Test4 {
-  int* data();
-  size_t size();
+struct Test4 {
+
+  int* data;
+  size_t size;
 };
 static_assert(!HasDataAndSize<Test4, int>::value,
               ".data() and .size() are private");
