@@ -11,8 +11,11 @@
 #include "modules/desktop_capture/desktop_frame_rotation.h"
 
 #include "rtc_base/checks.h"
+#if OPEN_DEPS
+#include "deps/libyuv/include/libyuv/rotate_argb.h"
+#else 
 #include "third_party/libyuv/include/libyuv/rotate_argb.h"
-
+#endif // 
 namespace webrtc {
 
 namespace {

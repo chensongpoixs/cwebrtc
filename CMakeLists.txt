@@ -19,6 +19,13 @@ project(libwebrtc)
 
 
 
+add_definitions(
+
+			-DOPEN_DEPS=1
+
+)
+
+
 
 # link_directories(
 #     "${PROJECT_SOURCE_DIR}/third_party/lib"
@@ -39,33 +46,33 @@ project(libwebrtc)
 
 
 
-FILE(GLOB  common_video
+# FILE(GLOB  common_video
 
 
-	common_video/video_frame_buffer.cc
-	common_video/h264/h264_bitstream_parser.h
-	common_video/h264/h264_bitstream_parser.cc
-	common_video/h264/h264_common.cc
-	common_video/h264/h264_common.h
-	common_video/h264/pps_parser.cc
-	common_video/h264/pps_parser.h
-	common_video/h264/sps_parser.cc
-	common_video/h264/sps_parser.h
-	common_video/h264/sps_vui_rewriter.cc
-	common_video/h264/sps_vui_rewriter.h
+# 	common_video/video_frame_buffer.cc
+# 	common_video/h264/h264_bitstream_parser.h
+# 	common_video/h264/h264_bitstream_parser.cc
+# 	common_video/h264/h264_common.cc
+# 	common_video/h264/h264_common.h
+# 	common_video/h264/pps_parser.cc
+# 	common_video/h264/pps_parser.h
+# 	common_video/h264/sps_parser.cc
+# 	common_video/h264/sps_parser.h
+# 	common_video/h264/sps_vui_rewriter.cc
+# 	common_video/h264/sps_vui_rewriter.h
 
 
-	common_video/include/bitrate_adjuster.h
-	common_video/include/incoming_video_stream.h
-	common_video/include/quality_limitation_reason.h
-	common_video/include/video_frame_buffer.h
-	common_video/include/video_frame_buffer_pool.h
+# 	common_video/include/bitrate_adjuster.h
+# 	common_video/include/incoming_video_stream.h
+# 	common_video/include/quality_limitation_reason.h
+# 	common_video/include/video_frame_buffer.h
+# 	common_video/include/video_frame_buffer_pool.h
 
-	common_video/libyuv/webrtc_libyuv.cc
-	common_video/libyuv/include/webrtc_libyuv.h
+# 	common_video/libyuv/webrtc_libyuv.cc
+# 	common_video/libyuv/include/webrtc_libyuv.h
 
 
-)
+# )
 
 FILE(GLOB  media  
 
@@ -865,7 +872,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		#${common_audio}
 		${resampler}
 		${vad}
-		${common_video}
+		#${common_video}
 		${media}
 		${system_wrappers}
 		${audio_coding}
@@ -896,7 +903,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		#${common_audio}
 		${resampler}
 		${vad}
-		${common_video}
+		#${common_video}
 		${media}
 		${system_wrappers}
 		${audio_coding}
@@ -920,6 +927,12 @@ add_subdirectory(pc)
 add_subdirectory(rtc_base)
 
 add_subdirectory(common_audio)
+add_subdirectory(common_video)
+add_subdirectory(modules)
+add_subdirectory(media)
+
+
+
 
 
 
@@ -934,7 +947,7 @@ set(AllFile ${all_src}
 		#${common_audio}
 		${resampler}
 		${vad}
-		${common_video}
+		#${common_video}
 		${media}
 		# ${api}
 		${system_wrappers}

@@ -9,7 +9,7 @@ include_directories(
 
 FILE(GLOB   api_source
 
-	scoped_refptr.h
+	#scoped_refptr.h
 	array_view.h
 	function_view.h
 	media_types.cc
@@ -22,6 +22,7 @@ FILE(GLOB   api_source
 	rtp_packet_info.h
 	#rtp_packet_infos (2).h
 	rtp_packet_infos.h
+	rtp_packet_infos.cc
 	rtp_parameters.cc
 	rtp_parameters.h
 	rtp_transceiver_direction.h
@@ -72,72 +73,100 @@ FILE(GLOB   api_source
 	units/time_delta.h
 	units/timestamp.cc
 	units/timestamp.h
-	video/color_space.cc
-	video/color_space.h
-	video/hdr_metadata.cc
-	video/hdr_metadata.h
-	video/i420_buffer.cc
-	video/i420_buffer.h
-	video/nv12_buffer.cc
-	video/nv12_buffer.h
-	video/render_resolution.h
-	video/video_codec_type.h
-	video/video_content_type.cc
-	video/video_content_type.h
-	video/video_frame_buffer.cc
-	video/video_frame_buffer.h
-	video/video_frame.cc
-	video/video_frame.h
-	video/video_frame_type.h
-	video/video_layers_allocation.h
-	video/video_rotation.h
-	video/video_sink_interface.h
-	video/video_timing.cc
-	video/video_timing.h
-	video_codecs/bitstream_parser.h
+	# video/color_space.cc
+	# video/color_space.h
+	# video/hdr_metadata.cc
+	# video/hdr_metadata.h
+	# video/i420_buffer.cc
+	# video/i420_buffer.h
+	# video/nv12_buffer.cc
+	# video/nv12_buffer.h
+	# video/render_resolution.h
+	# video/video_codec_type.h
+	# video/video_content_type.cc
+	# video/video_content_type.h
+	# video/video_frame_buffer.cc
+	# video/video_frame_buffer.h
+	# video/video_frame.cc
+	# video/video_frame.h
+	# video/video_frame_type.h
+	# video/video_layers_allocation.h
+	# video/video_rotation.h
+	# video/video_sink_interface.h
+	# video/video_timing.cc
+	# video/video_timing.h
+	# video_codecs/bitstream_parser.h
 	
 )
 
 
  
+FILE(GLOB  media_stream_interface_source 
 
+    media_stream_interface.cc
+    media_stream_interface.h
+    media_stream_track.h
+    notifier.h
+	
+)
+
+
+FILE(GLOB  audio_options_api_source
+
+
+    audio_options.cc
+    audio_options.h
+)
 
 
 add_library(${PROJECT_NAME} STATIC  ${api_source})
+add_library(media_stream_interface  STATIC ${media_stream_interface_source})
+
+add_library(audio_options_api  STATIC ${audio_options_api_source})
 
 
 add_subdirectory(task_queue)
 
 
+add_subdirectory(video)
+
 
 set(AllFile 
 
           
-		
-
-        ${task_queue}
+		${api_source}
+		${media_stream_interface_source}
+		${audio_options_api_source}
+       # ${task_queue}
     
 		
 )
 
 foreach(fileItem ${AllFile})       
     # Get the directory of the source file
-    get_filename_component(PARENT_DIR ${fileItem} DIRECTORY)
+    get_filename_component(PARENT_DIR "${fileItem}" DIRECTORY)
 	
     # Remove common directory prefix to make the group
-     string(REPLACE ${CMAKE_CURRENT_SOURCE_DIR} "" GROUP ${PARENT_DIR})
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
+	#message(status    "==================>>>>${CMAKE_CURRENT_SOURCE_DIR} = ${GROUP} ====== ${PARENT_DIR}")
+	#message(status   "---> fileItem = ${fileItem}     GROUP ---->  ${GROUP}")
     # Make sure we are using windows slashes
-     string(REPLACE / \\  GROUP ${GROUP})
-     string(REPLACE "/.."  "\\" GROUP ${GROUP})
-	#message(status   ---> fileItem = ${fileItem}     GROUP ---->  ${GROUP})
-    # Group into Source Files and Header Files
-     set(GROUP ${GROUP})
-     source_group(${GROUP} FILES ${fileItem})
+    string(REPLACE / \\ GROUP "${GROUP}")
+
+	#string(REPLACE "/.." "\\" GROUP "${GROUP}")
+	#string(REPLACE \. \\   GROUP ${GROUP})
+	
+    # Group into "Source Files" and "Header Files"
+    set(GROUP "${GROUP}")
+    source_group("${GROUP}" FILES "${fileItem}")
 endforeach()
 
 
 
 set_property(TARGET ${PROJECT_NAME}  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET media_stream_interface  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+set_property(TARGET audio_options_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 
 
 

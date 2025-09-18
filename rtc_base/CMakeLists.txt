@@ -252,7 +252,7 @@ FILE(GLOB  rtc_base_source
 	system/no_unique_address.h
 	system/rtc_export.h
 	system/unused.h
-	/system/warn_current_thread_is_deadlocked.cc
+	system/warn_current_thread_is_deadlocked.cc
 	system/warn_current_thread_is_deadlocked.h
 
 
@@ -270,42 +270,42 @@ FILE(GLOB  rtc_base_source
 
 FILE(GLOB  rtc_base_approved_source
 
-	./bit_buffer.cc
-    ./bit_buffer.h
-    ./buffer.h
-    ./buffer_queue.cc
-    ./buffer_queue.h
-    ./byte_buffer.cc
-    ./byte_buffer.h
-    ./byte_order.h
-    ./copy_on_write_buffer.cc
-    ./copy_on_write_buffer.h
-    ./event_tracer.cc
-    ./event_tracer.h
-    ./location.cc
-    ./location.h
-    ./numerics/histogram_percentile_counter.cc
-    ./numerics/histogram_percentile_counter.h
-    ./numerics/mod_ops.h
-    ./numerics/moving_max_counter.h
-    ./numerics/sample_counter.cc
-    ./numerics/sample_counter.h
-    ./one_time_event.h
-    ./race_checker.cc
-    ./race_checker.h
-    ./random.cc
-    ./random.h
-    ./rate_statistics.cc
-    ./rate_statistics.h
-    ./rate_tracker.cc
-    ./rate_tracker.h
-    ./strong_alias.h
-    ./swap_queue.h
-    ./timestamp_aligner.cc
-    ./timestamp_aligner.h
-    ./trace_event.h
-    ./zero_memory.cc
-    ./zero_memory.h
+	bit_buffer.cc
+    bit_buffer.h
+    buffer.h
+    buffer_queue.cc
+    buffer_queue.h
+    byte_buffer.cc
+    byte_buffer.h
+    byte_order.h
+    copy_on_write_buffer.cc
+    copy_on_write_buffer.h
+    event_tracer.cc
+    event_tracer.h
+    location.cc
+    location.h
+    numerics/histogram_percentile_counter.cc
+    numerics/histogram_percentile_counter.h
+    numerics/mod_ops.h
+    numerics/moving_max_counter.h
+    numerics/sample_counter.cc
+    numerics/sample_counter.h
+    one_time_event.h
+    race_checker.cc
+    race_checker.h
+    random.cc
+    random.h
+    rate_statistics.cc
+    rate_statistics.h
+    rate_tracker.cc
+    rate_tracker.h
+    strong_alias.h
+    swap_queue.h
+    timestamp_aligner.cc
+    timestamp_aligner.h
+    trace_event.h
+    zero_memory.cc
+    zero_memory.h
 
 	#win
 	 

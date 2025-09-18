@@ -19,8 +19,11 @@
 #include "modules/desktop_capture/desktop_capture_types.h"
 #include "modules/desktop_capture/desktop_geometry.h"
 #include "rtc_base/checks.h"
+#if OPEN_DEPS
+#include "deps/libyuv/include/libyuv/planar_functions.h"
+#else 
 #include "third_party/libyuv/include/libyuv/planar_functions.h"
-
+#endif 
 namespace webrtc {
 
 DesktopFrame::DesktopFrame(DesktopSize size,
