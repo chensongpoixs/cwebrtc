@@ -1,5 +1,8 @@
-project(common_audio)
-
+﻿project(common_audio)
+cmake_minimum_required(VERSION 2.8)
+MESSAGE(STATUS  "####################################")
+MESSAGE(STATUS  "#############${PROJECT_NAME}###############")
+MESSAGE(STATUS  "####################################")
 
 
 
@@ -72,26 +75,26 @@ FILE(GLOB   ooura
 
 FILE(GLOB common_audio_source
 	include/audio_util.h
-	./audio_converter.cc
-	./audio_converter.h
-	./audio_util.cc
-	./channel_buffer.cc
-	./channel_buffer.h
-	./fir_filter.h
-	./fir_filter_avx2.cc
-	./fir_filter_avx2.h
-	./fir_filter_c.cc
-	./fir_filter_c.h
-	./fir_filter_factory.cc
-	./fir_filter_factory.h
-	./fir_filter_sse.cc
-	./fir_filter_sse.h
-	./ring_buffer.c
-	./ring_buffer.h
-	./wav_file.cc
-	./wav_file.h
-	./wav_header.cc
-	./wav_header.h
+	audio_converter.cc
+	audio_converter.h
+	audio_util.cc
+	channel_buffer.cc
+	channel_buffer.h
+	fir_filter.h
+	fir_filter_avx2.cc
+	fir_filter_avx2.h
+	fir_filter_c.cc
+	fir_filter_c.h
+	fir_filter_factory.cc
+	fir_filter_factory.h
+	fir_filter_sse.cc
+	fir_filter_sse.h
+	ring_buffer.c
+	ring_buffer.h
+	wav_file.cc
+	wav_file.h
+	wav_header.cc
+	wav_header.h
 
 )
 
@@ -165,21 +168,19 @@ set(AllFile
 	${signal_processing}
 		
 )
-#set{${GROUP}  ""}
+# source_group("include" FILES ${AllFile})
 foreach(fileItem ${AllFile})       
     # Get the directory of the source file
-    get_filename_component(PARENT_DIR ${fileItem} DIRECTORY)
-	#message(status    "==================>>>>${CMAKE_CURRENT_SOURCE_DIR} = ${GROUP} ====== ${PARENT_DIR}")
+    get_filename_component(PARENT_DIR "${fileItem}" DIRECTORY)
+	
     # Remove common directory prefix to make the group
-    string(REPLACE ${CMAKE_CURRENT_SOURCE_DIR}  "" GROUP ${PARENT_DIR})
-	 #REGEX 
+    string(REGEX  REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
     # Make sure we are using windows slashes
-     string(REPLACE / \\   GROUP ${GROUP})
-	 string(REPLACE \. \\   GROUP ${GROUP})
-	#message(status   ---> fileItem = ${fileItem}     GROUP ---->  ${GROUP})
-    # Group into Source Files and Header Files
-     set(GROUP ${GROUP})
-     source_group(${GROUP} FILES ${fileItem})
+    string(REPLACE "/" "\\" GROUP "${GROUP}")
+	#message(status   "---> fileItem = ${fileItem}     GROUP ---->  ${GROUP}")
+    # Group into "Source Files" and "Header Files"
+    set(GROUP "${GROUP}")
+    source_group("${GROUP}" FILES "${fileItem}")
 endforeach()
 
 

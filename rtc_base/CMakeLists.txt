@@ -1,6 +1,9 @@
 PROJECT(rtc_base)
 
-
+cmake_minimum_required(VERSION 2.8)
+MESSAGE(STATUS  "####################################")
+MESSAGE(STATUS  "#############${PROJECT_NAME}###############")
+MESSAGE(STATUS  "####################################")
 
 
 FILE(GLOB  checks_source

@@ -1,8 +1,15 @@
-﻿cmake_minimum_required (VERSION 3.5)
-
+﻿ 
 project(libwebrtc)
 
- include_directories(
+cmake_minimum_required(VERSION 2.8)
+MESSAGE(STATUS  "####################################")
+MESSAGE(STATUS  "#############${PROJECT_NAME}###############")
+MESSAGE(STATUS  "####################################")
+
+
+
+ 
+include_directories(
        .
 	   ../
 	   ../deps/libsrtp/include
