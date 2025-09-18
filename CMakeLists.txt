@@ -930,6 +930,7 @@ endif()
 set(LIWEBRTC_IDE_FOLDER ${PROJECT_NAME})
 
 add_subdirectory(api)
+add_subdirectory(p2p)
 add_subdirectory(pc)
 add_subdirectory(rtc_base)
 

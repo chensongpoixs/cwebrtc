@@ -119,16 +119,111 @@ FILE(GLOB  audio_options_api_source
 )
 
 
+FILE(GLOB  ice_transport_factory_source
+
+
+	ice_transport_factory.h 
+	ice_transport_factory.cc 
+)
+
+
+FILE(GLOB  packet_socket_factory_source
+
+
+	packet_socket_factory.h 
+	packet_socket_factory.cc 
+)
+
+
+FILE(GLOB libjingle_peerconnection_api_source
+
+	candidate.cc
+    candidate.h
+    crypto_params.h
+    data_channel_interface.cc
+    data_channel_interface.h
+    dtls_transport_interface.cc
+    dtls_transport_interface.h
+    dtmf_sender_interface.h
+    ice_transport_interface.h
+    jsep.cc
+    jsep.h
+    jsep_ice_candidate.cc
+    jsep_ice_candidate.h
+    jsep_session_description.h
+    peer_connection_interface.cc
+    peer_connection_interface.h
+    rtp_receiver_interface.cc
+    rtp_receiver_interface.h
+    rtp_sender_interface.cc
+    rtp_sender_interface.h
+    rtp_transceiver_interface.cc
+    rtp_transceiver_interface.h
+    sctp_transport_interface.cc
+    sctp_transport_interface.h
+    set_local_description_observer_interface.h
+    set_remote_description_observer_interface.h
+    stats_types.cc
+    stats_types.h
+    turn_customizer.h
+    uma_metrics.h
+    video_track_source_proxy_factory.h
+
+)
+
+
+FILE(GLOB   async_dns_resolver_source
+
+
+	async_dns_resolver.h 
+)
+
+
+FILE(GLOB  wrapping_async_dns_resolver_source
+
+ wrapping_async_dns_resolver.cc
+    wrapping_async_dns_resolver.h
+)
+
+
+FILE(GLOB  scoped_refptr_source
+
+
+	scoped_refptr.h 
+)
+
 add_library(${PROJECT_NAME} STATIC  ${api_source})
 add_library(media_stream_interface  STATIC ${media_stream_interface_source})
 
 add_library(audio_options_api  STATIC ${audio_options_api_source})
 
+add_library(ice_transport_factory  STATIC ${ice_transport_factory_source})
+add_library(libjingle_peerconnection_api  STATIC ${libjingle_peerconnection_api_source})
+add_library(packet_socket_factory  STATIC ${packet_socket_factory_source})
 
+
+add_library(async_dns_resolver  STATIC ${async_dns_resolver_source})
+
+
+add_library(wrapping_async_dns_resolver  STATIC ${wrapping_async_dns_resolver_source})
+
+
+add_library(scoped_refptr  STATIC  ${scoped_refptr_source})
 add_subdirectory(task_queue)
 
 
 add_subdirectory(video)
+
+
+set_target_properties(async_dns_resolver                               PROPERTIES LINKER_LANGUAGE CXX)
+
+
+set_target_properties(scoped_refptr                               PROPERTIES LINKER_LANGUAGE CXX)
+
+
+# packet_socket_factory
+
+set_target_properties(packet_socket_factory                               PROPERTIES LINKER_LANGUAGE CXX)
 
 
 set(AllFile 
@@ -137,8 +232,12 @@ set(AllFile
 		${api_source}
 		${media_stream_interface_source}
 		${audio_options_api_source}
-       # ${task_queue}
-    
+        ${ice_transport_factory_source}
+		${libjingle_peerconnection_api_source}
+		${wrapping_async_dns_resolver_source}
+		${async_dns_resolver_source}
+		${packet_socket_factory_source}
+		${scoped_refptr_source}
 		
 )
 
@@ -167,6 +266,27 @@ set_property(TARGET ${PROJECT_NAME}  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PR
 set_property(TARGET media_stream_interface  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 
 set_property(TARGET audio_options_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+
+set_property(TARGET ice_transport_factory  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+
+set_property(TARGET libjingle_peerconnection_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET packet_socket_factory  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+set_property(TARGET async_dns_resolver  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+
+set_property(TARGET wrapping_async_dns_resolver  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+
+set_property(TARGET scoped_refptr  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+
+#set_property(TARGET scoped_refptr  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+
+
 
 
 
