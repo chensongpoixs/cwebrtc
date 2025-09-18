@@ -166,7 +166,7 @@ foreach(fileItem ${AllFile})
 	
     # Remove common directory prefix to make the group
     string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" GROUP "${PARENT_DIR}")
-	message(status    "==================>>>>${CMAKE_CURRENT_SOURCE_DIR} = ${GROUP} ====== ${PARENT_DIR}")
+	#message(status    "==================>>>>${CMAKE_CURRENT_SOURCE_DIR} = ${GROUP} ====== ${PARENT_DIR}")
 	#message(status   "---> fileItem = ${fileItem}     GROUP ---->  ${GROUP}")
     # Make sure we are using windows slashes
     string(REPLACE / \\ GROUP "${GROUP}")

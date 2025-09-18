@@ -354,6 +354,10 @@ add_library(rtc_base_win STATIC ${rtc_base_win_source})
 
 add_library(rtc_base_win_wgc STATIC ${rtc_base_win_wgc_source})
 
+
+
+add_subdirectory(third_party)
+
         
 set(AllFile  
 
