@@ -1,5 +1,9 @@
 project(media)
 
+cmake_minimum_required(VERSION 2.8)
+MESSAGE(STATUS  "####################################")
+MESSAGE(STATUS  "#############${PROJECT_NAME}###############")
+MESSAGE(STATUS  "####################################")
 
 
 
@@ -40,8 +44,15 @@ FILE(GLOB  rtc_media_base_source
 
 )
 
+FILE(GLOB  rtc_sdp_video_format_utils_source 
+    base/sdp_video_format_utils.cc
+    base/sdp_video_format_utils.h
+
+)
+
 
 add_library(rtc_media_base  STATIC  ${rtc_media_base_source})
+add_library(rtc_sdp_video_format_utils  STATIC  ${rtc_sdp_video_format_utils_source})
 
 
 
@@ -49,6 +60,7 @@ set(AllFile
 
 #${desktop_capture_mock_source}
 ${rtc_media_base_source}
+${rtc_sdp_video_format_utils_source}
 
 )
 foreach(fileItem ${AllFile})       
@@ -76,3 +88,4 @@ endforeach()
 
 
 set_property(TARGET  rtc_media_base PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET  rtc_sdp_video_format_utils PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})

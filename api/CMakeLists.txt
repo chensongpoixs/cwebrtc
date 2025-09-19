@@ -206,6 +206,8 @@ FILE(GLOB  libjingle_logging_api_source
 			rtc_event_log_output.h
 )
 
+ 
+
 add_library(${PROJECT_NAME} STATIC  ${api_source})
 add_library(media_stream_interface  STATIC ${media_stream_interface_source})
 
@@ -229,6 +231,7 @@ add_library(rtc_error  STATIC  ${rtc_error_source})
 add_library(libjingle_logging_api  STATIC  ${libjingle_logging_api_source})
 add_subdirectory(task_queue)
 add_subdirectory(rtc_event_log)
+add_subdirectory(audio_codecs)
 add_subdirectory(video_codecs)
 add_subdirectory(numerics)
 add_subdirectory(video)

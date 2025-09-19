@@ -81,14 +81,14 @@ add_definitions(
 
 # )
 
-FILE(GLOB  media  
-
-	media/base/rtp_utils.cc
-	media/base/rtp_utils.h
-	media/base/turn_utils.h
-	media/base/turn_utils.cc
-
-)
+#FILE(GLOB  media  
+#
+#	media/base/rtp_utils.cc
+#	media/base/rtp_utils.h
+#	media/base/turn_utils.h
+#	media/base/turn_utils.cc
+#
+#)
 
 
 
@@ -880,7 +880,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		${resampler}
 		${vad}
 		#${common_video}
-		${media}
+		#${media}
 		${system_wrappers}
 		${audio_coding}
 		${audio_device}
@@ -911,7 +911,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		${resampler}
 		${vad}
 		#${common_video}
-		${media}
+		#${media}
 		${system_wrappers}
 		${audio_coding}
 		${audio_device}
@@ -957,7 +957,7 @@ set(AllFile ${all_src}
 		${resampler}
 		${vad}
 		#${common_video}
-		${media}
+		#${media}
 		# ${api}
 		${system_wrappers}
 		${audio_coding}
@@ -968,6 +968,7 @@ set(AllFile ${all_src}
 	#	${peerconnection}
 	#	${rtc_pc_base}
 		)
+
 
 
 
