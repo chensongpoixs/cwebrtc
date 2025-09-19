@@ -229,8 +229,8 @@ add_library(rtc_error  STATIC  ${rtc_error_source})
 add_library(libjingle_logging_api  STATIC  ${libjingle_logging_api_source})
 add_subdirectory(task_queue)
 add_subdirectory(rtc_event_log)
-
-
+add_subdirectory(video_codecs)
+add_subdirectory(numerics)
 add_subdirectory(video)
 
 
