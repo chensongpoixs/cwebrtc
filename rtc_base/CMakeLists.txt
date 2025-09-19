@@ -19,171 +19,1062 @@ FILE(GLOB  checks_source
 
 FILE(GLOB  rtc_base_source
 
-           arraysize.h
-           async_packet_socket.cc
-           async_packet_socket.h
-           async_resolver.cc
-           async_resolver.h
-           async_resolver_interface.cc
-           async_resolver_interface.h
-           async_socket.cc
-           async_socket.h
-           async_udp_socket.cc
-           async_udp_socket.h
-           atomic_ops.h
-           bit_buffer.cc
-           bit_buffer.h
-           bitstream_reader.cc
-           bitstream_reader.h
-           buffer.h
-           buffer_queue.cc
-           buffer_queue.h
-           byte_buffer.cc
-           byte_buffer.h
-           byte_io.h
-           byte_order.h
-            #  rtc_base/checks.cc
-            #  rtc_base/checks.h
-              compile_assert_c.h
-              constructor_magic.h
-             #rtc_base/containers/
-           copy_on_write_buffer.cc
-           copy_on_write_buffer.h
-           crc32.cc
-           crc32.h
-           deprecated/
-           deprecation.h
-           dscp.h
-           event.cc
-           event.h
-           event_tracer.cc
-           event_tracer.h
-           experiments/
-           fake_clock.cc
-           fake_clock.h
-           gtest_prod_util.h
-           helpers.cc
-           helpers.h
-           ignore_wundef.h
-           internal/
-           ip_address.cc
-           ip_address.h
-           location.cc
-           location.h
-           logging.cc
-           logging.h
-           memory/
-           message_digest.cc
-           message_digest.h
-           message_handler.cc
-           message_handler.h
-           net_helper.cc
-           net_helper.h
-           net_helpers.cc
-           net_helpers.h
-           network/
-           network_constants.cc
-           network_constants.h
-           network_monitor.cc
-           network_monitor.h
-           null_socket_server.cc
-           null_socket_server.h
-           numerics/
-           openssl_adapter.cc
-           openssl_adapter.h
-           openssl_certificate.cc
-           openssl_certificate.h
-           openssl_digest.cc
-           openssl_digest.h
-           openssl.h
-           openssl_identity.cc
-           openssl_identity.h
-           openssl_key_pair.cc
-           openssl_key_pair.h
-           openssl_session_cache.cc
-           openssl_session_cache.h
-           openssl_stream_adapter.cc
-           openssl_stream_adapter.h
-           openssl_utility.cc
-           openssl_utility.h
-           physical_socket_server.cc
-           physical_socket_server.h
-           platform_thread.cc
-           platform_thread.h
-           platform_thread_types.cc
-           platform_thread_types.h
-           race_checker.cc
-           race_checker.h
-           random.cc
-           random.h
-           rate_limiter.cc
-           rate_limiter.h
-           rate_statistics.cc
-           rate_statistics.h
-           rate_tracker.cc
-           rate_tracker.h
-           ref_counted_object.h
-           ref_counter.h
-           ref_count.h
-           rtc_certificate.cc
-           rtc_certificate_generator.cc
-           rtc_certificate_generator.h
-           rtc_certificate.h
-           sanitizer.h
-           socket_address.cc
-           socket_address.h
-           socket.cc
-           socket_factory.h
-           socket.h
-           socket_server.h
-           ssl_adapter.cc
-           ssl_adapter.h
-           ssl_certificate.cc
-           ssl_certificate.h
-           ssl_fingerprint.cc
-           ssl_fingerprint.h
-           ssl_identity.cc
-           ssl_identity.h
-           ssl_roots.h
-           ssl_stream_adapter.cc
-           ssl_stream_adapter.h
-           stream.cc
-           stream.h
-           string_encode.cc
-           string_encode.h
-           strings/
-           string_to_number.cc
-           string_to_number.h
-           string_utils.cc
-           string_utils.h
-           swap_queue.h
-           synchronization/
-           system/
-           system_time.cc
-           system_time.h
-           task_queue.cc
-           task_queue.h
-            # rtc_base/task_queue_stdlib.cc
-            # rtc_base/task_queue_stdlib.h
-            task_queue_win.cc
-            task_queue_win.h
-            task_utils/
-            third_party/
-            thread_annotations.h
-            thread.cc
-            thread_checker.h
-            thread.h
-            thread_message.h
-            time_utils.cc
-            time_utils.h
-            trace_event.h
-            type_traits.h
-            units/
-            win/
-            win32.cc
-            win32.h
-            zero_memory.cc
-            zero_memory.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+    async_invoker.cc
+    async_invoker.h
+    async_invoker_inl.h
+    async_packet_socket.cc
+    async_packet_socket.h
+    async_tcp_socket.cc
+    async_tcp_socket.h
+    async_udp_socket.cc
+    async_udp_socket.h
+    crc32.cc
+    crc32.h
+    crypt_string.cc
+    crypt_string.h
+    data_rate_limiter.cc
+    data_rate_limiter.h
+    dscp.h
+    file_rotating_stream.cc
+    file_rotating_stream.h
+    helpers.cc
+    helpers.h
+    http_common.cc
+    http_common.h
+    mdns_responder_interface.h
+    message_digest.cc
+    message_digest.h
+    net_helper.cc
+    net_helper.h
+    network.cc
+    network.h
+    network_route.cc
+    network_route.h
+    openssl.h
+    openssl_adapter.cc
+    openssl_adapter.h
+    openssl_digest.cc
+    openssl_digest.h
+    openssl_key_pair.cc
+    openssl_key_pair.h
+    openssl_session_cache.cc
+    openssl_session_cache.h
+    openssl_stream_adapter.cc
+    openssl_stream_adapter.h
+    openssl_utility.cc
+    openssl_utility.h
+    proxy_info.cc
+    proxy_info.h
+    rtc_certificate.cc
+    rtc_certificate.h
+    rtc_certificate_generator.cc
+    rtc_certificate_generator.h
+    sigslot_repeater.h
+    socket_adapters.cc
+    socket_adapters.h
+    socket_address_pair.cc
+    socket_address_pair.h
+    ssl_adapter.cc
+    ssl_adapter.h
+    ssl_certificate.cc
+    ssl_certificate.h
+    ssl_fingerprint.cc
+    ssl_fingerprint.h
+    ssl_identity.cc
+    ssl_identity.h
+    ssl_stream_adapter.cc
+    ssl_stream_adapter.h
+    stream.cc
+    stream.h
+    unique_id_generator.cc
+    unique_id_generator.h
+          
+      openssl_certificate.cc
+      openssl_certificate.h
+      openssl_identity.cc
+      openssl_identity.h
+          
+          
+      log_sinks.cc
+      log_sinks.h
+      rolling_accumulator.h
+      ssl_roots.h 
+          
+      win32_socket_server.cc
+      win32_socket_server.h
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
 			 
 	strings/json.cc
 	strings/json.h
@@ -247,26 +1138,26 @@ FILE(GLOB  rtc_base_source
 	experiments/field_trial_parser.h
 	
 	
-	system/arch.h
-	system/file_wrapper.cc
-	system/file_wrapper.h
-	system/ignore_warnings.h
-	system/inline.h
-	system/no_unique_address.h
-	system/rtc_export.h
-	system/unused.h
-	system/warn_current_thread_is_deadlocked.cc
-	system/warn_current_thread_is_deadlocked.h
+	#system/arch.h
+	#system/file_wrapper.cc
+	#system/file_wrapper.h
+	#system/ignore_warnings.h
+	#system/inline.h
+	#system/no_unique_address.h
+	#system/rtc_export.h
+	#system/unused.h
+	#system/warn_current_thread_is_deadlocked.cc
+	#system/warn_current_thread_is_deadlocked.h
 
 
 
-	third_party/sigslot/*.h
-	third_party/base64/*.h
+	#third_party/sigslot/*.h
+	#third_party/base64/*.h
 	
 	
-		third_party/sigslot/*.cc
+	#	third_party/sigslot/*.cc
 		
-	third_party/base64/*.cc
+	#third_party/base64/*.cc
 
 
 )
@@ -360,7 +1251,7 @@ add_library(rtc_base_win_wgc STATIC ${rtc_base_win_wgc_source})
 
 
 add_subdirectory(third_party)
-
+add_subdirectory(system)
         
 set(AllFile  
 
