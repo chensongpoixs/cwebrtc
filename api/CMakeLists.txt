@@ -1,6 +1,9 @@
 project(api)
-
-
+ 
+cmake_minimum_required(VERSION 2.8)
+MESSAGE(STATUS  "####################################")
+MESSAGE(STATUS  "#############${PROJECT_NAME}###############")
+MESSAGE(STATUS  "####################################")
 
 include_directories(
 
@@ -192,6 +195,17 @@ FILE(GLOB  scoped_refptr_source
 	scoped_refptr.h 
 )
 
+FILE(GLOB  rtc_error_source
+
+	rtc_error.cc 
+	rtc_error.h
+)
+
+FILE(GLOB  libjingle_logging_api_source
+
+			rtc_event_log_output.h
+)
+
 add_library(${PROJECT_NAME} STATIC  ${api_source})
 add_library(media_stream_interface  STATIC ${media_stream_interface_source})
 
@@ -209,7 +223,12 @@ add_library(wrapping_async_dns_resolver  STATIC ${wrapping_async_dns_resolver_so
 
 
 add_library(scoped_refptr  STATIC  ${scoped_refptr_source})
+
+add_library(rtc_error  STATIC  ${rtc_error_source})
+
+add_library(libjingle_logging_api  STATIC  ${libjingle_logging_api_source})
 add_subdirectory(task_queue)
+add_subdirectory(rtc_event_log)
 
 
 add_subdirectory(video)
@@ -224,7 +243,7 @@ set_target_properties(scoped_refptr                               PROPERTIES LIN
 # packet_socket_factory
 
 set_target_properties(packet_socket_factory                               PROPERTIES LINKER_LANGUAGE CXX)
-
+set_target_properties(libjingle_logging_api                               PROPERTIES LINKER_LANGUAGE CXX)
 
 set(AllFile 
 
@@ -238,6 +257,8 @@ set(AllFile
 		${async_dns_resolver_source}
 		${packet_socket_factory_source}
 		${scoped_refptr_source}
+		${rtc_error_source}
+		${libjingle_logging_api_source}
 		
 )
 
@@ -283,8 +304,8 @@ set_property(TARGET wrapping_async_dns_resolver  PROPERTY FOLDER ${LIWEBRTC_IDE_
 set_property(TARGET scoped_refptr  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 
 
-#set_property(TARGET scoped_refptr  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
+set_property(TARGET rtc_error  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET libjingle_logging_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 
 
 

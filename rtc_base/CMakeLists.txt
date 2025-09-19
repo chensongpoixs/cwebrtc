@@ -1081,18 +1081,18 @@ FILE(GLOB  rtc_base_source
 	strings/string_builder.cc
 	strings/string_builder.h			 
 	
-	synchronization/mutex.cc
-	synchronization/mutex_critical_section.h
-	synchronization/mutex.h
-	synchronization/mutex_pthread.h
-	synchronization/sequence_checker.cc
-	synchronization/sequence_checker.h
-	synchronization/sequence_checker_internal.cc
-	synchronization/sequence_checker_internal.h
-	synchronization/yield.cc
-	synchronization/yield.h
-	synchronization/yield_policy.cc
-	synchronization/yield_policy.h
+	#synchronization/mutex.cc
+	#synchronization/mutex_critical_section.h
+	#synchronization/mutex.h
+	#synchronization/mutex_pthread.h
+	#synchronization/sequence_checker.cc
+	#synchronization/sequence_checker.h
+	#synchronization/sequence_checker_internal.cc
+	#synchronization/sequence_checker_internal.h
+	#synchronization/yield.cc
+	#synchronization/yield.h
+	#synchronization/yield_policy.cc
+	#synchronization/yield_policy.h
 
 
 
@@ -1230,17 +1230,164 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 endif()
 
 
+FILE(GLOB   logging_source
 
 
+		logging.cc
+      logging.h
+)
 
+FILE(GLOB  ip_address_source
+
+
+		ip_address.cc 
+	ip_address.h
+)
+
+FILE(GLOB socket_address_source
+
+	socket_address.h 
+	socket_address.cc
+)
+
+FILE(GLOB  network_constants_source
+
+	network_constants.h 
+	network_constants.cc 
+)
+
+FILE(GLOB async_resolver_interface_source
+
+	async_resolver_interface.h 
+	async_resolver_interface.cc 
+)
+FILE(GLOB  async_socket_source
+
+
+	async_socket.h 
+	async_socket.cc 
+	)
+	
+	
+FILE(GLOB  null_socket_server_source
+
+
+	null_socket_server.h
+	null_socket_server.cc 
+	)
+	
+FILE(GLOB  threading_source
+
+
+	async_resolver.cc
+    async_resolver.h
+    internal/default_socket_server.cc
+    internal/default_socket_server.h
+    message_handler.cc
+    message_handler.h
+    network_monitor.cc
+    network_monitor.h
+    network_monitor_factory.cc
+    network_monitor_factory.h
+    physical_socket_server.cc
+    physical_socket_server.h
+    thread.cc
+    thread.h
+    thread_message.h
+
+)
+
+FILE(GLOB  socket_source
+
+	socket.h 
+	socket.cc 
+)
+
+FILE(GLOB  stringutils_source
+
+	string_encode.cc
+    string_encode.h
+    string_to_number.cc
+    string_to_number.h
+    string_utils.cc
+    string_utils.h
+    strings/string_builder.cc
+    strings/string_builder.h
+    strings/string_format.cc
+    strings/string_format.h
+
+)
+
+FILE(GLOB  timeutils_source
+    system_time.cc
+    system_time.h
+    time_utils.cc
+    time_utils.h
+
+)
+FILE(GLOB  platform_thread_types_source
+
+	platform_thread_types.h 
+	platform_thread_types.cc 
+)
+
+
+FILE(GLOB  platform_thread_source
+	platform_thread.cc 
+	platform_thread.h
+
+)
+
+FILE(GLOB net_helpers_source
+
+	net_helpers.h 
+	net_helpers.cc 
+)
+
+FILE(GLOB  rtc_event_source
+
+	event.h 
+	event.cc 
+)
+
+FILE(GLOB win32_source
+      win32.cc
+      win32.h
+      win32_window.cc
+      win32_window.h
+
+)
+
+FILE(GLOB  weak_ptr_source
+
+	weak_ptr.h 
+	weak_ptr.cc 
+)
+
+FILE(GLOB callback_list_source
+
+	callback_list.h 
+	callback_list.cc 
+)
+
+FILE(GLOB  rtc_numerics_source
+
+    numerics/event_based_exponential_moving_average.cc
+    numerics/event_based_exponential_moving_average.h
+    numerics/exp_filter.cc
+    numerics/exp_filter.h
+    numerics/math_utils.h
+    numerics/moving_average.cc
+    numerics/moving_average.h
+    numerics/moving_median_filter.h
+    numerics/percentile_filter.h
+    numerics/running_statistics.h
+    numerics/sequence_number_util.h
+)
 
 add_library(checks  STATIC  ${checks_source})
 
-add_library(rtc_base STATIC ${rtc_base_source}
-		
-		
-			${rtc_base_win}
-		)
+add_library(rtc_base STATIC ${rtc_base_source} ${rtc_base_win} )
 
 add_library(rtc_base_approved STATIC ${rtc_base_approved_source})
 
@@ -1249,10 +1396,38 @@ add_library(rtc_base_win STATIC ${rtc_base_win_source})
 add_library(rtc_base_win_wgc STATIC ${rtc_base_win_wgc_source})
 
 
+add_library(logging  STATIC  ${logging_source})
+add_library(ip_address  STATIC ${ip_address_source})
+add_library(socket_address  STATIC ${socket_address_source})
+add_library(network_constants  STATIC ${network_constants_source})
+add_library(async_resolver_interface  STATIC ${async_resolver_interface_source})
+add_library(async_socket  STATIC ${async_socket_source})
 
-add_subdirectory(third_party)
+add_library(null_socket_server  STATIC ${null_socket_server_source})
+add_library(threading  STATIC ${threading_source})
+add_library(socket  STATIC ${socket_source})
+add_library(stringutils  STATIC ${stringutils_source})
+add_library(timeutils  STATIC ${timeutils_source})
+add_library(platform_thread_types  STATIC ${platform_thread_types_source})
+add_library(platform_thread  STATIC ${platform_thread_source})
+add_library(net_helpers  STATIC ${net_helpers_source})
+
+add_library(rtc_event  STATIC ${rtc_event_source})
+#  "crypt32.lib
+#      "iphlpapi.lib
+#      "secur32.lib
+add_library(win32  STATIC ${win32_source})
+add_library(weak_ptr STATIC  ${weak_ptr_source})
+add_library(callback_list STATIC  ${callback_list_source})
+add_library(rtc_numerics STATIC  ${rtc_numerics_source})
+
 add_subdirectory(system)
-        
+add_subdirectory(synchronization)
+add_subdirectory(experiments)
+ add_subdirectory(third_party)
+ 
+ 
+ 
 set(AllFile  
 
     ${checks_source}
@@ -1260,6 +1435,25 @@ set(AllFile
 	${rtc_base_approved_source}
 	${rtc_base_win_source}
 	${rtc_base_win_wgc_source}
+	${logging_source}
+	${ip_address_source}
+	${socket_address_source}
+	${network_constants_source}
+	${async_resolver_interface_source}
+	${async_socket_source}
+	${null_socket_server_source}
+	${threading_source}
+	${socket_source}
+	${stringutils_source}
+	${timeutils_source}
+	${platform_thread_types_source}
+	${platform_thread_source}
+	${net_helpers_source}
+	${rtc_event_source}
+	${win32_source}
+	${weak_ptr_source}
+	${callback_list_source}
+	${rtc_numerics_source}
 )
 # source_group("include" FILES ${AllFile})
 foreach(fileItem ${AllFile})       
@@ -1283,5 +1477,28 @@ set_property(TARGET rtc_base  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_N
 set_property(TARGET rtc_base_win  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 set_property(TARGET rtc_base_approved  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 set_property(TARGET rtc_base_win_wgc  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
+set_property(TARGET logging  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 set_property(TARGET checks  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+set_property(TARGET ip_address  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET socket_address  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+set_property(TARGET network_constants  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
+
+
+set_property(TARGET async_resolver_interface  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET async_socket              PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET null_socket_server        PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET threading                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET socket                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET stringutils                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET timeutils                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET platform_thread_types                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET platform_thread                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET net_helpers                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET rtc_event                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET win32                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET weak_ptr                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET callback_list                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET rtc_numerics                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})

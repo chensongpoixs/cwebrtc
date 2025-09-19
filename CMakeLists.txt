@@ -933,7 +933,7 @@ add_subdirectory(api)
 add_subdirectory(p2p)
 add_subdirectory(pc)
 add_subdirectory(rtc_base)
-
+add_subdirectory(logging)
 add_subdirectory(common_audio)
 add_subdirectory(common_video)
 add_subdirectory(modules)
