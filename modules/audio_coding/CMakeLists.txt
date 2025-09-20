@@ -8,7 +8,7 @@ MESSAGE(STATUS  "####################################")
 
 FILE(GLOB audio_coding_module_typedefs_source
      
-    audio_coding_module_typedefs.h
+    include/audio_coding_module_typedefs.h
 )
 
 FILE(GLOB  audio_coding_source
@@ -370,6 +370,234 @@ FILE(GLOB  isac_fix_c_source
 
 )
 
+
+FILE(GLOB  pcm16b_source
+    codecs/pcm16b/audio_decoder_pcm16b.cc
+    codecs/pcm16b/audio_decoder_pcm16b.h
+    codecs/pcm16b/audio_encoder_pcm16b.cc
+    codecs/pcm16b/audio_encoder_pcm16b.h
+    codecs/pcm16b/pcm16b_common.cc
+    codecs/pcm16b/pcm16b_common.h
+	
+)
+
+FILE(GLOB pcm16b_c_source
+    codecs/pcm16b/pcm16b.c
+    codecs/pcm16b/pcm16b.h
+
+)
+
+FILE(GLOB  audio_coding_opus_common_source
+	     codecs/opus/audio_coder_opus_common.cc 
+     codecs/opus/audio_coder_opus_common.h 
+
+)
+
+FILE(GLOB  webrtc_opus_source
+    codecs/opus/audio_decoder_opus.cc
+    codecs/opus/audio_decoder_opus.h
+    codecs/opus/audio_encoder_opus.cc
+    codecs/opus/audio_encoder_opus.h
+
+)
+
+FILE(GLOB webrtc_multiopus_source
+
+	    codecs/opus/audio_decoder_multi_channel_opus_impl.cc
+    codecs/opus/audio_decoder_multi_channel_opus_impl.h
+    codecs/opus/audio_encoder_multi_channel_opus_impl.cc
+    codecs/opus/audio_encoder_multi_channel_opus_impl.h
+)
+
+FILE(GLOB  webrtc_opus_wrapper_source
+
+    codecs/opus/opus_inst.h
+    codecs/opus/opus_interface.cc
+    codecs/opus/opus_interface.h
+)
+
+FILE(GLOB audio_network_adaptor_config_source
+
+    audio_network_adaptor/audio_network_adaptor_config.cc
+    audio_network_adaptor/include/audio_network_adaptor_config.h
+
+)
+
+FILE(GLOB  audio_network_adaptor_source
+
+    audio_network_adaptor/audio_network_adaptor_impl.cc
+    audio_network_adaptor/audio_network_adaptor_impl.h
+    audio_network_adaptor/bitrate_controller.cc
+    audio_network_adaptor/bitrate_controller.h
+    audio_network_adaptor/channel_controller.cc
+    audio_network_adaptor/channel_controller.h
+    audio_network_adaptor/controller.cc
+    audio_network_adaptor/controller.h
+    audio_network_adaptor/controller_manager.cc
+    audio_network_adaptor/controller_manager.h
+    audio_network_adaptor/debug_dump_writer.cc
+    audio_network_adaptor/debug_dump_writer.h
+    audio_network_adaptor/dtx_controller.cc
+    audio_network_adaptor/dtx_controller.h
+    audio_network_adaptor/event_log_writer.cc
+    audio_network_adaptor/event_log_writer.h
+    audio_network_adaptor/fec_controller_plr_based.cc
+    audio_network_adaptor/fec_controller_plr_based.h
+    audio_network_adaptor/frame_length_controller.cc
+    audio_network_adaptor/frame_length_controller.h
+    audio_network_adaptor/frame_length_controller_v2.cc
+    audio_network_adaptor/frame_length_controller_v2.h
+    audio_network_adaptor/include/audio_network_adaptor.h
+    audio_network_adaptor/util/threshold_curve.h
+)
+
+FILE(GLOB neteq_source
+    neteq/accelerate.cc
+    neteq/accelerate.h
+    neteq/audio_multi_vector.cc
+    neteq/audio_multi_vector.h
+    neteq/audio_vector.cc
+    neteq/audio_vector.h
+    neteq/background_noise.cc
+    neteq/background_noise.h
+    neteq/buffer_level_filter.cc
+    neteq/buffer_level_filter.h
+    neteq/comfort_noise.cc
+    neteq/comfort_noise.h
+    neteq/cross_correlation.cc
+    neteq/cross_correlation.h
+    neteq/decision_logic.cc
+    neteq/decision_logic.h
+    neteq/decoder_database.cc
+    neteq/decoder_database.h
+    neteq/delay_manager.cc
+    neteq/delay_manager.h
+    neteq/dsp_helper.cc
+    neteq/dsp_helper.h
+    neteq/dtmf_buffer.cc
+    neteq/dtmf_buffer.h
+    neteq/dtmf_tone_generator.cc
+    neteq/dtmf_tone_generator.h
+    neteq/expand.cc
+    neteq/expand.h
+    neteq/expand_uma_logger.cc
+    neteq/expand_uma_logger.h
+    neteq/histogram.cc
+    neteq/histogram.h
+    neteq/merge.cc
+    neteq/merge.h
+    neteq/nack_tracker.cc
+    neteq/nack_tracker.h
+    neteq/neteq_impl.cc
+    neteq/neteq_impl.h
+    neteq/normal.cc
+    neteq/normal.h
+    neteq/packet.cc
+    neteq/packet.h
+    neteq/packet_buffer.cc
+    neteq/packet_buffer.h
+    neteq/post_decode_vad.cc
+    neteq/post_decode_vad.h
+    neteq/preemptive_expand.cc
+    neteq/preemptive_expand.h
+    neteq/random_vector.cc
+    neteq/random_vector.h
+    neteq/red_payload_splitter.cc
+    neteq/red_payload_splitter.h
+    neteq/relative_arrival_delay_tracker.cc
+    neteq/relative_arrival_delay_tracker.h
+    neteq/reorder_optimizer.cc
+    neteq/reorder_optimizer.h
+    neteq/statistics_calculator.cc
+    neteq/statistics_calculator.h
+    neteq/sync_buffer.cc
+    neteq/sync_buffer.h
+    neteq/time_stretch.cc
+    neteq/time_stretch.h
+    neteq/timestamp_scaler.cc
+    neteq/timestamp_scaler.h
+    neteq/underrun_optimizer.cc
+    neteq/underrun_optimizer.h
+)
+
+
+FILE(GLOB  default_neteq_factory_source
+    neteq/default_neteq_factory.cc
+    neteq/default_neteq_factory.h
+
+)
+
+FILE(GLOB  neteq_tools_minimal_source
+    neteq/tools/audio_sink.cc
+    neteq/tools/audio_sink.h
+    neteq/tools/encode_neteq_input.cc
+    neteq/tools/encode_neteq_input.h
+    neteq/tools/neteq_input.cc
+    neteq/tools/neteq_input.h
+    neteq/tools/neteq_test.cc
+    neteq/tools/neteq_test.h
+    neteq/tools/packet.cc
+    neteq/tools/packet.h
+    neteq/tools/packet_source.cc
+    neteq/tools/packet_source.h
+
+)
+
+FILE(GLOB  neteq_test_tools_source
+
+    neteq/tools/audio_checksum.h
+    neteq/tools/audio_loop.cc
+    neteq/tools/audio_loop.h
+    neteq/tools/constant_pcm_packet_source.cc
+    neteq/tools/constant_pcm_packet_source.h
+    neteq/tools/initial_packet_inserter_neteq_input.cc
+    neteq/tools/initial_packet_inserter_neteq_input.h
+    neteq/tools/neteq_packet_source_input.cc
+    neteq/tools/neteq_packet_source_input.h
+    neteq/tools/output_audio_file.h
+    neteq/tools/output_wav_file.h
+    neteq/tools/rtp_file_source.cc
+    neteq/tools/rtp_file_source.h
+    neteq/tools/rtp_generator.cc
+    neteq/tools/rtp_generator.h
+)
+
+
+FILE(GLOB neteq_tools_source
+    neteq/tools/fake_decode_from_file.cc
+    neteq/tools/fake_decode_from_file.h
+    neteq/tools/neteq_delay_analyzer.cc
+    neteq/tools/neteq_delay_analyzer.h
+    neteq/tools/neteq_replacement_input.cc
+    neteq/tools/neteq_replacement_input.h
+    neteq/tools/neteq_stats_getter.cc
+    neteq/tools/neteq_stats_getter.h
+    neteq/tools/neteq_stats_plotter.cc
+    neteq/tools/neteq_stats_plotter.h
+
+)
+
+FILE(GLOB  neteq_input_audio_tools_source
+    neteq/tools/input_audio_file.cc
+    neteq/tools/input_audio_file.h
+    neteq/tools/resample_input_audio_file.cc
+    neteq/tools/resample_input_audio_file.h
+
+)
+
+FILE(GLOB  audio_decoder_interface_source
+
+codecs/audio_decoder.h
+
+)
+
+
+FILE(GLOB  audio_encoder_interface_source
+
+	codecs/audio_encoder.h
+)
+
+
 add_library(audio_coding_module_typedefs  STATIC  ${audio_coding_module_typedefs_source})
 add_library(audio_coding  STATIC  ${audio_coding_source})
 add_library(legacy_encoded_audio_frame  STATIC  ${legacy_encoded_audio_frame_source})
@@ -390,20 +618,32 @@ add_library(isac_c  STATIC  ${isac_c_source})
 add_library(isac_fix  STATIC  ${isac_fix_source})
 add_library(isac_fix_common  STATIC  ${isac_fix_common_source})
 add_library(isac_fix_c  STATIC  ${isac_fix_c_source})
-add_library(audio_coding  STATIC  ${audio_coding_source})
-add_library(audio_coding  STATIC  ${audio_coding_source})
-add_library(audio_coding  STATIC  ${audio_coding_source})
-add_library(audio_coding  STATIC  ${audio_coding_source})
-add_library(audio_coding  STATIC  ${audio_coding_source})
-add_library(audio_coding  STATIC  ${audio_coding_source})
-add_library(audio_coding  STATIC  ${audio_coding_source})
+add_library(pcm16b  STATIC  ${pcm16b_source})
+add_library(pcm16b_c  STATIC  ${pcm16b_c_source})
+add_library(audio_coding_opus_common  STATIC  ${audio_coding_opus_common_source})
+add_library(webrtc_opus  STATIC  ${webrtc_opus_source})
+add_library(webrtc_multiopus  STATIC  ${webrtc_multiopus_source})
+add_library(webrtc_opus_wrapper  STATIC  ${webrtc_opus_wrapper_source})
+add_library(audio_network_adaptor_config  STATIC  ${audio_network_adaptor_config_source})
+add_library(audio_network_adaptor  STATIC  ${audio_network_adaptor_source})
+add_library(neteq  STATIC  ${neteq_source})
+add_library(default_neteq_factory  STATIC  ${default_neteq_factory_source})
+add_library(neteq_tools_minimal  STATIC  ${neteq_tools_minimal_source})
+add_library(neteq_test_tools  STATIC  ${neteq_test_tools_source})
+add_library(neteq_tools  STATIC  ${neteq_tools_source})
+add_library(neteq_input_audio_tools  STATIC  ${neteq_input_audio_tools_source})
+add_library(audio_decoder_interface  STATIC  ${audio_decoder_interface_source})
+add_library(audio_encoder_interface  STATIC  ${audio_encoder_interface_source})
+ 
  
  
  
 
 set_target_properties(audio_coding_module_typedefs                               PROPERTIES LINKER_LANGUAGE CXX) 
 set_target_properties(isac_bwinfo                               PROPERTIES LINKER_LANGUAGE CXX) 
-set_target_properties(audio_coding_module_typedefs                               PROPERTIES LINKER_LANGUAGE CXX) 
+set_target_properties(isac_common                               PROPERTIES LINKER_LANGUAGE CXX) 
+set_target_properties(audio_decoder_interface                               PROPERTIES LINKER_LANGUAGE CXX) 
+set_target_properties(audio_encoder_interface                               PROPERTIES LINKER_LANGUAGE CXX) 
 
 
 set(AllFile
@@ -429,6 +669,22 @@ ${isac_c_source}
 ${isac_fix_source}
 ${isac_fix_common_source}
 ${isac_fix_c_source}
+${pcm16b_source}
+${pcm16b_c_source}
+${audio_coding_opus_common_source}
+${webrtc_opus_source}
+${webrtc_multiopus_source}
+${webrtc_opus_wrapper_source}
+${audio_network_adaptor_config_source}
+${audio_network_adaptor_source}
+${neteq_source}
+${default_neteq_factory_source}
+${neteq_tools_minimal_source}
+${neteq_test_tools_source}
+${neteq_tools_source}
+${neteq_input_audio_tools_source}
+${audio_decoder_interface}
+${audio_encoder_interface}
 )
 foreach(fileItem ${AllFile})       
     # Get the directory of the source file
@@ -468,14 +724,26 @@ set_property(TARGET  ilbc 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modu
 set_property(TARGET  ilbc_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 set_property(TARGET  isac_common 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 set_property(TARGET  isac 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  isac_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 set_property(TARGET  isac_bwinfo 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 set_property(TARGET  isac_vad 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 set_property(TARGET  isac_fix 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 set_property(TARGET  isac_fix_common 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 set_property(TARGET  isac_fix_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET  ilbc_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET  ilbc_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET  ilbc_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET  ilbc_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET  ilbc_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-
+set_property(TARGET  pcm16b 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  pcm16b_c 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  audio_coding_opus_common 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  webrtc_opus 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  webrtc_multiopus 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  webrtc_opus_wrapper 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  audio_network_adaptor_config 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  audio_network_adaptor 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  neteq 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  default_neteq_factory 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  neteq_tools_minimal 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  neteq_test_tools 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  neteq_tools 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  neteq_input_audio_tools 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  audio_decoder_interface 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  audio_encoder_interface 											PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+ 
