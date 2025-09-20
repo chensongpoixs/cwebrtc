@@ -1385,6 +1385,45 @@ FILE(GLOB  rtc_numerics_source
     numerics/sequence_number_util.h
 )
 
+FILE(GLOB  rtc_base_tests_utils_source
+
+    cpu_time.cc
+    cpu_time.h
+    fake_clock.cc
+    fake_clock.h
+    fake_mdns_responder.h
+    fake_network.h
+    fake_ssl_identity.cc
+    fake_ssl_identity.h
+    firewall_socket_server.cc
+    firewall_socket_server.h
+    memory_stream.cc
+    memory_stream.h
+    memory_usage.cc
+    memory_usage.h
+    nat_server.cc
+    nat_server.h
+    nat_socket_factory.cc
+    nat_socket_factory.h
+    nat_types.cc
+    nat_types.h
+    proxy_server.cc
+    proxy_server.h
+    server_socket_adapters.cc
+    server_socket_adapters.h
+    sigslot_tester.h
+    socket_stream.cc
+    socket_stream.h
+    test_base64.h
+    test_certificate_verifier.h
+    test_echo_server.cc
+    test_echo_server.h
+    test_utils.cc
+    test_utils.h
+    virtual_socket_server.cc
+    virtual_socket_server.h
+)
+
 add_library(checks  STATIC  ${checks_source})
 
 add_library(rtc_base STATIC ${rtc_base_source} ${rtc_base_win} )
@@ -1420,8 +1459,9 @@ add_library(win32  STATIC ${win32_source})
 add_library(weak_ptr STATIC  ${weak_ptr_source})
 add_library(callback_list STATIC  ${callback_list_source})
 add_library(rtc_numerics STATIC  ${rtc_numerics_source})
-
+add_library(rtc_base_tests_utils STATIC ${rtc_base_tests_utils_source})
 add_subdirectory(system)
+add_subdirectory(memory)
 add_subdirectory(synchronization)
 add_subdirectory(experiments)
  add_subdirectory(third_party)
@@ -1454,6 +1494,7 @@ set(AllFile
 	${weak_ptr_source}
 	${callback_list_source}
 	${rtc_numerics_source}
+	${rtc_base_tests_utils_source}
 )
 # source_group("include" FILES ${AllFile})
 foreach(fileItem ${AllFile})       
@@ -1502,3 +1543,5 @@ set_property(TARGET win32                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLD
 set_property(TARGET weak_ptr                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 set_property(TARGET callback_list                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 set_property(TARGET rtc_numerics                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET rtc_base_tests_utils                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+
