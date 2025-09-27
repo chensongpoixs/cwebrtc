@@ -1424,6 +1424,12 @@ FILE(GLOB  rtc_base_tests_utils_source
     virtual_socket_server.h
 )
 
+FILE(GLOB  rate_limiter_source
+	rate_limiter.h 
+	rate_limiter.cc 
+
+)
+
 add_library(checks  STATIC  ${checks_source})
 
 add_library(rtc_base STATIC ${rtc_base_source} ${rtc_base_win} )
@@ -1460,6 +1466,8 @@ add_library(weak_ptr STATIC  ${weak_ptr_source})
 add_library(callback_list STATIC  ${callback_list_source})
 add_library(rtc_numerics STATIC  ${rtc_numerics_source})
 add_library(rtc_base_tests_utils STATIC ${rtc_base_tests_utils_source})
+
+add_library(rate_limiter  STATIC ${rate_limiter_source})
 add_subdirectory(system)
 add_subdirectory(memory)
 add_subdirectory(synchronization)
@@ -1495,6 +1503,7 @@ set(AllFile
 	${callback_list_source}
 	${rtc_numerics_source}
 	${rtc_base_tests_utils_source}
+	${rate_limiter_source}
 )
 # source_group("include" FILES ${AllFile})
 foreach(fileItem ${AllFile})       
@@ -1544,4 +1553,5 @@ set_property(TARGET weak_ptr                    PROPERTY FOLDER ${LIWEBRTC_IDE_F
 set_property(TARGET callback_list                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 set_property(TARGET rtc_numerics                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 set_property(TARGET rtc_base_tests_utils                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET rate_limiter                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 

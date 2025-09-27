@@ -37,6 +37,22 @@ enum H264PacketizationTypes {
 // Due to the structure containing this being initialized with zeroes
 // in some places, and mode 1 being default, mode 1 needs to have the value
 // zero. https://crbug.com/webrtc/6803
+/*
+
+打包模式简单介绍
+
+Single NAL Unit Mode，单个NAL单元模式(NAL unit)。这种模式用于单个一个RTP包封装一个NAL unit的情况
+Non-Interleaved Mode，非交错模式(NAL unit/STAP-A/FU-A)。这种模式用于非B帧类型的NAL单元封装
+Interleaved Mode，交错模式(STAP-B/MTAP16/MTAP24/FU-A/FU-B)，这种模式可以用于带B帧类型的NAL单元封装
+
+
+负载结构简单介绍
+
+NAL unit，这种结构就是直接把编码器输出的编码后的数据封装为一个RTP包
+STAP-A，STAP-B，MTAP16和MTAP24，这几种结构用于多个NAL单元封装到一个RTP包中。STAP类型用于多个具有相同时间戳的NAL单元，MTAP类型用于多个具有不同时间戳的NAL单元
+FU-A和FU-B，这种结构用于一个NAL单元拆分为多个RTP包的情况，封装同一个NAL单元的多个RTP包拥有相同的时间戳和不同的序号
+ 
+*/
 enum class H264PacketizationMode {
   NonInterleaved = 0,  // Mode 1 - STAP-A, FU-A is allowed
   SingleNalUnit        // Mode 0 - only single NALU allowed
