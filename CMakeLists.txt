@@ -701,7 +701,7 @@ file(GLOB all_src
     #"api/transport/rtp/*.h"
     #"api/audio_codecs/*.h"
    # "system_wrappers/source/*.h"
-    "modules/video_capture/*.h"
+   # "modules/video_capture/*.h"
     #"modules/audio_device/*.h"
     "modules/audio_device/dummy/*.h"
    # "modules/audio_processing/*.h"
@@ -766,7 +766,7 @@ file(GLOB all_src
     #"api/transport/rtp/*.cc"
     #"api/audio_codecs/*.cc"
   #  "system_wrappers/source/*.cc"
-    "modules/video_capture/*.cc"
+  #  "modules/video_capture/*.cc"
    # "modules/audio_device/*.cc"
     "modules/audio_device/dummy/*.cc"
   #  "modules/audio_processing/*.cc"
@@ -825,10 +825,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	# 	"api/task_queue/default_task_queue_factory_win.cc"
     # )
 
-    file(GLOB video_capture_win
-	"modules/video_capture/windows/*.h"
-        "modules/video_capture/windows/*.cc"
-    )
+    #file(GLOB video_capture_win
+	#"modules/video_capture/windows/*.h"
+    #    "modules/video_capture/windows/*.cc"
+    #)
 
     file(GLOB audio_device_win
 		#"modules/audio_device/win/*.h"
@@ -872,7 +872,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         # ${rtc_base_win}
         # ${api_win}
         ${audio_device_win}
-        ${video_capture_win}
+        #${video_capture_win}
 		${signal_processing}
 		${spl_sqrt_floor}
 		${ooura}
@@ -949,7 +949,7 @@ set(AllFile ${all_src}
         # ${rtc_base_win}
         # ${api_win}
         ${audio_device_win}
-        ${video_capture_win}
+       # ${video_capture_win}
 		${signal_processing}
 		${spl_sqrt_floor}
 		${ooura}
