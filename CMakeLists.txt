@@ -128,37 +128,37 @@ FILE(GLOB  audio_coding
 )
 
 
-FILE(GLOB  audio_device
+# FILE(GLOB  audio_device
 
-				modules/audio_device/audio_device_buffer.cc
-				modules/audio_device/audio_device_buffer.h
-				modules/audio_device/audio_device_config.h
-				modules/audio_device/audio_device_data_observer.cc
-				modules/audio_device/audio_device_generic.cc
-				modules/audio_device/audio_device_generic.h
-				modules/audio_device/audio_device_impl.h
-				modules/audio_device/audio_device_name.cc
-				modules/audio_device/audio_device_name.h
+# 				modules/audio_device/audio_device_buffer.cc
+# 				modules/audio_device/audio_device_buffer.h
+# 				modules/audio_device/audio_device_config.h
+# 				modules/audio_device/audio_device_data_observer.cc
+# 				modules/audio_device/audio_device_generic.cc
+# 				modules/audio_device/audio_device_generic.h
+# 				modules/audio_device/audio_device_impl.h
+# 				modules/audio_device/audio_device_name.cc
+# 				modules/audio_device/audio_device_name.h
 				 
-				modules/audio_device/fine_audio_buffer.cc
-				modules/audio_device/fine_audio_buffer.h
+# 				modules/audio_device/fine_audio_buffer.cc
+# 				modules/audio_device/fine_audio_buffer.h
 				 
-				modules/audio_device/mock_audio_device_buffer.h
+# 				modules/audio_device/mock_audio_device_buffer.h
 				 
-				modules/audio_device/include/audio_device_data_observer.h
-				modules/audio_device/include/audio_device_default.h
-				modules/audio_device/include/audio_device_defines.h
-				modules/audio_device/include/audio_device_factory.cc
-				modules/audio_device/include/audio_device_factory.h
-				modules/audio_device/include/audio_device.h
-				modules/audio_device/include/fake_audio_device.h
-				modules/audio_device/include/mock_audio_device.h
-				modules/audio_device/include/mock_audio_transport.h
-				#modules/audio_device/include/test_audio_device.cc
-				#modules/audio_device/include/test_audio_device.h
+# 				modules/audio_device/include/audio_device_data_observer.h
+# 				modules/audio_device/include/audio_device_default.h
+# 				modules/audio_device/include/audio_device_defines.h
+# 				modules/audio_device/include/audio_device_factory.cc
+# 				modules/audio_device/include/audio_device_factory.h
+# 				modules/audio_device/include/audio_device.h
+# 				modules/audio_device/include/fake_audio_device.h
+# 				modules/audio_device/include/mock_audio_device.h
+# 				modules/audio_device/include/mock_audio_transport.h
+# 				#modules/audio_device/include/test_audio_device.cc
+# 				#modules/audio_device/include/test_audio_device.h
 
 	
-)
+# )
 
 
 FILE(GLOB  audio_processing
@@ -703,7 +703,7 @@ file(GLOB all_src
    # "system_wrappers/source/*.h"
    # "modules/video_capture/*.h"
     #"modules/audio_device/*.h"
-    "modules/audio_device/dummy/*.h"
+   # "modules/audio_device/dummy/*.h"
    # "modules/audio_processing/*.h"
    # "modules/audio_processing/include/*.h"
    # "modules/audio_processing/aec3/*.h"
@@ -768,7 +768,7 @@ file(GLOB all_src
   #  "system_wrappers/source/*.cc"
   #  "modules/video_capture/*.cc"
    # "modules/audio_device/*.cc"
-    "modules/audio_device/dummy/*.cc"
+  #  "modules/audio_device/dummy/*.cc"
   #  "modules/audio_processing/*.cc"
   #  "modules/audio_processing/include/*.cc"
   #  "modules/audio_processing/aec3/*.cc"
@@ -830,23 +830,23 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     #    "modules/video_capture/windows/*.cc"
     #)
 
-    file(GLOB audio_device_win
-		#"modules/audio_device/win/*.h"
-      #  "modules/audio_device/win/*.cc"
+    # file(GLOB audio_device_win
+	# 	#"modules/audio_device/win/*.h"
+    #   #  "modules/audio_device/win/*.cc"
 
-		modules/audio_device/win/audio_device_core_win.cc
-		modules/audio_device/win/audio_device_core_win.h
-		modules/audio_device/win/audio_device_module_win.cc
-		modules/audio_device/win/audio_device_module_win.h
-		modules/audio_device/win/core_audio_base_win.cc
-		modules/audio_device/win/core_audio_base_win.h
-		modules/audio_device/win/core_audio_input_win.cc
-		modules/audio_device/win/core_audio_input_win.h
-		modules/audio_device/win/core_audio_output_win.cc
-		modules/audio_device/win/core_audio_output_win.h
-		modules/audio_device/win/core_audio_utility_win.cc
-		modules/audio_device/win/core_audio_utility_win.h
-    )
+	# 	modules/audio_device/win/audio_device_core_win.cc
+	# 	modules/audio_device/win/audio_device_core_win.h
+	# 	modules/audio_device/win/audio_device_module_win.cc
+	# 	modules/audio_device/win/audio_device_module_win.h
+	# 	modules/audio_device/win/core_audio_base_win.cc
+	# 	modules/audio_device/win/core_audio_base_win.h
+	# 	modules/audio_device/win/core_audio_input_win.cc
+	# 	modules/audio_device/win/core_audio_input_win.h
+	# 	modules/audio_device/win/core_audio_output_win.cc
+	# 	modules/audio_device/win/core_audio_output_win.h
+	# 	modules/audio_device/win/core_audio_utility_win.cc
+	# 	modules/audio_device/win/core_audio_utility_win.h
+    # )
 
 endif()
 #add_library(${PROJECT_NAME} ${all_src})
@@ -871,7 +871,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
         ${all_src}
         # ${rtc_base_win}
         # ${api_win}
-        ${audio_device_win}
+        #${audio_device_win}
         #${video_capture_win}
 		${signal_processing}
 		${spl_sqrt_floor}
@@ -883,7 +883,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		#${media}
 		${system_wrappers}
 		${audio_coding}
-		${audio_device}
+		#${audio_device}
 		${audio_processing}
 		# ${rtc_base}
 		${rtp_rtcp}
@@ -914,7 +914,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		#${media}
 		${system_wrappers}
 		${audio_coding}
-		${audio_device}
+		#${audio_device}
 		${audio_processing}
 		# ${rtc_base}
 		${rtp_rtcp}
@@ -948,7 +948,7 @@ add_subdirectory(media)
 set(AllFile ${all_src}
         # ${rtc_base_win}
         # ${api_win}
-        ${audio_device_win}
+       # ${audio_device_win}
        # ${video_capture_win}
 		${signal_processing}
 		${spl_sqrt_floor}
@@ -961,7 +961,7 @@ set(AllFile ${all_src}
 		# ${api}
 		${system_wrappers}
 		${audio_coding}
-		${audio_device}
+		#${audio_device}
 		${audio_processing}
 		# ${rtc_base}
 		${rtp_rtcp}
