@@ -1442,6 +1442,12 @@ FILE(GLOB  rtc_task_queue_win_source
       task_queue_win.h
 )
 
+FILE(GLOB  bitstream_reader_source
+
+	bitstream_reader.cc 
+	bitstream_reader.h 
+)
+
 add_library(checks  STATIC  ${checks_source})
 
 add_library(rtc_base STATIC ${rtc_base_source} ${rtc_base_win} )
@@ -1471,6 +1477,7 @@ add_library(net_helpers  STATIC ${net_helpers_source})
 add_library(rtc_task_queue_win STATIC ${rtc_task_queue_win_source})
 
 add_library(rtc_event  STATIC ${rtc_event_source})
+add_library(bitstream_reader  STATIC ${bitstream_reader_source})
 #  "crypt32.lib
 #      "iphlpapi.lib
 #      "secur32.lib
@@ -1519,6 +1526,7 @@ set(AllFile
 	${rate_limiter_source}
 	${rtc_task_queue_source}
 	${rtc_task_queue_win_source}
+	${bitstream_reader_source}
 )
 # source_group("include" FILES ${AllFile})
 foreach(fileItem ${AllFile})       
@@ -1574,5 +1582,5 @@ set_property(TARGET rate_limiter                 PROPERTY FOLDER ${LIWEBRTC_IDE_
 set_property(TARGET rtc_task_queue                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 
 set_property(TARGET rtc_task_queue_win                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-#set_property(TARGET rate_limiter                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#${bitstream_reader_source}
+set_property(TARGET bitstream_reader                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
