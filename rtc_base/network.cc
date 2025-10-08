@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  *  Copyright 2004 The WebRTC Project Authors. All rights reserved.
  *
  *  Use of this source code is governed by a BSD-style license
@@ -867,7 +867,7 @@ bool BasicNetworkManager::IsIgnoredNetwork(const Network& network) const {
   // VMware Virtual Ethernet Adapter for VMnet1
   // but don't ignore any GUEST side adapters with a description like:
   // VMware Accelerated AMD PCNet Adapter #2
-#if 0  // ÊÕ¼¯VMnetÍø¿¨µÄip
+#if 0  // æ”¶é›†VMnetç½‘å¡çš„ip
   if (strstr(network.description().c_str(), "VMnet") != nullptr) {
     return true;
   }
