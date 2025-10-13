@@ -95,21 +95,21 @@ class AudioDeviceModuleImpl : public AudioDeviceModuleForTest {
   int32_t InitMicrophone() override;
   bool MicrophoneIsInitialized() const override;
 
-  // Speaker volume controls
+  // Speaker volume controls扬声器音量控制
   int32_t SpeakerVolumeIsAvailable(bool* available) override;
   int32_t SetSpeakerVolume(uint32_t volume) override;
   int32_t SpeakerVolume(uint32_t* volume) const override;
   int32_t MaxSpeakerVolume(uint32_t* maxVolume) const override;
   int32_t MinSpeakerVolume(uint32_t* minVolume) const override;
 
-  // Microphone volume controls
+  // Microphone volume controls麦克风音量控制
   int32_t MicrophoneVolumeIsAvailable(bool* available) override;
   int32_t SetMicrophoneVolume(uint32_t volume) override;
   int32_t MicrophoneVolume(uint32_t* volume) const override;
   int32_t MaxMicrophoneVolume(uint32_t* maxVolume) const override;
   int32_t MinMicrophoneVolume(uint32_t* minVolume) const override;
 
-  // Speaker mute control
+  // Speaker mute control 扬声器静音控制
   int32_t SpeakerMuteIsAvailable(bool* available) override;
   int32_t SetSpeakerMute(bool enable) override;
   int32_t SpeakerMute(bool* enabled) const override;
@@ -119,7 +119,7 @@ class AudioDeviceModuleImpl : public AudioDeviceModuleForTest {
   int32_t SetMicrophoneMute(bool enable) override;
   int32_t MicrophoneMute(bool* enabled) const override;
 
-  // Stereo support
+  // Stereo support立体声支持
   int32_t StereoPlayoutIsAvailable(bool* available) const override;
   int32_t SetStereoPlayout(bool enable) override;
   int32_t StereoPlayout(bool* enabled) const override;
@@ -127,7 +127,7 @@ class AudioDeviceModuleImpl : public AudioDeviceModuleForTest {
   int32_t SetStereoRecording(bool enable) override;
   int32_t StereoRecording(bool* enabled) const override;
 
-  // Delay information and control
+  // Delay information and control延迟信息和控制
   int32_t PlayoutDelay(uint16_t* delayMS) const override;
 
   bool BuiltInAECIsAvailable() const override;

@@ -144,6 +144,7 @@ PhysicalSocket::~PhysicalSocket() {
 
 bool PhysicalSocket::Create(int family, int type) {
   Close();
+ // int proto = (SOCK_DGRAM == type) ? IPPROTO_UDP : IPPROTO_TCP;
   s_ = ::socket(family, type, 0);
   udp_ = (SOCK_DGRAM == type);
   family_ = family;
