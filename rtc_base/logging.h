@@ -623,16 +623,41 @@ class LogMessage {
 
 // The _F version prefixes the message with the current function name.
 #if (defined(__GNUC__) && !defined(NDEBUG)) || defined(WANT_PRETTY_LOG_F)
-#define RTC_LOG_F(sev) RTC_LOG(sev) << __PRETTY_FUNCTION__ << ": "
-#define RTC_LOG_T_F(sev) \
-  RTC_LOG(sev) << this << ": " << __PRETTY_FUNCTION__ << ": "
+//#define RTC_LOG_F(sev) RTC_LOG(sev) << __PRETTY_FUNCTION__ << ": "
+//#define RTC_LOG_T_F(sev) \
+//  RTC_LOG(sev) << this << ": " << __PRETTY_FUNCTION__ << ": "
+#define FUNCTION   __PRETTY_FUNCTION__
+
 #else
-#define RTC_LOG_F(sev) RTC_LOG(sev) << __FUNCTION__ << ": "
-#define RTC_LOG_T_F(sev) RTC_LOG(sev) << this << ": " << __FUNCTION__ << ": "
+#define FUNCTION   __FUNCTION__
+//#define RTC_LOG_F(sev) RTC_LOG(sev) << __FUNCTION__ << ": "
+//#define RTC_LOG_T_F(sev) RTC_LOG(sev) << this << ": " << __FUNCTION__ << ": "
 #endif
+#define RTC_LOG_F(sev) RTC_LOG(sev) << FUNCTION << ": "
+#define RTC_LOG_T_F(sev) RTC_LOG(sev) << this << ": " << FUNCTION << ": "
+
+
 
 #define RTC_LOG_CHECK_LEVEL(sev) ::rtc::LogCheckLevel(::rtc::sev)
 #define RTC_LOG_CHECK_LEVEL_V(sev) ::rtc::LogCheckLevel(sev)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// librtc mobule
+#define  LIBRTC_LOG(sev)  RTC_LOG(sev)  << "[librtc]"
+#define  LIBRTC_LOG_F(sev)  RTC_LOG_F(sev) << "[librtc]"
+#define  LIBRTC_LOG_T_F(sev)  RTC_LOG_T_F(sev) << "[librtc]"
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// GbMediaServer mobule
+#define  GBMEDIASERVER_LOG(sev)  RTC_LOG(sev)  << "[GbMediaServer]"
+#define  GBMEDIASERVER_LOG_F(sev)  RTC_LOG_F(sev) << "[GbMediaServer]"
+#define  GBMEDIASERVER_LOG_T_F(sev)  RTC_LOG_T_F(sev) << "[GbMediaServer]"
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 inline bool LogCheckLevel(LoggingSeverity sev) {
   return (LogMessage::GetMinLogSeverity() <= sev);

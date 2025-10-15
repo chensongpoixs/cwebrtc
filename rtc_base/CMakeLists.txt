@@ -1488,6 +1488,137 @@ add_library(rtc_numerics STATIC  ${rtc_numerics_source})
 add_library(rtc_base_tests_utils STATIC ${rtc_base_tests_utils_source})
 add_library(rtc_task_queue STATIC  ${rtc_task_queue_source})
 add_library(rate_limiter  STATIC ${rate_limiter_source})
+
+
+
+
+SET(rtc_base_ALL_LIB 
+
+	#	rtc_base  
+	#
+	#	rtc_base_win   
+	#	rtc_base_approved   
+	#	rtc_base_win_wgc   
+	#	logging   
+	#	checks   
+	#
+	#	ip_address   
+	#	socket_address   
+	#
+	#	network_constants  
+	#
+	#
+	#
+	#	async_resolver_interface   
+	#	async_socket               
+	#	null_socket_server         
+	#	threading                  
+	#	socket                     
+	#	stringutils                
+	#	timeutils                  
+	#	platform_thread_types      
+	#	platform_thread            
+	#	net_helpers                
+	#	rtc_event                  
+	#	win32                     
+	#	weak_ptr                   
+	#	callback_list              
+	#	rtc_numerics               
+	#	rtc_base_tests_utils       
+	#	rate_limiter               
+ 	#
+	#	rtc_task_queue                
+	#
+	#	rtc_task_queue_win            
+ 	#
+	#	bitstream_reader   
+
+
+
+
+
+		#################
+		#alr_experiment             		   			
+		field_trial_parser             		   		
+		quality_rampup_experiment             		
+		quality_scaler_settings             		
+		bandwidth_quality_scaler_settings           
+		quality_scaling_experiment             		
+		normalize_simulcast_size_experiment         
+		balanced_degradation_settings             	
+		cpu_speed_experiment             		   	
+		encoder_info_settings             		   	
+		rtt_mult_experiment             		   	
+		jitter_upper_bound_experiment             	
+		rate_control_settings             		   	
+		keyframe_interval_settings_experiment       
+		stable_target_rate_experiment             	
+		min_video_bitrate_experiment             	
+
+
+
+
+
+
+
+
+		####################
+
+		aligned_malloc  
+		fifo_buffer     
+
+
+		########################
+
+		yield                       
+		mutex               		
+		sequence_checker_internal 	
+		yield_policy      			
+
+		########################
+
+		warn_current_thread_is_deadlocked
+		no_unique_address 				 
+		thread_registry 				 
+		rtc_export      				 
+		assume          				 
+		unused          				 
+		inline           				 
+		ignore_warnings 				 
+		file_wrapper    				 
+		asm_defines      				 
+		arch              				 
+
+		#######################
+		base64
+
+		sigslot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+)
+#add_library(${PROJECT_NAME}_lib  STATIC ${rtc_base_ALL_LIB})
+#set_target_properties(${PROJECT_NAME}_lib      			      					PROPERTIES LINKER_LANGUAGE CXX) 
+#target_link_libraries(${PROJECT_NAME}_lib  PUBLIC   ${rtc_base_ALL_LIB} )
+
+
+
 add_subdirectory(system)
 add_subdirectory(memory)
 add_subdirectory(synchronization)
