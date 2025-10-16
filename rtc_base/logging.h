@@ -657,7 +657,13 @@ class LogMessage {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// libmedia_codec mobule
+#define  LIBMEIDA_CODEC_LOG(sev)  RTC_LOG(sev)			<< "[libmedia_codec]"
+#define  LIBMEIDA_CODEC_LOG_F(sev)  RTC_LOG_F(sev)		<< "[libmedia_codec]"
+#define  LIBMEIDA_CODEC_LOG_T_F(sev)  RTC_LOG_T_F(sev)	<< "[libmedia_codec]"
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 inline bool LogCheckLevel(LoggingSeverity sev) {
   return (LogMessage::GetMinLogSeverity() <= sev);

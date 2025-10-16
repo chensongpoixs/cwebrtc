@@ -970,8 +970,16 @@ set(AllFile ${all_src}
 		)
 
 
+#add_library(merge STATIC IMPORTED GLOBAL)
+#set_target_properties(merge PROPERTIES
+#    IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/libmerge.lib
+#)
+# 创建自定义目标
+add_custom_target(combine_libs ALL DEPENDS rtc_base)
 
-
+# 导入合并后的静态库
+add_library(combined_lib STATIC IMPORTED GLOBAL)
+set_target_properties(combined_lib PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/rtc_base)
 
 
 foreach(fileItem ${AllFile})       
