@@ -38,7 +38,12 @@
 #include "rtc_base/logging.h"
 #include "rtc_base/trace_event.h"
 #include "system_wrappers/include/field_trial.h"
+#if OPEN_DEPS
+#include "libyuv/scale.h"
+#else 
 #include "third_party/libyuv/include/libyuv/scale.h"
+#endif // 
+
 #include "vpx/vp8cx.h"
 
 namespace webrtc {

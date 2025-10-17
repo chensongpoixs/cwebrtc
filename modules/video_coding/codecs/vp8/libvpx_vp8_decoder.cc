@@ -30,7 +30,15 @@
 #include "rtc_base/time_utils.h"
 #include "system_wrappers/include/field_trial.h"
 #include "system_wrappers/include/metrics.h"
+#if OPEN_DEPS
+
+#include "libyuv/convert.h"
+
+#else 
+
 #include "third_party/libyuv/include/libyuv/convert.h"
+
+#endif // 
 #include "vpx/vp8.h"
 #include "vpx/vp8dx.h"
 #include "vpx/vpx_decoder.h"

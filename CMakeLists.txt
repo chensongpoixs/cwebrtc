@@ -975,11 +975,57 @@ set(AllFile ${all_src}
 #    IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/libmerge.lib
 #)
 # 创建自定义目标
-add_custom_target(combine_libs ALL DEPENDS rtc_base)
+#add_custom_target(combine_libs ALL DEPENDS rtc_base)
 
 # 导入合并后的静态库
-add_library(combined_lib STATIC IMPORTED GLOBAL)
-set_target_properties(combined_lib PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/rtc_base)
+#add_library(combined_lib STATIC IMPORTED GLOBAL)
+#set_target_properties(combined_lib PROPERTIES IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/rtc_base)
+
+
+
+#cmake_minimum_required(VERSION 3.10)
+#project(CombineStaticLibs)
+#
+#set(LIB_A libA.a)
+#set(LIB_B libB.a)
+#set(LIB_C libC.a)
+#set(COMBINED_LIB libCombined.a)
+#
+## 定义提取对象文件的命令
+#add_custom_command(
+#    OUTPUT ${CMAKE_BINARY_DIR}/objects.txt
+#    COMMAND ar -x ${LIB_A} && ar -x ${LIB_B} && ar -x ${LIB_C} && ls *.o > objects.txt
+#    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#    COMMENT "Extracting object files from static libraries"
+#)
+#
+## 定义合并对象文件的命令
+#add_custom_command(
+#    OUTPUT ${CMAKE_BINARY_DIR}/${COMBINED_LIB}
+#    COMMAND ar rcs ${COMBINED_LIB} @objects.txt
+#    DEPENDS ${CMAKE_BINARY_DIR}/objects.txt
+#    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#    COMMENT "Creating combined static library"
+#)
+#
+## 创建自定义目标
+#add_custom_target(combine_static_libs ALL
+#    DEPENDS ${CMAKE_BINARY_DIR}/${COMBINED_LIB}
+#)
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 foreach(fileItem ${AllFile})       

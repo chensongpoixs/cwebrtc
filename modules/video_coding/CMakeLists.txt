@@ -133,39 +133,39 @@ FILE(GLOB  video_coding_source
     codecs/h264/h264_encoder_impl.cc
     codecs/h264/h264_encoder_impl.h
     codecs/h264/include/h264.h	
- #  codecs/multiplex/augmented_video_frame_buffer.cc
- #  codecs/multiplex/include/augmented_video_frame_buffer.h
- #  codecs/multiplex/include/multiplex_decoder_adapter.h
- #  codecs/multiplex/include/multiplex_encoder_adapter.h
- #  codecs/multiplex/multiplex_decoder_adapter.cc
- #  codecs/multiplex/multiplex_encoded_image_packer.cc
- #  codecs/multiplex/multiplex_encoded_image_packer.h
- #  codecs/multiplex/multiplex_encoder_adapter.cc
-   # codecs/interface/libvpx_interface.cc
-   # codecs/interface/libvpx_interface.h
-	#codecs/interface/mock_libvpx_interface.h
+   codecs/multiplex/augmented_video_frame_buffer.cc
+   codecs/multiplex/include/augmented_video_frame_buffer.h
+   codecs/multiplex/include/multiplex_decoder_adapter.h
+   codecs/multiplex/include/multiplex_encoder_adapter.h
+   codecs/multiplex/multiplex_decoder_adapter.cc
+   codecs/multiplex/multiplex_encoded_image_packer.cc
+   codecs/multiplex/multiplex_encoded_image_packer.h
+   codecs/multiplex/multiplex_encoder_adapter.cc
+  codecs/interface/libvpx_interface.cc
+  codecs/interface/libvpx_interface.h
+  codecs/interface/mock_libvpx_interface.h
     codecs/vp8/include/vp8.h
-    #codecs/vp8/libvpx_vp8_decoder.cc
-    #codecs/vp8/libvpx_vp8_decoder.h
-    #codecs/vp8/libvpx_vp8_encoder.cc
-    #codecs/vp8/libvpx_vp8_encoder.h
-    #codecs/vp8/default_temporal_layers.cc
-   # codecs/vp8/default_temporal_layers.h
+   codecs/vp8/libvpx_vp8_decoder.cc
+   codecs/vp8/libvpx_vp8_decoder.h
+   codecs/vp8/libvpx_vp8_encoder.cc
+   codecs/vp8/libvpx_vp8_encoder.h
+   codecs/vp8/default_temporal_layers.cc
+   codecs/vp8/default_temporal_layers.h
     codecs/vp8/include/temporal_layers_checker.h
-    #codecs/vp8/screenshare_layers.cc
-    #codecs/vp8/screenshare_layers.h
-    #codecs/vp8/temporal_layers.h
-    #codecs/vp8/temporal_layers_checker.cc
+    codecs/vp8/screenshare_layers.cc
+    codecs/vp8/screenshare_layers.h
+    codecs/vp8/temporal_layers.h
+    codecs/vp8/temporal_layers_checker.cc
     codecs/vp9/svc_config.cc
     codecs/vp9/svc_config.h
     codecs/vp9/include/vp9.h
-  #  codecs/vp9/libvpx_vp9_decoder.cc
-  #  codecs/vp9/libvpx_vp9_decoder.h
-  #  codecs/vp9/libvpx_vp9_encoder.cc
-  #  codecs/vp9/libvpx_vp9_encoder.h
-   # codecs/vp9/vp9.cc
-   # codecs/vp9/vp9_frame_buffer_pool.cc
-   # codecs/vp9/vp9_frame_buffer_pool.h
+  codecs/vp9/libvpx_vp9_decoder.cc
+  codecs/vp9/libvpx_vp9_decoder.h
+  codecs/vp9/libvpx_vp9_encoder.cc
+  codecs/vp9/libvpx_vp9_encoder.h
+  codecs/vp9/vp9.cc
+  codecs/vp9/vp9_frame_buffer_pool.cc
+  codecs/vp9/vp9_frame_buffer_pool.h
 	
 	
 	
