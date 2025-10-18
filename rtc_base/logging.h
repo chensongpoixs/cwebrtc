@@ -654,7 +654,10 @@ class LogMessage {
 #define  GBMEDIASERVER_LOG(sev)  RTC_LOG(sev)  << "[GbMediaServer]"
 #define  GBMEDIASERVER_LOG_F(sev)  RTC_LOG_F(sev) << "[GbMediaServer]"
 #define  GBMEDIASERVER_LOG_T_F(sev)  RTC_LOG_T_F(sev) << "[GbMediaServer]"
-
+// sipServer mobule
+#define  SIPSERVER_LOG(sev)  RTC_LOG(sev)			<< "[SipServer]"
+#define  SIPSERVER_LOG_F(sev)  RTC_LOG_F(sev)		<< "[SipServer]"
+#define  SIPSERVER_LOG_T_F(sev)  RTC_LOG_T_F(sev)	<< "[SipServer]"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // libmedia_codec mobule
@@ -673,7 +676,10 @@ class LogMessage {
 #define  LIBHTTP_LOG(sev) RTC_LOG(sev)  << "[libhttp]"
 #define  LIBHTTP_LOG_F(sev) RTC_LOG_F(sev)<< "[libhttp]"
 #define  LIBHTTP_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libhttp]"
-
+// libmpeg mobule
+#define  LIBMPEG_LOG(sev) RTC_LOG(sev)  << "[libmpeg]"
+#define  LIBMPEG_LOG_F(sev) RTC_LOG_F(sev)<< "[libmpeg]"
+#define  LIBMPEG_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libmpeg]"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
