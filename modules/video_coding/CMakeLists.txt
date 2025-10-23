@@ -1,4 +1,4 @@
-﻿project(video_coding_lib)
+﻿project(video_coding)
 cmake_minimum_required(VERSION 2.8)
 MESSAGE(STATUS  "####################################")
 MESSAGE(STATUS  "#############${PROJECT_NAME}###############")

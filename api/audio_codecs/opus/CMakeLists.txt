@@ -7,10 +7,10 @@ MESSAGE(STATUS  "####################################")
 
 
 FILE(GLOB audio_encoder_opus_config_source
-    audio_encoder_multi_channel_opus_config.cc",
-    audio_encoder_multi_channel_opus_config.h",
-    audio_encoder_opus_config.cc",
-    audio_encoder_opus_config.h",
+    audio_encoder_multi_channel_opus_config.cc 
+    audio_encoder_multi_channel_opus_config.h 
+    audio_encoder_opus_config.cc 
+    audio_encoder_opus_config.h 
 )
 
 FILE(GLOB  audio_decoder_opus_config_source

@@ -92,7 +92,7 @@ FILE(GLOB   libstunprober_source
 
 )
 
-add_library(rtc_p2p 			STATIC  ${rtc_p2p_source} 
+add_library(${PROJECT_NAME} 			STATIC  ${rtc_p2p_source} 
   ${p2p_server_utils_source} 
   ${libstunprober_source})
 
@@ -120,7 +120,7 @@ endforeach()
 
 
 
-set_property(TARGET rtc_p2p  				PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET ${PROJECT_NAME}  				PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER})
 
 #set_property(TARGET p2p_server_utils  			PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 #set_property(TARGET libstunprober  		PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})

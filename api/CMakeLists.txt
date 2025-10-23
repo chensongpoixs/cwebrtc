@@ -527,12 +527,75 @@ FILE(GLOB  opus_audio_encoder_factory_source
     audio_codecs/opus_audio_encoder_factory.h
 )
 
-add_subdirectory(audio_codecs/L16)
-add_subdirectory(audio_codecs/g711)
-add_subdirectory(audio_codecs/g722)
-add_subdirectory(audio_codecs/isac)
-add_subdirectory(audio_codecs/opus)
-add_subdirectory(audio_codecs/ilbc)
+
+FILE(GLOB audio_g711_source
+    audio_codecs/g711/audio_encoder_g711.cc
+    audio_codecs/g711/audio_encoder_g711.h 
+	audio_codecs/g711/audio_decoder_g711.h 
+	audio_codecs/g711/audio_decoder_g711.cc 
+	
+)
+FILE(GLOB audio_g722_source
+    audio_codecs/g722/audio_encoder_g722.cc
+    audio_codecs/g722/audio_encoder_g722.h
+	audio_codecs/g722/audio_encoder_g722_config.h 
+	audio_codecs/g722/audio_decoder_g722.h 
+	audio_codecs/g722/audio_decoder_g722.cc 
+	audio_codecs/g722/audio_encoder_g722_config.h
+	
+)
+FILE(GLOB audio_ilbc_source
+    audio_codecs/ilbc/audio_encoder_ilbc.cc
+    audio_codecs/ilbc/audio_encoder_ilbc.h
+	audio_codecs/ilbc/audio_encoder_ilbc_config.h  
+	audio_codecs/ilbc/audio_decoder_ilbc.h 
+	audio_codecs/ilbc/audio_decoder_ilbc.cc 
+	audio_codecs/ilbc/audio_encoder_ilbc_config.h
+	
+)
+ FILE(GLOB audio_isac_source
+    audio_codecs/isac/audio_encoder_isac.h
+   # audio_encoder_g722.h
+	#audio_encoder_g722_config.h 
+	audio_codecs/isac/audio_decoder_isac.h 
+	#audio_decoder_g722.cc 
+	#audio_encoder_g722_config.h 
+	audio_codecs/isac/audio_encoder_isac_float.h 
+	audio_codecs/isac/audio_encoder_isac_float.cc  
+	audio_codecs/isac/audio_decoder_isac_float.h 
+	audio_codecs/isac/audio_decoder_isac_float.cc 
+)
+ FILE(GLOB audio_L16_source
+    audio_codecs/L16/audio_encoder_L16.cc
+    audio_codecs/L16/audio_encoder_L16.h 
+	audio_codecs/L16/audio_decoder_L16.h 
+	audio_codecs/L16/audio_decoder_L16.cc 
+	
+)
+ 
+ ############
+ FILE(GLOB audio_opus_config_source
+    audio_codecs/opus/audio_encoder_multi_channel_opus_config.cc 
+    audio_codecs/opus/audio_encoder_multi_channel_opus_config.h 
+    audio_codecs/opus/audio_encoder_opus_config.cc 
+    audio_codecs/opus/audio_encoder_opus_config.h  
+	audio_codecs/opus/audio_decoder_multi_channel_opus_config.h 
+	audio_codecs/opus/audio_encoder_opus.h 
+	audio_codecs/opus/audio_encoder_opus.cc  
+	audio_codecs/opus/audio_decoder_opus.h 
+	audio_codecs/opus/audio_decoder_opus.cc  
+	audio_codecs/opus/audio_encoder_multi_channel_opus.h
+	audio_codecs/opus/audio_encoder_multi_channel_opus.cc 
+    audio_codecs/opus/audio_decoder_multi_channel_opus.cc
+    audio_codecs/opus/audio_decoder_multi_channel_opus.h
+)
+ 
+#add_subdirectory(audio_codecs/L16)
+#add_subdirectory(audio_codecs/g711)
+#add_subdirectory(audio_codecs/g722)
+#add_subdirectory(audio_codecs/isac)
+#add_subdirectory(audio_codecs/opus)
+#add_subdirectory(audio_codecs/ilbc)
 
 add_library(${PROJECT_NAME} STATIC  ${api_source}
                         ${media_stream_interface_source} 
@@ -592,6 +655,13 @@ add_library(${PROJECT_NAME} STATIC  ${api_source}
   ${builtin_audio_encoder_factory_source}
   ${opus_audio_decoder_factory_source}
   ${opus_audio_encoder_factory_source}
+  ${audio_g711_source}
+
+  ${audio_g722_source}
+  ${audio_ilbc_source}
+  ${audio_isac_source}
+  ${audio_L16_source}
+  ${audio_opus_config_source}
   )
 #add_subdirectory(task_queue)
 #add_subdirectory(rtc_event_log)
@@ -666,6 +736,12 @@ set(AllFile
   ${builtin_audio_encoder_factory_source}
   ${opus_audio_decoder_factory_source}
   ${opus_audio_encoder_factory_source}
+  ${audio_g711_source}
+  ${audio_g722_source}
+  ${audio_ilbc_source}
+  ${audio_isac_source}
+  ${audio_L16_source}
+  ${audio_opus_config_source}
 )
 
 foreach(fileItem ${AllFile})       
