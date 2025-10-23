@@ -206,47 +206,411 @@ FILE(GLOB  libjingle_logging_api_source
 			rtc_event_log_output.h
 )
 
- 
+ FILE(GLOB  numerics_source
+    numerics/samples_stats_counter.cc
+    numerics/samples_stats_counter.h
 
-add_library(${PROJECT_NAME} STATIC  ${api_source})
-add_library(media_stream_interface  STATIC ${media_stream_interface_source})
-
-add_library(audio_options_api  STATIC ${audio_options_api_source})
-
-add_library(ice_transport_factory  STATIC ${ice_transport_factory_source})
-add_library(libjingle_peerconnection_api  STATIC ${libjingle_peerconnection_api_source})
-add_library(packet_socket_factory  STATIC ${packet_socket_factory_source})
+)
 
 
-add_library(async_dns_resolver  STATIC ${async_dns_resolver_source})
+FILE(GLOB  task_queue_source 
+
+    task_queue/queued_task.h
+    task_queue/task_queue_base.h
+    task_queue/task_queue_base.cc
+    task_queue/task_queue_factory.h
+  #deps = [
+ #   "../../rtc_base:checks",
+ #   "../../rtc_base:macromagic",
+  #  "../../rtc_base/system:rtc_export",
+ # ]
+
+)
+
+FILE(GLOB  default_task_queue_factory_source
+    task_queue/default_task_queue_factory.h
+    task_queue/default_task_queue_factory_win.cc
+)
 
 
-add_library(wrapping_async_dns_resolver  STATIC ${wrapping_async_dns_resolver_source})
+
+FILE(GLOB rtc_event_log_source
 
 
-add_library(scoped_refptr  STATIC  ${scoped_refptr_source})
+    rtc_event_log/rtc_event.cc
+    rtc_event_log/rtc_event.h
+    rtc_event_log/rtc_event_log.cc
+    rtc_event_log/rtc_event_log.h
+    rtc_event_log/rtc_event_log_factory_interface.h
 
-add_library(rtc_error  STATIC  ${rtc_error_source})
+)
 
-add_library(libjingle_logging_api  STATIC  ${libjingle_logging_api_source})
-add_subdirectory(task_queue)
-add_subdirectory(rtc_event_log)
-add_subdirectory(audio_codecs)
-add_subdirectory(video_codecs)
-add_subdirectory(numerics)
-add_subdirectory(video)
+FILE(GLOB   rtc_event_log_factory_source
+
+	rtc_event_log/rtc_event_log_factory.h 
+	rtc_event_log/rtc_event_log_factory.cc 
+)
 
 
-set_target_properties(async_dns_resolver                               PROPERTIES LINKER_LANGUAGE CXX)
+
+##############
+FILE(GLOB  video_codecs_api_source
+    video_codecs/h264_profile_level_id.cc
+    video_codecs/h264_profile_level_id.h
+    video_codecs/sdp_video_format.cc
+    video_codecs/sdp_video_format.h
+    video_codecs/spatial_layer.cc
+    video_codecs/spatial_layer.h
+    video_codecs/video_codec.cc
+    video_codecs/video_codec.h
+    video_codecs/video_decoder.cc
+    video_codecs/video_decoder.h
+    video_codecs/video_decoder_factory.h
+    video_codecs/video_encoder.cc
+    video_codecs/video_encoder.h
+    video_codecs/video_encoder_config.cc
+    video_codecs/video_encoder_config.h
+    video_codecs/video_encoder_factory.h
+    video_codecs/vp8_frame_buffer_controller.h
+    video_codecs/vp8_frame_config.cc
+    video_codecs/vp8_frame_config.h
+    video_codecs/vp8_temporal_layers.cc
+    video_codecs/vp8_temporal_layers.h
+    video_codecs/vp9_profile.cc
+    video_codecs/vp9_profile.h
+
+)
+
+FILE(GLOB  bitstream_parser_api_source
+	video_codecs/bitstream_parser.h
+
+)
+
+FILE(GLOB builtin_video_decoder_factory_source
+    video_codecs/builtin_video_decoder_factory.cc
+    video_codecs/builtin_video_decoder_factory.h
+)
+
+FILE(GLOB builtin_video_encoder_factory_source 
+	video_codecs/builtin_video_encoder_factory.h 
+	video_codecs/builtin_video_encoder_factory.cc 
+)
+
+FILE(GLOB  vp8_temporal_layers_factory_source
+
+	video_codecs/vp8_temporal_layers_factory.cc 
+	video_codecs/vp8_temporal_layers_factory.h
+)
+
+FILE(GLOB  rtc_software_fallback_wrappers_source
+    video_codecs/video_decoder_software_fallback_wrapper.cc
+    video_codecs/video_decoder_software_fallback_wrapper.h
+    video_codecs/video_encoder_software_fallback_wrapper.cc
+    video_codecs/video_encoder_software_fallback_wrapper.h
+)
 
 
-set_target_properties(scoped_refptr                               PROPERTIES LINKER_LANGUAGE CXX)
+
+
+
+######################################
+
+FILE(GLOB   video_rtp_headers_source 
+
+		video/color_space.cc
+		video/color_space.h
+		video/hdr_metadata.cc
+		video/hdr_metadata.h
+		video/video_content_type.cc
+		video/video_content_type.h
+		video/video_rotation.h
+		video/video_timing.cc
+		video/video_timing.h
+
+
+)
+
+
+FILE(GLOB  video_frame_source 
+
+
+		video/i420_buffer.cc
+		video/i420_buffer.h
+		video/nv12_buffer.cc
+		video/nv12_buffer.h
+		video/video_codec_type.h
+		video/video_frame.cc
+		video/video_frame.h
+		video/video_frame_buffer.cc
+		video/video_frame_buffer.h
+		video/video_sink_interface.h
+		video/video_source_interface.cc
+		video/video_source_interface.h
+)
+
+
+FILE(GLOB  video_frame_i010_source
+
+
+	video/i010_buffer.cc
+    video/i010_buffer.h
+)
+
+
+
+
+FILE(GLOB  recordable_encoded_frame_source
+
+
+		video/recordable_encoded_frame.h
+		
+		
+)
+
+FILE(GLOB video_frame_type_source
+
+
+	video/video_frame_type.h 
+	
+	)
+	
+	
+FILE(GLOB  render_resolution_source 
+
+	video/render_resolution.h 
+	
+	)
+	
+FILE(GLOB encoded_image_source 
+
+	video/encoded_image.h 
+	video/encoded_image.cc 
+
+)
+
+FILE(GLOB encoded_frame_source
+
+	video/encoded_frame.h 
+	video/encoded_frame.cc
+)
+
+FILE(GLOB  rtp_video_frame_assembler_source 
+
+
+	video/rtp_video_frame_assembler.h 
+	video/rtp_video_frame_assembler.cc 
+	
+	
+	
+	)
+	
+	
+	
+FILE(GLOB video_codec_constants_source
+
+	video/video_codec_constants.h 
+)
+
+FILE(GLOB  video_bitrate_allocation_source
+
+	video/video_bitrate_allocation.h 
+	video/video_bitrate_allocation.cc 
+)
+
+
+FILE(GLOB  video_layers_allocation_source 
+
+
+	video/video_layers_allocation.h 
+)
+
+
+FILE(GLOB  video_bitrate_allocator_source
+
+	video/video_bitrate_allocator.h 
+	video/video_bitrate_allocator.cc 
+
+)
+
+FILE(GLOB video_bitrate_allocator_factory_source
+
+	video/video_bitrate_allocator_factory.h 
+)
+
+FILE(GLOB video_stream_decoder_source 
+
+
+	video/video_stream_decoder.h
+
+)
+
+
+FILE(GLOB  video_stream_decoder_create_source
+
+
+	video/video_stream_decoder_create.h 
+	video/video_stream_decoder_create.cc 
+	)
+	
+FILE(GLOB  video_adaptation_source 
+
+	video/video_adaptation_counters.cc
+    video/video_adaptation_counters.h
+    video/video_adaptation_reason.h
+
+
+)
+
+FILE(GLOB video_stream_encoder_source
+
+
+    video/video_stream_encoder_interface.h
+    video/video_stream_encoder_observer.h
+    video/video_stream_encoder_settings.h
+)
+
+FILE(GLOB video_frame_metadata_source
+
+	video/video_frame_metadata.h 
+	video/video_frame_metadata.cc 
+)
+
+
+FILE(GLOB builtin_video_bitrate_allocator_factory_source
+
+
+	video/builtin_video_bitrate_allocator_factory.h 
+	video/builtin_video_bitrate_allocator_factory.cc 
+)
+
+#################################################################################
+
+
+
+
+FILE(GLOB audio_codecs_api_source
+   audio_codecs/audio_codec_pair_id.cc
+   audio_codecs/audio_codec_pair_id.h
+   audio_codecs/audio_decoder.cc
+   audio_codecs/audio_decoder.h
+   audio_codecs/audio_decoder_factory.h
+   audio_codecs/audio_decoder_factory_template.h
+   audio_codecs/audio_encoder.cc
+   audio_codecs/audio_encoder.h
+   audio_codecs/audio_encoder_factory.h
+   audio_codecs/audio_encoder_factory_template.h
+   audio_codecs/audio_format.cc
+   audio_codecs/audio_format.h
+)
+
+FILE(GLOB  builtin_audio_decoder_factory_source 
+    audio_codecs/builtin_audio_decoder_factory.cc
+    audio_codecs/builtin_audio_decoder_factory.h
+)
+
+
+FILE(GLOB  builtin_audio_encoder_factory_source
+
+    audio_codecs/builtin_audio_encoder_factory.cc
+    audio_codecs/builtin_audio_encoder_factory.h
+)
+
+
+FILE(GLOB  opus_audio_decoder_factory_source
+
+    audio_codecs/opus_audio_decoder_factory.cc
+    audio_codecs/opus_audio_decoder_factory.h
+)
+
+FILE(GLOB  opus_audio_encoder_factory_source
+    audio_codecs/opus_audio_encoder_factory.cc
+    audio_codecs/opus_audio_encoder_factory.h
+)
+
+add_subdirectory(audio_codecs/L16)
+add_subdirectory(audio_codecs/g711)
+add_subdirectory(audio_codecs/g722)
+add_subdirectory(audio_codecs/isac)
+add_subdirectory(audio_codecs/opus)
+add_subdirectory(audio_codecs/ilbc)
+
+add_library(${PROJECT_NAME} STATIC  ${api_source}
+                        ${media_stream_interface_source} 
+ ${audio_options_api_source}  
+ ${ice_transport_factory_source} 
+  ${libjingle_peerconnection_api_source} 
+    ${packet_socket_factory_source}  
+ ${async_dns_resolver_source}  
+  ${wrapping_async_dns_resolver_source}  
+  ${scoped_refptr_source}  
+  ${rtc_error_source}  
+  ${libjingle_logging_api_source}
+  ${numerics_source}
+  ${task_queue_source}
+  ${default_task_queue_factory_source}
+
+  ${rtc_event_log_source}
+  ${rtc_event_log_factory_source}
+
+
+  ${video_codecs_api_source}
+  ${bitstream_parser_api_source}
+  ${builtin_video_decoder_factory_source}
+  ${builtin_video_encoder_factory_source}
+  ${vp8_temporal_layers_factory_source}
+  ${rtc_software_fallback_wrappers_source}
+
+  ##
+
+
+  ${video_rtp_headers_source}
+  ${video_frame_source}
+  ${video_frame_i010_source}
+  ${recordable_encoded_frame_source}
+  ${video_frame_type_source}
+  ${render_resolution_source}
+  ${encoded_image_source}
+  ${encoded_frame_source}
+  ${rtp_video_frame_assembler_source}
+  ${video_codec_constants_source}
+  ${video_bitrate_allocation_source}
+  ${video_layers_allocation_source}
+  ${video_bitrate_allocator_source}
+  ${video_bitrate_allocator_factory_source}
+  ${video_stream_decoder_source}
+  ${video_stream_decoder_create_source}
+  ${video_adaptation_source}
+  ${video_stream_encoder_source}
+  ${video_frame_metadata_source}
+  ${builtin_video_bitrate_allocator_factory_source}
+
+  ########
+
+
+  ${audio_codecs_api_source}
+  ${builtin_audio_decoder_factory_source}
+  ${builtin_audio_encoder_factory_source}
+  ${opus_audio_decoder_factory_source}
+  ${opus_audio_encoder_factory_source}
+  )
+#add_subdirectory(task_queue)
+#add_subdirectory(rtc_event_log)
+#add_subdirectory(audio_codecs)
+#add_subdirectory(video_codecs)
+#add_subdirectory(numerics)
+#add_subdirectory(video)
+
+
+#set_target_properties(async_dns_resolver                               PROPERTIES LINKER_LANGUAGE CXX)
+
+
+#set_target_properties(scoped_refptr                               PROPERTIES LINKER_LANGUAGE CXX)
 
 
 # packet_socket_factory
 
-set_target_properties(packet_socket_factory                               PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties(libjingle_logging_api                               PROPERTIES LINKER_LANGUAGE CXX)
+#set_target_properties(packet_socket_factory                               PROPERTIES LINKER_LANGUAGE CXX)
+#set_target_properties(libjingle_logging_api                               PROPERTIES LINKER_LANGUAGE CXX)
 
 set(AllFile 
 
@@ -262,7 +626,46 @@ set(AllFile
 		${scoped_refptr_source}
 		${rtc_error_source}
 		${libjingle_logging_api_source}
-		
+		${numerics_source}
+  ${task_queue_source}
+  ${default_task_queue_factory_source}
+		 ${rtc_event_log_source}
+  ${rtc_event_log_factory_source}
+
+
+    ${video_codecs_api_source}
+  ${bitstream_parser_api_source}
+  ${builtin_video_decoder_factory_source}
+  ${builtin_video_encoder_factory_source}
+  ${vp8_temporal_layers_factory_source}
+  ${rtc_software_fallback_wrappers_source}
+    ${video_rtp_headers_source}
+  ${video_frame_source}
+  ${video_frame_i010_source}
+  ${recordable_encoded_frame_source}
+  ${video_frame_type_source}
+  ${render_resolution_source}
+  ${encoded_image_source}
+  ${encoded_frame_source}
+  ${rtp_video_frame_assembler_source}
+  ${video_codec_constants_source}
+  ${video_bitrate_allocation_source}
+  ${video_layers_allocation_source}
+  ${video_bitrate_allocator_source}
+  ${video_bitrate_allocator_factory_source}
+  ${video_stream_decoder_source}
+  ${video_stream_decoder_create_source}
+  ${video_adaptation_source}
+  ${video_stream_encoder_source}
+  ${video_frame_metadata_source}
+  ${builtin_video_bitrate_allocator_factory_source}
+
+  #
+    ${audio_codecs_api_source}
+  ${builtin_audio_decoder_factory_source}
+  ${builtin_audio_encoder_factory_source}
+  ${opus_audio_decoder_factory_source}
+  ${opus_audio_encoder_factory_source}
 )
 
 foreach(fileItem ${AllFile})       
@@ -287,28 +690,28 @@ endforeach()
 
 
 set_property(TARGET ${PROJECT_NAME}  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET media_stream_interface  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-set_property(TARGET audio_options_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-
-set_property(TARGET ice_transport_factory  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-
-set_property(TARGET libjingle_peerconnection_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET packet_socket_factory  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-set_property(TARGET async_dns_resolver  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-
-set_property(TARGET wrapping_async_dns_resolver  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-
-set_property(TARGET scoped_refptr  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-
-set_property(TARGET rtc_error  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET libjingle_logging_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET media_stream_interface  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#set_property(TARGET audio_options_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#
+#set_property(TARGET ice_transport_factory  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#
+#set_property(TARGET libjingle_peerconnection_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET packet_socket_factory  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#set_property(TARGET async_dns_resolver  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#
+#set_property(TARGET wrapping_async_dns_resolver  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#
+#set_property(TARGET scoped_refptr  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#
+#set_property(TARGET rtc_error  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET libjingle_logging_api  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
 
 
 

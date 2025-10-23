@@ -84,16 +84,17 @@ FILE(GLOB  audio_device_impl_source
 
 
 
-add_library(audio_device_api 							STATIC ${audio_device_api_source})
-add_library(audio_device_buffer 							STATIC ${audio_device_buffer_source})
-add_library(audio_device_generic						STATIC ${audio_device_generic_source})
-add_library(audio_device_name_source 							STATIC ${audio_device_name_source})
-add_library(windows_core_audio_utility 					STATIC ${windows_core_audio_utility_source})
-add_library(audio_device_module_from_input_and_output 	STATIC ${audio_device_module_from_input_and_output_source})
-add_library(audio_device_impl 							STATIC ${audio_device_impl_source})
+add_library(${PROJECT_NAME} 							STATIC ${audio_device_api_source} 
+  ${audio_device_buffer_source} 
+ ${audio_device_generic_source} 
+  ${audio_device_name_source} 
+  ${windows_core_audio_utility_source} 
+  ${audio_device_module_from_input_and_output_source} 
+  ${audio_device_impl_source}
+ )
 #add_library(desktop_capture_mock STATIC ${audio_device_api_source})
 
- set_target_properties(audio_device_api      			      					PROPERTIES LINKER_LANGUAGE CXX)  
+ #set_target_properties(audio_device_api      			      					PROPERTIES LINKER_LANGUAGE CXX)  
 #add_library(desktop_capture_differ_sse2 STATIC  ${desktop_capture_differ_sse2_source})
 
 #add_library(screen_drawer  STATIC  ${screen_drawer_source})
@@ -136,13 +137,13 @@ endforeach()
 
 
 #set_property(TARGET audio_device_api  				PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME}) 
-set_property(TARGET       audio_device_api                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET       audio_device_buffer                                                               PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET       audio_device_generic                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET       audio_device_name_source                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET       windows_core_audio_utility                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET       audio_device_module_from_input_and_output                                                              PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET       audio_device_impl                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET       ${PROJECT_NAME}                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules)
+#set_property(TARGET       audio_device_buffer                                                               PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+#set_property(TARGET       audio_device_generic                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+#set_property(TARGET       audio_device_name_source                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+#set_property(TARGET       windows_core_audio_utility                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+#set_property(TARGET       audio_device_module_from_input_and_output                                                              PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+#set_property(TARGET       audio_device_impl                                                              PROPERTY FOLDER  ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 
 
 

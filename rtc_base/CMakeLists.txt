@@ -1448,151 +1448,229 @@ FILE(GLOB  bitstream_reader_source
 	bitstream_reader.h 
 )
 
-add_library(checks  STATIC  ${checks_source})
-
-add_library(rtc_base STATIC ${rtc_base_source} ${rtc_base_win} )
-
-add_library(rtc_base_approved STATIC ${rtc_base_approved_source})
-
-add_library(rtc_base_win STATIC ${rtc_base_win_source})
-
-add_library(rtc_base_win_wgc STATIC ${rtc_base_win_wgc_source})
+###################
+file(GLOB aligned_malloc_source 
+	 
+	memory/aligned_malloc.h
+	memory/aligned_malloc.cc 
+	 
+) 
 
 
-add_library(logging  STATIC  ${logging_source})
-add_library(ip_address  STATIC ${ip_address_source})
-add_library(socket_address  STATIC ${socket_address_source})
-add_library(network_constants  STATIC ${network_constants_source})
-add_library(async_resolver_interface  STATIC ${async_resolver_interface_source})
-add_library(async_socket  STATIC ${async_socket_source})
+FILE(GLOB fifo_buffer_source
 
-add_library(null_socket_server  STATIC ${null_socket_server_source})
-add_library(threading  STATIC ${threading_source})
-add_library(socket  STATIC ${socket_source})
-add_library(stringutils  STATIC ${stringutils_source})
-add_library(timeutils  STATIC ${timeutils_source})
-add_library(platform_thread_types  STATIC ${platform_thread_types_source})
-add_library(platform_thread  STATIC ${platform_thread_source})
-add_library(net_helpers  STATIC ${net_helpers_source})
-add_library(rtc_task_queue_win STATIC ${rtc_task_queue_win_source})
+    memory/fifo_buffer.cc
+    memory/fifo_buffer.h
+)
 
-add_library(rtc_event  STATIC ${rtc_event_source})
-add_library(bitstream_reader  STATIC ${bitstream_reader_source})
+#######################
+
+
+
+FILE(GLOB  yield_source
+
+	synchronization/yield.h
+	synchronization/yield.cc
+	)
+	
+	
+FILE(GLOB  mutex_source
+
+	synchronization/mutex.cc
+    synchronization/mutex.h
+    synchronization/mutex_critical_section.h
+    synchronization/mutex_pthread.h
+	synchronization/mutex_abseil.h
+)
+
+FILE(GLOB  sequence_checker_internal_source
+
+	synchronization/sequence_checker_internal.h
+	synchronization/sequence_checker_internal.cc
+)
+
+FILE(GLOB yield_policy_source
+
+	synchronization/yield_policy.h
+	synchronization/yield_policy.cc
+)
+
+
+FILE(GLOB  base64_source
+
+
+	third_party/base64/base64.cc 
+	third_party/base64/base64.h
+	
+	)
+
+FILE(GLOB  sigslot_source
+
+
+	third_party/sigslot/sigslot.cc 
+	third_party/sigslot/sigslot.h
+	
+	)	
+
+
+
+
+
+
+FILE(GLOB   warn_current_thread_is_deadlocked_source
+
+	experiments/warn_current_thread_is_deadlocked.h 
+	
+	
+	# linux  
+	#warn_current_thread_is_deadlocked.cc
+
+ 
+	experiments/no_unique_address.h
+
+ 
+
+			experiments/arch.h
+ 
+
+		experiments/asm_defines.h
+ 
+	experiments/file_wrapper.h
+	experiments/file_wrapper.cc 
+ 
+
+	experiments/ignore_warnings.h
+ 
+	experiments/inline.h
+	 
+	experiments/unused.h
+	 
+	experiments/assume.h
+ 
+    experiments/rtc_export.h
+    experiments/rtc_export_template.h
+	 
+	#thread_registry.cc 
+	experiments/thread_registry.h
+)
+
+
+
+
+FILE(GLOB  system_alr_experiment_source
+
+	system/alr_experiment.cc 
+	system/alr_experiment.h 
+    system/field_trial_list.cc
+    system/field_trial_list.h
+    system/field_trial_parser.cc
+    system/field_trial_parser.h
+    system/field_trial_units.cc
+    system/field_trial_units.h
+    system/struct_parameters_parser.cc
+    system/struct_parameters_parser.h 
+	system/quality_rampup_experiment.h 
+	system/quality_rampup_experiment.cc  
+	system/quality_scaler_settings.h 
+	system/quality_scaler_settings.cc  
+	system/bandwidth_quality_scaler_settings.cc
+	system/bandwidth_quality_scaler_settings.h 
+	system/quality_scaling_experiment.cc 
+	system/quality_scaling_experiment.h 
+	system/normalize_simulcast_size_experiment.h 
+	system/normalize_simulcast_size_experiment.cc  
+	system/balanced_degradation_settings.cc 
+	system/balanced_degradation_settings.h  
+	system/cpu_speed_experiment.h 
+	system/cpu_speed_experiment.cc  
+	system/encoder_info_settings.h 
+	system/encoder_info_settings.cc  
+	system/rtt_mult_experiment.h 
+	system/rtt_mult_experiment.cc  
+	system/jitter_upper_bound_experiment.h 
+	system/jitter_upper_bound_experiment.cc  
+	system/rate_control_settings.h
+	system/rate_control_settings.cc  
+	system/keyframe_interval_settings.h
+	system/keyframe_interval_settings.cc  
+	system/stable_target_rate_experiment.h 
+	system/stable_target_rate_experiment.cc  
+	system/min_video_bitrate_experiment.h 
+	system/min_video_bitrate_experiment.cc 
+)
+
+
+
+
+
+add_library(${PROJECT_NAME}  STATIC  ${checks_source}
+   ${rtc_base_source} 
+   ${rtc_base_win}  
+
+  ${rtc_base_approved_source} 
+
+  ${rtc_base_win_source} 
+
+  ${rtc_base_win_wgc_source} 
+
+
+${logging_source} 
+ ${ip_address_source} 
+  ${socket_address_source} 
+  ${network_constants_source} 
+  ${async_resolver_interface_source} 
+  ${async_socket_source} 
+
+ ${null_socket_server_source} 
+  ${threading_source} 
+  ${socket_source} 
+  ${stringutils_source} 
+  ${timeutils_source} 
+  ${platform_thread_types_source} 
+  ${platform_thread_source} 
+  ${net_helpers_source} 
+  ${rtc_task_queue_win_source} 
+
+  ${rtc_event_source} 
+  ${bitstream_reader_source}
+  
+  
+ 
 #  "crypt32.lib
 #      "iphlpapi.lib
 #      "secur32.lib
-add_library(win32  STATIC ${win32_source})
-add_library(weak_ptr STATIC  ${weak_ptr_source})
-add_library(callback_list STATIC  ${callback_list_source})
-add_library(rtc_numerics STATIC  ${rtc_numerics_source})
-add_library(rtc_base_tests_utils STATIC ${rtc_base_tests_utils_source})
-add_library(rtc_task_queue STATIC  ${rtc_task_queue_source})
-add_library(rate_limiter  STATIC ${rate_limiter_source})
+ ${win32_source} 
+   ${weak_ptr_source} 
+  ${callback_list_source}
+   ${rtc_numerics_source}
+  ${rtc_base_tests_utils_source}
+  ${rtc_task_queue_source}
+
+ ${rate_limiter_source}
+ 
+
+  ${aligned_malloc_source}
+  ${fifo_buffer_source}
 
 
 
+  #############
+  ${yield_source}
+  ${mutex_source}
+  ${sequence_checker_internal_source}
+  ${yield_policy_source}
 
-SET(rtc_base_ALL_LIB 
 
-	#	rtc_base  
-	#
-	#	rtc_base_win   
-	#	rtc_base_approved   
-	#	rtc_base_win_wgc   
-	#	logging   
-	#	checks   
-	#
-	#	ip_address   
-	#	socket_address   
-	#
-	#	network_constants  
-	#
-	#
-	#
-	#	async_resolver_interface   
-	#	async_socket               
-	#	null_socket_server         
-	#	threading                  
-	#	socket                     
-	#	stringutils                
-	#	timeutils                  
-	#	platform_thread_types      
-	#	platform_thread            
-	#	net_helpers                
-	#	rtc_event                  
-	#	win32                     
-	#	weak_ptr                   
-	#	callback_list              
-	#	rtc_numerics               
-	#	rtc_base_tests_utils       
-	#	rate_limiter               
- 	#
-	#	rtc_task_queue                
-	#
-	#	rtc_task_queue_win            
- 	#
-	#	bitstream_reader   
+  ${base64_source}
+  ${sigslot_source}
+
+  ${warn_current_thread_is_deadlocked_source}
+  ${system_alr_experiment_source}
+ )
 
 
 
-
-
-		#################
-		#alr_experiment             		   			
-		field_trial_parser             		   		
-		quality_rampup_experiment             		
-		quality_scaler_settings             		
-		bandwidth_quality_scaler_settings           
-		quality_scaling_experiment             		
-		normalize_simulcast_size_experiment         
-		balanced_degradation_settings             	
-		cpu_speed_experiment             		   	
-		encoder_info_settings             		   	
-		rtt_mult_experiment             		   	
-		jitter_upper_bound_experiment             	
-		rate_control_settings             		   	
-		keyframe_interval_settings_experiment       
-		stable_target_rate_experiment             	
-		min_video_bitrate_experiment             	
-
-
-
-
-
-
-
-
-		####################
-
-		aligned_malloc  
-		fifo_buffer     
-
-
-		########################
-
-		yield                       
-		mutex               		
-		sequence_checker_internal 	
-		yield_policy      			
-
-		########################
-
-		warn_current_thread_is_deadlocked
-		no_unique_address 				 
-		thread_registry 				 
-		rtc_export      				 
-		assume          				 
-		unused          				 
-		inline           				 
-		ignore_warnings 				 
-		file_wrapper    				 
-		asm_defines      				 
-		arch              				 
-
-		#######################
-		base64
-
-		sigslot
+ 
 
 
 
@@ -1609,21 +1687,18 @@ SET(rtc_base_ALL_LIB
 
 
 
-
-
-
-)
+ 
 #add_library(${PROJECT_NAME}_lib  STATIC ${rtc_base_ALL_LIB})
 #set_target_properties(${PROJECT_NAME}_lib      			      					PROPERTIES LINKER_LANGUAGE CXX) 
 #target_link_libraries(${PROJECT_NAME}_lib  PUBLIC   ${rtc_base_ALL_LIB} )
 
 
 
-add_subdirectory(system)
-add_subdirectory(memory)
-add_subdirectory(synchronization)
-add_subdirectory(experiments)
- add_subdirectory(third_party)
+#add_subdirectory(system)
+#add_subdirectory(memory)
+#add_subdirectory(synchronization)
+#add_subdirectory(experiments)
+# add_subdirectory(third_party)
  
  
  
@@ -1658,6 +1733,20 @@ set(AllFile
 	${rtc_task_queue_source}
 	${rtc_task_queue_win_source}
 	${bitstream_reader_source}
+	  ${aligned_malloc_source}
+  ${fifo_buffer_source}
+
+   #############
+  ${yield_source}
+  ${mutex_source}
+  ${sequence_checker_internal_source}
+  ${yield_policy_source}
+  ${base64_source}
+  ${sigslot_source}
+  ${warn_current_thread_is_deadlocked_source}
+
+  ${system_alr_experiment_source}
+
 )
 # source_group("include" FILES ${AllFile})
 foreach(fileItem ${AllFile})       
@@ -1676,42 +1765,43 @@ endforeach()
 
 
 
-set_property(TARGET rtc_base  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET ${PROJECT_NAME}  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER} )
 
-set_property(TARGET rtc_base_win  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_base_approved  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_base_win_wgc  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET logging  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET checks  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-set_property(TARGET ip_address  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET socket_address  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-set_property(TARGET network_constants  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-
-
-set_property(TARGET async_resolver_interface  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET async_socket              PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET null_socket_server        PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET threading                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET socket                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET stringutils                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET timeutils                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET platform_thread_types                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET platform_thread                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET net_helpers                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_event                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET win32                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET weak_ptr                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET callback_list                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_numerics                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_base_tests_utils                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rate_limiter                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-#rtc_task_queue_source
-set_property(TARGET rtc_task_queue                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-
-set_property(TARGET rtc_task_queue_win                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-#${bitstream_reader_source}
-set_property(TARGET bitstream_reader                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_base_win  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_base_approved  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_base_win_wgc  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET logging  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET checks  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#set_property(TARGET ip_address  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET socket_address  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#set_property(TARGET network_constants  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#
+#
+#set_property(TARGET async_resolver_interface  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET async_socket              PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET null_socket_server        PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET threading                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET socket                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET stringutils                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET timeutils                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET platform_thread_types                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET platform_thread                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET net_helpers                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_event                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET win32                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET weak_ptr                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET callback_list                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_numerics                    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_base_tests_utils                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rate_limiter                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+##rtc_task_queue_source
+#set_property(TARGET rtc_task_queue                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#
+#set_property(TARGET rtc_task_queue_win                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+##${bitstream_reader_source}
+#set_property(TARGET bitstream_reader                 PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#

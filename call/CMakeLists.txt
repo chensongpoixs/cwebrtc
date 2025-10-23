@@ -114,23 +114,25 @@ FILE(GLOB fake_network_source
 )
 	
 
-add_library(version  		   					STATIC  ${version_source}                         ) 
-add_library(call_interfaces 		   					STATIC  ${call_interfaces_source}                         ) 
-add_library(audio_sender_interface  		   					STATIC  ${audio_sender_interface_source}                         ) 
-add_library(rtp_interfaces  		   					STATIC  ${rtp_interfaces_source}                         ) 
-add_library(call_rtp_receiver  		   					STATIC  ${rtp_receiver_source}                         ) 
-add_library(call_rtp_sender  		   					STATIC  ${rtp_sender_source}                         ) 
-add_library(bitrate_configurator  		   					STATIC  ${bitrate_configurator_source}                         ) 
-add_library(bitrate_allocator  		   					STATIC  ${bitrate_allocator_source}                         )  
-add_library(call  		   					STATIC  ${call_source}                         ) 
-add_library(receive_stream_interface  		   					STATIC  ${receive_stream_interface_source}                         ) 
-add_library(video_stream_api  		   					STATIC  ${video_stream_api_source}                         ) 
-add_library(simulated_network  		   					STATIC  ${simulated_network_source}                         ) 
-add_library(fake_network  		   					STATIC  ${fake_network_source}                         ) 
+add_library(${PROJECT_NAME}  		   					STATIC  ${version_source}                      
+ 				   ${call_interfaces_source}                 
+ 	   					   ${audio_sender_interface_source}  
+ 				   ${rtp_interfaces_source}                  
+ 				   ${rtp_receiver_source}                    
+ 				   ${rtp_sender_source}                      
+    					   ${bitrate_configurator_source}    
+ 				   ${bitrate_allocator_source}               
+ 	   ${call_source}                          
+ 	   					   ${receive_stream_interface_source}
+ 				   ${video_stream_api_source}                
+ 				   ${simulated_network_source}               
+ 			   ${fake_network_source}                        
+			   
+			   ) 
 
 
-set_target_properties(audio_sender_interface      			      					PROPERTIES LINKER_LANGUAGE CXX)  
-set_target_properties(receive_stream_interface      			      					PROPERTIES LINKER_LANGUAGE CXX)  
+#set_target_properties(audio_sender_interface      			      					PROPERTIES LINKER_LANGUAGE CXX)  
+#set_target_properties(receive_stream_interface      			      					PROPERTIES LINKER_LANGUAGE CXX)  
 
 set(AllFile 
 
@@ -172,16 +174,16 @@ endforeach()
 
 
  
-set_property(TARGET version                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET call_interfaces                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET audio_sender_interface                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtp_interfaces                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET call_rtp_receiver                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET call_rtp_sender                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET bitrate_configurator                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET bitrate_allocator                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET call                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET receive_stream_interface                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET video_stream_api                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET simulated_network                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET fake_network                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+set_property(TARGET ${PROJECT_NAME}                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}) 
+#set_property(TARGET call_interfaces                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET audio_sender_interface                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtp_interfaces                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET call_rtp_receiver                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET call_rtp_sender                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET bitrate_configurator                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET bitrate_allocator                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET call                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET receive_stream_interface                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET video_stream_api                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET simulated_network                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET fake_network                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 

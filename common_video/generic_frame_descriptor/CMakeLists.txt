@@ -40,7 +40,7 @@ endforeach()
 
 
 
-set_property(TARGET  ${PROJECT_NAME}   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/common_video/${PROJECT_NAME})
+#set_property(TARGET  ${PROJECT_NAME}   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/common_video/${PROJECT_NAME})
 
 
 

@@ -148,26 +148,28 @@ FILE(GLOB  ice_log_source
     rtc_event_log/ice_logger.h
 )
 
-add_library(rtc_event_log_api  		   					STATIC  ${rtc_event_log_api_source}                         )
-add_library(rtc_event_field  		   					STATIC  ${rtc_event_field_source}   					)
-add_library(rtc_stream_config  		   					STATIC  ${rtc_stream_config_source}   					)
-add_library(rtc_event_pacing  		   					STATIC  ${rtc_event_pacing_source}   					)
-add_library(rtc_event_audio  		   					STATIC  ${rtc_event_audio_source}   					)
-add_library(rtc_event_bwe  		   					STATIC  ${rtc_event_bwe_source}   					)
-add_library(rtc_event_frame_events  		   					STATIC  ${rtc_event_frame_events_source}   					)
-add_library(rtc_event_generic_packet_events  		   					STATIC  ${rtc_event_generic_packet_events_source}   	)
-add_library(rtc_event_rtp_rtcp  		   					STATIC  ${rtc_event_rtp_rtcp_source}   	)
-add_library(rtc_event_video      		   					STATIC  ${rtc_event_video_source}   	)
-add_library(rtc_event_number_encodings  		   					STATIC  ${rtc_event_number_encodings_source}   	)
-add_library(rtc_event_log_impl_encoder  		   					STATIC  ${rtc_event_log_impl_encoder_source}   	)
-add_library(rtc_event_log_impl_output  		   					STATIC  ${rtc_event_log_impl_output_source}   	)
-add_library(fake_rtc_event_log  		   					STATIC  ${fake_rtc_event_log_source}   	)
-add_library(ice_log  		   							STATIC  ${ice_log_source}   	)
+add_library(${PROJECT_NAME}  		   					STATIC  ${rtc_event_log_api_source}                       
+ 			   ${rtc_event_field_source}   					 
+ 			   ${rtc_stream_config_source}   					 
+ 			   ${rtc_event_pacing_source}   					 
+ 			   ${rtc_event_audio_source}   					 
+ 		   ${rtc_event_bwe_source}   					 	 
+    					   ${rtc_event_frame_events_source}   				 
+  		   					   ${rtc_event_generic_packet_events_source}    
+ 				   ${rtc_event_rtp_rtcp_source}   	 
+ 				   ${rtc_event_video_source}   	 
+ 	   					   ${rtc_event_number_encodings_source}    
+ 	   					   ${rtc_event_log_impl_encoder_source}    
+    					   ${rtc_event_log_impl_output_source}   	 
+ 				   ${fake_rtc_event_log_source}    
+ 			   ${ice_log_source}   	
+			
+			)
 
-set_target_properties(rtc_event_log_api      			      					PROPERTIES LINKER_LANGUAGE CXX) 
+#set_target_properties(rtc_event_log_api      			      					PROPERTIES LINKER_LANGUAGE CXX) 
 
 
-set_target_properties(rtc_event_log_impl_output      			      					PROPERTIES LINKER_LANGUAGE CXX) 
+#set_target_properties(rtc_event_log_impl_output      			      					PROPERTIES LINKER_LANGUAGE CXX) 
 
 set(AllFile 
 
@@ -211,23 +213,23 @@ endforeach()
 
 
  
-set_property(TARGET rtc_event_log_api                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_event_field               		                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_stream_config     	                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_event_pacing      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_event_audio      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-
-
-set_property(TARGET rtc_event_bwe      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_frame_events      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_generic_packet_events      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_rtp_rtcp      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_video      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_number_encodings      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_log_impl_encoder      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_log_impl_output      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET fake_rtc_event_log      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET ice_log      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_number_encodings      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_number_encodings      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
-set_property(TARGET rtc_event_number_encodings      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+set_property(TARGET ${PROJECT_NAME}                                      PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER})
+#set_property(TARGET rtc_event_field               		                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_stream_config     	                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_event_pacing      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtc_event_audio      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#
+#
+#set_property(TARGET rtc_event_bwe      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_frame_events      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_generic_packet_events      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_rtp_rtcp      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_video      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_number_encodings      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_log_impl_encoder      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_log_impl_output      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET fake_rtc_event_log      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET ice_log      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_number_encodings      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_number_encodings      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 
+#set_property(TARGET rtc_event_number_encodings      			                     PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME}) 

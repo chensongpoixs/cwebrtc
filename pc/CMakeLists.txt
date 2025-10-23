@@ -260,38 +260,41 @@ FILE(GLOB pc_rtp_receiver_source
 	rtp_receiver.h 
 	rtp_receiver.cc 
 )
-add_library(proxy STATIC ${proxy_source})
-add_library(peerconnection 											STATIC  ${peerconnection_source})
-add_library(rtc_pc_base 											STATIC  ${rtc_pc_base_source})
-add_library(session_description  									STATIC  ${session_description_source})
-add_library(simulcast_description  									STATIC  ${simulcast_description_source})
-add_library(media_protocol_names  									STATIC  ${media_protocol_names_source})
-add_library(connection_context  									STATIC  ${connection_context_source})
-add_library(peer_connection_message_handler  						STATIC  ${peer_connection_message_handler_source})
-add_library(usage_pattern  											STATIC  ${usage_pattern_source})
-add_library(rtp_transceiver  										STATIC  ${rtp_transceiver_source})
-add_library(rtp_transmission_manager  									STATIC  ${rtp_transmission_manager_source})
-add_library(transceiver_list  									STATIC  ${transceiver_list_source})
-add_library(pc_rtp_receiver  									STATIC  ${pc_rtp_receiver_source})
-add_library(audio_rtp_receiver  									STATIC  ${audio_rtp_receiver_source})
-add_library(video_rtp_receiver  									STATIC  ${video_rtp_receiver_source})
-add_library(video_rtp_track_source  									STATIC  ${video_rtp_track_source_source})
-add_library(audio_track  									STATIC  ${audio_track_source})
-add_library(video_track  									STATIC  ${video_track__source})
-add_library(sdp_state_provider  									STATIC  ${sdp_state_provider_source})
-add_library(jitter_buffer_delay  									STATIC  ${jitter_buffer_delay_source})
-add_library(remote_audio_source  									STATIC  ${remote_audio_source_source})
-add_library(pc_rtp_sender  									STATIC  ${rtp_sender_source})
-add_library(rtp_parameters_conversion  									STATIC  ${rtp_parameters_conversion_source})
-add_library(dtmf_sender  									STATIC  ${dtmf_sender_source})
-add_library(media_stream  									STATIC  ${media_stream_source})
-add_library(video_track_source  									STATIC  ${video_track_source_source})
-add_library(stats_collector_interface                               STATIC  ${stats_collector_interface_source})
+add_library(${PROJECT_NAME} STATIC ${proxy_source} 
+ 						 ${peerconnection_source} 
+ 						 ${rtc_pc_base_source} 
+ 						 ${session_description_source} 
+ 						 ${simulcast_description_source} 
+ 						 ${media_protocol_names_source} 
+ 						 ${connection_context_source} 
+ 						 ${peer_connection_message_handler_source} 
+ 						 ${usage_pattern_source} 
+ 						 ${rtp_transceiver_source} 
+ 						    ${rtp_transmission_manager_source} 
+ 					   ${transceiver_list_source} 
+ 					   ${pc_rtp_receiver_source} 
+ 						   ${audio_rtp_receiver_source} 
+ 						   ${video_rtp_receiver_source} 
+ 							   ${video_rtp_track_source_source} 
+ 				   ${audio_track_source} 
+ 				   ${video_track__source} 
+ 						  ${sdp_state_provider_source} 
+ 						  ${jitter_buffer_delay_source} 
+ 						  ${remote_audio_source_source} 
+ 				   ${rtp_sender_source} 
+ 							   ${rtp_parameters_conversion_source} 
+ 				   ${dtmf_sender_source} 
+ 				   ${media_stream_source} 
+ 						   ${video_track_source_source} 
+                           ${stats_collector_interface_source}
+						   
+						   
+						   )
 
 
 
-set_target_properties(sdp_state_provider      			      					PROPERTIES LINKER_LANGUAGE CXX)  
-set_target_properties(stats_collector_interface      			      					PROPERTIES LINKER_LANGUAGE CXX)  
+#set_target_properties(sdp_state_provider      			      					PROPERTIES LINKER_LANGUAGE CXX)  
+#set_target_properties(stats_collector_interface      			      					PROPERTIES LINKER_LANGUAGE CXX)  
 
 set(AllFile 
 
@@ -346,32 +349,32 @@ endforeach()
 
 
 
-set_property(TARGET proxy  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET peerconnection  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtc_pc_base  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET session_description  						PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET simulcast_description  						PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET media_protocol_names  						PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET connection_context  						PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET peer_connection_message_handler  				PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET usage_pattern  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtp_transceiver  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtp_transmission_manager  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET transceiver_list  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET pc_rtp_receiver  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET audio_rtp_receiver  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET video_rtp_receiver  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET video_rtp_track_source  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET audio_track  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET video_track  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET sdp_state_provider  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET jitter_buffer_delay  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET remote_audio_source  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET pc_rtp_sender  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET rtp_parameters_conversion  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET dtmf_sender  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET media_stream  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET video_track_source  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET stats_collector_interface  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET proxy  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET ${PROJECT_NAME}  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER})
+#set_property(TARGET rtc_pc_base  PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET session_description  						PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET simulcast_description  						PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET media_protocol_names  						PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET connection_context  						PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET peer_connection_message_handler  				PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET usage_pattern  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtp_transceiver  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtp_transmission_manager  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET transceiver_list  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET pc_rtp_receiver  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET audio_rtp_receiver  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET video_rtp_receiver  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET video_rtp_track_source  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET audio_track  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET video_track  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET sdp_state_provider  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET jitter_buffer_delay  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET remote_audio_source  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET pc_rtp_sender  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET rtp_parameters_conversion  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET dtmf_sender  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET media_stream  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET video_track_source  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+#set_property(TARGET stats_collector_interface  								PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
  
 

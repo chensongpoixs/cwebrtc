@@ -1,5 +1,8 @@
 ﻿project(video_capture)
-
+cmake_minimum_required(VERSION 2.8)
+MESSAGE(STATUS  "####################################")
+MESSAGE(STATUS  "#############${PROJECT_NAME}###############")
+MESSAGE(STATUS  "####################################")
 
 
 
@@ -45,8 +48,10 @@ FILE(GLOB  video_capture_internal_impl_source
 #add_library(desktop_capture_mock STATIC ${desktop_capture_mock_source})
 
 
-add_library(video_capture_module STATIC ${video_capture_module_source})
-add_library(video_capture_internal_impl STATIC ${video_capture_internal_impl_source})
+add_library(${PROJECT_NAME} STATIC ${video_capture_module_source} 
+  ${video_capture_internal_impl_source}
+  
+  )
 #add_library(desktop_capture_differ_sse2 STATIC  ${desktop_capture_differ_sse2_source})
 
 #add_library(screen_drawer  STATIC  ${screen_drawer_source})
@@ -84,8 +89,8 @@ endforeach()
 #set_property(TARGET  desktop_capture_mock PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 
 
-set_property(TARGET  video_capture_module PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
-set_property(TARGET  video_capture_internal_impl   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
+set_property(TARGET  ${PROJECT_NAME} PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules)
+#set_property(TARGET  video_capture_internal_impl   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 #set_property(TARGET  desktop_capture_differ_sse2   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})
 
 #set_property(TARGET  screen_drawer    PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/modules/${PROJECT_NAME})

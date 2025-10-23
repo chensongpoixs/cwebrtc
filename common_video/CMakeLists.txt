@@ -1,5 +1,8 @@
 project(common_video)
-
+cmake_minimum_required(VERSION 2.8)
+MESSAGE(STATUS  "####################################")
+MESSAGE(STATUS  "#############${PROJECT_NAME}###############")
+MESSAGE(STATUS  "####################################")
 
 FILE(GLOB  common_video_source
 
@@ -40,16 +43,23 @@ FILE(GLOB  frame_counts_source
 	frame_counts.h 
 	
 )
+FILE(GLOB  generic_frame_descriptor_source
+
+	 generic_frame_descriptor/generic_frame_info.cc
+     generic_frame_descriptor/generic_frame_info.h
+
+)
 
 
+add_library(${PROJECT_NAME}                          STATIC   ${common_video_source} 
+   ${frame_counts_source}
+   ${generic_frame_descriptor_source}
+   )
 
-add_library(common_video                          STATIC   ${common_video_source})
-add_library(frame_counts                          STATIC   ${frame_counts_source})
-
-set_target_properties(frame_counts                               PROPERTIES LINKER_LANGUAGE CXX)
+#set_target_properties(frame_counts                               PROPERTIES LINKER_LANGUAGE CXX)
 
 
-add_subdirectory(generic_frame_descriptor)
+#add_subdirectory(generic_frame_descriptor)
 
 
 set(AllFile 
@@ -57,7 +67,7 @@ set(AllFile
           
 		${common_video_source}
         ${frame_counts_source}
-		
+		${generic_frame_descriptor_source}
 )
 
 foreach(fileItem ${AllFile})       
@@ -81,5 +91,5 @@ endforeach()
 
 
 
-set_property(TARGET  common_video   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
-set_property(TARGET  frame_counts   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
+set_property(TARGET  ${PROJECT_NAME}   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER})
+#set_property(TARGET  frame_counts   PROPERTY FOLDER ${LIWEBRTC_IDE_FOLDER}/${PROJECT_NAME})
