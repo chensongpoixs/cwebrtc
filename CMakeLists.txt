@@ -161,398 +161,398 @@ FILE(GLOB  audio_coding
 # )
 
 
-FILE(GLOB  audio_processing
+#FILE(GLOB  audio_processing
 
 	
-		modules/audio_processing/audio_buffer.cc
-		modules/audio_processing/audio_buffer.h
-		modules/audio_processing/audio_processing_builder_impl.cc
-		modules/audio_processing/audio_processing_impl.cc
-		modules/audio_processing/audio_processing_impl.h
-		modules/audio_processing/capture_levels_adjuster/
-		modules/audio_processing/common.h
-		modules/audio_processing/echo_control_mobile_impl.cc
-		modules/audio_processing/echo_control_mobile_impl.h
-		modules/audio_processing/echo_detector/
-		modules/audio_processing/gain_control_impl.cc
-		modules/audio_processing/gain_control_impl.h
-		modules/audio_processing/gain_controller2.cc
-		modules/audio_processing/gain_controller2.h
-		modules/audio_processing/high_pass_filter.cc
-		modules/audio_processing/high_pass_filter.h 
-		modules/audio_processing/level_estimator.cc
-		modules/audio_processing/level_estimator.h 
-		modules/audio_processing/optionally_built_submodule_creators.cc
-		modules/audio_processing/optionally_built_submodule_creators.h
-		modules/audio_processing/render_queue_item_verifier.h
-		modules/audio_processing/residual_echo_detector.cc
-		modules/audio_processing/residual_echo_detector.h
-		modules/audio_processing/rms_level.cc
-		modules/audio_processing/rms_level.h
-		modules/audio_processing/splitting_filter.cc
-		modules/audio_processing/splitting_filter.h
-		modules/audio_processing/three_band_filter_bank.cc
-		modules/audio_processing/three_band_filter_bank.h 
-		modules/audio_processing/voice_detection.cc
-		modules/audio_processing/voice_detection.h
-		modules/audio_processing/include/audio_frame_proxies.cc
-		modules/audio_processing/include/audio_frame_proxies.h
-		modules/audio_processing/include/audio_frame_view.h
-		modules/audio_processing/include/audio_processing.cc
-		modules/audio_processing/include/audio_processing.h
-		modules/audio_processing/include/audio_processing_statistics.cc
-		modules/audio_processing/include/audio_processing_statistics.h
-		modules/audio_processing/include/mock_audio_processing.h
+# 		modules/audio_processing/audio_buffer.cc
+# 		modules/audio_processing/audio_buffer.h
+# 		modules/audio_processing/audio_processing_builder_impl.cc
+# 		modules/audio_processing/audio_processing_impl.cc
+# 		modules/audio_processing/audio_processing_impl.h
+# 		modules/audio_processing/capture_levels_adjuster/
+# 		modules/audio_processing/common.h
+# 		modules/audio_processing/echo_control_mobile_impl.cc
+# 		modules/audio_processing/echo_control_mobile_impl.h
+# 		modules/audio_processing/echo_detector/
+# 		modules/audio_processing/gain_control_impl.cc
+# 		modules/audio_processing/gain_control_impl.h
+# 		modules/audio_processing/gain_controller2.cc
+# 		modules/audio_processing/gain_controller2.h
+# 		modules/audio_processing/high_pass_filter.cc
+# 		modules/audio_processing/high_pass_filter.h 
+# 		modules/audio_processing/level_estimator.cc
+# 		modules/audio_processing/level_estimator.h 
+# 		modules/audio_processing/optionally_built_submodule_creators.cc
+# 		modules/audio_processing/optionally_built_submodule_creators.h
+# 		modules/audio_processing/render_queue_item_verifier.h
+# 		modules/audio_processing/residual_echo_detector.cc
+# 		modules/audio_processing/residual_echo_detector.h
+# 		modules/audio_processing/rms_level.cc
+# 		modules/audio_processing/rms_level.h
+# 		modules/audio_processing/splitting_filter.cc
+# 		modules/audio_processing/splitting_filter.h
+# 		modules/audio_processing/three_band_filter_bank.cc
+# 		modules/audio_processing/three_band_filter_bank.h 
+# 		modules/audio_processing/voice_detection.cc
+# 		modules/audio_processing/voice_detection.h
+# 		modules/audio_processing/include/audio_frame_proxies.cc
+# 		modules/audio_processing/include/audio_frame_proxies.h
+# 		modules/audio_processing/include/audio_frame_view.h
+# 		modules/audio_processing/include/audio_processing.cc
+# 		modules/audio_processing/include/audio_processing.h
+# 		modules/audio_processing/include/audio_processing_statistics.cc
+# 		modules/audio_processing/include/audio_processing_statistics.h
+# 		modules/audio_processing/include/mock_audio_processing.h
 		
-modules/audio_processing/aes3/adaptive_fir_filter_avx2.cc
-modules/audio_processing/aes3/adaptive_fir_filter.cc
-modules/audio_processing/aes3/adaptive_fir_filter_erl_avx2.cc
-modules/audio_processing/aes3/adaptive_fir_filter_erl.cc
-modules/audio_processing/aes3/adaptive_fir_filter_erl.h
-modules/audio_processing/aes3/adaptive_fir_filter.h
-modules/audio_processing/aes3/aec3_common.cc
-modules/audio_processing/aes3/aec3_common.h
-modules/audio_processing/aes3/aec3_fft.cc
-modules/audio_processing/aes3/aec3_fft.h
-modules/audio_processing/aes3/aec_state.cc
-modules/audio_processing/aes3/aec_state.h
-modules/audio_processing/aes3/alignment_mixer.cc
-modules/audio_processing/aes3/alignment_mixer.h
-modules/audio_processing/aes3/api_call_jitter_metrics.cc
-modules/audio_processing/aes3/api_call_jitter_metrics.h
-modules/audio_processing/aes3/block_buffer.cc
-modules/audio_processing/aes3/block_buffer.h
-modules/audio_processing/aes3/block_delay_buffer.cc
-modules/audio_processing/aes3/block_delay_buffer.h
-modules/audio_processing/aes3/block_framer.cc
-modules/audio_processing/aes3/block_framer.h
-modules/audio_processing/aes3/block_processor.cc
-modules/audio_processing/aes3/block_processor.h
-modules/audio_processing/aes3/block_processor_metrics.cc
-modules/audio_processing/aes3/block_processor_metrics.h
-modules/audio_processing/aes3/clockdrift_detector.cc
-modules/audio_processing/aes3/clockdrift_detector.h
-modules/audio_processing/aes3/coarse_filter_update_gain.cc
-modules/audio_processing/aes3/coarse_filter_update_gain.h
-modules/audio_processing/aes3/comfort_noise_generator.cc
-modules/audio_processing/aes3/comfort_noise_generator.h
-modules/audio_processing/aes3/decimator.cc
-modules/audio_processing/aes3/decimator.h
-modules/audio_processing/aes3/delay_estimate.h
-modules/audio_processing/aes3/dominant_nearend_detector.cc
-modules/audio_processing/aes3/dominant_nearend_detector.h
-modules/audio_processing/aes3/downsampled_render_buffer.cc
-modules/audio_processing/aes3/downsampled_render_buffer.h
-modules/audio_processing/aes3/echo_audibility.cc
-modules/audio_processing/aes3/echo_audibility.h
-modules/audio_processing/aes3/echo_canceller3.cc
-modules/audio_processing/aes3/echo_canceller3.h
-modules/audio_processing/aes3/echo_path_delay_estimator.cc
-modules/audio_processing/aes3/echo_path_delay_estimator.h
-modules/audio_processing/aes3/echo_path_variability.cc
-modules/audio_processing/aes3/echo_path_variability.h
-modules/audio_processing/aes3/echo_remover.cc
-modules/audio_processing/aes3/echo_remover.h
-modules/audio_processing/aes3/echo_remover_metrics.cc
-modules/audio_processing/aes3/echo_remover_metrics.h
-modules/audio_processing/aes3/erle_estimator.cc
-modules/audio_processing/aes3/erle_estimator.h
-modules/audio_processing/aes3/erl_estimator.cc
-modules/audio_processing/aes3/erl_estimator.h
-modules/audio_processing/aes3/fft_buffer.cc
-modules/audio_processing/aes3/fft_buffer.h
-modules/audio_processing/aes3/fft_data_avx2.cc
-modules/audio_processing/aes3/fft_data.h
-modules/audio_processing/aes3/filter_analyzer.cc
-modules/audio_processing/aes3/filter_analyzer.h
-modules/audio_processing/aes3/frame_blocker.cc
-modules/audio_processing/aes3/frame_blocker.h
-modules/audio_processing/aes3/fullband_erle_estimator.cc
-modules/audio_processing/aes3/fullband_erle_estimator.h
-modules/audio_processing/aes3/matched_filter_avx2.cc
-modules/audio_processing/aes3/matched_filter.cc
-modules/audio_processing/aes3/matched_filter.h
-modules/audio_processing/aes3/matched_filter_lag_aggregator.cc
-modules/audio_processing/aes3/matched_filter_lag_aggregator.h
+# modules/audio_processing/aes3/adaptive_fir_filter_avx2.cc
+# modules/audio_processing/aes3/adaptive_fir_filter.cc
+# modules/audio_processing/aes3/adaptive_fir_filter_erl_avx2.cc
+# modules/audio_processing/aes3/adaptive_fir_filter_erl.cc
+# modules/audio_processing/aes3/adaptive_fir_filter_erl.h
+# modules/audio_processing/aes3/adaptive_fir_filter.h
+# modules/audio_processing/aes3/aec3_common.cc
+# modules/audio_processing/aes3/aec3_common.h
+# modules/audio_processing/aes3/aec3_fft.cc
+# modules/audio_processing/aes3/aec3_fft.h
+# modules/audio_processing/aes3/aec_state.cc
+# modules/audio_processing/aes3/aec_state.h
+# modules/audio_processing/aes3/alignment_mixer.cc
+# modules/audio_processing/aes3/alignment_mixer.h
+# modules/audio_processing/aes3/api_call_jitter_metrics.cc
+# modules/audio_processing/aes3/api_call_jitter_metrics.h
+# modules/audio_processing/aes3/block_buffer.cc
+# modules/audio_processing/aes3/block_buffer.h
+# modules/audio_processing/aes3/block_delay_buffer.cc
+# modules/audio_processing/aes3/block_delay_buffer.h
+# modules/audio_processing/aes3/block_framer.cc
+# modules/audio_processing/aes3/block_framer.h
+# modules/audio_processing/aes3/block_processor.cc
+# modules/audio_processing/aes3/block_processor.h
+# modules/audio_processing/aes3/block_processor_metrics.cc
+# modules/audio_processing/aes3/block_processor_metrics.h
+# modules/audio_processing/aes3/clockdrift_detector.cc
+# modules/audio_processing/aes3/clockdrift_detector.h
+# modules/audio_processing/aes3/coarse_filter_update_gain.cc
+# modules/audio_processing/aes3/coarse_filter_update_gain.h
+# modules/audio_processing/aes3/comfort_noise_generator.cc
+# modules/audio_processing/aes3/comfort_noise_generator.h
+# modules/audio_processing/aes3/decimator.cc
+# modules/audio_processing/aes3/decimator.h
+# modules/audio_processing/aes3/delay_estimate.h
+# modules/audio_processing/aes3/dominant_nearend_detector.cc
+# modules/audio_processing/aes3/dominant_nearend_detector.h
+# modules/audio_processing/aes3/downsampled_render_buffer.cc
+# modules/audio_processing/aes3/downsampled_render_buffer.h
+# modules/audio_processing/aes3/echo_audibility.cc
+# modules/audio_processing/aes3/echo_audibility.h
+# modules/audio_processing/aes3/echo_canceller3.cc
+# modules/audio_processing/aes3/echo_canceller3.h
+# modules/audio_processing/aes3/echo_path_delay_estimator.cc
+# modules/audio_processing/aes3/echo_path_delay_estimator.h
+# modules/audio_processing/aes3/echo_path_variability.cc
+# modules/audio_processing/aes3/echo_path_variability.h
+# modules/audio_processing/aes3/echo_remover.cc
+# modules/audio_processing/aes3/echo_remover.h
+# modules/audio_processing/aes3/echo_remover_metrics.cc
+# modules/audio_processing/aes3/echo_remover_metrics.h
+# modules/audio_processing/aes3/erle_estimator.cc
+# modules/audio_processing/aes3/erle_estimator.h
+# modules/audio_processing/aes3/erl_estimator.cc
+# modules/audio_processing/aes3/erl_estimator.h
+# modules/audio_processing/aes3/fft_buffer.cc
+# modules/audio_processing/aes3/fft_buffer.h
+# modules/audio_processing/aes3/fft_data_avx2.cc
+# modules/audio_processing/aes3/fft_data.h
+# modules/audio_processing/aes3/filter_analyzer.cc
+# modules/audio_processing/aes3/filter_analyzer.h
+# modules/audio_processing/aes3/frame_blocker.cc
+# modules/audio_processing/aes3/frame_blocker.h
+# modules/audio_processing/aes3/fullband_erle_estimator.cc
+# modules/audio_processing/aes3/fullband_erle_estimator.h
+# modules/audio_processing/aes3/matched_filter_avx2.cc
+# modules/audio_processing/aes3/matched_filter.cc
+# modules/audio_processing/aes3/matched_filter.h
+# modules/audio_processing/aes3/matched_filter_lag_aggregator.cc
+# modules/audio_processing/aes3/matched_filter_lag_aggregator.h
 
-modules/audio_processing/aes3/mock/mock_block_processor.cc
-modules/audio_processing/aes3/mock/mock_block_processor.h
-modules/audio_processing/aes3/mock/mock_echo_remover.cc
-modules/audio_processing/aes3/mock/mock_echo_remover.h
-modules/audio_processing/aes3/mock/mock_render_delay_buffer.cc
-modules/audio_processing/aes3/mock/mock_render_delay_buffer.h
-modules/audio_processing/aes3/mock/mock_render_delay_controller.cc
-modules/audio_processing/aes3/mock/mock_render_delay_controller.h
-modules/audio_processing/aes3/moving_average.cc
-modules/audio_processing/aes3/moving_average.h
-modules/audio_processing/aes3/nearend_detector.h
-modules/audio_processing/aes3/refined_filter_update_gain.cc
-modules/audio_processing/aes3/refined_filter_update_gain.h
-modules/audio_processing/aes3/render_buffer.cc
-modules/audio_processing/aes3/render_buffer.h
-modules/audio_processing/aes3/render_delay_buffer.cc
-modules/audio_processing/aes3/render_delay_buffer.h
-modules/audio_processing/aes3/render_delay_controller.cc
-modules/audio_processing/aes3/render_delay_controller.h
-modules/audio_processing/aes3/render_delay_controller_metrics.cc
-modules/audio_processing/aes3/render_delay_controller_metrics.h
-modules/audio_processing/aes3/render_signal_analyzer.cc
-modules/audio_processing/aes3/render_signal_analyzer.h
-modules/audio_processing/aes3/residual_echo_estimator.cc
-modules/audio_processing/aes3/residual_echo_estimator.h
-modules/audio_processing/aes3/reverb_decay_estimator.cc
-modules/audio_processing/aes3/reverb_decay_estimator.h
-modules/audio_processing/aes3/reverb_frequency_response.cc
-modules/audio_processing/aes3/reverb_frequency_response.h
-modules/audio_processing/aes3/reverb_model.cc
-modules/audio_processing/aes3/reverb_model_estimator.cc
-modules/audio_processing/aes3/reverb_model_estimator.h
-modules/audio_processing/aes3/reverb_model.h
-modules/audio_processing/aes3/signal_dependent_erle_estimator.cc
-modules/audio_processing/aes3/signal_dependent_erle_estimator.h
-modules/audio_processing/aes3/spectrum_buffer.cc
-modules/audio_processing/aes3/spectrum_buffer.h
-modules/audio_processing/aes3/stationarity_estimator.cc
-modules/audio_processing/aes3/stationarity_estimator.h
-modules/audio_processing/aes3/subband_erle_estimator.cc
-modules/audio_processing/aes3/subband_erle_estimator.h
-modules/audio_processing/aes3/subband_nearend_detector.cc
-modules/audio_processing/aes3/subband_nearend_detector.h
-modules/audio_processing/aes3/subtractor.cc
-modules/audio_processing/aes3/subtractor.h
-modules/audio_processing/aes3/subtractor_output_analyzer.cc
-modules/audio_processing/aes3/subtractor_output_analyzer.h
-modules/audio_processing/aes3/subtractor_output.cc
-modules/audio_processing/aes3/subtractor_output.h
-modules/audio_processing/aes3/suppression_filter.cc
-modules/audio_processing/aes3/suppression_filter.h
-modules/audio_processing/aes3/suppression_gain.cc
-modules/audio_processing/aes3/suppression_gain.h
-modules/audio_processing/aes3/transparent_mode.cc
-modules/audio_processing/aes3/transparent_mode.h
-modules/audio_processing/aes3/vector_math_avx2.cc
-modules/audio_processing/aes3/vector_math.h
+# modules/audio_processing/aes3/mock/mock_block_processor.cc
+# modules/audio_processing/aes3/mock/mock_block_processor.h
+# modules/audio_processing/aes3/mock/mock_echo_remover.cc
+# modules/audio_processing/aes3/mock/mock_echo_remover.h
+# modules/audio_processing/aes3/mock/mock_render_delay_buffer.cc
+# modules/audio_processing/aes3/mock/mock_render_delay_buffer.h
+# modules/audio_processing/aes3/mock/mock_render_delay_controller.cc
+# modules/audio_processing/aes3/mock/mock_render_delay_controller.h
+# modules/audio_processing/aes3/moving_average.cc
+# modules/audio_processing/aes3/moving_average.h
+# modules/audio_processing/aes3/nearend_detector.h
+# modules/audio_processing/aes3/refined_filter_update_gain.cc
+# modules/audio_processing/aes3/refined_filter_update_gain.h
+# modules/audio_processing/aes3/render_buffer.cc
+# modules/audio_processing/aes3/render_buffer.h
+# modules/audio_processing/aes3/render_delay_buffer.cc
+# modules/audio_processing/aes3/render_delay_buffer.h
+# modules/audio_processing/aes3/render_delay_controller.cc
+# modules/audio_processing/aes3/render_delay_controller.h
+# modules/audio_processing/aes3/render_delay_controller_metrics.cc
+# modules/audio_processing/aes3/render_delay_controller_metrics.h
+# modules/audio_processing/aes3/render_signal_analyzer.cc
+# modules/audio_processing/aes3/render_signal_analyzer.h
+# modules/audio_processing/aes3/residual_echo_estimator.cc
+# modules/audio_processing/aes3/residual_echo_estimator.h
+# modules/audio_processing/aes3/reverb_decay_estimator.cc
+# modules/audio_processing/aes3/reverb_decay_estimator.h
+# modules/audio_processing/aes3/reverb_frequency_response.cc
+# modules/audio_processing/aes3/reverb_frequency_response.h
+# modules/audio_processing/aes3/reverb_model.cc
+# modules/audio_processing/aes3/reverb_model_estimator.cc
+# modules/audio_processing/aes3/reverb_model_estimator.h
+# modules/audio_processing/aes3/reverb_model.h
+# modules/audio_processing/aes3/signal_dependent_erle_estimator.cc
+# modules/audio_processing/aes3/signal_dependent_erle_estimator.h
+# modules/audio_processing/aes3/spectrum_buffer.cc
+# modules/audio_processing/aes3/spectrum_buffer.h
+# modules/audio_processing/aes3/stationarity_estimator.cc
+# modules/audio_processing/aes3/stationarity_estimator.h
+# modules/audio_processing/aes3/subband_erle_estimator.cc
+# modules/audio_processing/aes3/subband_erle_estimator.h
+# modules/audio_processing/aes3/subband_nearend_detector.cc
+# modules/audio_processing/aes3/subband_nearend_detector.h
+# modules/audio_processing/aes3/subtractor.cc
+# modules/audio_processing/aes3/subtractor.h
+# modules/audio_processing/aes3/subtractor_output_analyzer.cc
+# modules/audio_processing/aes3/subtractor_output_analyzer.h
+# modules/audio_processing/aes3/subtractor_output.cc
+# modules/audio_processing/aes3/subtractor_output.h
+# modules/audio_processing/aes3/suppression_filter.cc
+# modules/audio_processing/aes3/suppression_filter.h
+# modules/audio_processing/aes3/suppression_gain.cc
+# modules/audio_processing/aes3/suppression_gain.h
+# modules/audio_processing/aes3/transparent_mode.cc
+# modules/audio_processing/aes3/transparent_mode.h
+# modules/audio_processing/aes3/vector_math_avx2.cc
+# modules/audio_processing/aes3/vector_math.h
 		
 		
-		modules/audio_processing/aecm/aecm_core.cc
-	    modules/audio_processing/aecm/aecm_core_c.cc
-	    modules/audio_processing/aecm/aecm_core.h
-	    modules/audio_processing/aecm/aecm_defines.h
-	    modules/audio_processing/aecm/echo_control_mobile.cc
-	    modules/audio_processing/aecm/echo_control_mobile.h
+# 		modules/audio_processing/aecm/aecm_core.cc
+# 	    modules/audio_processing/aecm/aecm_core_c.cc
+# 	    modules/audio_processing/aecm/aecm_core.h
+# 	    modules/audio_processing/aecm/aecm_defines.h
+# 	    modules/audio_processing/aecm/echo_control_mobile.cc
+# 	    modules/audio_processing/aecm/echo_control_mobile.h
 		
- modules/audio_processing/aec_dump/aec_dump_factory.h
- modules/audio_processing/aec_dump/aec_dump_impl.cc
- modules/audio_processing/aec_dump/aec_dump_impl.h
- modules/audio_processing/aec_dump/capture_stream_info.cc
- modules/audio_processing/aec_dump/capture_stream_info.h
- modules/audio_processing/aec_dump/null_aec_dump_factory.cc
- modules/audio_processing/aec_dump/write_to_file_task.cc
- modules/audio_processing/aec_dump/write_to_file_task.h
+#  modules/audio_processing/aec_dump/aec_dump_factory.h
+#  modules/audio_processing/aec_dump/aec_dump_impl.cc
+#  modules/audio_processing/aec_dump/aec_dump_impl.h
+#  modules/audio_processing/aec_dump/capture_stream_info.cc
+#  modules/audio_processing/aec_dump/capture_stream_info.h
+#  modules/audio_processing/aec_dump/null_aec_dump_factory.cc
+#  modules/audio_processing/aec_dump/write_to_file_task.cc
+#  modules/audio_processing/aec_dump/write_to_file_task.h
 		
-modules/audio_processing/agc/agc.cc
-modules/audio_processing/agc/agc.h
-modules/audio_processing/agc/agc_manager_direct.cc
-modules/audio_processing/agc/agc_manager_direct.h
-modules/audio_processing/agc/clipping_predictor.cc
-modules/audio_processing/agc/clipping_predictor_evaluator.cc
-modules/audio_processing/agc/clipping_predictor_evaluator.h
-modules/audio_processing/agc/clipping_predictor.h
-modules/audio_processing/agc/clipping_predictor_level_buffer.cc
-modules/audio_processing/agc/clipping_predictor_level_buffer.h
-modules/audio_processing/agc/gain_control.h
-modules/audio_processing/agc/gain_map_internal.h
-#modules/audio_processing/agc/legacy
-modules/audio_processing/agc/egacy/analog_agc.cc
-modules/audio_processing/agc/egacy/analog_agc.h
-modules/audio_processing/agc/egacy/digital_agc.cc
-modules/audio_processing/agc/egacy/digital_agc.h
-modules/audio_processing/agc/egacy/gain_control.h
-modules/audio_processing/agc/loudness_histogram.cc
-modules/audio_processing/agc/loudness_histogram.h
-modules/audio_processing/agc/mock_agc.h
-modules/audio_processing/agc/utility.cc
-modules/audio_processing/agc/utility.h
+# modules/audio_processing/agc/agc.cc
+# modules/audio_processing/agc/agc.h
+# modules/audio_processing/agc/agc_manager_direct.cc
+# modules/audio_processing/agc/agc_manager_direct.h
+# modules/audio_processing/agc/clipping_predictor.cc
+# modules/audio_processing/agc/clipping_predictor_evaluator.cc
+# modules/audio_processing/agc/clipping_predictor_evaluator.h
+# modules/audio_processing/agc/clipping_predictor.h
+# modules/audio_processing/agc/clipping_predictor_level_buffer.cc
+# modules/audio_processing/agc/clipping_predictor_level_buffer.h
+# modules/audio_processing/agc/gain_control.h
+# modules/audio_processing/agc/gain_map_internal.h
+# #modules/audio_processing/agc/legacy
+# modules/audio_processing/agc/egacy/analog_agc.cc
+# modules/audio_processing/agc/egacy/analog_agc.h
+# modules/audio_processing/agc/egacy/digital_agc.cc
+# modules/audio_processing/agc/egacy/digital_agc.h
+# modules/audio_processing/agc/egacy/gain_control.h
+# modules/audio_processing/agc/loudness_histogram.cc
+# modules/audio_processing/agc/loudness_histogram.h
+# modules/audio_processing/agc/mock_agc.h
+# modules/audio_processing/agc/utility.cc
+# modules/audio_processing/agc/utility.h
 
-#modules/audio_processing/agc2/
+# #modules/audio_processing/agc2/
 
-modules/audio_processing/agc2/adaptive_agc.cc
-modules/audio_processing/agc2/adaptive_agc.h
-modules/audio_processing/agc2/adaptive_digital_gain_applier.cc
-modules/audio_processing/agc2/adaptive_digital_gain_applier.h
-modules/audio_processing/agc2/adaptive_mode_level_estimator.cc
-modules/audio_processing/agc2/adaptive_mode_level_estimator.h
-modules/audio_processing/agc2/agc2_common.h
-modules/audio_processing/agc2/agc2_testing_common.cc
-modules/audio_processing/agc2/agc2_testing_common.h
-modules/audio_processing/agc2/biquad_filter.cc
-modules/audio_processing/agc2/biquad_filter.h
-modules/audio_processing/agc2/compute_interpolated_gain_curve.cc
-modules/audio_processing/agc2/compute_interpolated_gain_curve.h
-modules/audio_processing/agc2/cpu_features.cc
-modules/audio_processing/agc2/cpu_features.h
-modules/audio_processing/agc2/fixed_digital_level_estimator.cc
-modules/audio_processing/agc2/fixed_digital_level_estimator.h
-modules/audio_processing/agc2/gain_applier.cc
-modules/audio_processing/agc2/gain_applier.h
-modules/audio_processing/agc2/interpolated_gain_curve.cc
-modules/audio_processing/agc2/interpolated_gain_curve.h
-modules/audio_processing/agc2/limiter.cc
-modules/audio_processing/agc2/limiter_db_gain_curve.cc
-modules/audio_processing/agc2/limiter_db_gain_curve.h
-modules/audio_processing/agc2/limiter.h
-modules/audio_processing/agc2/noise_level_estimator.cc
-modules/audio_processing/agc2/noise_level_estimator.h
-#modules/audio_processing/agc2/rnn_vad
-modules/audio_processing/agc2/rnn_vad/auto_correlation.cc
-modules/audio_processing/agc2/rnn_vad/auto_correlation.h
-modules/audio_processing/agc2/rnn_vad/common.h
-modules/audio_processing/agc2/rnn_vad/DEPS
-modules/audio_processing/agc2/rnn_vad/features_extraction.cc
-modules/audio_processing/agc2/rnn_vad/features_extraction.h
-modules/audio_processing/agc2/rnn_vad/lp_residual.cc
-modules/audio_processing/agc2/rnn_vad/lp_residual.h
-modules/audio_processing/agc2/rnn_vad/pitch_search.cc
-modules/audio_processing/agc2/rnn_vad/pitch_search.h
-modules/audio_processing/agc2/rnn_vad/pitch_search_internal.cc
-modules/audio_processing/agc2/rnn_vad/pitch_search_internal.h
-modules/audio_processing/agc2/rnn_vad/ring_buffer.h
-modules/audio_processing/agc2/rnn_vad/rnn.cc
-modules/audio_processing/agc2/rnn_vad/rnn_fc.cc
-modules/audio_processing/agc2/rnn_vad/rnn_fc.h
-modules/audio_processing/agc2/rnn_vad/rnn_gru.cc
-modules/audio_processing/agc2/rnn_vad/rnn_gru.h
-modules/audio_processing/agc2/rnn_vad/rnn.h
-modules/audio_processing/agc2/rnn_vad/rnn_vad_tool.cc
-modules/audio_processing/agc2/rnn_vad/sequence_buffer.h
-modules/audio_processing/agc2/rnn_vad/spectral_features.cc
-modules/audio_processing/agc2/rnn_vad/spectral_features.h
-modules/audio_processing/agc2/rnn_vad/spectral_features_internal.cc
-modules/audio_processing/agc2/rnn_vad/spectral_features_internal.h
-modules/audio_processing/agc2/rnn_vad/symmetric_matrix_buffer.h
-modules/audio_processing/agc2/rnn_vad/vector_math_avx2.cc
-modules/audio_processing/agc2/rnn_vad/vector_math.h
-modules/audio_processing/agc2/saturation_protector_buffer.cc
-modules/audio_processing/agc2/saturation_protector_buffer.h
-modules/audio_processing/agc2/saturation_protector.cc
-modules/audio_processing/agc2/saturation_protector.h
-modules/audio_processing/agc2/vad_with_level.cc
-modules/audio_processing/agc2/vad_with_level.h
-modules/audio_processing/agc2/vector_float_frame.cc
-modules/audio_processing/agc2/vector_float_frame.h
-
-
-
-
-modules/audio_processing/vad/common.h
-modules/audio_processing/vad/gmm.cc
-modules/audio_processing/vad/gmm.h
-modules/audio_processing/vad/noise_gmm_tables.h
-modules/audio_processing/vad/pitch_based_vad.cc
-modules/audio_processing/vad/pitch_based_vad.h
-modules/audio_processing/vad/pitch_internal.cc
-modules/audio_processing/vad/pitch_internal.h
-modules/audio_processing/vad/pole_zero_filter.cc
-modules/audio_processing/vad/pole_zero_filter.h
-modules/audio_processing/vad/standalone_vad.cc
-modules/audio_processing/vad/standalone_vad.h
-modules/audio_processing/vad/vad_audio_proc.cc
-modules/audio_processing/vad/vad_audio_proc.h
-modules/audio_processing/vad/vad_audio_proc_internal.h
-modules/audio_processing/vad/vad_circular_buffer.cc
-modules/audio_processing/vad/vad_circular_buffer.h
-modules/audio_processing/vad/voice_activity_detector.cc
-modules/audio_processing/vad/voice_activity_detector.h
-modules/audio_processing/vad/voice_gmm_tables.h
+# modules/audio_processing/agc2/adaptive_agc.cc
+# modules/audio_processing/agc2/adaptive_agc.h
+# modules/audio_processing/agc2/adaptive_digital_gain_applier.cc
+# modules/audio_processing/agc2/adaptive_digital_gain_applier.h
+# modules/audio_processing/agc2/adaptive_mode_level_estimator.cc
+# modules/audio_processing/agc2/adaptive_mode_level_estimator.h
+# modules/audio_processing/agc2/agc2_common.h
+# modules/audio_processing/agc2/agc2_testing_common.cc
+# modules/audio_processing/agc2/agc2_testing_common.h
+# modules/audio_processing/agc2/biquad_filter.cc
+# modules/audio_processing/agc2/biquad_filter.h
+# modules/audio_processing/agc2/compute_interpolated_gain_curve.cc
+# modules/audio_processing/agc2/compute_interpolated_gain_curve.h
+# modules/audio_processing/agc2/cpu_features.cc
+# modules/audio_processing/agc2/cpu_features.h
+# modules/audio_processing/agc2/fixed_digital_level_estimator.cc
+# modules/audio_processing/agc2/fixed_digital_level_estimator.h
+# modules/audio_processing/agc2/gain_applier.cc
+# modules/audio_processing/agc2/gain_applier.h
+# modules/audio_processing/agc2/interpolated_gain_curve.cc
+# modules/audio_processing/agc2/interpolated_gain_curve.h
+# modules/audio_processing/agc2/limiter.cc
+# modules/audio_processing/agc2/limiter_db_gain_curve.cc
+# modules/audio_processing/agc2/limiter_db_gain_curve.h
+# modules/audio_processing/agc2/limiter.h
+# modules/audio_processing/agc2/noise_level_estimator.cc
+# modules/audio_processing/agc2/noise_level_estimator.h
+# #modules/audio_processing/agc2/rnn_vad
+# modules/audio_processing/agc2/rnn_vad/auto_correlation.cc
+# modules/audio_processing/agc2/rnn_vad/auto_correlation.h
+# modules/audio_processing/agc2/rnn_vad/common.h
+# modules/audio_processing/agc2/rnn_vad/DEPS
+# modules/audio_processing/agc2/rnn_vad/features_extraction.cc
+# modules/audio_processing/agc2/rnn_vad/features_extraction.h
+# modules/audio_processing/agc2/rnn_vad/lp_residual.cc
+# modules/audio_processing/agc2/rnn_vad/lp_residual.h
+# modules/audio_processing/agc2/rnn_vad/pitch_search.cc
+# modules/audio_processing/agc2/rnn_vad/pitch_search.h
+# modules/audio_processing/agc2/rnn_vad/pitch_search_internal.cc
+# modules/audio_processing/agc2/rnn_vad/pitch_search_internal.h
+# modules/audio_processing/agc2/rnn_vad/ring_buffer.h
+# modules/audio_processing/agc2/rnn_vad/rnn.cc
+# modules/audio_processing/agc2/rnn_vad/rnn_fc.cc
+# modules/audio_processing/agc2/rnn_vad/rnn_fc.h
+# modules/audio_processing/agc2/rnn_vad/rnn_gru.cc
+# modules/audio_processing/agc2/rnn_vad/rnn_gru.h
+# modules/audio_processing/agc2/rnn_vad/rnn.h
+# modules/audio_processing/agc2/rnn_vad/rnn_vad_tool.cc
+# modules/audio_processing/agc2/rnn_vad/sequence_buffer.h
+# modules/audio_processing/agc2/rnn_vad/spectral_features.cc
+# modules/audio_processing/agc2/rnn_vad/spectral_features.h
+# modules/audio_processing/agc2/rnn_vad/spectral_features_internal.cc
+# modules/audio_processing/agc2/rnn_vad/spectral_features_internal.h
+# modules/audio_processing/agc2/rnn_vad/symmetric_matrix_buffer.h
+# modules/audio_processing/agc2/rnn_vad/vector_math_avx2.cc
+# modules/audio_processing/agc2/rnn_vad/vector_math.h
+# modules/audio_processing/agc2/saturation_protector_buffer.cc
+# modules/audio_processing/agc2/saturation_protector_buffer.h
+# modules/audio_processing/agc2/saturation_protector.cc
+# modules/audio_processing/agc2/saturation_protector.h
+# modules/audio_processing/agc2/vad_with_level.cc
+# modules/audio_processing/agc2/vad_with_level.h
+# modules/audio_processing/agc2/vector_float_frame.cc
+# modules/audio_processing/agc2/vector_float_frame.h
 
 
 
 
-modules/audio_processing/ns/fast_math.cc
-modules/audio_processing/ns/fast_math.h
-modules/audio_processing/ns/histograms.cc
-modules/audio_processing/ns/histograms.h
-modules/audio_processing/ns/noise_estimator.cc
-modules/audio_processing/ns/noise_estimator.h
-modules/audio_processing/ns/noise_suppressor.cc
-modules/audio_processing/ns/noise_suppressor.h
-modules/audio_processing/ns/ns_common.h
-modules/audio_processing/ns/ns_config.h
-modules/audio_processing/ns/ns_fft.cc
-modules/audio_processing/ns/ns_fft.h
-modules/audio_processing/ns/prior_signal_model.cc
-modules/audio_processing/ns/prior_signal_model_estimator.cc
-modules/audio_processing/ns/prior_signal_model_estimator.h
-modules/audio_processing/ns/prior_signal_model.h
-modules/audio_processing/ns/quantile_noise_estimator.cc
-modules/audio_processing/ns/quantile_noise_estimator.h
-modules/audio_processing/ns/signal_model.cc
-modules/audio_processing/ns/signal_model_estimator.cc
-modules/audio_processing/ns/signal_model_estimator.h
-modules/audio_processing/ns/signal_model.h
-modules/audio_processing/ns/speech_probability_estimator.cc
-modules/audio_processing/ns/speech_probability_estimator.h
-modules/audio_processing/ns/suppression_params.cc
-modules/audio_processing/ns/suppression_params.h
-modules/audio_processing/ns/wiener_filter.cc
-modules/audio_processing/ns/wiener_filter.h
+# modules/audio_processing/vad/common.h
+# modules/audio_processing/vad/gmm.cc
+# modules/audio_processing/vad/gmm.h
+# modules/audio_processing/vad/noise_gmm_tables.h
+# modules/audio_processing/vad/pitch_based_vad.cc
+# modules/audio_processing/vad/pitch_based_vad.h
+# modules/audio_processing/vad/pitch_internal.cc
+# modules/audio_processing/vad/pitch_internal.h
+# modules/audio_processing/vad/pole_zero_filter.cc
+# modules/audio_processing/vad/pole_zero_filter.h
+# modules/audio_processing/vad/standalone_vad.cc
+# modules/audio_processing/vad/standalone_vad.h
+# modules/audio_processing/vad/vad_audio_proc.cc
+# modules/audio_processing/vad/vad_audio_proc.h
+# modules/audio_processing/vad/vad_audio_proc_internal.h
+# modules/audio_processing/vad/vad_circular_buffer.cc
+# modules/audio_processing/vad/vad_circular_buffer.h
+# modules/audio_processing/vad/voice_activity_detector.cc
+# modules/audio_processing/vad/voice_activity_detector.h
+# modules/audio_processing/vad/voice_gmm_tables.h
 
 
 
-modules/audio_processing/transient/click_annotate.cc
-modules/audio_processing/transient/common.h
-modules/audio_processing/transient/daubechies_8_wavelet_coeffs.h
-modules/audio_processing/transient/dyadic_decimator.h
-modules/audio_processing/transient/file_utils.cc
-modules/audio_processing/transient/file_utils.h
-modules/audio_processing/transient/moving_moments.cc
-modules/audio_processing/transient/moving_moments.h 
-modules/audio_processing/transient/transient_detector.cc
-modules/audio_processing/transient/transient_detector.h
-modules/audio_processing/transient/transient_suppressor.h
-modules/audio_processing/transient/transient_suppressor_impl.cc
-modules/audio_processing/transient/transient_suppressor_impl.h
-modules/audio_processing/transient/windows_private.h
-modules/audio_processing/transient/wpd_node.cc
-modules/audio_processing/transient/wpd_node.h
-modules/audio_processing/transient/wpd_tree.cc
-modules/audio_processing/transient/wpd_tree.h
+
+# modules/audio_processing/ns/fast_math.cc
+# modules/audio_processing/ns/fast_math.h
+# modules/audio_processing/ns/histograms.cc
+# modules/audio_processing/ns/histograms.h
+# modules/audio_processing/ns/noise_estimator.cc
+# modules/audio_processing/ns/noise_estimator.h
+# modules/audio_processing/ns/noise_suppressor.cc
+# modules/audio_processing/ns/noise_suppressor.h
+# modules/audio_processing/ns/ns_common.h
+# modules/audio_processing/ns/ns_config.h
+# modules/audio_processing/ns/ns_fft.cc
+# modules/audio_processing/ns/ns_fft.h
+# modules/audio_processing/ns/prior_signal_model.cc
+# modules/audio_processing/ns/prior_signal_model_estimator.cc
+# modules/audio_processing/ns/prior_signal_model_estimator.h
+# modules/audio_processing/ns/prior_signal_model.h
+# modules/audio_processing/ns/quantile_noise_estimator.cc
+# modules/audio_processing/ns/quantile_noise_estimator.h
+# modules/audio_processing/ns/signal_model.cc
+# modules/audio_processing/ns/signal_model_estimator.cc
+# modules/audio_processing/ns/signal_model_estimator.h
+# modules/audio_processing/ns/signal_model.h
+# modules/audio_processing/ns/speech_probability_estimator.cc
+# modules/audio_processing/ns/speech_probability_estimator.h
+# modules/audio_processing/ns/suppression_params.cc
+# modules/audio_processing/ns/suppression_params.h
+# modules/audio_processing/ns/wiener_filter.cc
+# modules/audio_processing/ns/wiener_filter.h
 
 
-modules/audio_processing/capture_levels_adjuster/audio_samples_scaler.cc
-modules/audio_processing/capture_levels_adjuster/audio_samples_scaler.h
-modules/audio_processing/capture_levels_adjuster/capture_levels_adjuster.cc
-modules/audio_processing/capture_levels_adjuster/capture_levels_adjuster.h
 
-modules/audio_processing/utility/
-
-
-modules/audio_processing/utility/cascaded_biquad_filter.cc
-modules/audio_processing/utility/cascaded_biquad_filter.h
-modules/audio_processing/utility/delay_estimator.cc
-modules/audio_processing/utility/delay_estimator.h
-modules/audio_processing/utility/delay_estimator_internal.h
-modules/audio_processing/utility/delay_estimator_wrapper.cc
-modules/audio_processing/utility/delay_estimator_wrapper.h
-#modules/audio_processing/utility/DEPS
-modules/audio_processing/utility/pffft_wrapper.cc
-modules/audio_processing/utility/pffft_wrapper.h
-
-
-modules/audio_processing/logging/apm_data_dumper.h
+# modules/audio_processing/transient/click_annotate.cc
+# modules/audio_processing/transient/common.h
+# modules/audio_processing/transient/daubechies_8_wavelet_coeffs.h
+# modules/audio_processing/transient/dyadic_decimator.h
+# modules/audio_processing/transient/file_utils.cc
+# modules/audio_processing/transient/file_utils.h
+# modules/audio_processing/transient/moving_moments.cc
+# modules/audio_processing/transient/moving_moments.h 
+# modules/audio_processing/transient/transient_detector.cc
+# modules/audio_processing/transient/transient_detector.h
+# modules/audio_processing/transient/transient_suppressor.h
+# modules/audio_processing/transient/transient_suppressor_impl.cc
+# modules/audio_processing/transient/transient_suppressor_impl.h
+# modules/audio_processing/transient/windows_private.h
+# modules/audio_processing/transient/wpd_node.cc
+# modules/audio_processing/transient/wpd_node.h
+# modules/audio_processing/transient/wpd_tree.cc
+# modules/audio_processing/transient/wpd_tree.h
 
 
-modules/audio_processing/echo_detector/
+# modules/audio_processing/capture_levels_adjuster/audio_samples_scaler.cc
+# modules/audio_processing/capture_levels_adjuster/audio_samples_scaler.h
+# modules/audio_processing/capture_levels_adjuster/capture_levels_adjuster.cc
+# modules/audio_processing/capture_levels_adjuster/capture_levels_adjuster.h
 
-modules/audio_processing/echo_detector/circular_buffer.cc
-modules/audio_processing/echo_detector/circular_buffer.h
-modules/audio_processing/echo_detector/mean_variance_estimator.cc
-modules/audio_processing/echo_detector/mean_variance_estimator.h
-modules/audio_processing/echo_detector/moving_max.cc
-modules/audio_processing/echo_detector/moving_max.h
-modules/audio_processing/echo_detector/normalized_covariance_estimator.cc
-modules/audio_processing/echo_detector/normalized_covariance_estimator.h
-)
+# modules/audio_processing/utility/
+
+
+# modules/audio_processing/utility/cascaded_biquad_filter.cc
+# modules/audio_processing/utility/cascaded_biquad_filter.h
+# modules/audio_processing/utility/delay_estimator.cc
+# modules/audio_processing/utility/delay_estimator.h
+# modules/audio_processing/utility/delay_estimator_internal.h
+# modules/audio_processing/utility/delay_estimator_wrapper.cc
+# modules/audio_processing/utility/delay_estimator_wrapper.h
+# #modules/audio_processing/utility/DEPS
+# modules/audio_processing/utility/pffft_wrapper.cc
+# modules/audio_processing/utility/pffft_wrapper.h
+
+
+# modules/audio_processing/logging/apm_data_dumper.h
+
+
+# modules/audio_processing/echo_detector/
+
+# modules/audio_processing/echo_detector/circular_buffer.cc
+# modules/audio_processing/echo_detector/circular_buffer.h
+# modules/audio_processing/echo_detector/mean_variance_estimator.cc
+# modules/audio_processing/echo_detector/mean_variance_estimator.h
+# modules/audio_processing/echo_detector/moving_max.cc
+# modules/audio_processing/echo_detector/moving_max.h
+# modules/audio_processing/echo_detector/normalized_covariance_estimator.cc
+# modules/audio_processing/echo_detector/normalized_covariance_estimator.h
+#)
 
 
 
@@ -884,7 +884,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		${system_wrappers}
 		${audio_coding}
 		#${audio_device}
-		${audio_processing}
+		#${audio_processing}
 		# ${rtc_base}
 		${rtp_rtcp}
 		#${api}
@@ -915,7 +915,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		${system_wrappers}
 		${audio_coding}
 		#${audio_device}
-		${audio_processing}
+		#${audio_processing}
 		# ${rtc_base}
 		${rtp_rtcp}
 		# ${api}
@@ -962,7 +962,7 @@ set(AllFile ${all_src}
 		${system_wrappers}
 		${audio_coding}
 		#${audio_device}
-		${audio_processing}
+		#${audio_processing}
 		# ${rtc_base}
 		${rtp_rtcp}
 	#	${peerconnection}
