@@ -95,4 +95,34 @@
 #define RTC_NO_THREAD_SAFETY_ANALYSIS \
   RTC_THREAD_ANNOTATION_ATTRIBUTE__(no_thread_safety_analysis)
 
+/* Logging macros. */
+
+#define _MS_LOG_SEPARATOR_CHAR_STD "\n"
+
+#ifdef MS_LOG_FILE_LINE
+#define _MS_LOG_STR "%s:%d | %s::%s()"
+#define _MS_LOG_STR_DESC _MS_LOG_STR " | "
+#define _MS_FILE (std::strchr(__FILE__, '/') ? std::strchr(__FILE__, '/') + 1 : __FILE__)
+#define _MS_LOG_ARG _MS_FILE, __LINE__, MS_CLASS, __FUNCTION__
+#else
+#define _MS_LOG_STR "%s::%s():%u"
+#define _MS_LOG_STR_DESC _MS_LOG_STR " | "
+#define _MS_LOG_ARG __FILE__, __FUNCTION__, __LINE__
+#endif
+
+#define RTC_ABORT(desc, ...) \
+	do \
+	{ \
+		std::fprintf(stderr, "(ABORT) " _MS_LOG_STR_DESC desc _MS_LOG_SEPARATOR_CHAR_STD, _MS_LOG_ARG, ##__VA_ARGS__); \
+		std::fflush(stderr); \
+		std::abort(); \
+	} \
+	while (false)
+
+#define RTC_ASSERT(condition, desc, ...) \
+	if (!(condition)) \
+	{ \
+		RTC_ABORT("failed assertion `%s': " desc, #condition, ##__VA_ARGS__); \
+	}
+
 #endif  // RTC_BASE_THREAD_ANNOTATIONS_H_
