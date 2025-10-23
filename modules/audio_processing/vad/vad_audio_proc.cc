@@ -25,7 +25,7 @@ extern "C" {
 #include "modules/audio_coding/codecs/isac/main/source/pitch_estimator.h"
 #include "modules/audio_coding/codecs/isac/main/source/structs.h"
 }
-
+//#pragma comment(lib, "mil.lib")
 namespace webrtc {
 
 // The following structures are declared anonymous in iSAC's structs.h. To

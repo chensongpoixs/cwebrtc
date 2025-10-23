@@ -220,9 +220,9 @@ FILE(GLOB  task_queue_source
     task_queue/task_queue_base.cc
     task_queue/task_queue_factory.h
   #deps = [
- #   "../../rtc_base:checks",
- #   "../../rtc_base:macromagic",
-  #  "../../rtc_base/system:rtc_export",
+ #   "../../rtc_base:checks
+ #   "../../rtc_base:macromagic
+  #  "../../rtc_base/system:rtc_export
  # ]
 
 )

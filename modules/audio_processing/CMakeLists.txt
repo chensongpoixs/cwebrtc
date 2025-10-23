@@ -241,6 +241,8 @@ FILE(GLOB  audio_processing_source
 		three_band_filter_bank.h 
 		voice_detection.cc
 		voice_detection.h
+		include/aec_dump.h
+		include/aec_dump.cc
 		include/audio_frame_proxies.cc
 		include/audio_frame_proxies.h
 		include/audio_frame_view.h
@@ -408,7 +410,11 @@ FILE(GLOB  audio_processing_source
 		agc/clipping_predictor_level_buffer.h
 		agc/gain_control.h
 		agc/gain_map_internal.h
- 
+        agc/legacy/analog_agc.cc 
+        agc/legacy/analog_agc.h 
+        agc/legacy/digital_agc.cc 
+        agc/legacy/digital_agc.h 
+        agc/legacy/gain_control.h 
 		agc/egacy/analog_agc.cc
 		agc/egacy/analog_agc.h
 		agc/egacy/digital_agc.cc
@@ -607,8 +613,134 @@ FILE(GLOB  audio_processing_source
 	  
 )
 
+
+FILE(GLOB   aec3_source
+
+    aec3/adaptive_fir_filter.cc
+    aec3/adaptive_fir_filter_erl.cc
+    aec3/aec3_common.cc
+    aec3/aec3_fft.cc
+    aec3/aec_state.cc
+    aec3/aec_state.h
+    aec3/alignment_mixer.cc
+    aec3/alignment_mixer.h
+    aec3/api_call_jitter_metrics.cc
+    aec3/api_call_jitter_metrics.h
+    aec3/block_buffer.cc
+    aec3/block_delay_buffer.cc
+    aec3/block_delay_buffer.h
+    aec3/block_framer.cc
+    aec3/block_framer.h
+    aec3/block_processor.cc
+    aec3/block_processor.h
+    aec3/block_processor_metrics.cc
+    aec3/block_processor_metrics.h
+    aec3/clockdrift_detector.cc
+    aec3/clockdrift_detector.h
+    aec3/coarse_filter_update_gain.cc
+    aec3/coarse_filter_update_gain.h
+    aec3/comfort_noise_generator.cc
+    aec3/comfort_noise_generator.h
+    aec3/decimator.cc
+    aec3/decimator.h
+    aec3/delay_estimate.h
+    aec3/dominant_nearend_detector.cc
+    aec3/dominant_nearend_detector.h
+    aec3/downsampled_render_buffer.cc
+    aec3/downsampled_render_buffer.h
+    aec3/echo_audibility.cc
+    aec3/echo_audibility.h
+    aec3/echo_canceller3.cc
+    aec3/echo_canceller3.h
+    aec3/echo_path_delay_estimator.cc
+    aec3/echo_path_delay_estimator.h
+    aec3/echo_path_variability.cc
+    aec3/echo_path_variability.h
+    aec3/echo_remover.cc
+    aec3/echo_remover.h
+    aec3/echo_remover_metrics.cc
+    aec3/echo_remover_metrics.h
+    aec3/erl_estimator.cc
+    aec3/erl_estimator.h
+    aec3/erle_estimator.cc
+    aec3/erle_estimator.h
+    aec3/fft_buffer.cc
+    aec3/filter_analyzer.cc
+    aec3/filter_analyzer.h
+    aec3/frame_blocker.cc
+    aec3/frame_blocker.h
+    aec3/fullband_erle_estimator.cc
+    aec3/fullband_erle_estimator.h
+    aec3/matched_filter.cc
+    aec3/matched_filter_lag_aggregator.cc
+    aec3/matched_filter_lag_aggregator.h
+    aec3/moving_average.cc
+    aec3/moving_average.h
+    aec3/nearend_detector.h
+    aec3/refined_filter_update_gain.cc
+    aec3/refined_filter_update_gain.h
+    aec3/render_buffer.cc
+    aec3/render_delay_buffer.cc
+    aec3/render_delay_buffer.h
+    aec3/render_delay_controller.cc
+    aec3/render_delay_controller.h
+    aec3/render_delay_controller_metrics.cc
+    aec3/render_delay_controller_metrics.h
+    aec3/render_signal_analyzer.cc
+    aec3/render_signal_analyzer.h
+    aec3/residual_echo_estimator.cc
+    aec3/residual_echo_estimator.h
+    aec3/reverb_decay_estimator.cc
+    aec3/reverb_decay_estimator.h
+    aec3/reverb_frequency_response.cc
+    aec3/reverb_frequency_response.h
+    aec3/reverb_model.cc
+    aec3/reverb_model.h
+    aec3/reverb_model_estimator.cc
+    aec3/reverb_model_estimator.h
+    aec3/signal_dependent_erle_estimator.cc
+    aec3/signal_dependent_erle_estimator.h
+    aec3/spectrum_buffer.cc
+    aec3/stationarity_estimator.cc
+    aec3/stationarity_estimator.h
+    aec3/subband_erle_estimator.cc
+    aec3/subband_erle_estimator.h
+    aec3/subband_nearend_detector.cc
+    aec3/subband_nearend_detector.h
+    aec3/subtractor.cc
+    aec3/subtractor.h
+    aec3/subtractor_output.cc
+    aec3/subtractor_output.h
+    aec3/subtractor_output_analyzer.cc
+    aec3/subtractor_output_analyzer.h
+    aec3/suppression_filter.cc
+    aec3/suppression_filter.h
+    aec3/suppression_gain.cc
+    aec3/suppression_gain.h
+    aec3/transparent_mode.cc
+    aec3/transparent_mode.h
+	aec3/aec3_common.h
+	aec3/aec3_fft.h
+	aec3/block_buffer.h
+    aec3/fft_buffer.h
+    aec3/render_buffer.h
+    aec3/spectrum_buffer.h
+	aec3/adaptive_fir_filter.h
+	aec3/adaptive_fir_filter_erl.h
+	aec3/matched_filter.h
+	aec3/vector_math.h
+	aec3/fft_data.h
+
+	   aec3/adaptive_fir_filter_avx2.cc
+      aec3/adaptive_fir_filter_erl_avx2.cc
+      aec3/fft_data_avx2.cc
+      aec3/matched_filter_avx2.cc
+      aec3/vector_math_avx2.cc
+
+
+)
  
-add_library(${PROJECT_NAME} 			 STATIC      ${audio_processing_source})
+add_library(${PROJECT_NAME} 			 STATIC      ${audio_processing_source}   ${aec3_source})
 #add_library(desktop_capture_mock STATIC ${audio_device_api_source})
 
  set_target_properties(${PROJECT_NAME}      			      					PROPERTIES LINKER_LANGUAGE CXX)  
@@ -621,7 +753,7 @@ set(AllFile
 
 
 ${audio_processing_source} 	 					
-
+${aec3_source}
 )
 foreach(fileItem ${AllFile})       
     # Get the directory of the source file

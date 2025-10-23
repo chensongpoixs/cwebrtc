@@ -44,7 +44,56 @@ FILE(GLOB signal_processing
 		signal_processing/spl_sqrt.c
 		signal_processing/sqrt_of_one_minus_x_squared.c
 		signal_processing/vector_scaling_operations.c
-
+     ring_buffer.c
+     ring_buffer.h
+     signal_processing/auto_corr_to_refl_coef.c
+     signal_processing/auto_correlation.c
+     signal_processing/complex_fft_tables.h
+     signal_processing/copy_set_operations.c
+     signal_processing/cross_correlation.c
+     signal_processing/division_operations.c
+     signal_processing/downsample_fast.c
+     signal_processing/energy.c
+     signal_processing/filter_ar.c
+     signal_processing/filter_ma_fast_q12.c
+     signal_processing/get_hanning_window.c
+     signal_processing/get_scaling_square.c
+     signal_processing/ilbc_specific_functions.c
+     signal_processing/include/real_fft.h
+     signal_processing/include/signal_processing_library.h
+     signal_processing/include/spl_inl.h
+     signal_processing/include/spl_inl_armv7.h
+     signal_processing/levinson_durbin.c
+     signal_processing/lpc_to_refl_coef.c
+     signal_processing/min_max_operations.c
+     signal_processing/randomization_functions.c
+     signal_processing/real_fft.c
+     signal_processing/refl_coef_to_lpc.c
+     signal_processing/resample.c
+     signal_processing/resample_48khz.c
+     signal_processing/resample_by_2.c
+     signal_processing/resample_by_2_internal.c
+     signal_processing/resample_by_2_internal.h
+     signal_processing/resample_fractional.c
+     signal_processing/spl_init.c
+     signal_processing/spl_inl.c
+     signal_processing/spl_sqrt.c
+     signal_processing/splitting_filter.c
+     signal_processing/sqrt_of_one_minus_x_squared.c
+     signal_processing/vector_scaling_operations.c
+     vad/include/webrtc_vad.h
+     vad/vad_core.c
+     vad/vad_core.h
+     vad/vad_filterbank.c
+     vad/vad_filterbank.h
+     vad/vad_gmm.c
+     vad/vad_gmm.h
+     vad/vad_sp.c
+     vad/vad_sp.h
+     vad/webrtc_vad.c
+	signal_processing/complex_fft.c
+	    signal_processing/dot_product_with_scale.cc 
+     signal_processing/dot_product_with_scale.h 
 )
 
 
@@ -100,7 +149,7 @@ FILE(GLOB common_audio_source
 
 FILE(GLOB  resampler
 	
-
+	resampler/sinc_resampler.h
 	resampler/include/resampler.h   
 	resampler/include/push_resampler.h
 	resampler/push_resampler.cc
@@ -113,6 +162,22 @@ FILE(GLOB  resampler
 	resampler/sinc_resampler_sse.cc
 	resampler/sinusoidal_linear_chirp_source.cc
 	resampler/sinusoidal_linear_chirp_source.h
+	fir_filter.h
+	 fir_filter_c.cc
+     fir_filter_c.h
+     fir_filter_factory.cc
+     fir_filter_factory.h
+	 
+	 
+	   fir_filter_sse.cc
+       fir_filter_sse.h
+       resampler/sinc_resampler_sse.cc
+       fir_filter_avx2.cc
+       fir_filter_avx2.h
+       resampler/sinc_resampler_avx2.cc
+      # signal_processing/cross_correlation_neon.c
+     #  signal_processing/downsample_fast_neon.c
+     #  signal_processing/min_max_operations_neon.c
 )
 
 
@@ -136,11 +201,23 @@ FILE(GLOB  vad
 		resampler/vad/vad_sp.c
 		resampler/vad/vad_sp.h
 		resampler/vad/webrtc_vad.c
+
+
+	vad/include/webrtc_vad.h
+    vad/vad_core.c
+    vad/vad_core.h
+    vad/vad_filterbank.c
+    vad/vad_filterbank.h
+    vad/vad_gmm.c
+    vad/vad_gmm.h
+    vad/vad_sp.c
+    vad/vad_sp.h
+    vad/webrtc_vad.c
 	
 
 )
 
-
+ 
 
 
 add_library(${PROJECT_NAME}  STATIC   ${vad}

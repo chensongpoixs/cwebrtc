@@ -1519,39 +1519,39 @@ FILE(GLOB  sigslot_source
 
 FILE(GLOB   warn_current_thread_is_deadlocked_source
 
-	experiments/warn_current_thread_is_deadlocked.h 
+	system/warn_current_thread_is_deadlocked.h 
 	
 	
 	# linux  
 	#warn_current_thread_is_deadlocked.cc
 
  
-	experiments/no_unique_address.h
+	system/no_unique_address.h
 
  
 
-			experiments/arch.h
+			system/arch.h
  
 
-		experiments/asm_defines.h
+		system/asm_defines.h
  
-	experiments/file_wrapper.h
-	experiments/file_wrapper.cc 
+	system/file_wrapper.h
+	system/file_wrapper.cc 
  
 
-	experiments/ignore_warnings.h
+	system/ignore_warnings.h
  
-	experiments/inline.h
+	system/inline.h
 	 
-	experiments/unused.h
+	system/unused.h
 	 
-	experiments/assume.h
+	system/assume.h
  
-    experiments/rtc_export.h
-    experiments/rtc_export_template.h
+    system/rtc_export.h
+    system/rtc_export_template.h
 	 
 	#thread_registry.cc 
-	experiments/thread_registry.h
+	system/thread_registry.h
 )
 
 
@@ -1559,44 +1559,44 @@ FILE(GLOB   warn_current_thread_is_deadlocked_source
 
 FILE(GLOB  system_alr_experiment_source
 
-	system/alr_experiment.cc 
-	system/alr_experiment.h 
-    system/field_trial_list.cc
-    system/field_trial_list.h
-    system/field_trial_parser.cc
-    system/field_trial_parser.h
-    system/field_trial_units.cc
-    system/field_trial_units.h
-    system/struct_parameters_parser.cc
-    system/struct_parameters_parser.h 
-	system/quality_rampup_experiment.h 
-	system/quality_rampup_experiment.cc  
-	system/quality_scaler_settings.h 
-	system/quality_scaler_settings.cc  
-	system/bandwidth_quality_scaler_settings.cc
-	system/bandwidth_quality_scaler_settings.h 
-	system/quality_scaling_experiment.cc 
-	system/quality_scaling_experiment.h 
-	system/normalize_simulcast_size_experiment.h 
-	system/normalize_simulcast_size_experiment.cc  
-	system/balanced_degradation_settings.cc 
-	system/balanced_degradation_settings.h  
-	system/cpu_speed_experiment.h 
-	system/cpu_speed_experiment.cc  
-	system/encoder_info_settings.h 
-	system/encoder_info_settings.cc  
-	system/rtt_mult_experiment.h 
-	system/rtt_mult_experiment.cc  
-	system/jitter_upper_bound_experiment.h 
-	system/jitter_upper_bound_experiment.cc  
-	system/rate_control_settings.h
-	system/rate_control_settings.cc  
-	system/keyframe_interval_settings.h
-	system/keyframe_interval_settings.cc  
-	system/stable_target_rate_experiment.h 
-	system/stable_target_rate_experiment.cc  
-	system/min_video_bitrate_experiment.h 
-	system/min_video_bitrate_experiment.cc 
+	experiments/alr_experiment.cc 
+	experiments/alr_experiment.h 
+    experiments/field_trial_list.cc
+    experiments/field_trial_list.h
+    experiments/field_trial_parser.cc
+    experiments/field_trial_parser.h
+    experiments/field_trial_units.cc
+    experiments/field_trial_units.h
+    experiments/struct_parameters_parser.cc
+    experiments/struct_parameters_parser.h 
+	experiments/quality_rampup_experiment.h 
+	experiments/quality_rampup_experiment.cc  
+	experiments/quality_scaler_settings.h 
+	experiments/quality_scaler_settings.cc  
+	experiments/bandwidth_quality_scaler_settings.cc
+	experiments/bandwidth_quality_scaler_settings.h 
+	experiments/quality_scaling_experiment.cc 
+	experiments/quality_scaling_experiment.h 
+	experiments/normalize_simulcast_size_experiment.h 
+	experiments/normalize_simulcast_size_experiment.cc  
+	experiments/balanced_degradation_settings.cc 
+	experiments/balanced_degradation_settings.h  
+	experiments/cpu_speed_experiment.h 
+	experiments/cpu_speed_experiment.cc  
+	experiments/encoder_info_settings.h 
+	experiments/encoder_info_settings.cc  
+	experiments/rtt_mult_experiment.h 
+	experiments/rtt_mult_experiment.cc  
+	experiments/jitter_upper_bound_experiment.h 
+	experiments/jitter_upper_bound_experiment.cc  
+	experiments/rate_control_settings.h
+	experiments/rate_control_settings.cc  
+	experiments/keyframe_interval_settings.h
+	experiments/keyframe_interval_settings.cc  
+	experiments/stable_target_rate_experiment.h 
+	experiments/stable_target_rate_experiment.cc  
+	experiments/min_video_bitrate_experiment.h 
+	experiments/min_video_bitrate_experiment.cc 
 )
 
 
