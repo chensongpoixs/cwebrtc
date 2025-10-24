@@ -679,9 +679,9 @@ class LogMessage {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // libtcp mobule
-#define  LIBTCP_LOG(sev) RTC_LOG(sev)  << "[libtcp]"
-#define  LIBTCP_LOG_F(sev) RTC_LOG_F(sev)<< "[libtcp]"
-#define  LIBTCP_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libtcp]"
+#define  LIBNETWORK_LOG(sev) RTC_LOG(sev)  << "[libnetwork]"
+#define  LIBNETWORK_LOG_F(sev) RTC_LOG_F(sev)<< "[libnetwork]"
+#define  LIBNETWORK_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libnetwork]"
 // libhttp mobule
 #define  LIBHTTP_LOG(sev) RTC_LOG(sev)  << "[libhttp]"
 #define  LIBHTTP_LOG_F(sev) RTC_LOG_F(sev)<< "[libhttp]"
