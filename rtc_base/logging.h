@@ -690,7 +690,10 @@ class LogMessage {
 #define  LIBMPEG_LOG(sev) RTC_LOG(sev)  << "[libmpeg]"
 #define  LIBMPEG_LOG_F(sev) RTC_LOG_F(sev)<< "[libmpeg]"
 #define  LIBMPEG_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libmpeg]"
-
+// libflv mobule
+#define  LIBFLV_LOG(sev) RTC_LOG(sev)  << "[libflv]"
+#define  LIBFLV_LOG_F(sev) RTC_LOG_F(sev)<< "[libflv]"
+#define  LIBFLV_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libflv]"
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 inline bool LogCheckLevel(LoggingSeverity sev) {
