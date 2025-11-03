@@ -891,10 +891,10 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		#${peerconnection}
 		#${rtc_pc_base}
 )
-add_dependencies(${PROJECT_NAME} libyuv)
+#add_dependencies(${PROJECT_NAME} libyuv)
 #add_dependencies(${PROJECT_NAME} libuv)
-add_dependencies(${PROJECT_NAME} libsrtp2)
-add_dependencies(${PROJECT_NAME} yaml_cpp)
+#add_dependencies(${PROJECT_NAME} libsrtp2)
+#add_dependencies(${PROJECT_NAME} yaml_cpp)
 elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
     file(GLOB exclude_src
         # "./src/rtc_base/win32.cc"
