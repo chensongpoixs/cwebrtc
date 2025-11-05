@@ -7,21 +7,21 @@
 namespace webrtc_demo {
 
 void DesktopCaptureSource::AddOrUpdateSink(
-    rtc::VideoSinkInterface<webrtc::VideoFrame>* sink,
-    const rtc::VideoSinkWants& wants) {
+    webrtc::VideoSinkInterface<webrtc::VideoFrame>* sink,
+    const webrtc::VideoSinkWants& wants) {
   broadcaster_.AddOrUpdateSink(sink, wants);
   UpdateVideoAdapter();
 }
 
 void DesktopCaptureSource::RemoveSink(
-    rtc::VideoSinkInterface<webrtc::VideoFrame>* sink) {
+    webrtc::VideoSinkInterface<webrtc::VideoFrame>* sink) {
   broadcaster_.RemoveSink(sink);
   UpdateVideoAdapter();
 }
 
 void DesktopCaptureSource::UpdateVideoAdapter() {
   video_adapter_.OnSinkWants(broadcaster_.wants());
-	rtc::VideoSinkWants wants = broadcaster_.wants();
+  webrtc::VideoSinkWants wants = broadcaster_.wants();
 	//video_adapter_.OnOutputFormatRequest( wants.resolutions);
 }
 

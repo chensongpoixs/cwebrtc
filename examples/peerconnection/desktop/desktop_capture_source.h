@@ -9,15 +9,16 @@
 namespace webrtc_demo {
 
 class DesktopCaptureSource
-    : public rtc::VideoSourceInterface<webrtc::VideoFrame> {
+    : public webrtc::VideoSourceInterface<webrtc::VideoFrame> {
  public:
   DesktopCaptureSource() {}
   ~DesktopCaptureSource() override {}
 
-  void AddOrUpdateSink(rtc::VideoSinkInterface<webrtc::VideoFrame>* sink,
-                       const rtc::VideoSinkWants& wants) override;
+  void AddOrUpdateSink(webrtc::VideoSinkInterface<webrtc::VideoFrame>* sink,
+                       const webrtc::VideoSinkWants& wants) override;
 
-  void RemoveSink(rtc::VideoSinkInterface<webrtc::VideoFrame>* sink) override;
+  void RemoveSink(
+      webrtc::VideoSinkInterface<webrtc::VideoFrame>* sink) override;
 
  protected:
   // Notify sinkes
@@ -26,8 +27,8 @@ class DesktopCaptureSource
  private:
   void UpdateVideoAdapter();
 
-  rtc::VideoBroadcaster broadcaster_;
-  cricket::VideoAdapter video_adapter_;
+  webrtc::VideoBroadcaster broadcaster_;
+  webrtc::VideoAdapter video_adapter_;
 };
 
 }  // namespace webrtc_demo

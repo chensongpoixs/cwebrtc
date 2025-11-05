@@ -16,7 +16,7 @@ namespace webrtc_demo {
 
 class DesktopCapture : public DesktopCaptureSource,
                        public webrtc::DesktopCapturer::Callback,
-                       public rtc::VideoSinkInterface<webrtc::VideoFrame> {
+                       public webrtc::VideoSinkInterface<webrtc::VideoFrame> {
  public:
   static DesktopCapture* Create(size_t target_fps, size_t capture_screen_index);
 
@@ -47,7 +47,7 @@ class DesktopCapture : public DesktopCaptureSource,
   std::unique_ptr<std::thread> capture_thread_;
   std::atomic_bool start_flag_;
 
-  rtc::scoped_refptr<webrtc::I420Buffer> i420_buffer_;
+  webrtc::scoped_refptr<webrtc::I420Buffer> i420_buffer_;
 };
 }  // namespace webrtc_demo
 

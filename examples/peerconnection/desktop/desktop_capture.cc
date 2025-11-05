@@ -110,9 +110,9 @@ void DesktopCapture::OnCaptureResult(
   webrtc::VideoFrame captureFrame =
 	  webrtc::VideoFrame::Builder()
 	  .set_video_frame_buffer(i420_buffer_)
-          .set_timestamp_rtp(rtc::TimeMillis())  // set_ntp_time_ms
-          .set_ntp_time_ms(rtc::TimeMillis())
-	  .set_timestamp_ms(rtc::TimeMillis())
+          .set_timestamp_rtp(webrtc::TimeMillis())  // set_ntp_time_ms
+          .set_ntp_time_ms(webrtc::TimeMillis())
+          .set_timestamp_ms(webrtc::TimeMillis())
 	  .set_rotation(webrtc::kVideoRotation_0)
 	  .build();
  // captureFrame.set_ntp_time_ms(0);
@@ -124,7 +124,7 @@ void DesktopCapture::OnCaptureResult(
 
 void DesktopCapture::StartCapture() {
   if (start_flag_) {
-    RTC_LOG(WARNING) << "Capture already been running...";
+    RTC_LOG(LS_WARNING) << "Capture already been running...";
     return;
   }
 

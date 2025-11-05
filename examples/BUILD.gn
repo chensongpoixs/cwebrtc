@@ -797,6 +797,10 @@ if (is_linux || is_chromeos || is_win) {
       "peerconnection/desktop/defaults.h",
       "peerconnection/desktop/peer_connection_client.cc",
       "peerconnection/desktop/peer_connection_client.h",
+      "peerconnection/desktop/desktop_capture.cc",
+      "peerconnection/desktop/desktop_capture.h",
+      "peerconnection/desktop/desktop_capture_source.cc",
+      "peerconnection/desktop/desktop_capture_source.h",
     ]
 
     deps = [
