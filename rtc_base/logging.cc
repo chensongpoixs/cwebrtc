@@ -85,6 +85,12 @@ webrtc::Mutex g_log_mutex_;
 
 bool LogMessage::log_to_stderr_ = true;
 
+static set_log_out_ptr  g_log_ptr = nullptr;
+void SetRtcLogOutCallback(set_log_out_ptr log_out_ptr)
+{
+    g_log_ptr = log_out_ptr;
+}
+
 // The list of logging streams currently configured.
 // Note: we explicitly do not clean this up, because of the uncertain ordering
 // of destructors at program exit.  Let the person who sets the stream trigger
@@ -198,7 +204,15 @@ LogMessage::~LogMessage() {
 #if defined(WEBRTC_ANDROID)
     OutputToDebug(str, severity_, tag_);
 #else
-    OutputToDebug(str, severity_);
+      if (g_log_ptr)
+      {
+          g_log_ptr(str.c_str());
+      }
+      else
+      {
+
+          OutputToDebug(str, severity_);
+      }
 #endif
   }
 
