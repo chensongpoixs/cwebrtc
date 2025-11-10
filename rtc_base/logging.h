@@ -641,60 +641,7 @@ class LogMessage {
 #define RTC_LOG_CHECK_LEVEL(sev) ::rtc::LogCheckLevel(::rtc::sev)
 #define RTC_LOG_CHECK_LEVEL_V(sev) ::rtc::LogCheckLevel(sev)
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// librtc mobule
-#define  LIBRTC_LOG(sev)  RTC_LOG(sev)  << "[librtc]"
-#define  LIBRTC_LOG_F(sev)  RTC_LOG_F(sev) << "[librtc]"
-#define  LIBRTC_LOG_T_F(sev)  RTC_LOG_T_F(sev) << "[librtc]"
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// libssl mobule
-#define  LIBSSL_LOG(sev)  RTC_LOG(sev)  << "[libssl]"
-#define  LIBSSL_LOG_F(sev)  RTC_LOG_F(sev) << "[libssl]"
-#define  LIBSSL_LOG_T_F(sev)  RTC_LOG_T_F(sev) << "[libssl]"
-
-// libsrtp mobule
-#define  LIBSRTP_LOG(sev)  RTC_LOG(sev)  << "[libsrtp]"
-#define  LIBSRTP_LOG_F(sev)  RTC_LOG_F(sev) << "[libsrtp]"
-#define  LIBSRTP_LOG_T_F(sev)  RTC_LOG_T_F(sev) << "[libsrtp]"
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// GbMediaServer mobule
-#define  GBMEDIASERVER_LOG(sev)  RTC_LOG(sev)  << "[GbMediaServer]"
-#define  GBMEDIASERVER_LOG_F(sev)  RTC_LOG_F(sev) << "[GbMediaServer]"
-#define  GBMEDIASERVER_LOG_T_F(sev)  RTC_LOG_T_F(sev) << "[GbMediaServer]"
-// sipServer mobule
-#define  SIPSERVER_LOG(sev)  RTC_LOG(sev)			<< "[SipServer]"
-#define  SIPSERVER_LOG_F(sev)  RTC_LOG_F(sev)		<< "[SipServer]"
-#define  SIPSERVER_LOG_T_F(sev)  RTC_LOG_T_F(sev)	<< "[SipServer]"
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// libmedia_codec mobule
-#define  LIBMEIDA_CODEC_LOG(sev)  RTC_LOG(sev)			<< "[libmedia_codec]"
-#define  LIBMEIDA_CODEC_LOG_F(sev)  RTC_LOG_F(sev)		<< "[libmedia_codec]"
-#define  LIBMEIDA_CODEC_LOG_T_F(sev)  RTC_LOG_T_F(sev)	<< "[libmedia_codec]"
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// libtcp mobule
-#define  LIBNETWORK_LOG(sev) RTC_LOG(sev)  << "[libnetwork]"
-#define  LIBNETWORK_LOG_F(sev) RTC_LOG_F(sev)<< "[libnetwork]"
-#define  LIBNETWORK_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libnetwork]"
-// libhttp mobule
-#define  LIBHTTP_LOG(sev) RTC_LOG(sev)  << "[libhttp]"
-#define  LIBHTTP_LOG_F(sev) RTC_LOG_F(sev)<< "[libhttp]"
-#define  LIBHTTP_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libhttp]"
-// libmpeg mobule
-#define  LIBMPEG_LOG(sev) RTC_LOG(sev)  << "[libmpeg]"
-#define  LIBMPEG_LOG_F(sev) RTC_LOG_F(sev)<< "[libmpeg]"
-#define  LIBMPEG_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libmpeg]"
-// libflv mobule
-#define  LIBFLV_LOG(sev) RTC_LOG(sev)  << "[libflv]"
-#define  LIBFLV_LOG_F(sev) RTC_LOG_F(sev)<< "[libflv]"
-#define  LIBFLV_LOG_T_F(sev)  RTC_LOG_T_F(sev)<< "[libflv]"
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 inline bool LogCheckLevel(LoggingSeverity sev) {
   return (LogMessage::GetMinLogSeverity() <= sev);
