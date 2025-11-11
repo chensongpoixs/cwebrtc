@@ -387,7 +387,7 @@ RTC_NORETURN RTC_EXPORT void UnreachableCodeReached();
   (condition) ? static_cast<void>(0)                            \
               : ::rtc::webrtc_checks_impl::FatalLogCall<false>( \
                     __FILE__, __LINE__, #condition) &           \
-                    ::rtc::webrtc_checks_impl::LogStreamer<>() 
+                    ::rtc::webrtc_checks_impl::LogStreamer<>()
 
 
 #define RTC_CHECK_DESC(condition, desc)                                    \

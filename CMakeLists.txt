@@ -866,6 +866,15 @@ endif()
 #    libcrypto.lib)
 #endif()
 
+
+FILE(GLOB   remote_bitrate_estimator_source
+
+    modules/remote_bitrate_estimator/packet_arrival_map.h
+    modules/remote_bitrate_estimator/packet_arrival_map.cc 
+
+
+)
+
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_library(${PROJECT_NAME}   STATIC
         ${all_src}
@@ -890,6 +899,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		#${api}
 		#${peerconnection}
 		#${rtc_pc_base}
+        ${remote_bitrate_estimator_source}
 )
 #add_dependencies(${PROJECT_NAME} libyuv)
 #add_dependencies(${PROJECT_NAME} libuv)
@@ -918,6 +928,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 		#${audio_processing}
 		# ${rtc_base}
 		${rtp_rtcp}
+        ${remote_bitrate_estimator_source}
 		# ${api}
 	#	${peerconnection}
 		#${rtc_pc_base}
@@ -965,6 +976,7 @@ set(AllFile ${all_src}
 		#${audio_processing}
 		# ${rtc_base}
 		${rtp_rtcp}
+        ${remote_bitrate_estimator_source}
 	#	${peerconnection}
 	#	${rtc_pc_base}
 		)
