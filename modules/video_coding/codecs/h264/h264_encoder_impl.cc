@@ -58,7 +58,7 @@
 #include "third_party/openh264/src/codec/api/wels/codec_app_def.h"
 #include "third_party/openh264/src/codec/api/wels/codec_def.h"
 #include "third_party/openh264/src/codec/api/wels/codec_ver.h"
-
+#include "rtc_base/time_utils.h"
 namespace webrtc {
 
 namespace {
@@ -200,7 +200,9 @@ H264EncoderImpl::H264EncoderImpl(const Environment& env,
       has_reported_init_(false),
       has_reported_error_(false),
       calculate_psnr_(
-          env.field_trials().IsEnabled("WebRTC-Video-CalculatePsnr")) {
+          env.field_trials().IsEnabled("WebRTC-Video-CalculatePsnr")),
+      frame_num_(0),
+      frame_mils_(webrtc::SystemTimeMillis()) {
   downscaled_buffers_.reserve(kMaxSimulcastStreams - 1);
   encoded_images_.reserve(kMaxSimulcastStreams);
   encoders_.reserve(kMaxSimulcastStreams);
@@ -642,6 +644,16 @@ int32_t H264EncoderImpl::Encode(
                                               &codec_specific);
     }
   }
+  ++frame_num_;
+
+  if (webrtc::SystemTimeMillis() - frame_mils_ > 1000)
+  {
+    RTC_LOG(LS_INFO) << "+======> encoder fps : " << frame_num_;
+    frame_num_ = 0;
+    frame_mils_ = webrtc::SystemTimeMillis();
+  }
+
+
   return WEBRTC_VIDEO_CODEC_OK;
 }
 

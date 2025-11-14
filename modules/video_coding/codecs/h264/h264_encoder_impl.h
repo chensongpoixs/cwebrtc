@@ -132,6 +132,8 @@ class H264EncoderImpl : public VideoEncoder {
   FrameSampler psnr_frame_sampler_;
   // TODO(webrtc:388070060): Remove after rollout.
   const bool calculate_psnr_;
+  int32_t frame_num_;
+  int64_t frame_mils_;
 };
 
 }  // namespace webrtc

@@ -22,7 +22,7 @@
 namespace webrtc {
 
 inline constexpr DataRate kCongestionControllerMinBitrate =
-    DataRate::BitsPerSec(5'000);
+    DataRate::BitsPerSec(80000);
 inline constexpr TimeDelta kBitrateWindow = TimeDelta::Seconds(1);
 
 extern const char kBweTypeHistogram[];
