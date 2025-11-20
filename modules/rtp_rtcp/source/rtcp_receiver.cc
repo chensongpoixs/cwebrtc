@@ -58,6 +58,7 @@
 #include "modules/rtp_rtcp/source/rtcp_packet/sender_report.h"
 #include "modules/rtp_rtcp/source/rtcp_packet/tmmbn.h"
 #include "modules/rtp_rtcp/source/rtcp_packet/tmmbr.h"
+#include "modules/rtp_rtcp/source/rtcp_packet/stream.h"
 #include "modules/rtp_rtcp/source/rtcp_packet/transport_feedback.h"
 #include "modules/rtp_rtcp/source/rtp_rtcp_interface.h"
 #include "modules/rtp_rtcp/source/tmmbr_help.h"
@@ -150,6 +151,8 @@ struct RTCPReceiver::PacketInformation {
   std::optional<VideoBitrateAllocation> target_bitrate_allocation;
   std::optional<NetworkStateEstimate> network_state_estimate;
   std::unique_ptr<rtcp::LossNotification> loss_notification;
+  // 是否开启抓拍传输
+  bool enable = true;
 };
 
 RTCPReceiver::RTCPReceiver(const Environment& env,
@@ -178,7 +181,8 @@ RTCPReceiver::RTCPReceiver(const Environment& env,
       report_block_data_observer_(config.report_block_data_observer),
       packet_type_counter_observer_(config.rtcp_packet_type_counter_observer),
       num_skipped_packets_(0),
-      last_skipped_packets_warning_(env_.clock().CurrentTime()) {
+      last_skipped_packets_warning_(env_.clock().CurrentTime()) ,
+      transport_ (config.transport){
   RTC_DCHECK(owner);
 }
 
@@ -399,6 +403,10 @@ bool RTCPReceiver::ParseCompoundPacket(ArrayView<const uint8_t> packet,
       case rtcp::App::kPacketType:
         valid = HandleApp(rtcp_block, packet_information);
         break;
+      case rtcp::Stream::kPacketType: {
+          valid = HandleStream(rtcp_block, packet_information);
+          break;
+      }
       case rtcp::Rtpfb::kPacketType:
         switch (rtcp_block.fmt()) {
           case rtcp::Nack::kFeedbackMessageType:
@@ -772,6 +780,18 @@ bool RTCPReceiver::HandleBye(const CommonHeader& rtcp_block) {
   xr_rr_rtt_ = std::nullopt;
   return true;
 }
+bool RTCPReceiver::HandleStream(const rtcp::CommonHeader& rtcp_block,
+                                PacketInformation* packet_information) {
+  rtcp::Stream stream;
+  if (!stream.Parse(rtcp_block)) {
+    return false;
+  }
+
+  
+  packet_information->packet_type_flags |= kRtcpStream;
+  packet_information->enable = stream.Status();
+  return true;
+}
 
 bool RTCPReceiver::HandleXr(const CommonHeader& rtcp_block,
                             PacketInformation* packet_information,
@@ -1071,6 +1091,16 @@ void RTCPReceiver::NotifyTmmbrUpdated() {
 // Holding no Critical section.
 void RTCPReceiver::TriggerCallbacksFromRtcpPacket(
     const PacketInformation& packet_information) {
+
+
+    // TODO@chensong 2025-11-20  对流的处理
+    if (packet_information.packet_type_flags & kRtcpStream)
+    {
+        if (transport_)
+        {
+            transport_->OnCapture(packet_information.enable);
+        }
+    }
   // Process TMMBR and REMB first to avoid multiple callbacks
   // to OnNetworkChanged.
   if (packet_information.packet_type_flags & kRtcpTmmbr) {

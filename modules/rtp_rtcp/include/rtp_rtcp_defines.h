@@ -111,6 +111,7 @@ enum RTCPPacketType : uint32_t {
   kRtcpXrDlrrReportBlock = 0x80000,
   kRtcpTransportFeedback = 0x100000,
   kRtcpXrTargetBitrate = 0x200000,
+  kRtcpStream = 0x400000,
 };
 
 enum class KeyFrameReqMethod : uint8_t {

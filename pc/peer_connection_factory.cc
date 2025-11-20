@@ -285,8 +285,8 @@ PeerConnectionFactory::CreatePeerConnectionOrError(
   dependencies.allocator->SetVpnList(configuration.vpn_list);
 
   std::unique_ptr<Call> call =
-      worker_thread()->BlockingCall([this, &env, &configuration] {
-        return CreateCall_w(env, std::move(configuration));
+      worker_thread()->BlockingCall([this, &env, &configuration,  & dependencies] {
+        return CreateCall_w(env, std::move(configuration), dependencies);
       });
 
   auto pc = PeerConnection::Create(env, context_, options_, std::move(call),
@@ -329,7 +329,8 @@ scoped_refptr<AudioTrackInterface> PeerConnectionFactory::CreateAudioTrack(
 
 std::unique_ptr<Call> PeerConnectionFactory::CreateCall_w(
     const Environment& env,
-    const PeerConnectionInterface::RTCConfiguration& configuration) {
+    const PeerConnectionInterface::RTCConfiguration& configuration,
+    const PeerConnectionDependencies& dependencies) {
   RTC_DCHECK_RUN_ON(worker_thread());
 
   CallConfig call_config(env, network_thread());
@@ -369,6 +370,7 @@ std::unique_ptr<Call> PeerConnectionFactory::CreateCall_w(
   call_config.decode_metronome = decode_metronome_.get();
   call_config.encode_metronome = encode_metronome_.get();
   call_config.pacer_burst_interval = configuration.pacer_burst_interval;
+  call_config.observer =  dependencies.observer;
   return context_->call_factory()->CreateCall(std::move(call_config));
 }
 

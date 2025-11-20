@@ -26,6 +26,8 @@
 #include "call/audio_state.h"
 #include "call/rtp_transport_config.h"
 
+#include "api/peer_connection_interface.h"
+
 namespace webrtc {
 
 class AudioProcessing;
@@ -85,6 +87,10 @@ struct CallConfig {
 
   // Enables send packet batching from the egress RTP sender.
   bool enable_send_packet_batching = false;
+
+
+
+  PeerConnectionObserver* observer = nullptr;
 };
 
 }  // namespace webrtc

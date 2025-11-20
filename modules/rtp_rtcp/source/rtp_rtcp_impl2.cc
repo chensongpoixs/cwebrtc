@@ -104,7 +104,8 @@ ModuleRtpRtcpImpl2::ModuleRtpRtcpImpl2(const Environment& env,
       nack_last_time_sent_full_ms_(0),
       nack_last_seq_number_sent_(0),
       rtt_stats_(configuration.rtt_stats),
-      rtt_ms_(0) {
+      rtt_ms_(0), 
+transport_ (configuration.transport){
   RTC_DCHECK(worker_queue_);
   rtcp_thread_checker_.Detach();
   if (!configuration.receiver_only) {

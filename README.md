@@ -36,12 +36,18 @@ native API header files.
 win
 
 
+
 ```
-gn gen --ide=vs2019 --args='target_os=\"win\" target_cpu=\"x64\" is_debug=true is_clang=true use_lld=false is_component_build=true rtc_use_h264=true rtc_use_h265=true  ffmpeg_branding=\"Chrome\" rtc_build_ssl=true'  out/vs2019_debug_chensong
+gn gen --ide=vs2022 --args='target_os=\"win\" target_cpu=\"x64\" is_debug=true is_clang=true use_lld=false is_component_build=false rtc_use_h264=true rtc_use_h265=true  ffmpeg_branding=\"Chrome\" rtc_build_ssl=true' 
+
+
+gn gen --ide=vs2022 --args='target_os=\"win\" target_cpu=\"x64\" is_debug=true is_clang=true use_lld=false is_component_build=false rtc_use_h264=true rtc_use_h265=true  ffmpeg_branding=\"Chrome\" rtc_build_ssl=true  use_custom_libcxx=false  proprietary_codecs=true'  out/vs2022_debug_chensong
 ```
 
 
 relase
+
+
 
 ```
 gn gen --ide=vs2022 --args='target_os=\"win\" target_cpu=\"x64\" is_debug=false is_clang=true use_lld=false is_component_build=false rtc_use_h264=true rtc_use_h265=true  ffmpeg_branding=\"Chrome\" rtc_build_ssl=true  use_custom_libcxx=false  proprietary_codecs=true'  out/vs2022_release_chensong

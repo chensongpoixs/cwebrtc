@@ -323,6 +323,10 @@ class ModuleRtpRtcpImpl2 final : public RtpRtcpInterface,
   int64_t rtt_ms_ RTC_GUARDED_BY(mutex_rtt_);
 
   RTC_NO_UNIQUE_ADDRESS ScopedTaskSafety task_safety_;
+
+
+  RtpTransportControllerSendInterface *transport_ = nullptr;
+
 };
 
 }  // namespace webrtc

@@ -264,7 +264,7 @@ std::vector<RtpStreamSender> CreateRtpStreamSenders(
   configuration.rtcp_report_interval_ms = rtcp_report_interval_ms;
   configuration.enable_send_packet_batching =
       rtp_config.enable_send_packet_batching;
-
+  configuration.transport = transport;
   std::vector<RtpStreamSender> rtp_streams;
 
   RTC_DCHECK(rtp_config.rtx.ssrcs.empty() ||

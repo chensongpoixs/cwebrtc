@@ -37,6 +37,8 @@
 #include "modules/rtp_rtcp/source/rtp_sequence_number_map.h"
 #include "modules/rtp_rtcp/source/video_fec_generator.h"
 #include "system_wrappers/include/ntp_time.h"
+#include "call/rtp_transport_controller_send_interface.h"
+
 
 namespace webrtc {
 
@@ -137,6 +139,9 @@ class RtpRtcpInterface : public RtcpFeedbackSenderInterface {
 
     // Enables send packet batching from the egress RTP sender.
     bool enable_send_packet_batching = false;
+
+
+    RtpTransportControllerSendInterface* transport = nullptr;
   };
 
   // Stats for RTCP sender reports (SR) for a specific SSRC.

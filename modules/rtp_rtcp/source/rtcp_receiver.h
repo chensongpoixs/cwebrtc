@@ -290,7 +290,9 @@ class RTCPReceiver final {
 
   bool HandleBye(const rtcp::CommonHeader& rtcp_block)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
-
+  bool HandleStream(
+      const rtcp::CommonHeader& rtcp_block, PacketInformation* packet_information)
+      RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
   bool HandlePli(const rtcp::CommonHeader& rtcp_block,
                  PacketInformation* packet_information)
       RTC_EXCLUSIVE_LOCKS_REQUIRED(rtcp_receiver_lock_);
@@ -395,6 +397,9 @@ class RTCPReceiver final {
 
   size_t num_skipped_packets_;
   Timestamp last_skipped_packets_warning_;
+
+  
+  RtpTransportControllerSendInterface* transport_ = nullptr;
 };
 }  // namespace webrtc
 #endif  // MODULES_RTP_RTCP_SOURCE_RTCP_RECEIVER_H_

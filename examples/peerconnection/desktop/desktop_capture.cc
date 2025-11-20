@@ -69,16 +69,11 @@ void DesktopCapture::OnCaptureResult(
     std::unique_ptr<webrtc::DesktopFrame> frame) {
   //RTC_LOG(LS_INFO) << "new Frame";
 
-  static auto timestamp =
-      std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::system_clock::now().time_since_epoch())
-          .count();
+  static auto timestamp = webrtc::SystemTimeMillis();
   static size_t cnt = 0;
 
   cnt++;
-  auto timestamp_curr = std::chrono::duration_cast<std::chrono::milliseconds>(
-                            std::chrono::system_clock::now().time_since_epoch())
-                            .count();
+  auto timestamp_curr = webrtc::SystemTimeMillis();
   if (timestamp_curr - timestamp > 1000) {
     RTC_LOG(LS_INFO) << "FPS: " << cnt;
     cnt = 0;

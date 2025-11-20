@@ -528,7 +528,7 @@ std::string Call::Stats::ToString(int64_t time_ms) const {
 
 std::unique_ptr<Call> Call::Create(CallConfig config) {
   auto transport_send = std::make_unique<RtpTransportControllerSend>(
-      config.ExtractTransportConfig());
+      config.ExtractTransportConfig(), config.observer);
 
   return std::make_unique<internal::Call>(std::move(config),
                                           std::move(transport_send));

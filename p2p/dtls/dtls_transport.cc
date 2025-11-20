@@ -55,6 +55,8 @@
 #include "rtc_base/ssl_stream_adapter.h"
 #include "rtc_base/stream.h"
 #include "rtc_base/thread.h"
+#include "rtc_base/string_utils.h"
+#include "rtc_base/string_encode.h"
 
 namespace webrtc {
 
@@ -822,7 +824,9 @@ void DtlsTransportInternalImpl::OnReadPacket(PacketTransportInternal* transport,
         // And it had better be a SRTP packet.
         if (!IsRtpPacket(packet.payload())) {
           RTC_LOG(LS_ERROR)
-              << ToString() << ": Received unexpected non-DTLS packet.";
+              << ToString() << ": Received unexpected non-DTLS packet. hex: "
+              << webrtc::hex_encode(std::string((const char *)packet.payload().data(), packet.payload().size()));
+           
           return;
         }
 

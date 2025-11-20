@@ -165,6 +165,10 @@ class RtpTransportControllerSendInterface {
   virtual std::optional<int> ReceivedCongestionControlFeedbackCount() const = 0;
   // Count of transport-cc feedback reports received
   virtual std::optional<int> ReceivedTransportCcFeedbackCount() const = 0;
+
+
+
+  virtual void OnCapture(bool enable) const = 0;
 };
 
 }  // namespace webrtc

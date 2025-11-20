@@ -96,7 +96,7 @@ bool IsRelayed(const NetworkRoute& route) {
 }  // namespace
 
 RtpTransportControllerSend::RtpTransportControllerSend(
-    const RtpTransportConfig& config)
+    const RtpTransportConfig& config, PeerConnectionObserver* peerconnection_observer)
     : env_(config.env),
       task_queue_(TaskQueueBase::Current()),
       bitrate_configurator_(config.bitrate_config),
@@ -126,7 +126,8 @@ RtpTransportControllerSend::RtpTransportControllerSend(
       network_available_(false),
       congestion_window_size_(DataSize::PlusInfinity()),
       is_congested_(false),
-      retransmission_rate_limiter_(&env_.clock(), kRetransmitWindowSizeMs) {
+      retransmission_rate_limiter_(&env_.clock(), kRetransmitWindowSizeMs),
+      peer_connection_observer_(peerconnection_observer) {
   ParseFieldTrial(
       {&relay_bandwidth_cap_},
       env_.field_trials().Lookup("WebRTC-Bwe-NetworkRouteConstraints"));
@@ -856,4 +857,13 @@ void RtpTransportControllerSend::OnReport(
   last_report_block_time_ = receive_time;
 }
 
+
+
+void RtpTransportControllerSend::OnCapture(bool enable) const {
+    if (peer_connection_observer_)
+    {
+    peer_connection_observer_->OnCapture(enable);
+  }
+
+}
 }  // namespace webrtc

@@ -55,6 +55,9 @@
 #include "rtc_base/task_utils/repeating_task.h"
 #include "rtc_base/thread_annotations.h"
 
+#include "api/peer_connection_interface.h"
+
+
 namespace webrtc {
 class FrameEncryptorInterface;
 
@@ -63,7 +66,8 @@ class RtpTransportControllerSend final
       public NetworkLinkRtcpObserver,
       public NetworkStateEstimateObserver {
  public:
-  explicit RtpTransportControllerSend(const RtpTransportConfig& config);
+  explicit RtpTransportControllerSend(
+      const RtpTransportConfig& config, PeerConnectionObserver* observer);
   ~RtpTransportControllerSend() override;
 
   RtpTransportControllerSend(const RtpTransportControllerSend&) = delete;
@@ -148,6 +152,7 @@ class RtpTransportControllerSend final
   std::optional<int> ReceivedCongestionControlFeedbackCount() const override;
   std::optional<int> ReceivedTransportCcFeedbackCount() const override;
 
+    void OnCapture(bool enable) const override; 
  private:
   void MaybeCreateControllers() RTC_RUN_ON(sequence_checker_);
   void HandleTransportPacketsFeedback(const TransportPacketsFeedback& feedback)
@@ -247,6 +252,7 @@ class RtpTransportControllerSend final
   RateLimiter retransmission_rate_limiter_;
 
   ScopedTaskSafety safety_;
+  PeerConnectionObserver* peer_connection_observer_ = nullptr;
 };
 
 }  // namespace webrtc

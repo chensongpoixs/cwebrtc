@@ -360,6 +360,12 @@ void Conductor::OnIceCandidate(const webrtc::IceCandidate* candidate) {
 // PeerConnectionClientObserver implementation.
 //
 
+void Conductor::OnCapture(bool enable) 
+{
+
+    RTC_LOG_T_F(LS_INFO) << "enable:" << enable;
+}
+
 void Conductor::OnSignedIn() {
   RTC_LOG(LS_INFO) << __FUNCTION__;
   main_wnd_->SwitchToPeerList(client_->peers());
