@@ -67,7 +67,7 @@ class RtpTransportControllerSend final
       public NetworkStateEstimateObserver {
  public:
   explicit RtpTransportControllerSend(
-      const RtpTransportConfig& config, PeerConnectionObserver* observer);
+      const RtpTransportConfig& config, PeerConnectionObserver* observer = nullptr);
   ~RtpTransportControllerSend() override;
 
   RtpTransportControllerSend(const RtpTransportControllerSend&) = delete;
