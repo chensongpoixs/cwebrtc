@@ -125,7 +125,7 @@ TaskQueueStdlib::TaskQueueStdlib(
       flag_notify_(/*manual_reset=*/false, /*initially_signaled=*/false),
       thread_(rtc::PlatformThread::SpawnJoinable(
           [this] {
-            // CurrentTaskQueueSetter set_current(this);
+             CurrentTaskQueueSetter set_current(this);
             ProcessTasks();
           },
           queue_name,
@@ -134,7 +134,7 @@ TaskQueueStdlib::TaskQueueStdlib(
 }
 
 void TaskQueueStdlib::Delete() {
- // RTC_DCHECK(!IsCurrent());
+  RTC_DCHECK(!IsCurrent());
 
   {
     MutexLock lock(&pending_lock_);

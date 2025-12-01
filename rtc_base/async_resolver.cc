@@ -124,9 +124,9 @@ void AsyncResolver::Start(const SocketAddress& addr) {
   RTC_DCHECK(!destroy_called_);
   addr_ = addr;
 
-  webrtc::TaskQueueBase * caller_task_queue = webrtc::TaskQueueBase::Current();
+  //webrtc::TaskQueueBase * caller_task_queue = webrtc::TaskQueueBase::Current();
   PlatformThread::SpawnDetached(
-      [this, addr, caller_task_queue  ,
+      [this, addr, caller_task_queue = webrtc::TaskQueueBase::Current() ,
        state = state_] {
         std::vector<IPAddress> addresses;
         int error =

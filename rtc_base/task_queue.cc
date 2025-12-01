@@ -26,8 +26,8 @@ TaskQueue::~TaskQueue() {
 }
 
 bool TaskQueue::IsCurrent() const {
-  return true;
-  //return impl_->IsCurrent();
+  //return true;
+  return impl_->IsCurrent();
 }
 
 void TaskQueue::PostTask(std::unique_ptr<webrtc::QueuedTask> task) {

@@ -36,11 +36,11 @@ const void* GetSystemQueueRef() {
 SequenceCheckerImpl::SequenceCheckerImpl()
     : attached_(true),
       valid_thread_(rtc::CurrentThreadRef()),
-    //  valid_queue_(TaskQueueBase::Current()),
+      valid_queue_(TaskQueueBase::Current()),
       valid_system_queue_(GetSystemQueueRef()) {}
 
 bool SequenceCheckerImpl::IsCurrent() const {
-  const TaskQueueBase* const current_queue =  nullptr; //TaskQueueBase::Current();
+  const TaskQueueBase* const current_queue =  TaskQueueBase::Current();
   const rtc::PlatformThreadRef current_thread = rtc::CurrentThreadRef();
   const void* const current_system_queue = GetSystemQueueRef();
   MutexLock scoped_lock(&lock_);
@@ -69,7 +69,7 @@ void SequenceCheckerImpl::Detach() {
 
 #if RTC_DCHECK_IS_ON
 std::string SequenceCheckerImpl::ExpectationToString() const {
-  const TaskQueueBase* const current_queue = nullptr; //TaskQueueBase::Current();
+  const TaskQueueBase* const current_queue = TaskQueueBase::Current();
   const rtc::PlatformThreadRef current_thread = rtc::CurrentThreadRef();
   const void* const current_system_queue = GetSystemQueueRef();
   MutexLock scoped_lock(&lock_);
