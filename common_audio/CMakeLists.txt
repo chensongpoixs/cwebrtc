@@ -227,6 +227,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		fir_filter_sse.h  
 		resampler/sinc_resampler_avx2.cc
 		resampler/sinc_resampler_sse.cc
+			   fir_filter_sse.cc
+       fir_filter_sse.h
+       resampler/sinc_resampler_sse.cc
+       fir_filter_avx2.cc
+       fir_filter_avx2.h
+       resampler/sinc_resampler_avx2.cc
+	   	resampler/sinc_resampler_avx2.cc
+		resampler/sinc_resampler_sse.cc
 	)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	message(STATUS "common_audio current platform: unix")
@@ -249,6 +257,7 @@ add_library(${PROJECT_NAME}  STATIC   ${vad}
 	${ooura}
 	${spl_sqrt_floor}
 	${signal_processing}
+	${common_audio_win_source}
 	)
 	
 	
@@ -261,6 +270,7 @@ set(AllFile
   ${resampler}
 
 	${common_audio_source}
+	${common_audio_win_source}
 	${ooura}
 	${spl_sqrt_floor}
 	${signal_processing}
