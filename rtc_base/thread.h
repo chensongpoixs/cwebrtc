@@ -679,8 +679,7 @@ class RTC_LOCKABLE RTC_EXPORT Thread : public webrtc::TaskQueueBase {
 
   // Runs webrtc::QueuedTask posted to the Thread.
   QueuedTaskHandler queued_task_handler_;
-  std::unique_ptr<TaskQueueBase::CurrentTaskQueueSetter>
-      task_queue_registration_;
+  //std::unique_ptr<TaskQueueBase::CurrentTaskQueueSetter> task_queue_registration_;
 
   friend class ThreadManager;
 

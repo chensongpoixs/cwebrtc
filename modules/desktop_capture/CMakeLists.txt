@@ -18,7 +18,7 @@ FILE(GLOB  screen_drawer_source
 
 	  screen_drawer.cc
       screen_drawer.h
-	  screen_drawer_win.cc
+	#  screen_drawer_win.cc
 )
 
 FILE(GLOB  primitives_source
@@ -85,10 +85,23 @@ FILE(GLOB   desktop_capture_generic_source
     screen_capturer_helper.h
     window_finder.cc
     window_finder.h
-	app_capturer_win.cc
+	#app_capturer_win.cc
+      #  win/desktop_device_info_win.cc
+       # win/win_shared.cc
+	 
+	 
+	 
+	 
+)
+
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    message(STATUS "desktop_capture  current platform: windows")
+    FILE(GLOB   desktop_capture_win_generic_source
+            app_capturer_win.cc
         win/desktop_device_info_win.cc
         win/win_shared.cc
-	  cropping_window_capturer_win.cc
+         cropping_window_capturer_win.cc
       desktop_frame_win.cc
       desktop_frame_win.h
       mouse_cursor_monitor_win.cc
@@ -152,10 +165,65 @@ FILE(GLOB   desktop_capture_generic_source
      win/wgc_capturer_win.h
      win/wgc_desktop_frame.cc
      win/wgc_desktop_frame.h
-	 
-	 
-	 
-)
+
+     screen_drawer_win.cc
+    )
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	message(STATUS "desktop_capture current platform: unix")
+    FILE(GLOB   desktop_capture_linux_generic_source
+       mouse_cursor_monitor_linux.cc
+      screen_capturer_linux.cc
+      window_capturer_linux.cc
+        app_capturer_linux.cc
+        linux/app_capturer_x11.cc
+        linux/desktop_device_info_linux.cc
+        linux/desktop_device_info_linux.h
+        linux/shared_x_util.cc
+        linux/shared_x_util.h
+            linux/mouse_cursor_monitor_x11.cc
+      linux/mouse_cursor_monitor_x11.h
+      linux/screen_capturer_x11.cc
+      linux/screen_capturer_x11.h
+      linux/shared_x_display.cc
+      linux/shared_x_display.h
+      linux/window_capturer_x11.cc
+      linux/window_capturer_x11.h
+      linux/window_finder_x11.cc
+      linux/window_finder_x11.h
+      linux/window_list_utils.cc
+      linux/window_list_utils.h
+      linux/x_atom_cache.cc
+      linux/x_atom_cache.h
+      linux/x_error_trap.cc
+      linux/x_error_trap.h
+      linux/x_server_pixel_buffer.cc
+      linux/x_server_pixel_buffer.h
+      linux/x_window_property.cc
+      linux/x_window_property.h
+
+
+    #  "X11",
+    #  "Xcomposite",
+    #  "Xdamage",
+    #  "Xext",
+    #  "Xfixes",
+    #  "Xrender",
+    #  "Xrandr",
+    #  "Xtst",
+      linux/base_capturer_pipewire.cc
+      linux/base_capturer_pipewire.h
+      linux/egl_dmabuf.cc
+      linux/egl_dmabuf.h
+
+                screen_drawer_lock_posix.cc
+        screen_drawer_lock_posix.h
+        screen_drawer_linux.cc
+        screen_drawer_lock_posix.cc
+        screen_drawer_lock_posix.h
+    )
+
+
+endif()
 
 
 
@@ -176,7 +244,8 @@ add_library(${PROJECT_NAME} STATIC ${desktop_capture_generic_source}
 
   ${screen_drawer_source}
   
-  
+  ${desktop_capture_win_generic_source}
+#  ${desktop_capture_linux_generic_source}
 )
 
 set(AllFile
@@ -186,7 +255,8 @@ ${desktop_capture_generic_source}
 ${primitives_source}
 ${desktop_capture_differ_sse2_source}
 ${screen_drawer_source}
-
+  ${desktop_capture_win_generic_source}
+ # ${desktop_capture_linux_generic_source}
 )
 foreach(fileItem ${AllFile})       
     # Get the directory of the source file

@@ -20,19 +20,7 @@ FILE(GLOB  video_capture_module_source
 )
 
 
-FILE(GLOB  video_capture_internal_impl_source
 
-
-        windows/device_info_ds.cc
-        windows/device_info_ds.h
-        windows/help_functions_ds.cc
-        windows/help_functions_ds.h
-        windows/sink_filter_ds.cc
-        windows/sink_filter_ds.h
-        windows/video_capture_ds.cc
-        windows/video_capture_ds.h
-        windows/video_capture_factory_windows.cc
-)
 
  
 
@@ -48,9 +36,48 @@ FILE(GLOB  video_capture_internal_impl_source
 #add_library(desktop_capture_mock STATIC ${desktop_capture_mock_source})
 
 
+
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    message(STATUS "video_capture current platform: windows")
+    FILE(GLOB  video_capture_internal_impl_source
+
+
+        windows/device_info_ds.cc
+        windows/device_info_ds.h
+        windows/help_functions_ds.cc
+        windows/help_functions_ds.h
+        windows/sink_filter_ds.cc
+        windows/sink_filter_ds.h
+        windows/video_capture_ds.cc
+        windows/video_capture_ds.h
+        windows/video_capture_factory_windows.cc
+        # "ole32.lib",
+        # "oleaut32.lib",
+        # "strmiids.lib",
+        # "user32.lib",
+    )
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	message(STATUS "video_capture current platform: unix")
+    
+    FILE(GLOB  video_capture_internal_impl_linux_source
+         linux/device_info_linux.cc
+        linux/device_info_linux.h
+        linux/video_capture_linux.cc
+        linux/video_capture_linux.h
+         # windows/BaseFilter.cpp
+         # windows/BaseInputPin.cpp
+         # windows/BasePin.cpp
+         # windows/MediaType.cpp
+    )
+
+endif()
+
+
+
 add_library(${PROJECT_NAME} STATIC ${video_capture_module_source} 
   ${video_capture_internal_impl_source}
-  
+  ${video_capture_internal_impl_linux_source}
   )
 #add_library(desktop_capture_differ_sse2 STATIC  ${desktop_capture_differ_sse2_source})
 
@@ -63,7 +90,7 @@ ${video_capture_module_source}
 ${video_capture_internal_impl_source}
 #${desktop_capture_differ_sse2_source}
 #${screen_drawer_source}
-
+${video_capture_internal_impl_linux_source}
 )
 foreach(fileItem ${AllFile})       
     # Get the directory of the source file

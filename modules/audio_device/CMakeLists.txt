@@ -36,53 +36,61 @@ FILE(GLOB audio_device_name_source
     audio_device_name.h
 )
  
-FILE(GLOB windows_core_audio_utility_source
+
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    message(STATUS "current platform: windows")
+    FILE(GLOB windows_core_audio_utility_source
 
       win/core_audio_utility_win.cc
       win/core_audio_utility_win.h
-)
+    )
 
-FILE(GLOB  audio_device_module_from_input_and_output_source
-      include/audio_device_factory.cc
-      include/audio_device_factory.h
-	  win/audio_device_module_win.cc
-      win/audio_device_module_win.h
-      win/core_audio_base_win.cc
-      win/core_audio_base_win.h
-      win/core_audio_input_win.cc
-      win/core_audio_input_win.h
-      win/core_audio_output_win.cc
-      win/core_audio_output_win.h
-)
-
-
-FILE(GLOB  audio_device_impl_source
-
-    dummy/audio_device_dummy.cc
-    dummy/audio_device_dummy.h
-    dummy/file_audio_device.cc
-    dummy/file_audio_device.h
-    include/fake_audio_device.h
-    include/test_audio_device.cc
-    include/test_audio_device.h
-  audio_device_data_observer.cc
-  audio_device_impl.cc
-  audio_device_impl.h
-  include/audio_device_data_observer.h
+    FILE(GLOB  audio_device_module_from_input_and_output_source
+        include/audio_device_factory.cc
+        include/audio_device_factory.h
+        win/audio_device_module_win.cc
+        win/audio_device_module_win.h
+        win/core_audio_base_win.cc
+        win/core_audio_base_win.h
+        win/core_audio_input_win.cc
+        win/core_audio_input_win.h
+        win/core_audio_output_win.cc
+        win/core_audio_output_win.h
+    )
 
 
-          win/audio_device_core_win.cc
-          win/audio_device_core_win.h  
-		  
-		  
-		  #          "dmoguids.lib",
-         # "wmcodecdspuuid.lib",
-         # "amstrmid.lib",
-         ## "msdmo.lib",
-         # "oleaut32.lib",
-)
+    FILE(GLOB  audio_device_impl_source
+
+        dummy/audio_device_dummy.cc
+        dummy/audio_device_dummy.h
+        dummy/file_audio_device.cc
+        dummy/file_audio_device.h
+        include/fake_audio_device.h
+        include/test_audio_device.cc
+        include/test_audio_device.h
+    audio_device_data_observer.cc
+    audio_device_impl.cc
+    audio_device_impl.h
+    include/audio_device_data_observer.h
 
 
+            win/audio_device_core_win.cc
+            win/audio_device_core_win.h  
+            
+            
+            #          "dmoguids.lib",
+            # "wmcodecdspuuid.lib",
+            # "amstrmid.lib",
+            ## "msdmo.lib",
+            # "oleaut32.lib",
+    )
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	message(STATUS "current platform: unix")
+    
+
+
+endif()
 
 add_library(${PROJECT_NAME} 							STATIC ${audio_device_api_source} 
   ${audio_device_buffer_source} 

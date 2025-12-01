@@ -13,11 +13,7 @@ FILE(GLOB signal_processing
 		signal_processin/include/spl_inl.h
 		signal_processin/include/spl_inl_armv7.h
 		signal_processin/include/spl_inl_mips.h
-	    
-
-
-
-
+	  
 		signal_processing/complex_bit_reverse.c
 		signal_processing/complex_fft.c
 		signal_processing/complex_fft_tables.h
@@ -130,14 +126,14 @@ FILE(GLOB common_audio_source
 	channel_buffer.cc
 	channel_buffer.h
 	fir_filter.h
-	fir_filter_avx2.cc
-	fir_filter_avx2.h
+	#fir_filter_avx2.cc
+	#fir_filter_avx2.h
 	fir_filter_c.cc
 	fir_filter_c.h
 	fir_filter_factory.cc
 	fir_filter_factory.h
-	fir_filter_sse.cc
-	fir_filter_sse.h
+	#fir_filter_sse.cc
+	#fir_filter_sse.h
 	ring_buffer.c
 	ring_buffer.h
 	wav_file.cc
@@ -158,8 +154,8 @@ FILE(GLOB  resampler
 	resampler/resampler.cc
 	resampler/sinc_resampler.cc
 	resampler/sinc_resampler.h
-	resampler/sinc_resampler_avx2.cc
-	resampler/sinc_resampler_sse.cc
+	#resampler/sinc_resampler_avx2.cc
+	#resampler/sinc_resampler_sse.cc
 	resampler/sinusoidal_linear_chirp_source.cc
 	resampler/sinusoidal_linear_chirp_source.h
 	fir_filter.h
@@ -169,12 +165,12 @@ FILE(GLOB  resampler
      fir_filter_factory.h
 	 
 	 
-	   fir_filter_sse.cc
-       fir_filter_sse.h
-       resampler/sinc_resampler_sse.cc
-       fir_filter_avx2.cc
-       fir_filter_avx2.h
-       resampler/sinc_resampler_avx2.cc
+	  # fir_filter_sse.cc
+      # fir_filter_sse.h
+     #  resampler/sinc_resampler_sse.cc
+     ##  fir_filter_avx2.cc
+     #  fir_filter_avx2.h
+     #  resampler/sinc_resampler_avx2.cc
       # signal_processing/cross_correlation_neon.c
      #  signal_processing/downsample_fast_neon.c
      #  signal_processing/min_max_operations_neon.c
@@ -218,6 +214,31 @@ FILE(GLOB  vad
 )
 
  
+
+
+
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    message(STATUS "common_audio current platform: windows")
+     
+	FILE(GLOB common_audio_win_source 
+		fir_filter_avx2.cc
+		fir_filter_avx2.h 
+		fir_filter_sse.cc
+		fir_filter_sse.h  
+		resampler/sinc_resampler_avx2.cc
+		resampler/sinc_resampler_sse.cc
+	)
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	message(STATUS "common_audio current platform: unix")
+	#FILE(GLOB common_audio_linux_source 
+	#	fir_filter_avx2.cc
+	#	fir_filter_avx2.h 
+	#	fir_filter_sse.cc
+	#	fir_filter_sse.h 
+    #)
+
+
+endif()
 
 
 add_library(${PROJECT_NAME}  STATIC   ${vad}

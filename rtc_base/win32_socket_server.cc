@@ -10,7 +10,9 @@
 
 #include "rtc_base/win32_socket_server.h"
 
+#ifdef _MSC_VER
 #include <ws2tcpip.h>  // NOLINT
+#endif // 
 
 #include <algorithm>
 

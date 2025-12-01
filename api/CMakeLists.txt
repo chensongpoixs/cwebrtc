@@ -227,12 +227,26 @@ FILE(GLOB  task_queue_source
 
 )
 
-FILE(GLOB  default_task_queue_factory_source
-    task_queue/default_task_queue_factory.h
-    task_queue/default_task_queue_factory_win.cc
-)
+#FILE(GLOB  default_task_queue_factory_source
+#    task_queue/default_task_queue_factory.h
+# #   task_queue/default_task_queue_factory_win.cc
+#)
 
 
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    message(STATUS "default_task_queue_factory_win current platform: windows")
+    FILE(GLOB  default_task_queue_factory_source
+        task_queue/default_task_queue_factory.h
+        task_queue/default_task_queue_factory_win.cc
+    )
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	message(STATUS "default_task_queue_factory_stdlib current platform: unix")
+    FILE(GLOB  default_task_queue_factory_source
+        task_queue/default_task_queue_factory.h
+        task_queue/default_task_queue_factory_stdlib.cc
+    )
+
+endif()
 
 FILE(GLOB rtc_event_log_source
 
@@ -598,6 +612,8 @@ FILE(GLOB audio_ilbc_source
 #add_subdirectory(audio_codecs/ilbc)
 
 add_library(${PROJECT_NAME} STATIC  ${api_source}
+
+    ${task_queue_source}
                         ${media_stream_interface_source} 
  ${audio_options_api_source}  
  ${ice_transport_factory_source} 
@@ -609,7 +625,7 @@ add_library(${PROJECT_NAME} STATIC  ${api_source}
   ${rtc_error_source}  
   ${libjingle_logging_api_source}
   ${numerics_source}
-  ${task_queue_source}
+ # ${task_queue_source}
   ${default_task_queue_factory_source}
 
   ${rtc_event_log_source}

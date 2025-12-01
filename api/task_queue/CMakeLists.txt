@@ -20,12 +20,23 @@ FILE(GLOB  task_queue_source
 
 )
 
-FILE(GLOB  default_task_queue_factory_source
-    default_task_queue_factory.h
-    default_task_queue_factory_win.cc
-)
- 
 
+ 
+if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    message(STATUS "current platform: windows")
+    FILE(GLOB  default_task_queue_factory_source
+        default_task_queue_factory.h
+        default_task_queue_factory_win.cc
+    )
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	message(STATUS "current platform: unix")
+    FILE(GLOB  default_task_queue_factory_source
+        default_task_queue_factory.h
+        default_task_queue_factory_stdlib.cc
+    )
+
+
+endif()
 
 add_library(${PROJECT_NAME} STATIC  ${task_queue_source})
 

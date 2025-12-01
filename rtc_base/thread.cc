@@ -1020,13 +1020,12 @@ void Thread::InvokeInternal(const Location& posted_from,
 
 // Called by the ThreadManager when being set as the current thread.
 void Thread::EnsureIsCurrentTaskQueue() {
-  task_queue_registration_ =
-      std::make_unique<TaskQueueBase::CurrentTaskQueueSetter>(this);
+ // task_queue_registration_ = std::make_unique<TaskQueueBase::CurrentTaskQueueSetter>(this);
 }
 
 // Called by the ThreadManager when being set as the current thread.
 void Thread::ClearCurrentTaskQueue() {
-  task_queue_registration_.reset();
+  //task_queue_registration_.reset();
 }
 
 void Thread::QueuedTaskHandler::OnMessage(Message* msg) {

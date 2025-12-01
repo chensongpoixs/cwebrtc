@@ -460,7 +460,7 @@ constexpr uint8_t VideoContentTypeExtension::kValueSizeBytes;
 bool VideoContentTypeExtension::Parse(rtc::ArrayView<const uint8_t> data,
                                       VideoContentType* content_type) {
   if (data.size() == 1 &&
-      videocontenttypehelpers::IsValidContentType(data[0])) {
+      videocontenttypehelpers::IsValidContentType(static_cast<uint8_t>(data[0]))) {
     *content_type = static_cast<VideoContentType>(data[0]);
     return true;
   }

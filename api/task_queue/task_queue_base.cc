@@ -13,8 +13,13 @@
 #include "absl/base/config.h"
 #include "rtc_base/checks.h"
 
-#if defined(ABSL_HAVE_THREAD_LOCAL)
+ 
 
+//#if defined(ABSL_HAVE_THREAD_LOCAL)
+
+
+
+#if defined(_MSC_VER)
 namespace webrtc {
 namespace {
 

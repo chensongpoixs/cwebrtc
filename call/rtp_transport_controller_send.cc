@@ -1,5 +1,3 @@
-#include "..\..\libmedia_transfer_protocol\rtp_transport_controller_send.h"
-#include "..\..\libmedia_transfer_protocol\rtp_transport_controller_send.h"
 /*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
