@@ -928,152 +928,9 @@ FILE(GLOB  rtc_base_source
       rolling_accumulator.h
       ssl_roots.h 
           
-      win32_socket_server.cc
-      win32_socket_server.h
+     
           
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
-          
+  
           
 			 
 	strings/json.cc
@@ -1207,6 +1064,7 @@ FILE(GLOB  rtc_base_approved_source
 
 
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    message(STATUS "rtc_base current platform: windows")
     file(GLOB rtc_base_win_source
         "win/windows_version.h"
 		"win/windows_version.cc"
@@ -1220,13 +1078,33 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
       "win/scoped_com_initializer.h"
       "win/windows_version.cc"
       "win/windows_version.h"
+       win32_socket_server.cc
+      win32_socket_server.h
     )
 
 	FILE(GLOB rtc_base_win_wgc_source
 	 "win/create_direct3d_device.cc"
       "win/create_direct3d_device.h"
 	)
-	
+    FILE(GLOB  rtc_task_queue_win_source
+		task_queue_win.cc
+      task_queue_win.h
+    )
+    FILE(GLOB win32_source
+      win32.cc
+      win32.h
+      win32_window.cc
+      win32_window.h
+    )   
+
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    message(STATUS "rtc_base current platform: unix")
+    file(GLOB rtc_base_linux_source
+           ifaddrs_converter.cc
+      ifaddrs_converter.h
+      task_queue_stdlib.cc
+        task_queue_stdlib.h
+    )
 endif()
 
 
@@ -1350,13 +1228,6 @@ FILE(GLOB  rtc_event_source
 	event.cc 
 )
 
-FILE(GLOB win32_source
-      win32.cc
-      win32.h
-      win32_window.cc
-      win32_window.h
-
-)
 
 FILE(GLOB  weak_ptr_source
 
@@ -1437,10 +1308,7 @@ FILE(GLOB  rtc_task_queue_source
 )
 
 
-FILE(GLOB  rtc_task_queue_win_source
-		task_queue_win.cc
-      task_queue_win.h
-)
+
 
 FILE(GLOB  bitstream_reader_source
 
@@ -1597,6 +1465,13 @@ FILE(GLOB  system_alr_experiment_source
 	experiments/stable_target_rate_experiment.cc  
 	experiments/min_video_bitrate_experiment.h 
 	experiments/min_video_bitrate_experiment.cc 
+
+
+# linux build filaed !!! 
+    ../api/task_queue/queued_task.h
+    ../api/task_queue/task_queue_base.h
+    ../api/task_queue/task_queue_base.cc
+    ../api/task_queue/task_queue_factory.h
 )
 
 
@@ -1634,7 +1509,7 @@ ${logging_source}
   ${rtc_event_source} 
   ${bitstream_reader_source}
   
-  
+  ${rtc_base_linux_source}
  
 #  "crypt32.lib
 #      "iphlpapi.lib
@@ -1744,7 +1619,7 @@ set(AllFile
   ${base64_source}
   ${sigslot_source}
   ${warn_current_thread_is_deadlocked_source}
-
+  ${rtc_base_linux_source}
   ${system_alr_experiment_source}
 
 )

@@ -26,6 +26,7 @@ TaskQueue::~TaskQueue() {
 }
 
 bool TaskQueue::IsCurrent() const {
+  //return true;
   return impl_->IsCurrent();
 }
 

@@ -11,7 +11,7 @@
 #include "modules/audio_processing/agc2/agc2_testing_common.h"
 
 #include <cmath>
-
+#include <iostream>
 #include "rtc_base/checks.h"
 
 namespace webrtc {
@@ -61,7 +61,14 @@ float SineGenerator::operator()() {
   if (x_radians_ >= 2 * kPi) {
     x_radians_ -= 2 * kPi;
   }
+#ifdef _MSC_VER
   return amplitude_ * std::sinf(x_radians_);
+#elif defined(__GNUC__) ||defined(__APPLE__)
+  return amplitude_ * ::sinf(x_radians_);
+#else
+  		// 其他不支持的编译器需要自己实现这个方法
+		// #error unexpected c complier (msc/gcc), Need to implement this method for demangle
+#endif 
 }
 
 PulseGenerator::PulseGenerator(float pulse_amplitude,

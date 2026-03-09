@@ -40,7 +40,7 @@ SequenceCheckerImpl::SequenceCheckerImpl()
       valid_system_queue_(GetSystemQueueRef()) {}
 
 bool SequenceCheckerImpl::IsCurrent() const {
-  const TaskQueueBase* const current_queue = TaskQueueBase::Current();
+  const TaskQueueBase* const current_queue =  TaskQueueBase::Current();
   const rtc::PlatformThreadRef current_thread = rtc::CurrentThreadRef();
   const void* const current_system_queue = GetSystemQueueRef();
   MutexLock scoped_lock(&lock_);

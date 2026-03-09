@@ -282,8 +282,17 @@ webrtc::MdnsResponderInterface* NetworkManager::GetMdnsResponder() const {
 
 NetworkManagerBase::NetworkManagerBase()
     : enumeration_permission_(NetworkManager::ENUMERATION_ALLOWED),
-      signal_network_preference_change_(webrtc::field_trial::IsEnabled(
-          "WebRTC-SignalNetworkPreferenceChange")) {}
+      
+    signal_network_preference_change_(
+      #ifdef _MSC_VER
+      webrtc::field_trial::IsEnabled("WebRTC-SignalNetworkPreferenceChange")
+      #else 
+      false
+      #endif // #ifdef _MSC_VER
+
+    ) 
+          
+          {}
 
 NetworkManagerBase::~NetworkManagerBase() {
   for (const auto& kv : networks_map_) {
@@ -521,9 +530,20 @@ BasicNetworkManager::BasicNetworkManager(
     : network_monitor_factory_(network_monitor_factory),
       socket_factory_(socket_factory),
       allow_mac_based_ipv6_(
-          webrtc::field_trial::IsEnabled("WebRTC-AllowMACBasedIPv6")),
+        #ifdef _MSC_VER
+          webrtc::field_trial::IsEnabled("WebRTC-AllowMACBasedIPv6")
+          #else 
+          false 
+          #endif // #ifdef _MSC_VER
+        ),
       bind_using_ifname_(
-          !webrtc::field_trial::IsDisabled("WebRTC-BindUsingInterfaceName")) {}
+        #ifdef _MSC_VER
+          !webrtc::field_trial::IsDisabled("WebRTC-BindUsingInterfaceName")
+        #else 
+          false
+
+        #endif //
+        ) {}
 
 BasicNetworkManager::~BasicNetworkManager() {}
 
@@ -1068,10 +1088,22 @@ Network::Network(const std::string& name,
       ignored_(false),
       type_(ADAPTER_TYPE_UNKNOWN),
       preference_(0),
-      use_differentiated_cellular_costs_(webrtc::field_trial::IsEnabled(
-          "WebRTC-UseDifferentiatedCellularCosts")),
+      use_differentiated_cellular_costs_(
+        #ifdef _MSC_VER
+        webrtc::field_trial::IsEnabled(
+          "WebRTC-UseDifferentiatedCellularCosts")
+        #else 
+          false
+        #endif //#ifdef _MSC_VER
+        ),
       add_network_cost_to_vpn_(
-          webrtc::field_trial::IsEnabled("WebRTC-AddNetworkCostToVpn")) {}
+        #ifdef _MSC_VER
+          webrtc::field_trial::IsEnabled("WebRTC-AddNetworkCostToVpn")
+        #else 
+          false
+
+        #endif //
+        ) {}
 
 Network::Network(const std::string& name,
                  const std::string& desc,
@@ -1087,10 +1119,22 @@ Network::Network(const std::string& name,
       ignored_(false),
       type_(type),
       preference_(0),
-      use_differentiated_cellular_costs_(webrtc::field_trial::IsEnabled(
-          "WebRTC-UseDifferentiatedCellularCosts")),
+      use_differentiated_cellular_costs_(
+        #ifdef _MSC_VER
+        webrtc::field_trial::IsEnabled(
+          "WebRTC-UseDifferentiatedCellularCosts")
+        #else 
+          false
+        #endif // #ifdef _MSC_VER
+        ),
       add_network_cost_to_vpn_(
-          webrtc::field_trial::IsEnabled("WebRTC-AddNetworkCostToVpn")) {}
+        #ifdef _MSC_VER
+          webrtc::field_trial::IsEnabled("WebRTC-AddNetworkCostToVpn")
+        #else 
+          false
+
+        #endif //
+        ) {}
 
 Network::Network(const Network&) = default;
 

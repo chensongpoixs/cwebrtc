@@ -17,6 +17,7 @@
 #include <memory>
 #include <queue>
 #include <utility>
+#include <string>
 
 #include "absl/strings/string_view.h"
 #include "api/task_queue/queued_task.h"
@@ -46,8 +47,10 @@ rtc::ThreadPriority TaskQueuePriorityToThreadPriority(
 
 class TaskQueueStdlib final : public TaskQueueBase {
  public:
-  TaskQueueStdlib(absl::string_view queue_name, rtc::ThreadPriority priority);
-  ~TaskQueueStdlib() override = default;
+  TaskQueueStdlib( 
+    absl::string_view queue_name, 
+    rtc::ThreadPriority priority);
+  virtual  ~TaskQueueStdlib()    {} //= default;
 
   void Delete() override;
   void PostTask(std::unique_ptr<QueuedTask> task) override;
@@ -115,13 +118,14 @@ class TaskQueueStdlib final : public TaskQueueBase {
   rtc::PlatformThread thread_;
 };
 
-TaskQueueStdlib::TaskQueueStdlib(absl::string_view queue_name,
-                                 rtc::ThreadPriority priority)
+TaskQueueStdlib::TaskQueueStdlib( 
+  absl::string_view queue_name, 
+       rtc::ThreadPriority priority)
     : started_(/*manual_reset=*/false, /*initially_signaled=*/false),
       flag_notify_(/*manual_reset=*/false, /*initially_signaled=*/false),
       thread_(rtc::PlatformThread::SpawnJoinable(
           [this] {
-            CurrentTaskQueueSetter set_current(this);
+             CurrentTaskQueueSetter set_current(this);
             ProcessTasks();
           },
           queue_name,
@@ -271,8 +275,8 @@ void TaskQueueStdlib::NotifyWake() {
 
 class TaskQueueStdlibFactory final : public TaskQueueFactory {
  public:
-  std::unique_ptr<TaskQueueBase, TaskQueueDeleter> CreateTaskQueue(
-      absl::string_view name,
+  std::unique_ptr<TaskQueueBase, TaskQueueDeleter> CreateTaskQueue( 
+      absl::string_view name, 
       Priority priority) const override {
     return std::unique_ptr<TaskQueueBase, TaskQueueDeleter>(
         new TaskQueueStdlib(name, TaskQueuePriorityToThreadPriority(priority)));
