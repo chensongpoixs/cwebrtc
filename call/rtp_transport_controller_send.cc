@@ -1,3 +1,8 @@
+//<<<<<<< HEAD
+//#include "..\..\libmedia_transfer_protocol\rtp_transport_controller_send.h"
+//#include "..\..\libmedia_transfer_protocol\rtp_transport_controller_send.h"
+//=======
+//>>>>>>> 90430c53260b411fd82ba1a04a7f78dba160e9cf
 /*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
