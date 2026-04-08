@@ -912,7 +912,7 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
         # "./src/api/task_queue/default_task_queue_factory_win.cc"
     )
     list(REMOVE_ITEM all_src ${exclude_src})
-    add_library(${PROJECT_NAME} 
+    add_library(${PROJECT_NAME}  STATIC
         ${all_src}
 		${signal_processing}
 		${spl_sqrt_floor}
@@ -933,6 +933,9 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Linux")
 	#	${peerconnection}
 		#${rtc_pc_base}
     )
+    target_link_libraries(${PROJECT_NAME}  
+                            api
+        )
 endif()
 
 
