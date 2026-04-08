@@ -62,6 +62,30 @@ static LoggingSeverity g_min_sev = LS_NONE;
 static LoggingSeverity g_dbg_sev = LS_NONE;
 #endif
 
+/*
+
+enum LoggingSeverity {
+  LS_VERBOSE,
+  LS_INFO,
+  LS_WARNING,
+  LS_ERROR,
+  LS_NONE,
+  INFO = LS_INFO,
+  WARNING = LS_WARNING,
+  LERROR = LS_ERROR
+};
+*/
+static const char *  g_log_level[] =
+{
+      "[VERBOSE]"  ,   /**< 空级别（None Level） */
+      "[INFO]",  /**< 系统级别（System Level） */
+      "[WARNING]",   /**< 致命错误级别（Fatal Level） */
+      "[ERROR]",   /**< 错误级别（Error Level） */
+      "[NONE]",	  /**< 警告级别（Warning Level） */
+      "info",	  /**< 信息级别（Info Level） */
+      "debug",	  /**< 调试级别（Debug Level） */
+};
+
 // Return the filename portion of the string (that following the last slash).
 const char* FilenameFromPath(const char* file) {
   const char* end1 = ::strrchr(file, '/');
@@ -105,6 +129,9 @@ bool LogMessage::thread_, LogMessage::timestamp_;
 LogMessage::LogMessage(const char* file, int line, LoggingSeverity sev)
     : LogMessage(file, line, sev, ERRCTX_NONE, 0) {}
 
+
+
+
 LogMessage::LogMessage(const char* file,
                        int line,
                        LoggingSeverity sev,
@@ -131,13 +158,25 @@ LogMessage::LogMessage(const char* file,
     PlatformThreadId id = CurrentThreadId();
     print_stream_ << "[" << id << "] ";
   }
+  /*
+  
+    LS_VERBOSE,
+  LS_INFO,
+  LS_WARNING,
+  LS_ERROR,
+  LS_NONE,
+  INFO = LS_INFO,
+  WARNING = LS_WARNING,
+  LERROR = LS_ERROR
+  */
+
 
   if (file != nullptr) {
 #if defined(WEBRTC_ANDROID)
     tag_ = FilenameFromPath(file);
     print_stream_ << "(line " << line << "): ";
 #else
-    print_stream_ << "(" << FilenameFromPath(file) << ":" << line << "): ";
+    print_stream_ << "("  << FilenameFromPath(file) << ":" << line << ") " << g_log_level[severity_] << ":";
 #endif
   }
 
