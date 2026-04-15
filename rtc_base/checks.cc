@@ -34,8 +34,35 @@
 #endif  // WEBRTC_WIN
 
 #include "rtc_base/checks.h"
+#include "rtc_base/time_utils.h"
+#include <ctime>
+#include <string>
+#include <sstream>
+#include <iomanip> 
+#include "rtc_base/time_utils.h"
 
 namespace {
+
+
+// 获取当前北京时间字符串，格式：YYYYMMDDHHMMSS
+    std::string GetBeijingTimeString() {
+        // 1. 获取 UTC 毫秒时间戳（WebRTC API）
+        int64_t utc_ms = rtc::TimeMillis();      // 等价于 rtc::SystemTimeMillis()
+
+        // 2. 转换为 time_t（秒级）
+        time_t utc_sec = static_cast<time_t>(utc_ms / 1000);
+
+        // 3. 加上 8 小时偏移（北京时间 = UTC+8）
+        time_t beijing_sec = utc_sec + 8 * 3600;
+
+        // 4. 转换为本地时间结构（gmtime 对 UTC+8 后的时间戳即得到北京时间）
+        struct tm* tm_beijing = gmtime(&beijing_sec);
+
+        // 5. 格式化为 YYYYMMDDHHMMSS
+        std::ostringstream oss;
+        oss << std::put_time(tm_beijing, "%Y%m%d%H%M%S");
+        return oss.str();
+    } 
 
 RTC_NORETURN void WriteFatalLogAndAbort(const std::string& output) {
   const char* output_c = output.c_str();
@@ -45,6 +72,18 @@ RTC_NORETURN void WriteFatalLogAndAbort(const std::string& output) {
   fflush(stdout);
   fprintf(stderr, "%s", output_c);
   fflush(stderr);
+
+  std::string out_fatal_log_name = GetBeijingTimeString() + "_libcrtc" + ".log";
+  FILE* out_file_write_fatal_log_abort_log_ptr = ::fopen(out_fatal_log_name.c_str(), "wb+");
+  if (out_file_write_fatal_log_abort_log_ptr)
+  {
+      ::fprintf(out_file_write_fatal_log_abort_log_ptr, "%s\n", output_c);
+      ::fflush(out_file_write_fatal_log_abort_log_ptr);
+      ::fclose(out_file_write_fatal_log_abort_log_ptr);
+      out_file_write_fatal_log_abort_log_ptr = NULL;
+  }
+
+
 #if defined(WEBRTC_WIN)
   DebugBreak();
 #endif
